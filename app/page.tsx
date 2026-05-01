@@ -809,6 +809,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const briefRef = useRef<HTMLElement>(null);
+  const optionsRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const link = document.createElement('link');
@@ -849,6 +850,9 @@ export default function Home() {
     setGenres([]);
     setMoods([]);
     setGenerated(null);
+    setTimeout(() => {
+      optionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const canGenerate = !!(mode && target && genres.length > 0 && moods.length > 0);
@@ -963,7 +967,7 @@ export default function Home() {
       </section>
 
       {mode && (
-        <section className="max-w-7xl mx-auto px-6 md:px-10 py-12 fade-up">
+        <section ref={optionsRef} className="max-w-7xl mx-auto px-6 md:px-10 py-12 fade-up">
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
