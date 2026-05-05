@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { saveBrief } from '@/app/briefs/actions';
 
 // ---------- TYPES ----------
 type Mode = 'brand' | 'film' | 'games';
@@ -809,6 +810,8 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
   const [generated, setGenerated] = useState<Brief | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveError, setSaveError] = useState<string | null>(null);
   const briefRef = useRef<HTMLElement>(null);
   const optionsRef = useRef<HTMLElement>(null);
 
@@ -878,6 +881,30 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
     setGenres([]);
     setMoods([]);
     setGenerated(null);
+  };
+  const handleSave = async () => {
+    if (!generated || !mode || !target) return;
+    if (!user) return;
+
+    setSaveStatus('saving');
+    setSaveError(null);
+
+    const result = await saveBrief({
+      mode,
+      target,
+      genres,
+      moods,
+      generatedContent: generated as unknown as Record<string, unknown>,
+    });
+
+    if (result.error) {
+      setSaveStatus('error');
+      setSaveError(result.error);
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } else {
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    }
   };
 
   return (
@@ -1106,12 +1133,33 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 >
                   ↻ Regenerate
                 </button>
-                <button
-                  className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  ☆ Save
-                </button>
+                {user ? (
+                  <button
+                    onClick={handleSave}
+                    disabled={saveStatus === 'saving'}
+                    className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-colors ${
+                      saveStatus === 'saved'
+                        ? 'border-[#7A9A6E] text-[#7A9A6E]'
+                        : saveStatus === 'error'
+                        ? 'border-[#FF8B6B] text-[#FF8B6B]'
+                        : 'border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                    }`}
+                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                  >
+                    {saveStatus === 'saving' ? '◆ Saving…' :
+                     saveStatus === 'saved' ? '✓ Saved' :
+                     saveStatus === 'error' ? '× ' + (saveError || 'Error') :
+                     '☆ Save'}
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                  >
+                    Sign in to Save
+                  </Link>
+                )}
                 <button
                   className="text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors"
                   style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
