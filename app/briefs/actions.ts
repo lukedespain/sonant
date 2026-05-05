@@ -51,13 +51,13 @@ export async function deleteBrief(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: 'You must be signed in.' };
+    redirect('/login');
   }
 
   const briefId = formData.get('briefId') as string;
 
   if (!briefId) {
-    return { error: 'Missing brief ID.' };
+    redirect('/library');
   }
 
   const { error } = await supabase
@@ -68,7 +68,6 @@ export async function deleteBrief(formData: FormData) {
 
   if (error) {
     console.error('Delete brief error:', error);
-    return { error: 'Could not delete brief.' };
   }
 
   revalidatePath('/library');
