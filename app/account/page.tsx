@@ -71,6 +71,13 @@ export default async function AccountPage() {
           >
             ◆ Generate New Brief
           </Link>
+          <Link
+            href="/library"
+            className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+          >
+            View Library
+          </Link>
           <form action={signOut}>
             <button
               type="submit"

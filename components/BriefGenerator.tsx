@@ -91,7 +91,7 @@ const MODES: Record<Mode, ModeData> = {
   film: {
     label: 'Film & Television',
     sub: 'Score and song briefs for film, TV, and trailers',
-    glyph: '▶',
+    glyph: '▷',
     targetLabel: 'Studios & Directors',
     targetSub: 'Choose the cinematic worlds you want to write into',
     targets: [
@@ -945,7 +945,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             </span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-[#8A8680]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            <span className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Briefs</span>
+            <Link href="/library" className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Library</Link>
             <span className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Catalog</span>
             <span className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Competitions</span>
             <span className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Community</span>
