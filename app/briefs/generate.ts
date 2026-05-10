@@ -1,8 +1,9 @@
 // app/briefs/generate.ts
 //
 // Server action that generates a Sonant brief using the Anthropic API.
-// Consumes the pattern library from lib/brief-patterns.ts and returns
-// a fully-shaped Brief object that matches the BriefDocument interface.
+// Consumes the pattern library + brief types from lib/brief-patterns.ts
+// and returns a fully-shaped Brief object that matches the BriefDocument
+// interface.
 //
 // This file runs server-side only. The Anthropic API key is never
 // exposed to the browser.
@@ -12,6 +13,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import {
   BRAND_CATEGORIES,
+  BRIEF_TYPES,
+  BriefTypeId,
   PATTERNS,
   SCRUB_LIST,
   getActivePatterns,
@@ -66,14 +69,14 @@ export interface Brief {
 }
 
 // ============================================================
-// INPUT (matches BriefGenerator's existing signature)
+// INPUT
 // ============================================================
 
 export interface GenerateBriefInput {
-  mode: 'brand' | 'film' | 'games';
-  category: string;          // e.g., "SPIRITS", "AUTOMOTIVE"
+  category: string;          // e.g., "Sports", "Automotive"
   genres: string[];          // user-selected, 1-3 items
   moods: string[];           // user-selected, 1-3 items
+  briefType: BriefTypeId;    // 'flash' | 'standard' | 'anthem'
 }
 
 // ============================================================
@@ -91,10 +94,9 @@ function pickCodename(): string {
   return CODENAMES[Math.floor(Math.random() * CODENAMES.length)];
 }
 
-function makeBriefId(mode: string): string {
-  const prefix = mode === 'brand' ? 'BR' : mode === 'film' ? 'FT' : 'GM';
+function makeBriefId(): string {
   const num = Math.floor(Math.random() * 9000 + 1000);
-  return `${prefix}-2026-${num}`;
+  return `BR-2026-${num}`;
 }
 
 function todayIso(): string {
@@ -125,9 +127,8 @@ function buildSystemPrompt(): string {
 **${p.name}** (Tier ${p.tier})
 - ${p.description}
 - When to deploy: ${p.whenToDeploy}
-- Sub-patterns: ${p.subPatterns.join('; ')}
-- Anti-patterns to avoid: ${p.antiPatterns.join('; ')}
-- Example voice: ${p.exampleVoice.join(' / ')}
+- Key sub-patterns: ${p.subPatterns.slice(0, 4).join('; ')}
+- Anti-patterns to avoid: ${p.antiPatterns.slice(0, 2).join('; ')}
 `
     )
     .join('\n');
@@ -145,15 +146,15 @@ ${SCRUB_LIST.studioTaglineRule}
 ${SCRUB_LIST.submissionRule}
 `;
 
-  return `You are a senior music supervisor at Sonant Studio writing a sync brief that will be used by a composer to practice writing music for a real-world brand.
+  return `You are a senior music supervisor at Sonant Studio writing a sync brief that will be used by a composer to practice writing music.
 
 Your output is a JSON object matching the schema provided in the user message. Every field must be populated. The JSON must be valid and parseable.
 
-You are writing as if you were a real working music supervisor preparing a competitive brief. The brief should feel authentic, specific, and professionally written. Avoid generic or template language.
+You write as if you were a real working music supervisor preparing a competitive brief. The brief should feel authentic, specific, and professionally written. Avoid generic, overwritten, or template language.
 
 # YOUR PATTERN LIBRARY
 
-You have access to a library of 15 patterns extracted from real industry sync briefs. Deploy 4-7 of these patterns per brief — selecting based on the category, register, and creative ambition of the brief you're writing. Combine patterns naturally; do not list them or label them in the output.
+You have access to a library of 15 patterns extracted from real industry sync briefs. Deploy 3-6 of these patterns per brief — selecting based on the category, brief type, and creative ambition. Combine patterns naturally; do not list them or label them in the output.
 
 ${patternDescriptions}
 
@@ -161,29 +162,29 @@ ${patternDescriptions}
 
 ${scrubInstructions}
 
-# ADDITIONAL DISCIPLINE
+# DISCIPLINE
 
 1. Invent a fictional brand name appropriate to the category. Do NOT use real brand names. Use the category's seed list as starting inspiration but feel free to invent your own.
 
-2. Match the brief's format and tone to the category's default register. A SPIRITS brief should read like a presentation deck. A TECH brief should read like a FLASH BRIEF. An AUTOMOTIVE brief should read like an engineered template.
+2. Match the brief's format and tone to the brief type AND the category's default register. A Flash brief should be terse and compressed. A Standard brief should be structured but not overwritten. An Anthem brief should be expansive and reflect multi-use-case scope.
 
-3. Vary the consideration labels. Do NOT default to "Pacing / Personality / Surprise." Pick 3 labels that match what the brief is actually about (e.g., "Restraint / Texture / Identity" for a wellness brief; "Hook / Repetition / Polish" for an anthem).
+3. Vary the consideration labels per brief. Pick labels that match what the brief is actually about (e.g., "Restraint / Texture / Identity" for a wellness brief; "Hook / Polish / Reuse" for an anthem). Do NOT default to "Pacing / Personality / Surprise."
 
-4. Reference tracks should always include a delta — what's RIGHT about the reference and what should be DIFFERENT. Avoid flat "make it sound like X" directives.
+4. Reference tracks must always include a delta — what's RIGHT about the reference and what should be DIFFERENT. Avoid flat "make it sound like X" directives.
 
 5. Include 1-3 specific items in the "avoid" list. Name failure modes specifically, not generically.
 
-6. The studio identity in fileNaming and submitUrl must be Sonant. File naming convention format: \`Sonant_[BrandName]_[ProjectName]_[ComposerInitials]_[TrackTitle]_[Date]\`. Submit URL format: \`SUBMIT VIA SONANT\` or \`s.sonant.io/submit/[brief-id]\`.
+6. The studio identity in fileNaming and submitUrl is Sonant. File naming convention format: \`Sonant_[BrandSlug]_YourInitials_TrackTitle_YYYYMMDD.wav\`. Submit URL format: \`s.sonant.io/submit/[brief-id-lowercase]\`.
 
 7. The greeting and story should sound like a real human wrote them — varied sentence rhythm, occasional informal language, distinct voice. Do NOT use the same opening structure every time.
 
-8. The "ask" section should articulate the core creative challenge in 2-4 sentences. Reference the patterns you're deploying without naming them.
+8. The "ask" section articulates the core creative challenge. Length depends on brief type: Flash = 1 sentence; Standard = 2-3 sentences; Anthem = 3-4 sentences.
 
-9. The "direction" array should contain 4-6 specific compositional directions. Each direction should be actionable and specific (timecodes, structural moves, instrumentation calls).
+9. Tempo, key, length, format are specific. Tempo is a BPM range. Key is musical guidance ("Modal preferred, avoid clear major resolutions"). Length matches the deliverable.
 
-10. Tempo, key, length, format should be specific. Tempo should be a BPM range. Key should be musical guidance ("Modal preferred, avoid clear major resolutions"). Length should match the deliverable.
+10. Commercial terms are category-realistic. Sports = $5-12K demo fee. Tech = $5-10K. Anthem = $10-25K. Healthcare = $5-15K. Financial = $8-18K. Beverage = $5-15K. Fashion = $5-15K. Food = $5-12K. Lifestyle = $4-10K.
 
-11. Commercial terms should be category-realistic. Spirits = $5-15K demo fee range. Tech prestige = $5-10K. Anthem = larger ($10-25K). Athletic = $5-12K.
+11. Be CONCISE. Real briefs are tight. Avoid filler. Every sentence should carry information. Avoid the AI tendency to over-explain.
 
 Generate briefs that real composers would recognize as authentic. Avoid AI-generated-feeling text. Be specific. Trust the composer's intelligence.`;
 }
@@ -194,24 +195,35 @@ function buildUserPrompt(input: GenerateBriefInput): string {
     throw new Error(`Unknown category: ${input.category}`);
   }
 
+  const briefType = BRIEF_TYPES[input.briefType];
+  if (!briefType) {
+    throw new Error(`Unknown brief type: ${input.briefType}`);
+  }
+
   const codename = pickCodename();
-  const briefId = makeBriefId(input.mode);
+  const briefId = makeBriefId();
   const issued = todayIso();
-  const deadline = deadlineIso(14);
+  const deadlineDays = input.briefType === 'flash' ? 3 : input.briefType === 'anthem' ? 10 : 5;
+  const deadline = deadlineIso(deadlineDays);
 
   return `Generate a music brief with the following parameters.
 
-**Category:** ${category.name} (${category.tag})
-**Default register:** ${category.defaultRegister}
-**Primary patterns to deploy:** ${category.primaryPatterns.join(', ')}
-**Failure modes specific to this category:** ${category.failureModesToAvoid.join('; ')}
-**Fictional brand seed pool (invent your own or pick from these):** ${category.fictionalBrandSeeds.join(', ')}
-**Register notes:** ${category.registerNotes}
+**Brief Type:** ${briefType.label}
+**Brief Type Notes:** ${briefType.registerNotes}
+**Target Word Count:** ${briefType.targetWordCount}
+**Structural Counts:** ${briefType.considerationCount} consideration(s), ${briefType.directionCount} direction(s), ${briefType.referenceCount} reference(s)
 
-**Composer's selected genre palette:** ${input.genres.join(', ')}
-**Composer's selected emotional arc:** ${input.moods.join(', ')}
+**Category:** ${category.name}
+**Default Register:** ${category.defaultRegister}
+**Primary Patterns to Deploy:** ${category.primaryPatterns.join(', ')}
+**Failure Modes Specific to This Category:** ${category.failureModesToAvoid.join('; ')}
+**Fictional Brand Seed Pool (invent your own or pick from these):** ${category.fictionalBrandSeeds.join(', ')}
+**Register Notes:** ${category.registerNotes}
 
-**Pre-generated metadata (use these exactly in the JSON):**
+**Composer's Selected Genre Palette:** ${input.genres.join(', ')}
+**Composer's Selected Emotional Arc:** ${input.moods.join(', ')}
+
+**Pre-generated Metadata (use these exactly in the JSON):**
 - codename: "${codename}"
 - briefId: "${briefId}"
 - issued: "${issued}"
@@ -232,30 +244,21 @@ Return ONLY a valid JSON object matching this exact schema (no preamble, no mark
   "project": "<short project description>",
   "deliverable": "<deliverable spec, e.g., ':30 master + :15 cutdown'>",
   "usage": "<usage rights statement>",
-  "greeting": "<warm or terse opening line — 1-3 sentences in real-supervisor voice>",
-  "story": "<the spot's narrative or campaign context — 4-6 sentences>",
-  "ask": "<core creative challenge — 2-4 sentences>",
+  "greeting": "<warm or terse opening — match the brief type's register>",
+  "story": "<the spot's narrative or campaign context — length depends on brief type>",
+  "ask": "<core creative challenge — length depends on brief type>",
   "considerations": [
-    { "label": "<varied label>", "body": "<2-3 sentences>" },
-    { "label": "<varied label>", "body": "<2-3 sentences>" },
-    { "label": "<varied label>", "body": "<2-3 sentences>" }
+    ${'{ "label": "<varied label>", "body": "<concise body>" },'.repeat(briefType.considerationCount).slice(0, -1)}
   ],
   "direction": [
-    "<specific direction with timecode or structural move>",
-    "<specific direction>",
-    "<specific direction>",
-    "<specific direction>",
-    "<specific direction>"
+    ${'"<specific actionable direction>",'.repeat(briefType.directionCount).slice(0, -1)}
   ],
   "genrePalette": "${input.genres.join(' / ')}",
   "emotionalArc": "${input.moods.join(' → ')}",
   "references": [
-    { "track": "<artist — track>", "why": "<reference + delta — 1-2 sentences>" },
-    { "track": "<artist — track>", "why": "<reference + delta>" },
-    { "track": "<artist — track>", "why": "<reference + delta>" },
-    { "track": "<artist — track>", "why": "<reference + delta>" }
+    ${'{ "track": "<artist — track>", "why": "<reference + delta>" },'.repeat(briefType.referenceCount).slice(0, -1)}
   ],
-  "tempo": "<BPM range with brief context>",
+  "tempo": "<BPM range>",
   "key": "<musical guidance>",
   "length": "<length with cut points>",
   "format": "<technical format spec>",
@@ -272,7 +275,7 @@ Return ONLY a valid JSON object matching this exact schema (no preamble, no mark
     "<deliverable item>"
   ],
   "terms": {
-    "fee": "<demo or composition fee, category-realistic>",
+    "fee": "<demo or composition fee, category- and type-realistic>",
     "backend": "<royalty/publishing arrangement>",
     "exclusivity": "<exclusivity terms>"
   },
@@ -286,16 +289,18 @@ Begin output with the opening { brace and end with the closing } brace. No other
 // THE SERVER ACTION
 // ============================================================
 
-export async function generateBrief(input: GenerateBriefInput): Promise<{ brief?: Brief; error?: string }> {
-  if (input.mode !== 'brand') {
-    return {
-      error: 'Film and Games briefs are coming soon. Brand briefs are available now.',
-    };
-  }
-
+export async function generateBrief(
+  input: GenerateBriefInput
+): Promise<{ brief?: Brief; error?: string }> {
   if (!BRAND_CATEGORIES[input.category]) {
     return {
       error: `Unknown category: ${input.category}`,
+    };
+  }
+
+  if (!BRIEF_TYPES[input.briefType]) {
+    return {
+      error: `Unknown brief type: ${input.briefType}`,
     };
   }
 
@@ -314,11 +319,13 @@ export async function generateBrief(input: GenerateBriefInput): Promise<{ brief?
   }
 
   const client = new Anthropic({ apiKey });
+  const briefType = BRIEF_TYPES[input.briefType];
+  const maxTokens = input.briefType === 'flash' ? 2000 : input.briefType === 'anthem' ? 5000 : 3000;
 
   try {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-5',
-      max_tokens: 4000,
+      max_tokens: maxTokens,
       system: buildSystemPrompt(),
       messages: [
         {
@@ -352,6 +359,9 @@ export async function generateBrief(input: GenerateBriefInput): Promise<{ brief?
       console.error('Raw output:', raw);
       return { error: 'Generator returned invalid format. Please try again.' };
     }
+
+    // Mark unused for ESLint while keeping intent clear
+    void briefType;
 
     return { brief: parsed };
   } catch (apiError) {

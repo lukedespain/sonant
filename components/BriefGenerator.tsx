@@ -4,24 +4,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { saveBrief } from '@/app/briefs/actions';
 import { generateBrief as generateBriefAction } from '@/app/briefs/generate';
-import { BRAND_CATEGORIES, FILM_CATEGORIES, GAME_CATEGORIES } from '@/lib/brief-patterns';
+import {
+  BRAND_CATEGORIES,
+  BRIEF_TYPES,
+  BriefTypeId,
+} from '@/lib/brief-patterns';
 
 // ---------- TYPES ----------
-type Mode = 'brand' | 'film' | 'games';
-
-interface Target {
-  name: string;
-  tag: string;
-}
-
-interface ModeData {
-  label: string;
-  sub: string;
-  glyph: string;
-  targetLabel: string;
-  targetSub: string;
-  targets: Target[];
-}
+type Side = 'composers' | 'brands';
 
 interface Reference {
   track: string;
@@ -34,7 +24,7 @@ interface Consideration {
 }
 
 interface Brief {
-  mode: Mode;
+  mode: 'brand' | 'film' | 'games';
   codename: string;
   briefId: string;
   issued: string;
@@ -68,42 +58,6 @@ interface Brief {
 }
 
 // ---------- DATA ----------
-const MODES: Record<Mode, ModeData> = {
-  brand: {
-    label: 'Brand & Advertising',
-    sub: 'Sync briefs aligned with major brand categories',
-    glyph: '◆',
-    targetLabel: 'Pick a world',
-    targetSub: 'Where do you want your music to live',
-    targets: Object.values(BRAND_CATEGORIES).map((c) => ({
-      name: c.name,
-      tag: c.tag,
-    })),
-  },
-  film: {
-    label: 'Film & Television',
-    sub: 'Score and song briefs for film, TV, and trailers',
-    glyph: '▷',
-    targetLabel: 'Pick a world',
-    targetSub: 'Where do you want your music to live',
-    targets: Object.values(FILM_CATEGORIES).map((c) => ({
-      name: c.name,
-      tag: c.tag,
-    })),
-  },
-  games: {
-    label: 'Video Games',
-    sub: 'Soundtracks, themes, and trailer cues for game studios',
-    glyph: '◈',
-    targetLabel: 'Pick a world',
-    targetSub: 'Where do you want your music to live',
-    targets: Object.values(GAME_CATEGORIES).map((c) => ({
-      name: c.name,
-      tag: c.tag,
-    })),
-  },
-};
-
 const GENRES = [
   'Cinematic', 'Hip-Hop', 'Rock', 'Electronic', 'Pop',
   'Orchestral', 'Ambient', 'Folk', 'Indie', 'World/Ethnic',
@@ -114,69 +68,9 @@ const MOODS = [
   'Intimate', 'Defiant', 'Hopeful', 'Mysterious', 'Euphoric',
 ];
 
-const CODENAMES = [
-  'MERIDIAN', 'NORTHSTAR', 'GRAVITY', 'EMBER', 'AURORA',
-  'PARALLAX', 'LIGHTHOUSE', 'IRONCLAD', 'WAVEFORM', 'PHOENIX',
-  'KINDRED', 'OBSIDIAN', 'SOLSTICE', 'HEARTLINE', 'BLACKBIRD',
-];
+const CATEGORIES = Object.values(BRAND_CATEGORIES).map((c) => c.name);
+const BRIEF_TYPE_LIST = Object.values(BRIEF_TYPES);
 
-const TEMPO_MAP: Record<string, string> = {
-  Triumphant: '118–128 BPM',
-  Melancholic: '60–78 BPM',
-  Tense: '90–110 BPM',
-  Playful: '105–120 BPM',
-  Epic: '85–100 BPM (with half-time feel)',
-  Intimate: '65–80 BPM',
-  Defiant: '95–115 BPM',
-  Hopeful: '88–104 BPM',
-  Mysterious: '70–90 BPM',
-  Euphoric: '124–130 BPM',
-};
-
-const REF_TRACKS: Record<string, Reference[]> = {
-  Cinematic: [
-    { track: 'Ludwig Göransson — "Can You Hear the Music" (Oppenheimer)', why: 'Builds inevitability without ever feeling forced. We want this kind of patience.' },
-    { track: 'Hans Zimmer — "Day One" (Interstellar)', why: 'A single motif that earns its emotional payoff. Restraint, then release.' },
-  ],
-  'Hip-Hop': [
-    { track: 'Run The Jewels — "Walking In The Snow"', why: 'The conviction in the delivery, not the genre. We want a track that feels this certain of itself.' },
-    { track: 'Kendrick Lamar — "DNA."', why: 'Tempo flexibility and personality shifts inside one track. Lyrics are not right, but the energy is.' },
-  ],
-  Rock: [
-    { track: 'Royal Blood — "Out of the Black"', why: 'Two-instrument arrangement that punches above its weight. Lean and threatening.' },
-    { track: 'IDLES — "Never Fight a Man With a Perm"', why: 'Defiance without theatre. The vocal energy is what we want — not the literal words.' },
-  ],
-  Electronic: [
-    { track: 'ODESZA — "A Moment Apart"', why: 'Cinematic without losing the dancefloor pulse. Build is everything.' },
-    { track: 'Bonobo — "Cirrus"', why: 'Texture-led groove. Layers feel hand-built, not stacked.' },
-  ],
-  Pop: [
-    { track: 'Caroline Polachek — "Welcome To My Island"', why: 'Hooky and weird at the same time. Personality first, polish second.' },
-    { track: 'The Weeknd — "Blinding Lights"', why: "A pulse you can't escape, and a feeling that lands by 0:08. Reference for instant identity." },
-  ],
-  Orchestral: [
-    { track: 'Hildur Guðnadóttir — "A Minor Score" (Joker)', why: 'Slow-burning unease. Patient, never bombastic.' },
-    { track: 'Max Richter — "On the Nature of Daylight"', why: 'A theme that says everything by saying very little. The space between notes.' },
-  ],
-  Ambient: [
-    { track: 'Brian Eno — "An Ending (Ascent)"', why: 'A held breath. We want this kind of trust in atmosphere.' },
-    { track: 'Tim Hecker — "Black Refraction"', why: "Texture that shifts without you noticing it shifting. Composition by erosion." },
-  ],
-  Folk: [
-    { track: 'Bon Iver — "Holocene"', why: 'Intimacy at scale. The recording feels like the room.' },
-    { track: 'Big Red Machine — "Latter Days"', why: 'Hand-built instrumentation. Imperfections that read as character.' },
-  ],
-  Indie: [
-    { track: 'Phoebe Bridgers — "I Know The End"', why: "A track that knows when to break its own rules. Reference for arc, not arrangement." },
-    { track: 'Mitski — "Geyser"', why: 'Slow build into emotional release. The ending earns everything.' },
-  ],
-  'World/Ethnic': [
-    { track: 'Nils Frahm — "Says"', why: 'A repeating phrase that becomes a feeling. Patience over progression.' },
-    { track: 'Anoushka Shankar — "Land of Gold"', why: 'Tradition meeting modern production without diluting either.' },
-  ],
-};
-
-// ---------- BRIEF GENERATOR ----------
 // ---------- COMPONENTS ----------
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -200,19 +94,41 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   );
 }
 
-function ModeCard({ active, onClick, mode, data }: { active: boolean; onClick: () => void; mode: string; data: ModeData }) {
-  const isComingSoon = mode !== 'BRAND';
+function SideCard({
+  active,
+  onClick,
+  glyph,
+  label,
+  sub,
+  description,
+  status,
+  isComingSoon,
+  showWaitlist,
+}: {
+  active: boolean;
+  onClick: () => void;
+  glyph: string;
+  label: string;
+  sub: string;
+  description: string;
+  status: string;
+  isComingSoon: boolean;
+  showWaitlist?: boolean;
+}) {
+  const Wrapper = isComingSoon ? 'div' : 'button';
+  const wrapperProps = isComingSoon
+    ? {}
+    : { onClick, type: 'button' as const };
 
   return (
-    <button
-      onClick={isComingSoon ? undefined : onClick}
-      disabled={isComingSoon}
-      className={`group relative text-left p-7 border transition-all duration-300 overflow-hidden ${
+    <Wrapper
+      {...wrapperProps}
+      className={`group relative text-left p-8 border transition-all duration-300 overflow-hidden flex flex-col ${
         isComingSoon
-          ? 'bg-[#0F0E0D] border-[#1F1D1A] cursor-not-allowed opacity-50'
+          ? 'bg-[#0F0E0D] border-[#1F1D1A] cursor-default'
           : active
           ? 'bg-[#F5EFE0] border-[#F5EFE0]'
-          : 'bg-[#141312] border-[#2A2826] hover:border-[#4A4642] hover:bg-[#181614]'
+          : 'bg-[#141312] border-[#2A2826] hover:border-[#4A4642] hover:bg-[#181614] cursor-pointer'
       }`}
       style={{
         borderRadius: '2px',
@@ -223,26 +139,78 @@ function ModeCard({ active, onClick, mode, data }: { active: boolean; onClick: (
     >
       <div className="flex items-start justify-between mb-6">
         <span className={`text-2xl transition-colors ${active && !isComingSoon ? 'text-[#E85D2F]' : 'text-[#5A5650] group-hover:text-[#8A8680]'}`}>
-          {data.glyph}
+          {glyph}
         </span>
         <span
-          className={`text-[10px] tracking-[0.2em] uppercase ${active && !isComingSoon ? 'text-[#8A8680]' : 'text-[#6A6660]'}`}
+          className={`text-[10px] tracking-[0.2em] uppercase ${active && !isComingSoon ? 'text-[#8A8680]' : isComingSoon ? 'text-[#E85D2F]' : 'text-[#6A6660]'}`}
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
-          {isComingSoon ? 'COMING SOON' : `${mode}/01`}
+          {status}
         </span>
       </div>
       <h3
-        className={`text-2xl mb-2 leading-tight ${active && !isComingSoon ? 'text-[#1A1815]' : 'text-[#F5F1E8]'}`}
+        className={`text-3xl mb-2 leading-tight ${active && !isComingSoon ? 'text-[#1A1815]' : 'text-[#F5F1E8]'}`}
         style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
       >
-        {data.label}
+        {label}
       </h3>
+      <div
+        className={`text-sm mb-4 ${active && !isComingSoon ? 'text-[#5A5650]' : 'text-[#A8A39A]'}`}
+        style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}
+      >
+        {sub}
+      </div>
       <p
-        className={`text-sm leading-relaxed ${active && !isComingSoon ? 'text-[#5A5650]' : 'text-[#8A8680]'}`}
+        className={`text-sm leading-relaxed flex-1 ${active && !isComingSoon ? 'text-[#5A5650]' : 'text-[#8A8680]'}`}
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
-        {data.sub}
+        {description}
+      </p>
+      {showWaitlist && <BrandWaitlist />}
+    </Wrapper>
+  );
+}
+
+function BriefTypeCard({
+  active,
+  onClick,
+  label,
+  description,
+  wordCount,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  description: string;
+  wordCount: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`text-left p-6 border transition-all duration-200 ${
+        active
+          ? 'bg-[#F5EFE0] border-[#F5EFE0]'
+          : 'bg-[#141312] border-[#2A2826] hover:border-[#4A4642]'
+      }`}
+      style={{ borderRadius: '2px' }}
+    >
+      <div
+        className={`text-xs tracking-[0.25em] uppercase mb-2 ${active ? 'text-[#E85D2F]' : 'text-[#8A8680]'}`}
+        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      >
+        {wordCount}
+      </div>
+      <h4
+        className={`text-2xl mb-2 ${active ? 'text-[#1A1815]' : 'text-[#F5F1E8]'}`}
+        style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}
+      >
+        {label}
+      </h4>
+      <p
+        className={`text-sm leading-relaxed ${active ? 'text-[#5A5650]' : 'text-[#8A8680]'}`}
+        style={{ fontFamily: "'DM Sans', sans-serif" }}
+      >
+        {description}
       </p>
     </button>
   );
@@ -531,7 +499,7 @@ function NextSteps() {
 
         <div className="relative p-8 border border-[#E85D2F]/30 bg-[#141312] hover:border-[#E85D2F]/60 transition-colors flex flex-col" style={{ borderRadius: '2px' }}>
           <div className="flex items-start justify-between mb-6">
-            <span className="text-2xl text-[#E85D2F]">▶</span>
+            <span className="text-2xl text-[#E85D2F]">▷</span>
             <span className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               Live Review · Path 02
             </span>
@@ -574,12 +542,71 @@ function NextSteps() {
   );
 }
 
+function BrandWaitlist() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) {
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 2000);
+      return;
+    }
+    setStatus('submitting');
+    // For now, log to console. Replace with real waitlist call when ready.
+    console.log('Brand waitlist signup:', email);
+    setTimeout(() => {
+      setStatus('success');
+      setEmail('');
+      setTimeout(() => setStatus('idle'), 4000);
+    }, 600);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-6 space-y-3">
+      <div className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        Join the brand waitlist
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@brand.com"
+          className="flex-1 px-4 py-3 text-sm bg-[#0A0908] border border-[#3A3835] text-[#F5F1E8] placeholder:text-[#5A5650] focus:border-[#E85D2F] focus:outline-none"
+          style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+          disabled={status === 'submitting' || status === 'success'}
+        />
+        <button
+          type="submit"
+          disabled={status === 'submitting' || status === 'success'}
+          className={`px-5 py-3 text-xs tracking-[0.15em] uppercase transition-colors ${
+            status === 'success'
+              ? 'bg-[#7A9A6E] text-[#0A0908]'
+              : status === 'error'
+              ? 'bg-[#B33A1A] text-[#F5F1E8]'
+              : 'bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D]'
+          }`}
+          style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+        >
+          {status === 'submitting' ? 'Adding…' :
+           status === 'success' ? '✓ Added' :
+           status === 'error' ? 'Invalid' :
+           'Notify Me'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 // ---------- MAIN APP ----------
 export default function BriefGenerator({ user }: { user: { email: string; fullName: string } | null }) {
-  const [mode, setMode] = useState<Mode | null>(null);
-  const [target, setTarget] = useState<string | null>(null);
+  const [side, setSide] = useState<Side | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
+  const [briefTypeId, setBriefTypeId] = useState<BriefTypeId | null>(null);
   const [generated, setGenerated] = useState<Brief | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -597,23 +624,23 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
   }, []);
 
   const loadingMessages = [
-  'Drafting brief — this takes 30-60 seconds…',
-  'Pattern selection underway…',
-  'Composing reference architecture…',
-  'Refining direction and considerations…',
-  'Finalizing brief structure…',
-];
+    'Drafting brief — this takes 30-60 seconds…',
+    'Pattern selection underway…',
+    'Composing reference architecture…',
+    'Refining direction and considerations…',
+    'Finalizing brief structure…',
+  ];
 
   useEffect(() => {
-  if (!loading) {
-    setLoadingStep(0);
-    return;
-  }
-  const interval = setInterval(() => {
-    setLoadingStep((s) => Math.min(s + 1, loadingMessages.length - 1));
-  }, 8000);
-  return () => clearInterval(interval);
-}, [loading, loadingMessages.length]);
+    if (!loading) {
+      setLoadingStep(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setLoadingStep((s) => Math.min(s + 1, loadingMessages.length - 1));
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [loading, loadingMessages.length]);
 
   const toggleGenre = (g: string) => {
     setGenres((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : prev.length < 3 ? [...prev, g] : prev));
@@ -623,76 +650,76 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
     setMoods((prev) => (prev.includes(m) ? prev.filter((x) => x !== m) : prev.length < 3 ? [...prev, m] : prev));
   };
 
-  const handleModeSelect = (m: Mode) => {
-  if (m !== 'brand') {
-    return;
-  }
-  setMode(m);
-  setTarget(null);
-  setGenres([]);
-  setMoods([]);
-  setGenerated(null);
-  setTimeout(() => {
-    optionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
-};
-
-  const canGenerate = !!(mode && target && genres.length > 0 && moods.length > 0);
-
-  const handleGenerate = async () => {
-  if (!canGenerate || !mode || !target) return;
-  if (mode !== 'brand') {
-    return;
-  }
-  setLoading(true);
-  setGenerated(null);
-
-  try {
-    const result = await generateBriefAction({
-      mode,
-      category: target,
-      genres,
-      moods,
-    });
-
-    if (result.error) {
-      console.error('Generation error:', result.error);
-      setLoading(false);
-      alert(result.error);
+  const handleSideSelect = (s: Side) => {
+    if (s !== 'composers') {
       return;
     }
-
-    if (result.brief) {
-      setGenerated(result.brief);
-      setLoading(false);
-      setTimeout(() => {
-        briefRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    setLoading(false);
-    alert('Brief generation failed. Please try again.');
-  }
-};
-
-  const handleReset = () => {
-    setMode(null);
-    setTarget(null);
+    setSide(s);
+    setCategory(null);
     setGenres([]);
     setMoods([]);
+    setBriefTypeId(null);
+    setGenerated(null);
+    setTimeout(() => {
+      optionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const canGenerate = !!(category && genres.length > 0 && moods.length > 0 && briefTypeId);
+
+  const handleGenerate = async () => {
+    if (!canGenerate || !category || !briefTypeId) return;
+    setLoading(true);
+    setGenerated(null);
+
+    try {
+      const result = await generateBriefAction({
+        category,
+        genres,
+        moods,
+        briefType: briefTypeId,
+      });
+
+      if (result.error) {
+        console.error('Generation error:', result.error);
+        setLoading(false);
+        alert(result.error);
+        return;
+      }
+
+      if (result.brief) {
+        setGenerated(result.brief);
+        setLoading(false);
+        setTimeout(() => {
+          briefRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setLoading(false);
+      alert('Brief generation failed. Please try again.');
+    }
+  };
+
+  const handleReset = () => {
+    setSide(null);
+    setCategory(null);
+    setGenres([]);
+    setMoods([]);
+    setBriefTypeId(null);
     setGenerated(null);
   };
+
   const handleSave = async () => {
-    if (!generated || !mode || !target) return;
+    if (!generated || !category || !briefTypeId) return;
     if (!user) return;
 
     setSaveStatus('saving');
     setSaveError(null);
 
     const result = await saveBrief({
-      mode,
-      target,
+      mode: 'brand',
+      target: category,
       genres,
       moods,
       generatedContent: generated as unknown as Record<string, unknown>,
@@ -748,7 +775,6 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="hidden md:flex items-center gap-8 text-sm text-[#8A8680]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             <Link href="/library" className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Library</Link>
             <span className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Catalog</span>
-            <span className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Competitions</span>
             <span className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Community</span>
           </div>
           {user ? (
@@ -773,58 +799,59 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
 
       <section className="max-w-7xl mx-auto px-6 md:px-10 pt-20 pb-12">
         <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Custom Brief Generator / v0.2
+          ◆ Sonant / v0.3
         </div>
         <h1 className="text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[0.95] mb-8 max-w-5xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          Briefs that get <span className="italic" style={{ fontWeight: 400 }}>written</span>.<br />
-          Music that gets <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>placed</span>.
+          A better brief.<br />
+          From <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>either side</span> of it.
         </h1>
         <p className="text-lg md:text-xl text-[#A8A39A] max-w-2xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
-          Generate professional, industry-style sync briefs tailored to the brands, directors, and studios you actually want to work with. Build a catalog with intention.
+          Sonant is the brief layer of music licensing — practice for composers, production for brands.
         </p>
       </section>
 
       <section className="max-w-7xl mx-auto px-6 md:px-10 py-12">
-        <div className="flex items-baseline gap-4 mb-8">
-          <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            Step 01
-          </span>
-          <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-            Choose a brief category
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {(Object.entries(MODES) as [Mode, ModeData][]).map(([key, data]) => (
-            <ModeCard
-              key={key}
-              mode={key.toUpperCase()}
-              data={data}
-              active={mode === key}
-              onClick={() => handleModeSelect(key)}
-            />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+          <SideCard
+            active={side === 'composers'}
+            onClick={() => handleSideSelect('composers')}
+            glyph="◆"
+            label="For Composers"
+            sub="Practice Brief Generator"
+            description="Sharpen your craft on industry-grade briefs that read like the real ones. Build a catalog with intention."
+            status="Open"
+            isComingSoon={false}
+          />
+          <SideCard
+            active={false}
+            onClick={() => {}}
+            glyph="▷"
+            label="For Brands"
+            sub="Professional Brief Writing Tool"
+            description="Draft, refine, and deploy briefs to composers — through Sonant or your own network."
+            status="Coming Soon"
+            isComingSoon={true}
+            showWaitlist={true}
+          />
         </div>
       </section>
 
-      {mode && (
+      {side === 'composers' && (
         <section ref={optionsRef} className="max-w-7xl mx-auto px-6 md:px-10 py-12 fade-up">
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 02
+                Step 01
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                {MODES[mode].targetLabel}
+                Pick a category
               </h2>
             </div>
-            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">{MODES[mode].targetSub}</p>
+            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">Where do you want your music to live</p>
             <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
-              {MODES[mode].targets.map((t) => (
-                <Chip key={t.name} active={target === t.name} onClick={() => setTarget(t.name)}>
-                  {t.name}
-                  <span className="ml-2 text-[9px] tracking-wider uppercase opacity-60" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                    {t.tag}
-                  </span>
+              {CATEGORIES.map((c) => (
+                <Chip key={c} active={category === c} onClick={() => setCategory(c)}>
+                  {c}
                 </Chip>
               ))}
             </div>
@@ -833,7 +860,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 03
+                Step 02
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Genre palette <span className="text-sm text-[#8A8680] ml-2">(up to 3)</span>
@@ -852,7 +879,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 04
+                Step 03
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Emotional arc <span className="text-sm text-[#8A8680] ml-2">(up to 3)</span>
@@ -864,6 +891,30 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 <Chip key={m} active={moods.includes(m)} onClick={() => toggleMood(m)}>
                   {m}
                 </Chip>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-14">
+            <div className="flex items-baseline gap-4 mb-3">
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                Step 04
+              </span>
+              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+                Brief type
+              </h2>
+            </div>
+            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">How deep do you want to go</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 ml-[5.5rem]">
+              {BRIEF_TYPE_LIST.map((bt) => (
+                <BriefTypeCard
+                  key={bt.id}
+                  active={briefTypeId === bt.id}
+                  onClick={() => setBriefTypeId(bt.id)}
+                  label={bt.label}
+                  description={bt.description}
+                  wordCount={bt.targetWordCount}
+                />
               ))}
             </div>
           </div>
@@ -882,7 +933,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
               >
                 {loading ? '◆ Generating…' : '◆ Generate Brief'}
               </button>
-              {(target || genres.length > 0 || moods.length > 0) && !loading && (
+              {(category || genres.length > 0 || moods.length > 0 || briefTypeId) && !loading && (
                 <button
                   onClick={handleReset}
                   className="text-xs tracking-[0.2em] uppercase text-[#8A8680] hover:text-[#F5F1E8] transition-colors"
@@ -894,7 +945,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             </div>
             {!canGenerate && !loading && (
               <p className="text-xs text-[#6A6660]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Select a category, target, at least one genre, and at least one mood to generate.
+                Pick a category, at least one genre, at least one mood, and a brief type.
               </p>
             )}
           </div>
@@ -978,7 +1029,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
       <footer className="border-t border-[#1F1D1A] mt-12">
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="text-xs tracking-wider text-[#5A5650]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            SONANT · BUILT FOR COMPOSERS · DEMO v0.2
+            SONANT · BUILT FOR COMPOSERS · DEMO v0.3
           </div>
           <div className="text-xs italic text-[#5A5650]" style={{ fontFamily: "'Fraunces', serif" }}>
             &ldquo;The brief is the gift. The work is the answer.&rdquo;

@@ -1,11 +1,68 @@
 // lib/brief-patterns.ts
 //
 // Pattern library for the Sonant brief generator.
-// Encodes the 15 active patterns + category metadata + scrub list
+// Encodes the 15 active patterns + category metadata + brief types + scrub list
 // extracted from the Sonant reference doc.
 //
 // This file is consumed by app/briefs/generate.ts to construct
 // the system prompt for the Anthropic API.
+
+// ============================================================
+// BRIEF TYPES (Flash / Standard / Anthem)
+// ============================================================
+
+export type BriefTypeId = 'flash' | 'standard' | 'anthem';
+
+export interface BriefType {
+  id: BriefTypeId;
+  label: string;
+  description: string;
+  targetWordCount: string;
+  defaultRegister: BriefRegister;
+  registerNotes: string;
+  considerationCount: number;
+  directionCount: number;
+  referenceCount: number;
+}
+
+export const BRIEF_TYPES: Record<BriefTypeId, BriefType> = {
+  flash: {
+    id: 'flash',
+    label: 'Flash',
+    description: 'Compressed, terse, working-supervisor voice — fast practice',
+    targetWordCount: '200-300 words',
+    defaultRegister: 'flash-brief',
+    registerNotes:
+      'FLASH BRIEF format — opens with "FLASH BRIEF: [Brand]" or similar compressed header. 1-2 reference tracks. 1 held tension. Single anchor word. Treats composer as a peer producer, fluent in production tradition vocabulary. NDA / confidentiality note appropriate. Total length 200-300 words.',
+    considerationCount: 1,
+    directionCount: 2,
+    referenceCount: 2,
+  },
+  standard: {
+    id: 'standard',
+    label: 'Standard',
+    description: 'Structured working brief — most common register',
+    targetWordCount: '400-600 words',
+    defaultRegister: 'engineered-template',
+    registerNotes:
+      'Structured brief with clear sections. 2 considerations. 3-4 directions. 3 references with deltas. Complete but not overwhelming. The "default" brief register that most working briefs occupy.',
+    considerationCount: 2,
+    directionCount: 4,
+    referenceCount: 3,
+  },
+  anthem: {
+    id: 'anthem',
+    label: 'Anthem',
+    description: 'Multi-use-case sonic identity work — for serious practice',
+    targetWordCount: '800-1200 words',
+    defaultRegister: 'corporate-formal',
+    registerNotes:
+      'Anthem-tier brief commissioning a sonic identity, not a spot. Multi-use-case design mandatory: enumerate touchpoints (commercial, hold music, retail, social, app onboarding). Length flexibility built in (base length with cuttable selects). Foreground/background dual register required. Sonic identity logic — recognizable hook persists across contexts. Anniversary or legacy framing common. Polish bar is finished-record-level. 3 considerations. 5-6 directions. 3-4 references.',
+    considerationCount: 3,
+    directionCount: 5,
+    referenceCount: 4,
+  },
+};
 
 // ============================================================
 // CATEGORY METADATA
@@ -13,12 +70,12 @@
 
 export interface CategoryMeta {
   name: string;
-  tag: string;
   defaultRegister: BriefRegister;
   primaryPatterns: PatternId[];
   failureModesToAvoid: string[];
   fictionalBrandSeeds: string[];
   registerNotes: string;
+  corpusGrounded: boolean;
 }
 
 export type BriefRegister =
@@ -47,102 +104,11 @@ export type PatternId =
   | 'music-precedes-picture'
   | 'concept-driven-craft';
 
+// Categories in suggested-click order: most likely to least likely to be chosen
+// by composers, producers, songwriters in real practice.
 export const BRAND_CATEGORIES: Record<string, CategoryMeta> = {
-  SPIRITS: {
-    name: 'SPIRITS',
-    tag: 'HERITAGE',
-    defaultRegister: 'presentation-deck',
-    primaryPatterns: [
-      'reference-with-delta',
-      'aesthetic-anchor',
-      'held-tension',
-      'composer-as-x',
-      'continuation-reset-anniversary',
-    ],
-    failureModesToAvoid: [
-      'After-dark/club register on daytime spots',
-      'Generic "luxury jazz" sax-and-piano',
-      'Over-literal whiskey-bar Americana cliches',
-      'Fingerpicked acoustic-folk default for Tennessee/bourbon brands',
-    ],
-    fictionalBrandSeeds: [
-      'Halberd Reserve',
-      'Northvale Distilling Co.',
-      'Iron Coast Whiskey',
-      'Fielder & Sons',
-      'Black Pine Bourbon',
-      'Holloway Spirits',
-      'Riverend Rye',
-      'Kindling Co.',
-    ],
-    registerNotes:
-      'Spirits briefs typically arrive as presentation decks with brand-strategic context, partnership framing, and lifestyle imagery. Sophisticated, atmospheric, often heritage-coded. Brief writers assume the composer can read brand-strategy language.',
-  },
-
-  AUTOMOTIVE: {
-    name: 'AUTOMOTIVE',
-    tag: 'RETAIL',
-    defaultRegister: 'engineered-template',
-    primaryPatterns: [
-      'reference-with-delta',
-      'leave-space-for',
-      'operational-scaffold',
-      'continuation-reset-anniversary',
-      'anti-brand-genre',
-    ],
-    failureModesToAvoid: [
-      'Previous-campaign rehash when brief asks for new direction',
-      'Generic-rock as the engineered automotive default',
-      'Over-orchestral builds on retail dealer spots',
-      'Music too forward against VO and offer text',
-    ],
-    fictionalBrandSeeds: [
-      'Coastline Auto Group',
-      'Westridge Motors',
-      'Northbeam Auto',
-      'Pacific Crest Dealers',
-      'Highmark Cars',
-      'Sterling Auto Family',
-      'Anchorline Motors',
-    ],
-    registerNotes:
-      'Automotive retail briefs are tightly engineered with timecoded structures, vocal samples, mnemonic mandates, and dealer-promo cycles. Format mirrors execution: rigorous sectioning, naming conventions, deadlines surfaced.',
-  },
-
-  TECH: {
-    name: 'TECH',
-    tag: 'PRESTIGE',
-    defaultRegister: 'flash-brief',
-    primaryPatterns: [
-      'reference-with-delta',
-      'aesthetic-anchor',
-      'composer-as-x',
-      'negative-space',
-      'anti-brand-genre',
-    ],
-    failureModesToAvoid: [
-      'Cold synth pads with shimmering ascending arpeggios (the "tech ad" register)',
-      'Bright, ambient-electronic with gentle pulse — over-claimed by competitors',
-      '"Impressive but soulless" production polish',
-      'Generic "modern" without specific aesthetic commitment',
-    ],
-    fictionalBrandSeeds: [
-      'Linnea',
-      'Loomwave',
-      'Velorin',
-      'Cresta',
-      'Metric & Co.',
-      'Pellumin',
-      'Northsky Audio',
-      'Dovetail',
-    ],
-    registerNotes:
-      'Tech prestige briefs arrive compressed — often labeled "FLASH BRIEF" or similar. Single reference often does most of the work via extracted-features delta. Composer is treated as a peer producer, fluent in production tradition vocabulary. Confidentiality flags common.',
-  },
-
-  ATHLETIC: {
-    name: 'ATHLETIC',
-    tag: 'INTENSITY',
+  Sports: {
+    name: 'Sports',
     defaultRegister: 'engineered-template',
     primaryPatterns: [
       'reference-with-delta',
@@ -156,6 +122,7 @@ export const BRAND_CATEGORIES: Record<string, CategoryMeta> = {
       'Trap-hybrid cliche with chopped vocal samples and sub-bass',
       'Over-orchestral cinematic when the brief asks for performance-driven',
       'Music too forward when anchor sound (equipment SFX) is the brief\'s centerpiece',
+      'CrossFit-hype-video register on a precision-coded brand',
     ],
     fictionalBrandSeeds: [
       'Linder Athletics',
@@ -165,44 +132,110 @@ export const BRAND_CATEGORIES: Record<string, CategoryMeta> = {
       'Carbide',
       'Steelroot',
       'Apex Forge',
+      'Velocity Athletics',
     ],
     registerNotes:
-      'Athletic briefs split between engineered-cinematic (orchestral-electronic hybrid with anchor SFX) and concept-driven craft challenges (single transition moment as the entire brief).',
+      'Sports advertising covers performance brands (Nike-tier), training equipment (Taylormade-tier), and lifestyle-athletic (Lululemon-tier). Briefs split between engineered-cinematic (orchestral-electronic hybrid with anchor SFX) and concept-driven craft challenges (single transition moment as the entire brief). Common ask: power without hype, precision without chaos.',
+    corpusGrounded: true,
   },
 
-  CPG: {
-    name: 'CPG',
-    tag: 'PLAYFUL',
-    defaultRegister: 'casual-screenshot',
+  Automotive: {
+    name: 'Automotive',
+    defaultRegister: 'engineered-template',
+    primaryPatterns: [
+      'reference-with-delta',
+      'leave-space-for',
+      'operational-scaffold',
+      'continuation-reset-anniversary',
+      'anti-brand-genre',
+    ],
+    failureModesToAvoid: [
+      'Previous-campaign rehash when brief asks for new direction',
+      'Generic-rock as the engineered automotive default',
+      'Over-orchestral builds on retail dealer spots',
+      'Music too forward against VO and offer text',
+      'Stock "vehicle reveal" cinematic palette',
+    ],
+    fictionalBrandSeeds: [
+      'Coastline Auto Group',
+      'Westridge Motors',
+      'Northbeam Auto',
+      'Pacific Crest Dealers',
+      'Highmark Cars',
+      'Sterling Auto Family',
+      'Anchorline Motors',
+      'Ironclad Motors',
+    ],
+    registerNotes:
+      'Automotive briefs split between retail dealer spots (tightly engineered, timecoded structures, vocal samples, mnemonic mandates, dealer-promo cycles) and premium auto/launch spots (more interpretive, often partnership-led). Format mirrors execution: rigorous sectioning, naming conventions, deadlines surfaced. The genre default is generic-rock; briefs that escape it are the strong ones.',
+    corpusGrounded: true,
+  },
+
+  Technology: {
+    name: 'Technology',
+    defaultRegister: 'flash-brief',
     primaryPatterns: [
       'reference-with-delta',
       'aesthetic-anchor',
       'composer-as-x',
-      'leave-space-for',
-      'held-tension',
+      'negative-space',
+      'anti-brand-genre',
     ],
     failureModesToAvoid: [
-      'Over-literal mickey-mousing of every visual gag',
-      'Sitcom-cue cliches (boing, slide whistle) where brief asks for theatricality',
-      'Reading culturally-specific references too literally (e.g. French pop for a croissant pizza)',
-      'Big timpani on theatrical-comedic briefs',
+      'Cold synth pads with shimmering ascending arpeggios (the "tech ad" register)',
+      'Bright, ambient-electronic with gentle pulse — over-claimed by competitors',
+      '"Impressive but soulless" production polish',
+      'Generic "modern" without specific aesthetic commitment',
+      'Mistaking polish for personality',
     ],
     fictionalBrandSeeds: [
-      'Coppice Modern',
-      'Greenstem',
-      'Birchhouse',
-      'Hollow & Co.',
-      'Maple Lane Foods',
-      'Fielder Pantry',
-      'Quill Bakery',
+      'Linnea',
+      'Loomwave',
+      'Velorin',
+      'Cresta',
+      'Metric & Co.',
+      'Pellumin',
+      'Northsky Audio',
+      'Dovetail',
+      'Kindling Tech',
     ],
     registerNotes:
-      'CPG briefs vary widely. Comedic/theatrical is the most distinctive — Broadway-style with verbatim lyrics, vocal-performance focus. Single-product launch briefs are more compressed, demo-love driven, casual-relational.',
+      'Technology briefs (consumer hardware, software, audio products, smart home) arrive compressed — often labeled "FLASH BRIEF" or similar. Single reference often does most of the work via extracted-features delta. Composer is treated as a peer producer, fluent in production tradition vocabulary. Confidentiality flags common. The category is saturated with one default register (bright synth, ambient pulse) — strong briefs explicitly escape it.',
+    corpusGrounded: true,
   },
 
-  WELLNESS: {
-    name: 'WELLNESS',
-    tag: 'INTIMATE',
+  Fashion: {
+    name: 'Fashion',
+    defaultRegister: 'presentation-deck',
+    primaryPatterns: [
+      'reference-with-delta',
+      'aesthetic-anchor',
+      'composer-as-x',
+      'held-tension',
+      'anti-brand-genre',
+    ],
+    failureModesToAvoid: [
+      'Generic "runway music" — chopped vocal samples, big drops, fashion-week cliches',
+      'Over-glossy production that loses personality',
+      'Stock electro-pop without specific aesthetic commitment',
+      'Mistaking aspirational for emotional',
+    ],
+    fictionalBrandSeeds: [
+      'Halberd & Co.',
+      'Northrun',
+      'Iron Coast Apparel',
+      'Linnea Studio',
+      'Hollow Atelier',
+      'Birch Modern',
+      'Coastline Goods',
+    ],
+    registerNotes:
+      'Fashion briefs span luxury (Gucci/Ralph Lauren tier — heritage-coded, sophisticated, often scored over editorial montages), accessible fashion (Levi\'s/Calvin Klein — more lifestyle-aspirational), and contemporary (Aritzia/Zara — modern, energetic, often with hook-led production). Briefs typically arrive as presentation decks with brand-strategic context, lookbook imagery, and partnership framing. Music must hold sophistication and personality simultaneously.',
+    corpusGrounded: false,
+  },
+
+  Lifestyle: {
+    name: 'Lifestyle',
     defaultRegister: 'engineered-template',
     primaryPatterns: [
       'reference-with-delta',
@@ -216,23 +249,94 @@ export const BRAND_CATEGORIES: Record<string, CategoryMeta> = {
       'Yoga-studio music defaults',
       'Over-pristine production that loses "lived-in" quality',
       'Snare or percussion punching through dialogue/VO',
+      'Generic "aspirational" without specific aesthetic commitment',
     ],
     fictionalBrandSeeds: [
       'Greenstem',
-      'Dovetail Wellness',
+      'Dovetail',
       'Birch & Sage',
       'Coastline Care',
       'Northern Light Co.',
       'Hollow Mountain',
       'Steady',
+      'Maple Lane',
+      'Halberd Home',
     ],
     registerNotes:
-      'Wellness briefs are heading-template formatted but lifestyle-coded. Diegetic-but-paced is a common held tension. Bedroom-pop-adjacent genre with subtle imperfections, lived-in production. Composer is reframed as a producer fluent in indie/DIY tradition.',
+      'Lifestyle covers wellness (Hers-tier intimate-diegetic), hospitality (Airbnb/Marriott — aspirational-but-grounded), home goods (IKEA/Wayfair — accessible, scenic), and DTC lifestyle (Glossier/Casper — contemporary, hook-led). Briefs are heading-template formatted but lifestyle-coded. Diegetic-but-paced is a common held tension. Bedroom-pop-adjacent genres with subtle imperfections, lived-in production. Composer is often reframed as a producer fluent in indie/DIY tradition.',
+    corpusGrounded: true,
   },
 
-  PHARMA: {
-    name: 'PHARMA',
-    tag: 'RESTRAINT',
+  Beverage: {
+    name: 'Beverage',
+    defaultRegister: 'presentation-deck',
+    primaryPatterns: [
+      'reference-with-delta',
+      'aesthetic-anchor',
+      'held-tension',
+      'composer-as-x',
+      'continuation-reset-anniversary',
+    ],
+    failureModesToAvoid: [
+      'After-dark/club register on daytime spots',
+      'Generic "luxury jazz" sax-and-piano',
+      'Over-literal whiskey-bar Americana cliches',
+      'Fingerpicked acoustic-folk default for Tennessee/bourbon brands',
+      'Generic "refreshment energy" without specific commitment',
+    ],
+    fictionalBrandSeeds: [
+      'Halberd Reserve',
+      'Northvale Distilling Co.',
+      'Iron Coast Whiskey',
+      'Fielder & Sons',
+      'Black Pine Bourbon',
+      'Holloway Spirits',
+      'Riverend Rye',
+      'Kindling Co.',
+      'Westbrook Beverage',
+      'Coastline Soda',
+    ],
+    registerNotes:
+      'Beverage spans heritage spirits (Jack Daniels/Basil Hayden tier — sophisticated, atmospheric, partnership-coded), premium spirits (Macallan/Glenfiddich — heritage-foundation), beer (Heineken/Coors — lifestyle, often partnership), non-alcoholic (Coca-Cola/Pepsi — broad appeal, often anthemic), and emerging (Liquid Death/Olipop — personality-led, anti-category-default). Spirits briefs lean presentation-deck format with brand-strategic context and lifestyle imagery. Non-alcoholic briefs lean broader/lighter. Both reward composers who can read brand-strategy language.',
+    corpusGrounded: true,
+  },
+
+  Food: {
+    name: 'Food',
+    defaultRegister: 'casual-screenshot',
+    primaryPatterns: [
+      'reference-with-delta',
+      'aesthetic-anchor',
+      'composer-as-x',
+      'leave-space-for',
+      'held-tension',
+    ],
+    failureModesToAvoid: [
+      'Over-literal mickey-mousing of every visual gag',
+      'Sitcom-cue cliches (boing, slide whistle) where brief asks for theatricality',
+      'Reading culturally-specific references too literally (e.g. French pop for a croissant pizza)',
+      'Big timpani on theatrical-comedic briefs',
+      'Generic "food joy" without specific aesthetic commitment',
+    ],
+    fictionalBrandSeeds: [
+      'Coppice Modern',
+      'Greenstem',
+      'Birchhouse',
+      'Hollow & Co.',
+      'Maple Lane Foods',
+      'Fielder Pantry',
+      'Quill Bakery',
+      'Fielder Foods',
+      'Coastline Kitchen',
+      'Northcrest Pet',
+    ],
+    registerNotes:
+      'Food covers fast food/QSR (McDonald\'s/Wendy\'s — energetic, character-led), packaged food (Cheerios/Oreos — broad appeal, often nostalgic), pet food (Fancy Feast — theatrical-comedic Broadway register), restaurants (Chipotle — emotional storytelling), and emerging brands (newer DTC food — personality-led, often comedic). Comedic/theatrical is the most distinctive — Broadway-style with verbatim lyrics, vocal-performance focus. Single-product launch briefs are more compressed, demo-love driven, casual-relational.',
+    corpusGrounded: true,
+  },
+
+  Healthcare: {
+    name: 'Healthcare',
     defaultRegister: 'engineered-template',
     primaryPatterns: [
       'held-tension',
@@ -247,6 +351,7 @@ export const BRAND_CATEGORIES: Record<string, CategoryMeta> = {
       'Music that "tells viewers what to feel" rather than supporting',
       'Solo cello "moment" cliche on the emotional anchor scene',
       'Resolved IV-V-I cadences on recovery/return scenes',
+      'Generic "trust" register — slow piano arpeggios with pad swells',
     ],
     fictionalBrandSeeds: [
       'Hardthorne Health',
@@ -256,154 +361,43 @@ export const BRAND_CATEGORIES: Record<string, CategoryMeta> = {
       'Steady Health',
       'Hollow Care',
       'Pellumin',
+      'Coastline Health',
+      'Birch Wellness',
     ],
     registerNotes:
-      'Pharma briefs are formal heading-template documents, often pre-picture. The defining held tension is "emotional but not sentimental." Restraint is the assignment. Music-precedes-picture deployment is more common than in other categories.',
+      'Healthcare covers pharmaceutical (BMS/Pfizer tier — formal heading-template, often pre-picture, restraint as the assignment), retail health (CVS/Walgreens — accessible, more lifestyle-coded), digital health (Headspace/Calm — meditative, restrained, often atmospheric), and DTC health (Hims/Ro — direct, accessible, lifestyle-aspirational). Pharmaceutical briefs particularly demand the held tension "emotional but not sentimental." Music-precedes-picture deployment is more common than in other categories.',
+    corpusGrounded: true,
   },
 
-  ANTHEM: {
-    name: 'ANTHEM',
-    tag: 'LEGACY',
-    defaultRegister: 'corporate-formal',
+  Financial: {
+    name: 'Financial',
+    defaultRegister: 'engineered-template',
     primaryPatterns: [
-      'multi-use-case',
-      'continuation-reset-anniversary',
-      'aesthetic-anchor',
       'held-tension',
+      'leave-space-for',
+      'aesthetic-anchor',
       'reference-with-delta',
+      'composer-as-x',
     ],
     failureModesToAvoid: [
-      'Generic-stadium anthem cliches',
-      'Corny anthem big-build with predictable arc',
-      'Music that doesn\'t stand alone without picture',
-      'Over-personality that won\'t survive 5+ years of use across contexts',
+      'Generic "trust" piano-and-pad register',
+      'Over-corporate orchestral with predictable arc',
+      'Stock "confidence" rock-anthem cliches',
+      'Mistaking gravitas for sentimentality',
+      'Music that lectures rather than supports',
     ],
     fictionalBrandSeeds: [
-      'Highmark Airlines',
-      'Northbeam Hospitality',
-      'Coastline Group',
       'Ironclad Capital',
-      'Pacific Crest',
-      'Sterling Heritage',
+      'Highmark Financial',
+      'Sterling Heritage Bank',
+      'Northbeam Investments',
+      'Coastline Capital',
+      'Foundry Financial',
+      'Pacific Crest Banking',
     ],
     registerNotes:
-      'Anthem briefs commission a sonic identity, not a spot. Multi-use-case design is mandatory. Length flexibility built in. Track must work as foreground (commercials) AND background (hold music, retail). Anniversary or legacy framing is common. Polish bar is finished-record-level.',
-  },
-};
-
-export const FILM_CATEGORIES: Record<string, CategoryMeta & { isActive: boolean }> = {
-  INDIE: {
-    name: 'INDIE',
-    tag: 'GROUNDED',
-    defaultRegister: 'directors-prose',
-    primaryPatterns: ['per-character-signature', 'leave-space-for', 'aesthetic-anchor'],
-    failureModesToAvoid: ['"Trailer music" register', 'Hollywood blockbuster scoring'],
-    fictionalBrandSeeds: ['"The Last Lit Window"', '"Birch & Hollow"', '"Quill"'],
-    registerNotes: 'Indie film briefs from directors. Character-driven, restrained, scene-evocative.',
-    isActive: false,
-  },
-  ANIMATION: {
-    name: 'ANIMATION',
-    tag: 'WHIMSICAL',
-    defaultRegister: 'directors-prose',
-    primaryPatterns: ['per-character-signature', 'leave-space-for', 'aesthetic-anchor'],
-    failureModesToAvoid: ['Over-orchestral Disney-cliche', 'Predictable cartoon stings'],
-    fictionalBrandSeeds: ['"Birch & Hollow"', '"Quill & Lantern"'],
-    registerNotes: 'Animation briefs often come with director\'s prose and per-character leitmotif assignment.',
-    isActive: false,
-  },
-  BLOCKBUSTER: {
-    name: 'BLOCKBUSTER',
-    tag: 'EPIC',
-    defaultRegister: 'directors-prose',
-    primaryPatterns: ['aesthetic-anchor', 'held-tension', 'reference-with-delta'],
-    failureModesToAvoid: ['Generic "epic trailer" four-on-floor', 'Over-claimed cinematic palette'],
-    fictionalBrandSeeds: ['"Apex Protocol"', '"The Far Country"'],
-    registerNotes: 'Blockbuster briefs are set-piece coded.',
-    isActive: false,
-  },
-  AUTEUR: {
-    name: 'AUTEUR',
-    tag: 'DIRECTOR-LED',
-    defaultRegister: 'directors-prose',
-    primaryPatterns: ['aesthetic-anchor', 'held-tension', 'composer-as-x'],
-    failureModesToAvoid: ['Generic "indie film" defaults', 'Showing off — auteur briefs reward restraint'],
-    fictionalBrandSeeds: ['"After the Tide"', '"The Witness"'],
-    registerNotes: 'Auteur briefs are director-voice-led. Distinctive sonic personality required.',
-    isActive: false,
-  },
-  DOCUMENTARY: {
-    name: 'DOCUMENTARY',
-    tag: 'OBSERVATIONAL',
-    defaultRegister: 'casual-screenshot',
-    primaryPatterns: ['leave-space-for', 'aesthetic-anchor', 'held-tension'],
-    failureModesToAvoid: ['Over-narrating the emotion', '"History Channel" cliches'],
-    fictionalBrandSeeds: ['"The Last Pressing"', '"Where We Were"'],
-    registerNotes: 'Documentary briefs are observational, archival, restrained.',
-    isActive: false,
-  },
-  TRAILER: {
-    name: 'TRAILER',
-    tag: 'CUT-DRIVEN',
-    defaultRegister: 'concept-driven-bullet',
-    primaryPatterns: ['concept-driven-craft', 'leave-space-for', 'aesthetic-anchor'],
-    failureModesToAvoid: ['Generic trailer-music defaults'],
-    fictionalBrandSeeds: ['"Apex Protocol"', '"The Witness"'],
-    registerNotes: 'Trailer briefs are cut-driven, intensity-led.',
-    isActive: false,
-  },
-};
-
-export const GAME_CATEGORIES: Record<string, CategoryMeta & { isActive: boolean }> = {
-  NARRATIVE: {
-    name: 'NARRATIVE',
-    tag: 'CINEMATIC',
-    defaultRegister: 'directors-prose',
-    primaryPatterns: ['per-character-signature', 'aesthetic-anchor', 'multi-use-case'],
-    failureModesToAvoid: ['Generic AAA RPG defaults'],
-    fictionalBrandSeeds: ['"Echoes of the Wild"', '"The Far Country"'],
-    registerNotes: 'Narrative-cinematic game briefs use leitmotif assignment heavily.',
-    isActive: false,
-  },
-  'OPEN-WORLD': {
-    name: 'OPEN-WORLD',
-    tag: 'EXPLORATORY',
-    defaultRegister: 'engineered-template',
-    primaryPatterns: ['multi-use-case', 'aesthetic-anchor', 'held-tension'],
-    failureModesToAvoid: ['Stock orchestral library cliches'],
-    fictionalBrandSeeds: ['"Project Neon"', '"Grand Commander"'],
-    registerNotes: 'Open-world game briefs care about adaptive layers and stem architecture.',
-    isActive: false,
-  },
-  COMPETITIVE: {
-    name: 'COMPETITIVE',
-    tag: 'MULTIPLAYER',
-    defaultRegister: 'engineered-template',
-    primaryPatterns: ['aesthetic-anchor', 'concept-driven-craft', 'anti-brand-genre'],
-    failureModesToAvoid: ['Generic esports cliches'],
-    fictionalBrandSeeds: ['"Vanguard Open"', '"Crowncup Series"'],
-    registerNotes: 'Competitive game briefs are tournament-coded, energy-led.',
-    isActive: false,
-  },
-  INDIE: {
-    name: 'INDIE',
-    tag: 'EXPERIMENTAL',
-    defaultRegister: 'directors-prose',
-    primaryPatterns: ['aesthetic-anchor', 'composer-as-x', 'held-tension'],
-    failureModesToAvoid: ['AAA-game scoring defaults applied to indie'],
-    fictionalBrandSeeds: ['"Echoes of the Wild"', '"Hollowmouth"'],
-    registerNotes: 'Indie game briefs are mood-led, intimate.',
-    isActive: false,
-  },
-  ATMOSPHERIC: {
-    name: 'ATMOSPHERIC',
-    tag: 'SOULSLIKE',
-    defaultRegister: 'directors-prose',
-    primaryPatterns: ['aesthetic-anchor', 'held-tension', 'leave-space-for'],
-    failureModesToAvoid: ['Over-melodic when the brief asks for tone'],
-    fictionalBrandSeeds: ['"Ash & Bone"', '"The Pale Vow"'],
-    registerNotes: 'Atmospheric/soulslike briefs are tone-forward, unsettled.',
-    isActive: false,
+      'Financial covers traditional banking (JP Morgan/Charles Schwab — heritage, gravitas, often dramatic narrative), wealth management (Vanguard/Fidelity — aspirational, restrained), fintech (Robinhood/Cash App — modern, accessible, often hook-led), and insurance (Geico/Allstate — character-led, often comedic). Briefs typically demand confidence without arrogance, gravitas without sentimentality. The category is one of the highest-spend in advertising; production polish bar is high.',
+    corpusGrounded: false,
   },
 };
 
@@ -592,8 +586,8 @@ export const PATTERNS: Record<PatternId, Pattern> = {
       'Over-formal in casual contexts',
     ],
     exampleVoice: [
-      '"FLASH BRIEF: Apple"',
-      '"UPDATED JACK BRIEF 040325"',
+      '"FLASH BRIEF: [Brand]"',
+      '"UPDATED [BRAND] BRIEF [DATE]"',
     ],
   },
 
@@ -621,7 +615,7 @@ export const PATTERNS: Record<PatternId, Pattern> = {
     ],
     exampleVoice: [
       '"We know it\'s quite the challenge. But an extremely exciting one. Thanks for taking this on."',
-      '"Looking forward to hearing what you come up with! Thanks, Jack."',
+      '"Looking forward to hearing what you come up with! Thanks."',
     ],
   },
 
@@ -745,7 +739,7 @@ export const PATTERNS: Record<PatternId, Pattern> = {
     description:
       'The track must work across multiple distinct usage contexts simultaneously — foreground (commercials), background (hold music), connective (booking flow). Anthem-defining pattern.',
     whenToDeploy:
-      'In 80%+ of anthem and aviation brand-identity briefs. Almost never in spot briefs.',
+      'In 80%+ of anthem and brand-identity briefs. Almost never in spot briefs.',
     subPatterns: [
       'Touchpoint enumeration (boarding, hold music, retail, social)',
       'Length flexibility built in (cuttable to any duration)',
@@ -791,7 +785,7 @@ export const PATTERNS: Record<PatternId, Pattern> = {
     exampleVoice: [
       '"Time is upon us to once again make an update to our existing song." (Continuation)',
       '"We\'re going in a new direction, not connected to our previous music." (Reset)',
-      '"American Airlines is preparing to celebrate its 100-year anniversary." (Anniversary)',
+      '"The brand is preparing to celebrate its 100-year anniversary." (Anniversary)',
     ],
   },
 
@@ -802,7 +796,7 @@ export const PATTERNS: Record<PatternId, Pattern> = {
     description:
       'Music is created before the final visual edit exists. Composer establishes the tonal anchor that picture will be cut to. Inverts the standard chain.',
     whenToDeploy:
-      'In ~15-20% of pharma, anthem, and pre-production briefs. Almost never in retail spot briefs.',
+      'In ~15-20% of healthcare, anthem, and pre-production briefs. Almost never in retail spot briefs.',
     subPatterns: [
       'No picture, scratch VO only',
       'Rough cut, will be refined',
@@ -828,7 +822,7 @@ export const PATTERNS: Record<PatternId, Pattern> = {
     description:
       'The brief orbits a single creative idea or craft challenge as its entire creative center. Other parameters (genre, instrumentation, tempo) are wide-open because the concept is the test.',
     whenToDeploy:
-      'In ~10-15% of briefs across categories. Most common in athletic equipment with brand-line moments, tech sonic-logo work, partnership campaigns, and trailer briefs.',
+      'In ~10-15% of briefs across categories. Most common in sports equipment with brand-line moments, tech sonic-logo work, partnership campaigns.',
     subPatterns: [
       'Brand-line moment concept (score one VO/visual moment)',
       'Partnership-thesis concept (express a partnership idea through music)',
@@ -844,7 +838,7 @@ export const PATTERNS: Record<PatternId, Pattern> = {
       'Concept-driven framing on engineered briefs',
     ],
     exampleVoice: [
-      '"This is all about including audio cues around the \'It\'s Time To Switch\' VO."',
+      '"This is all about including audio cues around the [brand line] VO."',
       '"Open to any and all ideas to emphasize the visual transitions on the spot with audio cues."',
     ],
   },
@@ -909,24 +903,20 @@ export function getCategoryByName(name: string): CategoryMeta | undefined {
   return BRAND_CATEGORIES[name];
 }
 
-export function getCategoryDisplayList(mode: 'brand' | 'film' | 'games'): Array<{ name: string; tag: string; isActive: boolean }> {
-  if (mode === 'brand') {
-    return Object.values(BRAND_CATEGORIES).map((c) => ({
-      name: c.name,
-      tag: c.tag,
-      isActive: true,
-    }));
-  }
-  if (mode === 'film') {
-    return Object.values(FILM_CATEGORIES).map((c) => ({
-      name: c.name,
-      tag: c.tag,
-      isActive: c.isActive,
-    }));
-  }
-  return Object.values(GAME_CATEGORIES).map((c) => ({
+export function getCategoryDisplayList(): Array<{ name: string }> {
+  return Object.values(BRAND_CATEGORIES).map((c) => ({
     name: c.name,
-    tag: c.tag,
-    isActive: c.isActive,
+  }));
+}
+
+export function getBriefTypeById(id: BriefTypeId): BriefType {
+  return BRIEF_TYPES[id];
+}
+
+export function getBriefTypeDisplayList(): Array<{ id: BriefTypeId; label: string; description: string }> {
+  return Object.values(BRIEF_TYPES).map((t) => ({
+    id: t.id,
+    label: t.label,
+    description: t.description,
   }));
 }
