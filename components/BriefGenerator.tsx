@@ -802,12 +802,11 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           ◆ Sonant / v0.3
         </div>
         <h1 className="text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[0.95] mb-8 max-w-5xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          A better brief.<br />
-          From <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>either side</span> of it.
-        </h1>
-        <p className="text-lg md:text-xl text-[#A8A39A] max-w-2xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
-          Sonant is the brief layer of music licensing — practice for composers, production for brands.
-        </p>
+  Where <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>creative vision</span> survives the trip.
+</h1>
+<p className="text-lg md:text-xl text-[#A8A39A] max-w-2xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
+  Sonant is the music brief tool that keeps creative direction intact, from brand to composer.
+</p>
       </section>
 
       <section className="max-w-7xl mx-auto px-6 md:px-10 py-12">
@@ -885,7 +884,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 Emotional arc <span className="text-sm text-[#8A8680] ml-2">(up to 3)</span>
               </h2>
             </div>
-            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">Where you want the listener to land</p>
+            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">Pick one to hold throughout — or up to three to sequence the arc</p>
             <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
               {MOODS.map((m) => (
                 <Chip key={m} active={moods.includes(m)} onClick={() => toggleMood(m)}>
