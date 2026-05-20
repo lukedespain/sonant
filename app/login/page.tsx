@@ -19,32 +19,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-6 py-12"
-      style={{
-        background: '#0A0908',
-        backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")",
-        color: '#F5F1E8',
-        fontFamily: "'DM Sans', sans-serif",
-      }}
-    >
+    <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity"
-        >
-          <div
-            className="w-8 h-8 flex items-center justify-center"
-            style={{ background: '#E85D2F', color: '#0A0908', fontFamily: "'Fraunces', serif", fontWeight: 600, borderRadius: '2px' }}
-          >
-            ◆
-          </div>
-          <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}>
-            Sonant<span className="text-[#E85D2F]">.</span>
-          </span>
-        </Link>
-
         <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
           ◆ Welcome Back
         </div>

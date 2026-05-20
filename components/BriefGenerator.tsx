@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { saveBrief } from '@/app/briefs/actions';
 import { generateBrief as generateBriefAction } from '@/app/briefs/generate';
 import {
@@ -602,6 +603,7 @@ function BrandWaitlist() {
 
 // ---------- MAIN APP ----------
 export default function BriefGenerator({ user }: { user: { email: string; fullName: string } | null }) {
+  const pathname = usePathname();
   const [side, setSide] = useState<Side | null>(null);
   const [category, setCategory] = useState<string | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
@@ -759,43 +761,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
         .pulse-soft { animation: pulse-soft 1.4s ease-in-out infinite; }
       `}</style>
 
-      <nav className="border-b border-[#1F1D1A]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-8 h-8 flex items-center justify-center"
-              style={{ background: '#E85D2F', color: '#0A0908', fontFamily: "'Fraunces', serif", fontWeight: 600, borderRadius: '2px' }}
-            >
-              ◆
-            </div>
-            <span className="text-base tracking-tight" style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}>
-              Sonant<span className="text-[#E85D2F]">.</span>
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-[#8A8680]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            <Link href="/library" className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Library</Link>
-            <span className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Catalog</span>
-            <span className="hover:text-[#F5F1E8] cursor-pointer transition-colors">Community</span>
-          </div>
-          {user ? (
-            <Link
-              href="/account"
-              className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[#3A3835] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-            >
-              Account
-            </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[#3A3835] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-            >
-              Sign In
-            </Link>
-          )}
-        </div>
-      </nav>
+    
 
       <section className="max-w-7xl mx-auto px-6 md:px-10 pt-20 pb-12">
         <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>

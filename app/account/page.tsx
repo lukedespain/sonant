@@ -18,32 +18,8 @@ export default async function AccountPage() {
     .single();
 
   return (
-    <div
-      className="min-h-screen px-6 py-12"
-      style={{
-        background: '#0A0908',
-        backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")",
-        color: '#F5F1E8',
-        fontFamily: "'DM Sans', sans-serif",
-      }}
-    >
-      <div className="max-w-3xl mx-auto">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity"
-        >
-          <div
-            className="w-8 h-8 flex items-center justify-center"
-            style={{ background: '#E85D2F', color: '#0A0908', fontFamily: "'Fraunces', serif", fontWeight: 600, borderRadius: '2px' }}
-          >
-            ◆
-          </div>
-          <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}>
-            Sonant<span className="text-[#E85D2F]">.</span>
-          </span>
-        </Link>
-
+    <div className="pt-20 pb-12 flex-1">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
           ◆ Account
         </div>
@@ -52,14 +28,14 @@ export default async function AccountPage() {
           Welcome, <span className="italic">{profile?.full_name?.split(' ')[0] || 'composer'}</span>.
         </h1>
 
-        <p className="text-base text-[#A8A39A] mb-12" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Your library is empty for now. Generate a brief, save it, and your work lives here.
+        <p className="text-base text-[#A8A39A] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          Manage your account, check your usage, and jump back into briefs.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12 max-w-3xl">
           <InfoCard label="Email" value={user.email || ''} />
-          <InfoCard label="Tier" value={profile?.tier === 'paid' ? 'Paid Membership' : 'Free Tier'} />
-          <InfoCard label="Briefs This Month" value={`${profile?.briefs_generated_this_month || 0} of ${profile?.tier === 'paid' ? 'unlimited' : '3'}`} />
+          <InfoCard label="Tier" value="Beta Tester" />
+          <InfoCard label="Briefs This Month" value="Unlimited" />
           <InfoCard label="Member Since" value={profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ''} />
         </div>
 

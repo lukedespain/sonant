@@ -30,39 +30,12 @@ export default async function BriefDetailPage({ params }: PageProps) {
   }
 
   const brief = briefRow.generated_content as Brief;
-  const savedDate = new Date(briefRow.created_at).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+ 
 
   return (
-    <div
-      className="min-h-screen px-6 py-12"
-      style={{
-        background: '#0A0908',
-        backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")",
-        color: '#F5F1E8',
-        fontFamily: "'DM Sans', sans-serif",
-      }}
-    >
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-12 flex-wrap gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 hover:opacity-80 transition-opacity"
-          >
-            <div
-              className="w-8 h-8 flex items-center justify-center"
-              style={{ background: '#E85D2F', color: '#0A0908', fontFamily: "'Fraunces', serif", fontWeight: 600, borderRadius: '2px' }}
-            >
-              ◆
-            </div>
-            <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}>
-              Sonant<span className="text-[#E85D2F]">.</span>
-            </span>
-          </Link>
+    <div className="pt-20 pb-12 flex-1">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <Link
             href="/library"
             className="text-xs tracking-[0.2em] uppercase text-[#8A8680] hover:text-[#F5F1E8] transition-colors"
@@ -70,15 +43,6 @@ export default async function BriefDetailPage({ params }: PageProps) {
           >
             ← Back to Library
           </Link>
-        </div>
-
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <div
-            className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            ◆ Saved {savedDate} · {brief.briefId}
-          </div>
           <form action={deleteBrief}>
             <input type="hidden" name="briefId" value={briefRow.id} />
             <button

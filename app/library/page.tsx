@@ -32,50 +32,24 @@ export default async function LibraryPage() {
     .returns<BriefRow[]>();
 
   return (
-    <div
-      className="min-h-screen px-6 py-12"
-      style={{
-        background: '#0A0908',
-        backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")",
-        color: '#F5F1E8',
-        fontFamily: "'DM Sans', sans-serif",
-      }}
-    >
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-12">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 hover:opacity-80 transition-opacity"
-          >
-            <div
-              className="w-8 h-8 flex items-center justify-center"
-              style={{ background: '#E85D2F', color: '#0A0908', fontFamily: "'Fraunces', serif", fontWeight: 600, borderRadius: '2px' }}
-            >
-              ◆
-            </div>
-            <span style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}>
-              Sonant<span className="text-[#E85D2F]">.</span>
-            </span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/account"
-              className="text-xs tracking-[0.2em] uppercase text-[#8A8680] hover:text-[#F5F1E8] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              Account
-            </Link>
-          </div>
-        </div>
-
+    <div className="pt-20 pb-12 flex-1">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
           ◆ Your Library
         </div>
 
-        <h1 className="text-5xl md:text-6xl tracking-tight leading-tight mb-3" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          Saved <span className="italic">briefs</span>.
-        </h1>
+        <div className="flex items-end justify-between gap-6 mb-3 flex-wrap">
+          <h1 className="text-5xl md:text-6xl tracking-tight leading-tight" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+            Saved <span className="italic">briefs</span>.
+          </h1>
+          <Link
+            href="/"
+            className="text-xs tracking-[0.2em] uppercase px-5 py-3 bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors whitespace-nowrap"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+          >
+            ◆ New Brief
+          </Link>
+        </div>
 
         <p className="text-base text-[#A8A39A] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           Every brief you&apos;ve saved, ready to revisit, write to, or build a track against.

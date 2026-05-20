@@ -2,32 +2,8 @@ import Link from 'next/link';
 
 export default function AuthErrorPage() {
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-6 py-12"
-      style={{
-        background: '#0A0908',
-        backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='mn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23mn)' opacity='0.07'/%3E%3C/svg%3E\")",
-        color: '#F5F1E8',
-        fontFamily: "'DM Sans', sans-serif",
-      }}
-    >
+    <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="max-w-md w-full">
-        <div className="flex items-center gap-3 mb-12">
-          <div
-            className="w-10 h-10 flex items-center justify-center"
-            style={{ background: '#E85D2F', borderRadius: '2px' }}
-          >
-            <span className="text-[#0A0908]">◆</span>
-          </div>
-          <h1
-            className="text-2xl"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
-          >
-            Sonant<span className="text-[#E85D2F]">.</span>
-          </h1>
-        </div>
-
         <div
           className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2F] mb-4"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
