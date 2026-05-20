@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
 import ExportPdfButton from '@/components/ExportPdfButton';
+import SubmitTrackModal from '@/components/SubmitTrackModal';
+import { getSubmissionStatus } from '@/app/briefs/actions';
 import { deleteBrief } from '@/app/briefs/actions';
 
 interface PageProps {
@@ -31,6 +33,8 @@ export default async function BriefDetailPage({ params }: PageProps) {
   }
 
   const brief = briefRow.generated_content as Brief;
+  const submission = await getSubmissionStatus(briefRow.id);
+  const alreadySubmitted = submission !== null;
  
 
   return (
@@ -45,6 +49,11 @@ export default async function BriefDetailPage({ params }: PageProps) {
             ← Back to Library
           </Link>
           <div className="flex items-center gap-3">
+            <SubmitTrackModal
+              briefId={briefRow.id}
+              projectName={brief.codename}
+              alreadySubmitted={alreadySubmitted}
+            />
             <ExportPdfButton />
             <form action={deleteBrief}>
               <input type="hidden" name="briefId" value={briefRow.id} />

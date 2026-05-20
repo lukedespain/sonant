@@ -73,3 +73,59 @@ export async function deleteBrief(formData: FormData) {
   revalidatePath('/library');
   redirect('/library');
 }
+export async function submitTrack(briefId: string) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'You must be signed in to submit a track.' };
+  }
+
+  // Confirm the brief belongs to this user before recording a submission.
+  const { data: brief, error: briefError } = await supabase
+    .from('briefs')
+    .select('id')
+    .eq('id', briefId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (briefError || !brief) {
+    return { error: 'Brief not found.' };
+  }
+
+  const { error } = await supabase
+    .from('submissions')
+    .insert({
+      user_id: user.id,
+      brief_id: briefId,
+      status: 'pending',
+    });
+
+  if (error) {
+    console.error('Submit track error:', error);
+    return { error: 'Could not record submission. Please try again.' };
+  }
+
+  revalidatePath('/library');
+  revalidatePath(`/library/${briefId}`);
+  return { success: true };
+}
+
+export async function getSubmissionStatus(briefId: string) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data } = await supabase
+    .from('submissions')
+    .select('status, created_at')
+    .eq('brief_id', briefId)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return data; // null if no submission, else { status, created_at }
+}

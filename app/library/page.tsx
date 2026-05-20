@@ -31,6 +31,19 @@ export default async function LibraryPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .returns<BriefRow[]>();
+    const { data: submissions } = await supabase
+    .from('submissions')
+    .select('brief_id, status, created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  // Map each brief_id to its most recent submission status.
+  const submissionStatusByBrief = new Map<string, string>();
+  for (const sub of submissions ?? []) {
+    if (!submissionStatusByBrief.has(sub.brief_id)) {
+      submissionStatusByBrief.set(sub.brief_id, sub.status);
+    }
+  }
 
   return (
     <div className="pt-20 pb-12 flex-1">
@@ -76,56 +89,85 @@ export default async function LibraryPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {briefs.map((brief) => (
+            {briefs.map((brief) => {
+              const submissionStatus = submissionStatusByBrief.get(brief.id);
+              return (
               <Link
                 key={brief.id}
                 href={`/library/${brief.id}`}
                 className="block p-6 border border-[#2A2826] bg-[#141312] hover:border-[#E85D2F] hover:bg-[#181614] transition-colors group"
                 style={{ borderRadius: '2px' }}
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div
-                    className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]"
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <h3
+                    className="text-2xl leading-tight text-[#F5F1E8] group-hover:text-[#E85D2F] transition-colors"
+                    style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
+                  >
+                    Project <span className="italic">{brief.generated_content?.codename || 'Untitled'}</span>
+                  </h3>
+                  <span
+                    className="text-[10px] tracking-wider text-[#5A5650] shrink-0 mt-1.5"
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
-                    {brief.mode === 'brand' ? 'Brand' : brief.mode === 'film' ? 'Film' : 'Games'} · {brief.target}
-                  </div>
-                  <span className="text-[10px] tracking-wider text-[#5A5650]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                     {new Date(brief.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
 
-                <h3
-                  className="text-2xl mb-3 leading-tight text-[#F5F1E8] group-hover:text-[#E85D2F] transition-colors"
-                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
+                <div
+                  className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680] mb-4"
+                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
                 >
-                  Project <span className="italic">{brief.generated_content?.codename || 'Untitled'}</span>
-                </h3>
+                  {brief.mode === 'brand' ? 'Brand' : brief.mode === 'film' ? 'Film' : 'Games'} · {brief.target}
+                </div>
 
-                <div className="flex flex-wrap gap-1.5 mb-1">
-                  {brief.genres.slice(0, 3).map((g) => (
+                <div className="flex flex-wrap gap-1.5">
+                  {[...brief.genres.slice(0, 3), ...brief.moods.slice(0, 3)].map((tag, i) => (
                     <span
-                      key={g}
+                      key={`${tag}-${i}`}
                       className="text-[10px] tracking-wider px-2 py-1 bg-[#0A0908] text-[#A8A39A] border border-[#2A2826]"
                       style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
                     >
-                      {g}
+                      {tag}
                     </span>
                   ))}
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {brief.moods.slice(0, 3).map((m) => (
+
+                {submissionStatus && (
+                  <div className="mt-4 pt-4 border-t border-[#2A2826] flex items-center gap-2">
                     <span
-                      key={m}
-                      className="text-[10px] tracking-wider text-[#E85D2F]"
-                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{
+                        background:
+                          submissionStatus === 'accepted'
+                            ? '#7A9A6E'
+                            : submissionStatus === 'not_accepted'
+                            ? '#8A8680'
+                            : '#E8A33D',
+                      }}
+                    />
+                    <span
+                      className="text-[10px] tracking-[0.2em] uppercase"
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        color:
+                          submissionStatus === 'accepted'
+                            ? '#7A9A6E'
+                            : submissionStatus === 'not_accepted'
+                            ? '#8A8680'
+                            : '#E8A33D',
+                      }}
                     >
-                      {m}
+                      {submissionStatus === 'accepted'
+                        ? 'Accepted'
+                        : submissionStatus === 'not_accepted'
+                        ? 'Reviewed'
+                        : 'Submitted · Pending Review'}
                     </span>
-                  ))}
-                </div>
+                  </div>
+                )}
               </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
