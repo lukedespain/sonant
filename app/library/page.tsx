@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import BriefImporter from '@/components/BriefImporter';
 
 interface BriefRow {
   id: string;
@@ -34,6 +35,7 @@ export default async function LibraryPage() {
   return (
     <div className="pt-20 pb-12 flex-1">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <BriefImporter />
         <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
           ◆ Your Library
         </div>

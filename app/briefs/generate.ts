@@ -200,7 +200,7 @@ function buildUserPrompt(input: GenerateBriefInput): string {
     throw new Error(`Unknown brief type: ${input.briefType}`);
   }
 
-  const codename = pickCodename();
+  
   const briefId = makeBriefId();
   const issued = todayIso();
   const deadlineDays = input.briefType === 'flash' ? 3 : input.briefType === 'anthem' ? 10 : 5;
@@ -223,8 +223,9 @@ function buildUserPrompt(input: GenerateBriefInput): string {
 **Composer's Selected Genre Palette:** ${input.genres.join(', ')}
 **Composer's Selected Emotional Arc:** ${input.moods.join(', ')}
 
+**Codename:** Invent a fresh project codename for this brief. One or two words. It should evoke the selected genre palette and emotional arc, not the brand category. Examples of the right feel: "Nightshift", "Paper Lanterns", "Cold Open", "Slow Tide", "Afterglow", "Ironwood". Avoid real trademarks, and do not reuse the brand name. Make it specific to the mood of this particular brief, and favor variety so generated briefs rarely repeat the same codename.
+
 **Pre-generated Metadata (use these exactly in the JSON):**
-- codename: "${codename}"
 - briefId: "${briefId}"
 - issued: "${issued}"
 - deadline: "${deadline}"
@@ -235,7 +236,7 @@ Return ONLY a valid JSON object matching this exact schema (no preamble, no mark
 
 {
   "mode": "brand",
-  "codename": "${codename}",
+  "codename": "<one or two word project codename, evoking the genre and mood>",
   "briefId": "${briefId}",
   "issued": "${issued}",
   "deadline": "${deadline}",

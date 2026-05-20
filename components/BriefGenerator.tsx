@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { saveBrief } from '@/app/briefs/actions';
+import { addAnonBrief } from '@/lib/anon-briefs';
 import { generateBrief as generateBriefAction } from '@/app/briefs/generate';
 import {
   BRAND_CATEGORIES,
@@ -489,11 +490,15 @@ function NextSteps() {
             ))}
           </ul>
           <div className="space-y-3">
-            <button className="w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#F5EFE0] text-[#0A0908] hover:bg-[#FFFFFF] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}>
-              ↗ Submit Track
-            </button>
+            <Link
+              href="/submissions"
+              className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#F5EFE0] text-[#0A0908] hover:bg-[#FFFFFF] transition-colors text-center"
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+            >
+              ↗ How Submissions Work
+            </Link>
             <div className="text-[10px] tracking-[0.2em] uppercase text-[#6A6660] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Free for members · Reviewed within 7 days
+              Free during Beta · Every track reviewed
             </div>
           </div>
         </div>
@@ -525,16 +530,15 @@ function NextSteps() {
             ))}
           </ul>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2">
-              <button className="px-4 py-3.5 text-xs tracking-[0.15em] uppercase border border-[#E85D2F] text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[#0A0908] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}>
-                15 min · $45
-              </button>
-              <button className="px-4 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}>
-                30 min · $85
-              </button>
-            </div>
+            <Link
+              href="/reviews"
+              className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors text-center"
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+            >
+              ▷ Book a Live Review
+            </Link>
             <div className="text-[10px] tracking-[0.2em] uppercase text-[#6A6660] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Booked sessions usually within 5 days
+              Free during Beta · 15 or 30 minute sessions
             </div>
           </div>
         </div>
@@ -695,6 +699,34 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
         setTimeout(() => {
           briefRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
+
+        // Auto-save: logged-in users save to their library,
+        // logged-out users get stashed locally until they sign up.
+        if (user) {
+          setSaveStatus('saving');
+          setSaveError(null);
+          const saveResult = await saveBrief({
+            mode: 'brand',
+            target: category,
+            genres,
+            moods,
+            generatedContent: result.brief as unknown as Record<string, unknown>,
+          });
+          if (saveResult.error) {
+            setSaveStatus('error');
+            setSaveError(saveResult.error);
+          } else {
+            setSaveStatus('saved');
+          }
+        } else {
+          addAnonBrief({
+            mode: 'brand',
+            target: category,
+            genres,
+            moods,
+            generatedContent: result.brief as unknown as Record<string, unknown>,
+          });
+        }
       }
     } catch (err) {
       console.error('Unexpected error:', err);
@@ -712,30 +744,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
     setGenerated(null);
   };
 
-  const handleSave = async () => {
-    if (!generated || !category || !briefTypeId) return;
-    if (!user) return;
-
-    setSaveStatus('saving');
-    setSaveError(null);
-
-    const result = await saveBrief({
-      mode: 'brand',
-      target: category,
-      genres,
-      moods,
-      generatedContent: generated as unknown as Record<string, unknown>,
-    });
-
-    if (result.error) {
-      setSaveStatus('error');
-      setSaveError(result.error);
-      setTimeout(() => setSaveStatus('idle'), 3000);
-    } else {
-      setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 3000);
-    }
-  };
+  
 
   return (
     <div
@@ -950,44 +959,50 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 >
                   ↻ Regenerate
                 </button>
-                {user ? (
-                  <button
-                    onClick={handleSave}
-                    disabled={saveStatus === 'saving'}
-                    className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-colors ${
+                {user && saveStatus !== 'idle' && (
+                  <span
+                    className={`text-xs tracking-[0.2em] uppercase px-4 py-2 ${
                       saveStatus === 'saved'
-                        ? 'border-[#7A9A6E] text-[#7A9A6E]'
+                        ? 'text-[#7A9A6E]'
                         : saveStatus === 'error'
-                        ? 'border-[#FF8B6B] text-[#FF8B6B]'
-                        : 'border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                        ? 'text-[#FF8B6B]'
+                        : 'text-[#8A8680]'
                     }`}
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
                     {saveStatus === 'saving' ? '◆ Saving…' :
-                     saveStatus === 'saved' ? '✓ Saved' :
-                     saveStatus === 'error' ? '× ' + (saveError || 'Error') :
-                     '☆ Save'}
-                  </button>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                  >
-                    Sign in to Save
-                  </Link>
+                     saveStatus === 'saved' ? '✓ Saved to library' :
+                     saveStatus === 'error' ? '× ' + (saveError || 'Could not save') :
+                     ''}
+                  </span>
                 )}
-                <button
-                  className="text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  ↓ Export PDF
-                </button>
+                
               </div>
             </div>
             <BriefDocument brief={generated} />
           </section>
-          <NextSteps />
+          {user && <NextSteps />}
+          {!user && (
+            <section className="max-w-5xl mx-auto px-6 md:px-10 pb-20">
+              <div className="border border-[#E85D2F]/30 bg-[#E85D2F]/5 p-8 flex flex-col md:flex-row md:items-center justify-between gap-6" style={{ borderRadius: '2px' }}>
+                <div>
+                  <div className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2F] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    ◆ Save Your Work
+                  </div>
+                  <p className="text-base text-[#C4BFB5] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    This brief lives only in this browser. Sign up for free to save it to your library and keep every brief you generate.
+                  </p>
+                </div>
+                <Link
+                  href="/signup"
+                  className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors whitespace-nowrap text-center"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                >
+                  ◆ Sign Up for Free
+                </Link>
+              </div>
+            </section>
+          )}
         </>
       )}
 

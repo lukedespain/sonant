@@ -17,3 +17,32 @@ body {
   color: var(--foreground);
   font-family: 'DM Sans', sans-serif;
 }
+
+@media print {
+  /* White page background instead of the app's dark background */
+  body {
+    background: #ffffff !important;
+  }
+
+  /* Hide the app chrome */
+  nav,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Print the brief with its real colors and cream texture */
+  .brief-document {
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Keep sections and headings from splitting across pages */
+  .brief-document section,
+  .brief-document h1,
+  .brief-document h2,
+  .brief-document h3 {
+    break-inside: avoid;
+  }
+}
