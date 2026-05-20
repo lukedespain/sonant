@@ -67,7 +67,7 @@ export default function Nav({ user }: NavProps) {
                   : 'text-[#8A8680] hover:text-[#F5F1E8]'
               }`}
             >
-              Reviews
+              Live Reviews
             </Link>
             <Link
               href="/catalog"

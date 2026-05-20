@@ -31,12 +31,14 @@ export default function ReviewsPage() {
             oldPrice="$25"
             body="One track. Focused feedback. Best for sanity-checking a creative choice or a check-in before submission."
             cta="Book a 15-min Session"
+            bookingUrl="https://cal.com/sonant/15min"
           />
           <SessionCard
             duration="30-Minute Session"
             oldPrice="$50"
             body="Up to two tracks. Pattern-level feedback. Best for composers building toward catalog submission or wanting deeper craft conversations."
             cta="Book a 30-min Session"
+            bookingUrl="https://cal.com/sonant/30min"
           />
         </div>
 
@@ -86,11 +88,13 @@ function SessionCard({
   oldPrice,
   body,
   cta,
+  bookingUrl,
 }: {
   duration: string;
   oldPrice: string;
   body: string;
   cta: string;
+  bookingUrl: string;
 }) {
   return (
     <div className="border border-[#2A2826] bg-[#141312] p-8 flex flex-col" style={{ borderRadius: '2px' }}>
@@ -111,12 +115,14 @@ function SessionCard({
         {body}
       </p>
 
-      <span
-        className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#1F1D1A] text-[#5A5650] cursor-not-allowed text-center"
+      <a href={bookingUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors text-center"
         style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
       >
-        {cta} · Coming Soon
-      </span>
+        {cta}
+      </a>
     </div>
   );
 }

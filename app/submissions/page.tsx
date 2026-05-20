@@ -29,12 +29,13 @@ export default function SubmissionsPage() {
           >
             Submit a Track · Coming Soon
           </span>
-          <span
-            className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[#2A2826] text-[#5A5650] cursor-not-allowed"
+          <Link
+            href="/reviews"
+            className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
           >
-            Book a Review · Coming Soon
-          </span>
+            Book a Live Review
+          </Link>
         </div>
 
         <div className="border-t border-[#1F1D1A] mb-20" />
