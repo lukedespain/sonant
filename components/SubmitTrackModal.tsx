@@ -108,7 +108,21 @@ export default function SubmitTrackModal({
             >
               ↗ Open the Upload Page
             </a>
-
+<p
+              className="text-xs text-[#8A8680] leading-relaxed mb-4"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              ◆ You keep full ownership of your track. The catalog is non-exclusive.
+              If Sonant brokers a placement, income splits 70/30 in your favor. No fees, ever.{' '}
+              
+                <a href="/submissions"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors"
+              >
+                Full details →
+              </a>
+            </p>
             {error && (
               <div
                 className="text-sm text-[#FF8B6B] border border-[#FF8B6B]/30 bg-[#FF8B6B]/5 p-3 mb-3"

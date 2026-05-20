@@ -95,6 +95,60 @@ export default function SubmissionsPage() {
 
         <div className="border-t border-[#1F1D1A] mb-20" />
 
+        {/* WHAT ACCEPTANCE MEANS */}
+        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-8" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          ◆ What Acceptance Means
+        </div>
+
+        <div className="max-w-2xl mb-12">
+          <p className="text-base md:text-lg text-[#A8A39A] mb-10 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            Getting into the Sonant Catalog should feel like an opportunity, not a trade.
+            Here is exactly what it means, in plain terms.
+          </p>
+
+          <div className="mb-8">
+            <h3 className="text-xl mb-2" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+              You keep your music
+            </h3>
+            <p className="text-base text-[#A8A39A] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              You retain full ownership of every track you submit. Use it in other libraries,
+              release it yourself, put it on your own site. Submitting to Sonant restricts
+              nothing. The catalog is non-exclusive.
+            </p>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-xl mb-2" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+              Sonant only earns when you do
+            </h3>
+            <p className="text-base text-[#A8A39A] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              There is no fee to submit and no fee to be in the catalog. If Sonant brokers
+              a placement, getting your track used by a brand, the income splits 70/30 in
+              your favor. If nothing gets placed, you owe nothing. We make money only when
+              you make money.
+            </p>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-xl mb-2" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+              Why a catalog at all
+            </h3>
+            <p className="text-base text-[#A8A39A] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Sonant is built by composers, for composers. The goal is to be the first place
+              a brand looks: a catalog of music written by people who already understand
+              briefs, already practice writing to them, already think the way a sync
+              placement needs them to think. Acceptance puts your work in front of people
+              actively looking for exactly that.
+            </p>
+          </div>
+
+          <p className="text-base text-[#C4BFB5] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            The bar is high on purpose. A small, reliable catalog is worth more to a music
+            supervisor, and to you, than a large noisy one.
+          </p>
+        </div>
+
+        <div className="border-t border-[#1F1D1A] mb-20" />
         {/* NOT SURE YET */}
         <div className="border border-[#2A2826] bg-[#141312] p-8 md:p-12 max-w-3xl" style={{ borderRadius: '2px' }}>
           <div className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
