@@ -34,6 +34,7 @@ export default async function AdminPage() {
 
     rows.push({
       id: sub.id,
+      briefId: sub.brief_id,
       projectName:
         (brief?.generated_content as { codename?: string })?.codename ??
         'Untitled',
@@ -91,6 +92,7 @@ export default async function AdminPage() {
               <AdminSubmissionCard
                 key={row.id}
                 submissionId={row.id}
+                briefId={row.briefId}
                 projectName={row.projectName}
                 composerEmail={row.composerEmail}
                 status={row.status}

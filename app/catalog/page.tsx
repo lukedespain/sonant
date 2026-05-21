@@ -20,7 +20,7 @@ export default function CatalogPage() {
 
         <p className="text-base text-[#8A8680] mb-10 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           Every track in the catalog has been through individual review and answers
-          a real brief. The bar is the point.
+          a Sonant brief. The bar is the point.
         </p>
 
         <div className="flex gap-3 flex-wrap justify-center">

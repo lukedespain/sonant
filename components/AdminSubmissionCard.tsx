@@ -6,6 +6,7 @@ import { recordDecision } from '@/app/briefs/actions';
 
 type AdminSubmissionCardProps = {
   submissionId: string;
+  briefId: string;
   projectName: string;
   composerEmail: string;
   status: string;
@@ -15,6 +16,7 @@ type AdminSubmissionCardProps = {
 
 export default function AdminSubmissionCard({
   submissionId,
+  briefId,
   projectName,
   composerEmail,
   status,
@@ -65,6 +67,15 @@ export default function AdminSubmissionCard({
           >
             {composerEmail} · {submittedAt}
           </div>
+          
+            <a href={`/library/${briefId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-2 text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+          >
+            ↗ View Brief
+          </a>
         </div>
         <span
           className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5"
