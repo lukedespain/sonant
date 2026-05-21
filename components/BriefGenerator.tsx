@@ -44,6 +44,7 @@ interface Brief {
   genrePalette: string;
   emotionalArc: string;
   references: Reference[];
+  vocals: string;
   tempo: string;
   key: string;
   length: string;
@@ -56,7 +57,6 @@ interface Brief {
     backend: string;
     exclusivity: string;
   };
-  submitUrl: string;
 }
 
 // ---------- DATA ----------
@@ -375,6 +375,7 @@ function BriefDocument({ brief }: { brief: Brief }) {
 
         <Section number="06" title="Technical Specs">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+            <KV label="Vocals" value={brief.vocals} />
             <KV label="Tempo" value={brief.tempo} />
             <KV label="Key" value={brief.key} />
             <KV label="Length" value={brief.length} />
@@ -422,14 +423,6 @@ function BriefDocument({ brief }: { brief: Brief }) {
 
         <Section number="10" title="Submission">
           <div className="space-y-4">
-            <div>
-              <div className="text-[10px] tracking-[0.25em] uppercase text-[#8A8680] mb-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Upload To
-              </div>
-              <div className="text-sm bg-[#1A1815]/5 border border-[#2A2620]/20 p-3" style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-                {brief.submitUrl}
-              </div>
-            </div>
             <p className="text-sm italic text-[#5A5650] leading-relaxed pt-3" style={{ fontFamily: "'Fraunces', serif" }}>
               Note: Please don&apos;t share this brief externally — it may contain sensitive information. Submissions become eligible for the Sonant Catalog if accepted.
             </p>
@@ -613,6 +606,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
   const [genres, setGenres] = useState<string[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
   const [briefTypeId, setBriefTypeId] = useState<BriefTypeId | null>(null);
+  const [withVocals, setWithVocals] = useState(false);
   const [generated, setGenerated] = useState<Brief | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -684,6 +678,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
         genres,
         moods,
         briefType: briefTypeId,
+        withVocals,
       });
 
       if (result.error) {
@@ -890,6 +885,42 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                   wordCount={bt.targetWordCount}
                 />
               ))}
+            </div>
+          </div>
+
+          <div className="mb-14">
+            <div className="flex items-baseline gap-4 mb-3">
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                Step 05
+              </span>
+              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+                Vocals
+              </h2>
+            </div>
+            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">Should the brief call for a vocal track or an instrumental</p>
+            <div className="flex gap-3 ml-[5.5rem]">
+              <button
+                onClick={() => setWithVocals(false)}
+                className={`px-6 py-3 text-sm tracking-[0.1em] uppercase transition-all border ${
+                  !withVocals
+                    ? 'border-[#E85D2F] bg-[#E85D2F]/10 text-[#F5F1E8]'
+                    : 'border-[#2A2826] bg-[#141312] text-[#8A8680] hover:border-[#3A3835]'
+                }`}
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                Instrumental
+              </button>
+              <button
+                onClick={() => setWithVocals(true)}
+                className={`px-6 py-3 text-sm tracking-[0.1em] uppercase transition-all border ${
+                  withVocals
+                    ? 'border-[#E85D2F] bg-[#E85D2F]/10 text-[#F5F1E8]'
+                    : 'border-[#2A2826] bg-[#141312] text-[#8A8680] hover:border-[#3A3835]'
+                }`}
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                With Vocals
+              </button>
             </div>
           </div>
 

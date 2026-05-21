@@ -53,6 +53,7 @@ export interface Brief {
   genrePalette: string;
   emotionalArc: string;
   references: Reference[];
+  vocals: string;
   tempo: string;
   key: string;
   length: string;
@@ -65,18 +66,57 @@ export interface Brief {
     backend: string;
     exclusivity: string;
   };
-  submitUrl: string;
 }
 
 // ============================================================
 // INPUT
 // ============================================================
+// ============================================================
+// DISCO TAXONOMY — preferred vocabulary for generated briefs.
+// These mirror the tag system in the Disco catalog so that brief
+// language aligns with how accepted tracks get tagged. The model
+// draws from this vocabulary; it does not pick tags at random.
+// Common, broadly-applicable terms are listed first in each list.
+// ============================================================
 
+const DISCO_TAXONOMY = {
+  // Listed common-first. Niche vocal types come last and should
+  // only be used when the genre and concept genuinely call for them.
+  vocals: [
+    'Female vocal', 'Male vocal', 'Background vocals', 'Harmonies',
+    'Oohs', 'Aahs', 'Choir', 'Clean', 'Duet', 'A cappella',
+    'Whispering', 'Whistling', 'Scat', 'Explicit', 'Foreign language',
+    'Spanish language', 'French language', 'German language',
+    'Splice Vox',
+  ],
+  tempo: ['Downtempo', 'Slow', 'Midtempo', 'Uptempo', 'Fast'],
+  // Common-first. Trailing entries are specialized.
+  lyricThemes: [
+    'Love', 'Hope', 'Freedom', 'Confidence', 'Connection', 'Family',
+    'Friendship', 'Celebration', 'Empowerment', 'Strength', 'Success',
+    'Adventure', 'Change', 'Discovery', 'Dream', 'Energy', 'Escape',
+    'Gratitude', 'Happiness', 'Home', 'Identity', 'Individuality',
+    'Life', 'Nature', 'New beginning', 'Nostalgia', 'Time', 'Together',
+    'Unity', 'Ambition', 'Desire', 'Destiny', 'Faith', 'Longing',
+    'Party', 'Power', 'Relationship', 'Romance', 'Survival',
+    'Heartbreak', 'Breakup', 'Loneliness', 'Loss', 'Pain', 'Regret',
+    'Struggle', 'Conflict', 'Fear', 'Betrayal', 'Death', 'Rebellion',
+    'Money', 'Narrative', 'Christmas', 'Fun', 'Happiness',
+  ],
+  // Type tags describe what kind of deliverable the track is.
+  type: [
+    'Mainstream', 'Focus track', 'Demo', 'Soundtrack', 'Score',
+    'Jingle', 'Sound design', 'Sting', 'Cover', 'Remix', 'Rerecord',
+    'One stop', 'Easy-clear', 'Recognizable', 'Samples', 'Trailerized',
+    'Suno',
+  ],
+} as const;
 export interface GenerateBriefInput {
   category: string;          // e.g., "Sports", "Automotive"
   genres: string[];          // user-selected, 1-3 items
   moods: string[];           // user-selected, 1-3 items
   briefType: BriefTypeId;    // 'flash' | 'standard' | 'anthem'
+  withVocals: boolean;       // true = brief calls for vocals, false = instrumental
 }
 
 // ============================================================
@@ -174,7 +214,7 @@ ${scrubInstructions}
 
 5. Include 1-3 specific items in the "avoid" list. Name failure modes specifically, not generically.
 
-6. The studio identity in fileNaming and submitUrl is Sonant. File naming convention format: \`Sonant_[BrandSlug]_YourInitials_TrackTitle_YYYYMMDD.wav\`. Submit URL format: \`s.sonant.io/submit/[brief-id-lowercase]\`.
+6. The studio identity in fileNaming is Sonant. File naming convention format: \`Sonant_[BrandSlug]_YourInitials_TrackTitle_YYYYMMDD.wav\`.
 
 7. The greeting and story should sound like a real human wrote them — varied sentence rhythm, occasional informal language, distinct voice. Do NOT use the same opening structure every time.
 
@@ -186,6 +226,7 @@ ${scrubInstructions}
 
 11. Be CONCISE. Real briefs are tight. Avoid filler. Every sentence should carry information. Avoid the AI tendency to over-explain.
 
+12. COHERENCE OVER VARIETY. Every musical choice — vocal type, lyric theme, tempo, track type — must fit the established genre and emotional arc. A calm ambient brief does not ask for aggressive scat vocals. An upbeat pop brief does not ask for a funeral lyric theme. When choosing from any vocabulary, favor the common, fitting option over the unusual one. The brief must read as one coherent creative world.
 Generate briefs that real composers would recognize as authentic. Avoid AI-generated-feeling text. Be specific. Trust the composer's intelligence.`;
 }
 
@@ -222,6 +263,14 @@ function buildUserPrompt(input: GenerateBriefInput): string {
 
 **Composer's Selected Genre Palette:** ${input.genres.join(', ')}
 **Composer's Selected Emotional Arc:** ${input.moods.join(', ')}
+**Vocal Requirement:** ${input.withVocals ? 'WITH VOCALS — this brief calls for a vocal track.' : 'INSTRUMENTAL — this brief calls for an instrumental track, no vocals.'}
+
+**Vocal & Vocabulary Instruction:**
+${input.withVocals
+  ? `This is a VOCAL brief. The "vocals" field must give real, usable vocal direction: name a vocal type and give lyrical direction (a theme and a sense of approach, NOT fully written lyrics). Choose a vocal type that FITS the genre palette and emotional arc above — it must be coherent with them, never an arbitrary pick. Favor common, broadly castable vocal types: ${DISCO_TAXONOMY.vocals.slice(0, 7).join(', ')}. Only reach for specialized types (${DISCO_TAXONOMY.vocals.slice(13).join(', ')}) when the genre and concept genuinely call for it. For lyrical direction, draw a theme from this vocabulary where one fits naturally: ${DISCO_TAXONOMY.lyricThemes.slice(0, 24).join(', ')}. The lyric theme must also fit the brief's story and emotional arc. The "ask" and "direction" fields should reference the vocal performance as part of the creative challenge.`
+  : `This is an INSTRUMENTAL brief. The "vocals" field must state that the track is instrumental (no lead vocals). Non-lyrical vocal textures (oohs, aahs, choir pads) are acceptable to mention ONLY if they suit the genre and mood — otherwise keep it cleanly instrumental. Do not invent a lyric theme or a singing performance.`}
+
+When writing "tempo", you may use Disco-aligned tempo language (${DISCO_TAXONOMY.tempo.join(', ')}) alongside the BPM range. When the brief implies a track "type", lean on common type vocabulary (${DISCO_TAXONOMY.type.slice(0, 8).join(', ')}) and reserve niche types for when they truly fit. In all cases, every choice must be coherent with the established genre and mood — never pick a tag because it exists; pick it because it fits.
 
 **Codename:** Invent a fresh project codename for this brief. One or two words. It should evoke the selected genre palette and emotional arc, not the brand category. Examples of the right feel: "Nightshift", "Paper Lanterns", "Cold Open", "Slow Tide", "Afterglow", "Ironwood". Avoid real trademarks, and do not reuse the brand name. Make it specific to the mood of this particular brief, and favor variety so generated briefs rarely repeat the same codename.
 
@@ -280,7 +329,7 @@ Return ONLY a valid JSON object matching this exact schema (no preamble, no mark
     "backend": "<royalty/publishing arrangement>",
     "exclusivity": "<exclusivity terms>"
   },
-  "submitUrl": "s.sonant.io/submit/${briefId.toLowerCase()}"
+  "vocals": "<vocal direction — see the vocal instruction above>"
 }
 
 Begin output with the opening { brace and end with the closing } brace. No other text.`;
