@@ -226,7 +226,9 @@ ${scrubInstructions}
 
 11. Be CONCISE. Real briefs are tight. Avoid filler. Every sentence should carry information. Avoid the AI tendency to over-explain.
 
-12. COHERENCE OVER VARIETY. Every musical choice — vocal type, lyric theme, tempo, track type — must fit the established genre and emotional arc. A calm ambient brief does not ask for aggressive scat vocals. An upbeat pop brief does not ask for a funeral lyric theme. When choosing from any vocabulary, favor the common, fitting option over the unusual one. The brief must read as one coherent creative world.
+12. COHERENCE OVER VARIETY. Every musical choice (vocal type, lyric theme, tempo, track type) must fit the established genre and emotional arc. A calm ambient brief does not ask for aggressive scat vocals. An upbeat pop brief does not ask for a funeral lyric theme. When choosing from any vocabulary, favor the common, fitting option over the unusual one. The brief must read as one coherent creative world.
+
+13. PUNCTUATION. Never use em dashes or en dashes anywhere in the brief. Use commas, periods, or parentheses instead. This is a strict house style rule with no exceptions.
 Generate briefs that real composers would recognize as authentic. Avoid AI-generated-feeling text. Be specific. Trust the composer's intelligence.`;
 }
 
@@ -334,7 +336,57 @@ Return ONLY a valid JSON object matching this exact schema (no preamble, no mark
 
 Begin output with the opening { brace and end with the closing } brace. No other text.`;
 }
+// ============================================================
+// PUNCTUATION SCRUB
+// Sonant brand rule: no em dashes (they read as AI-generated).
+// The model is instructed to avoid them, but this guarantees it
+// by cleaning every text field of the generated brief.
+// ============================================================
 
+function scrubDashes(text: string): string {
+  return text
+    // Em dash with surrounding spaces -> comma + space
+    .replace(/\s*—\s*/g, ', ')
+    // En dash with surrounding spaces -> comma + space
+    .replace(/\s*–\s*/g, ', ')
+    // Any stray dash characters left -> comma
+    .replace(/—|–/g, ', ')
+    // Collapse any accidental double punctuation from the swap
+    .replace(/,\s*,/g, ',')
+    .replace(/,\s*\./g, '.')
+    .trim();
+}
+
+function scrubBrief(brief: Brief): Brief {
+  const s = scrubDashes;
+  return {
+    ...brief,
+    project: s(brief.project),
+    deliverable: s(brief.deliverable),
+    usage: s(brief.usage),
+    greeting: s(brief.greeting),
+    story: s(brief.story),
+    ask: s(brief.ask),
+    considerations: brief.considerations.map((c) => ({
+      label: s(c.label),
+      body: s(c.body),
+    })),
+    direction: brief.direction.map(s),
+    genrePalette: s(brief.genrePalette),
+    emotionalArc: s(brief.emotionalArc),
+    references: brief.references.map((r) => ({
+      track: s(r.track),
+      why: s(r.why),
+    })),
+    vocals: s(brief.vocals),
+    tempo: s(brief.tempo),
+    key: s(brief.key),
+    length: s(brief.length),
+    format: s(brief.format),
+    avoid: brief.avoid.map(s),
+    deliverables: brief.deliverables.map(s),
+  };
+}
 // ============================================================
 // THE SERVER ACTION
 // ============================================================
@@ -413,7 +465,10 @@ export async function generateBrief(
     // Mark unused for ESLint while keeping intent clear
     void briefType;
 
-    return { brief: parsed };
+    // Sonant brand rule: strip em dashes from all brief prose.
+    const cleaned = scrubBrief(parsed);
+
+    return { brief: cleaned };
   } catch (apiError) {
     console.error('Anthropic API error:', apiError);
     const message = apiError instanceof Error ? apiError.message : 'Unknown error';
