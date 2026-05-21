@@ -4,8 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
 import ExportPdfButton from '@/components/ExportPdfButton';
 import SubmitTrackModal from '@/components/SubmitTrackModal';
+import DeleteBriefButton from './DeleteBriefButton';
 import { getSubmissionStatus } from '@/app/briefs/actions';
-import { deleteBrief } from '@/app/briefs/actions';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -55,16 +55,7 @@ export default async function BriefDetailPage({ params }: PageProps) {
               alreadySubmitted={alreadySubmitted}
             />
             <ExportPdfButton />
-            <form action={deleteBrief}>
-              <input type="hidden" name="briefId" value={briefRow.id} />
-              <button
-                type="submit"
-                className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[#3A3835] text-[#8A8680] hover:border-[#FF8B6B] hover:text-[#FF8B6B] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-              >
-                Delete
-              </button>
-            </form>
+            <DeleteBriefButton briefId={briefRow.id} />
           </div>
         </div>
 

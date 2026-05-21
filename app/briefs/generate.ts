@@ -388,6 +388,89 @@ function scrubBrief(brief: Brief): Brief {
   };
 }
 // ============================================================
+// JSON EXTRACTION + VALIDATION
+// ============================================================
+
+// Pulls a JSON object out of model output even if it is wrapped in
+// markdown fences or has stray text before or after. Finds the first
+// opening brace and the last closing brace and takes everything between.
+function extractJsonObject(text: string): string {
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+    return text.trim();
+  }
+  return text.slice(firstBrace, lastBrace + 1).trim();
+}
+
+// Confirms a parsed object actually has every field the Brief
+// interface requires, in the right shape. Returns a list of problems;
+// an empty list means the brief is structurally complete.
+function validateBrief(obj: unknown): string[] {
+  const problems: string[] = [];
+  if (typeof obj !== 'object' || obj === null) {
+    return ['Parsed value is not an object.'];
+  }
+  const b = obj as Record<string, unknown>;
+
+  const requiredStrings = [
+    'mode', 'codename', 'briefId', 'issued', 'deadline', 'client',
+    'classification', 'project', 'deliverable', 'usage', 'greeting',
+    'story', 'ask', 'genrePalette', 'emotionalArc', 'vocals', 'tempo',
+    'key', 'length', 'format', 'fileNaming',
+  ];
+  for (const field of requiredStrings) {
+    if (typeof b[field] !== 'string' || (b[field] as string).trim() === '') {
+      problems.push(`Missing or empty string field: ${field}`);
+    }
+  }
+
+  const requiredArrays = ['direction', 'avoid', 'deliverables'];
+  for (const field of requiredArrays) {
+    if (!Array.isArray(b[field]) || (b[field] as unknown[]).length === 0) {
+      problems.push(`Missing or empty array field: ${field}`);
+    }
+  }
+
+  if (!Array.isArray(b.considerations) || b.considerations.length === 0) {
+    problems.push('Missing or empty array field: considerations');
+  } else {
+    for (const c of b.considerations as unknown[]) {
+      const cc = c as Record<string, unknown>;
+      if (typeof cc?.label !== 'string' || typeof cc?.body !== 'string') {
+        problems.push('A considerations entry is missing label or body.');
+        break;
+      }
+    }
+  }
+
+  if (!Array.isArray(b.references) || b.references.length === 0) {
+    problems.push('Missing or empty array field: references');
+  } else {
+    for (const r of b.references as unknown[]) {
+      const rr = r as Record<string, unknown>;
+      if (typeof rr?.track !== 'string' || typeof rr?.why !== 'string') {
+        problems.push('A references entry is missing track or why.');
+        break;
+      }
+    }
+  }
+
+  const terms = b.terms as Record<string, unknown> | undefined;
+  if (typeof terms !== 'object' || terms === null) {
+    problems.push('Missing terms object.');
+  } else {
+    for (const field of ['fee', 'backend', 'exclusivity']) {
+      if (typeof terms[field] !== 'string') {
+        problems.push(`Missing terms.${field}`);
+      }
+    }
+  }
+
+  return problems;
+}
+
+// ============================================================
 // THE SERVER ACTION
 // ============================================================
 
@@ -422,53 +505,94 @@ export async function generateBrief(
 
   const client = new Anthropic({ apiKey });
   const briefType = BRIEF_TYPES[input.briefType];
-  const maxTokens = input.briefType === 'flash' ? 2000 : input.briefType === 'anthem' ? 5000 : 3000;
+  const maxTokens = input.briefType === 'flash' ? 3000 : input.briefType === 'anthem' ? 8000 : 5000;
 
-  try {
+  // Mark unused for ESLint while keeping intent clear
+  void briefType;
+
+  const systemPrompt = buildSystemPrompt();
+  const baseUserPrompt = buildUserPrompt(input);
+
+  // One generation attempt. Returns a valid Brief, or a reason string
+  // describing why this attempt failed so the caller can decide to retry.
+  async function attemptGeneration(
+    attemptNumber: number
+  ): Promise<{ brief?: Brief; failReason?: string }> {
+    // On a retry, append a short corrective note to the user prompt.
+    const userPrompt =
+      attemptNumber === 1
+        ? baseUserPrompt
+        : baseUserPrompt +
+          '\n\nIMPORTANT: Return ONLY the JSON object. It must be complete, ' +
+          'valid, parseable JSON with every field from the schema present. ' +
+          'No preamble, no markdown fences, no trailing text.';
+
     const response = await client.messages.create({
       model: 'claude-sonnet-4-5',
       max_tokens: maxTokens,
-      system: buildSystemPrompt(),
-      messages: [
-        {
-          role: 'user',
-          content: buildUserPrompt(input),
-        },
-      ],
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
     });
+
+    // If the model hit the token ceiling, the JSON is truncated and
+    // unparseable. Treat this as a known failure, not a mystery.
+    if (response.stop_reason === 'max_tokens') {
+      console.error(
+        `Generator attempt ${attemptNumber}: response truncated at max_tokens (${maxTokens}).`
+      );
+      return { failReason: 'truncated' };
+    }
 
     const textBlock = response.content.find((block) => block.type === 'text');
     if (!textBlock || textBlock.type !== 'text') {
-      return { error: 'Unexpected response format from generator. Please try again.' };
+      console.error(`Generator attempt ${attemptNumber}: no text block in response.`);
+      return { failReason: 'no-text-block' };
     }
 
-    let raw = textBlock.text.trim();
-    if (raw.startsWith('```json')) {
-      raw = raw.slice(7);
-    } else if (raw.startsWith('```')) {
-      raw = raw.slice(3);
-    }
-    if (raw.endsWith('```')) {
-      raw = raw.slice(0, -3);
-    }
-    raw = raw.trim();
+    const raw = extractJsonObject(textBlock.text);
 
-    let parsed: Brief;
+    let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
     } catch (parseError) {
-      console.error('Failed to parse generator JSON:', parseError);
+      console.error(`Generator attempt ${attemptNumber}: JSON parse failed:`, parseError);
       console.error('Raw output:', raw);
-      return { error: 'Generator returned invalid format. Please try again.' };
+      return { failReason: 'parse-error' };
     }
 
-    // Mark unused for ESLint while keeping intent clear
-    void briefType;
+    const problems = validateBrief(parsed);
+    if (problems.length > 0) {
+      console.error(
+        `Generator attempt ${attemptNumber}: schema validation failed:`,
+        problems
+      );
+      return { failReason: 'schema-invalid' };
+    }
 
     // Sonant brand rule: strip em dashes from all brief prose.
-    const cleaned = scrubBrief(parsed);
-
+    const cleaned = scrubBrief(parsed as Brief);
     return { brief: cleaned };
+  }
+
+  try {
+    const MAX_ATTEMPTS = 2;
+    let lastFailReason = 'unknown';
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const result = await attemptGeneration(attempt);
+      if (result.brief) {
+        if (attempt > 1) {
+          console.log(`Generator succeeded on attempt ${attempt}.`);
+        }
+        return { brief: result.brief };
+      }
+      lastFailReason = result.failReason ?? 'unknown';
+    }
+
+    console.error(
+      `Generator failed after ${MAX_ATTEMPTS} attempts. Last reason: ${lastFailReason}.`
+    );
+    return { error: 'Generator returned invalid format. Please try again.' };
   } catch (apiError) {
     console.error('Anthropic API error:', apiError);
     const message = apiError instanceof Error ? apiError.message : 'Unknown error';

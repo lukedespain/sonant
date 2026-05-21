@@ -23,18 +23,12 @@ export default function SubmissionsPage() {
         </p>
 
         <div className="flex gap-3 flex-wrap mb-20">
-          <span
-            className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#1F1D1A] text-[#5A5650] cursor-not-allowed"
+          <Link
+            href="/library"
+            className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
-            Submit a Track · Coming Soon
-          </span>
-          <Link
-            href="/reviews"
-            className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-          >
-            Book a Live Review
+            Select a brief to submit a track to
           </Link>
         </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { signIn } from '@/app/auth/actions';
 
@@ -43,18 +44,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className={`w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase transition-all mt-2 ${
-              submitting
-                ? 'bg-[#1F1D1A] text-[#5A5650] cursor-not-allowed'
-                : 'bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D]'
-            }`}
-            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-          >
-            {submitting ? '◆ Signing In…' : '◆ Sign In'}
-          </button>
+          <SubmitButton />
 
           <p className="text-xs text-[#6A6660] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Don&apos;t have an account?{' '}
@@ -67,7 +57,28 @@ export default function LoginPage() {
     </div>
   );
 }
+function SubmitButton() {
+  // useFormStatus reads the pending state of the parent <form>'s
+  // action. It only works from a component rendered inside that form,
+  // which is why the button lives in its own component. This reflects
+  // the transition reliably, unlike a manual useState flag.
+  const { pending } = useFormStatus();
 
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className={`w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase transition-all mt-2 ${
+        pending
+          ? 'bg-[#1F1D1A] text-[#5A5650] cursor-not-allowed'
+          : 'bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D]'
+      }`}
+      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+    >
+      {pending ? '◆ Signing In…' : '◆ Sign In'}
+    </button>
+  );
+}
 function Field({ label, name, type, required }: { label: string; name: string; type: string; required?: boolean }) {
   return (
     <div>

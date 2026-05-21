@@ -41,7 +41,6 @@ export interface Brief {
     backend: string;
     exclusivity: string;
   };
-  submitUrl: string;
 }
 
 function MetaItem({ label, value }: { label: string; value: string }) {
@@ -250,14 +249,14 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
           <div className="space-y-4">
             <div>
               <div className="text-[10px] tracking-[0.25em] uppercase text-[#8A8680] mb-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Upload To
+                How To Submit
               </div>
-              <div className="text-sm bg-[#1A1815]/5 border border-[#2A2620]/20 p-3" style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-                {brief.submitUrl}
+              <div className="text-sm bg-[#1A1815]/5 border border-[#2A2620]/20 p-3 leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+                Visit sonant.ac/submissions to learn more.
               </div>
             </div>
             <p className="text-sm italic text-[#5A5650] leading-relaxed pt-3" style={{ fontFamily: "'Fraunces', serif" }}>
-              Note: Please don&apos;t share this brief externally — it may contain sensitive information. Submissions become eligible for the Sonant Catalog if accepted.
+              Note: Please don&apos;t share this brief externally, it may contain sensitive information. Submissions become eligible for the Sonant Catalog if accepted.
             </p>
           </div>
         </Section>
