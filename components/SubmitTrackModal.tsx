@@ -112,8 +112,8 @@ export default function SubmitTrackModal({
               className="text-xs text-[#8A8680] leading-relaxed mb-4"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
-              ◆ You keep full ownership of your track. The catalog is non-exclusive.
-              If Sonant brokers a placement, income splits 70/30 in your favor. No fees, ever.{' '}
+              ◆ You keep full ownership. Non-exclusive, no fees. Placements split
+              70/30 in your favor.{' '}
               
                 <a href="/submissions"
                 target="_blank"
