@@ -218,6 +218,60 @@ function BriefTypeCard({
   );
 }
 
+function DomainCard({
+  active,
+  disabled,
+  onClick,
+  label,
+  description,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  label: string;
+  description: string;
+}) {
+  return (
+    <button
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`text-left p-6 border transition-all duration-200 ${
+        disabled
+          ? 'bg-[#141312] border-[#2A2826] cursor-not-allowed'
+          : active
+          ? 'bg-[#F5EFE0] border-[#F5EFE0]'
+          : 'bg-[#141312] border-[#2A2826] hover:border-[#4A4642]'
+      }`}
+      style={{ borderRadius: '2px' }}
+    >
+      <div
+        className={`text-xs tracking-[0.25em] uppercase mb-2 ${
+          disabled ? 'text-[#5A5650]' : active ? 'text-[#E85D2F]' : 'text-[#8A8680]'
+        }`}
+        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      >
+        {disabled ? 'Coming Soon' : 'Available'}
+      </div>
+      <h4
+        className={`text-2xl mb-2 ${
+          disabled ? 'text-[#5A5650]' : active ? 'text-[#1A1815]' : 'text-[#F5F1E8]'
+        }`}
+        style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}
+      >
+        {label}
+      </h4>
+      <p
+        className={`text-sm leading-relaxed ${
+          disabled ? 'text-[#3A3835]' : active ? 'text-[#5A5650]' : 'text-[#8A8680]'
+        }`}
+        style={{ fontFamily: "'DM Sans', sans-serif" }}
+      >
+        {description}
+      </p>
+    </button>
+  );
+}
+
 function MetaItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -564,14 +618,14 @@ function BrandWaitlist() {
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-3">
       <div className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        Join the brand waitlist
+        Join the waitlist
       </div>
       <div className="flex gap-2">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@brand.com"
+          placeholder="your email"
           className="flex-1 px-4 py-3 text-sm bg-[#0A0908] border border-[#3A3835] text-[#F5F1E8] placeholder:text-[#5A5650] focus:border-[#E85D2F] focus:outline-none"
           style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
           disabled={status === 'submitting' || status === 'success'}
@@ -605,7 +659,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
   const [category, setCategory] = useState<string | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
-  const [briefTypeId, setBriefTypeId] = useState<BriefTypeId | null>(null);
+  const [domain, setDomain] = useState<'brand' | 'film' | 'games'>('brand');
   const [withVocals, setWithVocals] = useState(false);
   const [generated, setGenerated] = useState<Brief | null>(null);
   const [loading, setLoading] = useState(false);
@@ -658,17 +712,16 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
     setCategory(null);
     setGenres([]);
     setMoods([]);
-    setBriefTypeId(null);
     setGenerated(null);
     setTimeout(() => {
       optionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   };
 
-  const canGenerate = !!(category && genres.length > 0 && moods.length > 0 && briefTypeId);
+  const canGenerate = !!(category && genres.length > 0 && moods.length > 0);
 
   const handleGenerate = async () => {
-    if (!canGenerate || !category || !briefTypeId) return;
+    if (!canGenerate || !category) return;
     setLoading(true);
     setGenerated(null);
 
@@ -677,7 +730,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
         category,
         genres,
         moods,
-        briefType: briefTypeId,
+        briefType: 'standard',
         withVocals,
       });
 
@@ -735,7 +788,6 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
     setCategory(null);
     setGenres([]);
     setMoods([]);
-    setBriefTypeId(null);
     setGenerated(null);
   };
 
@@ -775,7 +827,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
   Where <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>creative vision</span> survives the trip.
 </h1>
 <p className="text-lg md:text-xl text-[#A8A39A] max-w-2xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
-  Sonant is the music brief tool that keeps creative direction intact, from brand to composer.
+  Sonant is the music brief tool that keeps creative direction intact, from supervisor to composer.
 </p>
       </section>
 
@@ -794,10 +846,10 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <SideCard
             active={false}
             onClick={() => {}}
-            glyph="▷"
-            label="For Brands"
+            glyph="◆"
+            label="For Supervisors"
             sub="Professional Brief Writing Tool"
-            description="Draft, refine, and deploy briefs to composers — through Sonant or your own network."
+            description="Draft, refine, and deploy briefs to composers, through Sonant or your own network."
             status="Coming Soon"
             isComingSoon={true}
             showWaitlist={true}
@@ -811,6 +863,40 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 Step 01
+              </span>
+              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+                Choose your brief type
+              </h2>
+            </div>
+            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">What kind of project is this music for</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 ml-[5.5rem]">
+              <DomainCard
+                active={domain === 'brand'}
+                onClick={() => setDomain('brand')}
+                label="Brand & Advertising"
+                description="Commercials, campaigns, and brand spots."
+              />
+              <DomainCard
+                active={false}
+                disabled
+                onClick={() => {}}
+                label="Film & Television"
+                description="Scored cues for film and TV scenes."
+              />
+              <DomainCard
+                active={false}
+                disabled
+                onClick={() => {}}
+                label="Video Game"
+                description="Trailers, background loops, and sound design."
+              />
+            </div>
+          </div>
+
+          <div className="mb-14">
+            <div className="flex items-baseline gap-4 mb-3">
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                Step 02
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Pick a category
@@ -829,7 +915,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 02
+                Step 03
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Genre palette <span className="text-sm text-[#8A8680] ml-2">(up to 3)</span>
@@ -848,7 +934,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 03
+                Step 04
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Emotional arc <span className="text-sm text-[#8A8680] ml-2">(up to 3)</span>
@@ -864,29 +950,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             </div>
           </div>
 
-          <div className="mb-14">
-            <div className="flex items-baseline gap-4 mb-3">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 04
-              </span>
-              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Brief type
-              </h2>
-            </div>
-            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">How deep do you want to go</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 ml-[5.5rem]">
-              {BRIEF_TYPE_LIST.map((bt) => (
-                <BriefTypeCard
-                  key={bt.id}
-                  active={briefTypeId === bt.id}
-                  onClick={() => setBriefTypeId(bt.id)}
-                  label={bt.label}
-                  description={bt.description}
-                  wordCount={bt.targetWordCount}
-                />
-              ))}
-            </div>
-          </div>
+          
 
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
@@ -938,7 +1002,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
               >
                 {loading ? '◆ Generating…' : '◆ Generate Brief'}
               </button>
-              {(category || genres.length > 0 || moods.length > 0 || briefTypeId) && !loading && (
+              {(category || genres.length > 0 || moods.length > 0) && !loading && (
                 <button
                   onClick={handleReset}
                   className="text-xs tracking-[0.2em] uppercase text-[#8A8680] hover:text-[#F5F1E8] transition-colors"
