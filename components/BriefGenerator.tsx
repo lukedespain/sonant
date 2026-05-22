@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { saveBrief } from '@/app/briefs/actions';
 import { addAnonBrief } from '@/lib/anon-briefs';
-import { generateBrief as generateBriefAction } from '@/app/briefs/generate';
 import {
   BRAND_CATEGORIES,
   BRIEF_TYPES,
@@ -726,13 +725,53 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
     setGenerated(null);
 
     try {
-      const result = await generateBriefAction({
-        category,
-        genres,
-        moods,
-        briefType: 'standard',
-        withVocals,
+      // Kick off background generation, then poll for the result.
+      const startRes = await fetch('/api/briefs/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category,
+          genres,
+          moods,
+          briefType: 'standard',
+          withVocals,
+        }),
       });
+
+      const startData = await startRes.json();
+
+      if (!startRes.ok || !startData.jobId) {
+        console.error('Generation error:', startData.error);
+        setLoading(false);
+        alert(startData.error ?? 'Could not start generation.');
+        return;
+      }
+
+      // Poll the status endpoint until the brief is done or errors.
+      const jobId = startData.jobId;
+      let result: { brief?: Brief; error?: string } = {};
+
+      for (let attempt = 0; attempt < 150; attempt++) {
+        await new Promise((r) => setTimeout(r, 3000));
+        const statusRes = await fetch(
+          `/api/briefs/status?jobId=${jobId}`
+        );
+        const job = await statusRes.json();
+
+        if (job.status === 'done') {
+          result = { brief: job.result };
+          break;
+        }
+        if (job.status === 'error') {
+          result = { error: job.error_message ?? 'Generation failed.' };
+          break;
+        }
+        // status still 'pending' — keep polling.
+      }
+
+      if (!result.brief && !result.error) {
+        result = { error: 'Generation timed out. Please try again.' };
+      }
 
       if (result.error) {
         console.error('Generation error:', result.error);
