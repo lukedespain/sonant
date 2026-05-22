@@ -4,11 +4,6 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Not signed in.' }, { status: 401 });
-  }
-
   const jobId = new URL(req.url).searchParams.get('jobId');
   if (!jobId) {
     return NextResponse.json({ error: 'Missing jobId.' }, { status: 400 });

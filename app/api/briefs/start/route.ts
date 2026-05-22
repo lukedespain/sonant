@@ -5,15 +5,12 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Not signed in.' }, { status: 401 });
-  }
 
   const input = await req.json();
 
   const { data: job, error } = await supabase
     .from('brief_jobs')
-    .insert({ user_id: user.id, status: 'pending', input })
+    .insert({ user_id: user?.id ?? null, status: 'pending', input })
     .select('id')
     .single();
 
