@@ -534,18 +534,30 @@ export async function generateBrief(
       messages: [{ role: 'user', content: userPrompt }],
     });
 
+    const stopReason = response.stop_reason;
+
     // If the model hit the token ceiling, the JSON is truncated and
     // unparseable. Treat this as a known failure, not a mystery.
-    if (response.stop_reason === 'max_tokens') {
-      console.error(
-        `Generator attempt ${attemptNumber}: response truncated at max_tokens (${maxTokens}).`
-      );
+    if (stopReason === 'max_tokens') {
+      const truncatedBlock = response.content.find((b) => b.type === 'text');
+      const truncatedRaw = truncatedBlock?.type === 'text' ? truncatedBlock.text : '(no text block)';
+      console.error(`Generator attempt ${attemptNumber} failed:`, {
+        failReason: 'truncated',
+        briefType: input.briefType,
+        stopReason,
+        rawOutput: truncatedRaw,
+      });
       return { failReason: 'truncated' };
     }
 
     const textBlock = response.content.find((block) => block.type === 'text');
     if (!textBlock || textBlock.type !== 'text') {
-      console.error(`Generator attempt ${attemptNumber}: no text block in response.`);
+      console.error(`Generator attempt ${attemptNumber} failed:`, {
+        failReason: 'no-text-block',
+        briefType: input.briefType,
+        stopReason,
+        rawOutput: '(no text block)',
+      });
       return { failReason: 'no-text-block' };
     }
 
@@ -555,17 +567,25 @@ export async function generateBrief(
     try {
       parsed = JSON.parse(raw);
     } catch (parseError) {
-      console.error(`Generator attempt ${attemptNumber}: JSON parse failed:`, parseError);
-      console.error('Raw output:', raw);
+      console.error(`Generator attempt ${attemptNumber} failed:`, {
+        failReason: 'parse-error',
+        briefType: input.briefType,
+        stopReason,
+        rawOutput: raw,
+      });
+      console.error('Parse error detail:', parseError);
       return { failReason: 'parse-error' };
     }
 
     const problems = validateBrief(parsed);
     if (problems.length > 0) {
-      console.error(
-        `Generator attempt ${attemptNumber}: schema validation failed:`,
-        problems
-      );
+      console.error(`Generator attempt ${attemptNumber} failed:`, {
+        failReason: 'schema-invalid',
+        briefType: input.briefType,
+        stopReason,
+        problems,
+        rawOutput: raw,
+      });
       return { failReason: 'schema-invalid' };
     }
 
