@@ -52,7 +52,7 @@ export default function RoyaltiesPage() {
     <div className="pt-20 pb-12 flex-1">
 
       {/* Hero image — wide with small side margins */}
-      <div className="px-4 md:px-6 mb-12">
+      <div className="px-4 md:px-[15%] mb-12">
         <Image
           src="/royalties-cover.png"
           alt="Every Royalty You're Owed, and How to Collect It — Sonant guide cover"
