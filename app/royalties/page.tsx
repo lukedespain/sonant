@@ -51,14 +51,22 @@ export default function RoyaltiesPage() {
   return (
     <div className="pt-20 pb-12 flex-1">
 
-      {/* Hero image — wide with small side margins */}
+      {/* Hero image — square thumbnail on mobile, landscape cover on desktop */}
       <div className="px-4 md:px-[15%] mb-12">
+        <Image
+          src="/royalties-thumbnail.png"
+          alt="Every Royalty You're Owed, and How to Collect It — Sonant guide cover"
+          width={2400}
+          height={2400}
+          className="w-full md:hidden"
+          priority
+        />
         <Image
           src="/royalties-cover.png"
           alt="Every Royalty You're Owed, and How to Collect It — Sonant guide cover"
           width={3840}
           height={2160}
-          className="w-full"
+          className="w-full hidden md:block"
           priority
         />
       </div>
