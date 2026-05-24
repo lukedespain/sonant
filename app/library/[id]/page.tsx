@@ -40,28 +40,34 @@ export default async function BriefDetailPage({ params }: PageProps) {
   return (
     <div className="pt-20 pb-12 flex-1">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-3 no-print">
-          <Link
-            href="/library"
-            className="text-xs tracking-[0.2em] uppercase text-[#8A8680] hover:text-[#F5F1E8] transition-colors"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            ← Back to Library
-          </Link>
-          <div className="flex items-center gap-3">
+        <div className="no-print mb-6 space-y-3">
+          {/* Row 1: Back to Library | Submit a Track */}
+          <div className="flex items-center justify-between gap-3">
+            <Link
+              href="/library"
+              className="text-xs tracking-[0.2em] uppercase text-[#8A8680] hover:text-[#F5F1E8] transition-colors"
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              ← Back to Library
+            </Link>
             <SubmitTrackModal
               briefId={briefRow.id}
               projectName={brief.codename}
               alreadySubmitted={alreadySubmitted}
             />
+          </div>
+
+          {/* Row 2: Export PDF | Delete */}
+          <div className="flex items-center justify-between gap-3">
             <ExportPdfButton />
             <DeleteBriefButton briefId={briefRow.id} />
           </div>
-        </div>
 
-        <p className="text-[10px] tracking-[0.15em] uppercase text-[#8A8680] mb-6 text-right no-print" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          Tip: when exporting, set destination to &ldquo;Save as PDF&rdquo;
-        </p>
+          {/* Tip */}
+          <p className="text-[10px] tracking-[0.15em] uppercase text-[#8A8680] text-right" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            Tip: when exporting, set destination to &ldquo;Save as PDF&rdquo;
+          </p>
+        </div>
 
         <BriefDocument brief={brief} />
       </div>

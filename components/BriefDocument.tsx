@@ -89,7 +89,7 @@ function Section({ number, title, children }: { number: string; title: string; c
 export default function BriefDocument({ brief }: { brief: Brief }) {
   return (
     <div
-      className="relative shadow-2xl brief-document"
+      className="relative shadow-2xl brief-document w-full"
       style={{
         background: 'linear-gradient(180deg, #F5EFE0 0%, #F2EBDA 100%)',
         color: '#1A1815',
