@@ -38,7 +38,7 @@ export default async function BriefDetailPage({ params }: PageProps) {
  
 
   return (
-    <div className="pt-20 pb-12 flex-1">
+    <div className="pt-20 pb-12 flex-1 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="no-print mb-6 space-y-3">
           {/* Row 1: Back to Library | Submit a Track */}
