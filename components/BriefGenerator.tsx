@@ -1001,7 +1001,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
               </h2>
             </div>
             <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">Should the brief call for a vocal track or an instrumental</p>
-            <div className="flex gap-3 ml-[5.5rem]">
+            <div className="flex flex-col sm:flex-row gap-3 ml-[5.5rem]">
               <button
                 onClick={() => setWithVocals(false)}
                 className={`px-6 py-3 text-sm tracking-[0.1em] uppercase transition-all border ${
@@ -1053,7 +1053,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             </div>
             {!canGenerate && !loading && (
               <p className="text-xs text-[#6A6660]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Pick a category, at least one genre, at least one mood, and a brief type.
+                Pick a category, at least one genre, at least one mood, and choose between vocal or instrumental.
               </p>
             )}
           </div>
