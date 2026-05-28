@@ -438,7 +438,7 @@ function BriefDocument({ brief }: { brief: Brief }) {
             <div className="text-[10px] tracking-[0.25em] uppercase text-[#8A8680] mb-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               File Naming Convention
             </div>
-            <div className="text-sm bg-[#1A1815]/5 border border-[#2A2620]/20 p-3" style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+            <div className="text-sm bg-[#1A1815]/5 border border-[#2A2620]/20 p-3 overflow-x-auto whitespace-nowrap" style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
               {brief.fileNaming}
             </div>
           </div>
@@ -1080,7 +1080,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
 
       {generated && !loading && (
         <>
-          <section ref={briefRef} className="max-w-5xl mx-auto px-6 md:px-10 py-16 fade-up">
+          <section ref={briefRef} className="max-w-5xl mx-auto px-6 md:px-10 py-16 fade-up overflow-x-hidden">
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
               <div className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 ◆ Brief Generated · {generated.briefId}
