@@ -88,6 +88,17 @@ export default function Nav({ user }: NavProps) {
             {user ? (
               <>
                 <Link
+                  href="/browse"
+                  className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-colors ${
+                    isActive('/browse')
+                      ? 'border-[#E85D2F] text-[#E85D2F]'
+                      : 'border-[#3A3835] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                  }`}
+                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                >
+                  Browse Briefs
+                </Link>
+                <Link
                   href="/library"
                   className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-colors ${
                     isActive('/library')
@@ -181,6 +192,18 @@ export default function Nav({ user }: NavProps) {
           <div className="flex flex-col gap-3 pt-5">
             {user ? (
               <>
+                <Link
+                  href="/browse"
+                  onClick={closeMenu}
+                  className={`text-xs tracking-[0.2em] uppercase px-4 py-3 border text-center transition-colors ${
+                    isActive('/browse')
+                      ? 'border-[#E85D2F] text-[#E85D2F]'
+                      : 'border-[#3A3835] text-[#8A8680]'
+                  }`}
+                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                >
+                  Browse Briefs
+                </Link>
                 <Link
                   href="/library"
                   onClick={closeMenu}

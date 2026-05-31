@@ -38,8 +38,10 @@ export interface Brief {
   deliverables: string[];
   terms: {
     fee: string;
-    backend: string;
+    usageType?: string;
+    duration?: string;
     exclusivity: string;
+    backend?: string; // legacy field kept for old saved briefs
   };
 }
 
@@ -238,9 +240,13 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
         </Section>
 
         <Section number="09" title="Commercial Terms">
+          <p className="text-xs text-[#8A8680] leading-relaxed mb-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            These terms are for this practice brief. Real placements are negotiated separately.
+          </p>
           <div className="space-y-4">
-            <KV label="Demo / Composition Fee" value={brief.terms.fee} />
-            <KV label="Backend" value={brief.terms.backend} />
+            <KV label="Composition Fee" value={brief.terms.fee} />
+            <KV label="Usage Type" value={brief.terms.usageType ?? brief.terms.backend ?? 'See brief'} />
+            {brief.terms.duration && <KV label="License Duration" value={brief.terms.duration} />}
             <KV label="Exclusivity" value={brief.terms.exclusivity} />
           </div>
         </Section>

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { saveBrief } from '@/app/briefs/actions';
 import { addAnonBrief } from '@/lib/anon-briefs';
 import {
@@ -12,7 +11,6 @@ import {
 } from '@/lib/brief-patterns';
 
 // ---------- TYPES ----------
-type Side = 'composers' | 'brands';
 
 interface Reference {
   track: string;
@@ -53,20 +51,37 @@ interface Brief {
   deliverables: string[];
   terms: {
     fee: string;
-    backend: string;
+    usageType?: string;
+    duration?: string;
     exclusivity: string;
+    backend?: string; // legacy field kept for old saved briefs
   };
 }
 
 // ---------- DATA ----------
 const GENRES = [
-  'Cinematic', 'Hip-Hop', 'Rock', 'Electronic', 'Pop',
-  'Orchestral', 'Ambient', 'Folk', 'Indie', 'World/Ethnic',
+  'Cinematic', 'Electronic', 'Hip-Hop', 'Rock', 'Pop', 'Orchestral',
+  'Ambient', 'Folk / Acoustic', 'Indie', 'R&B / Soul', 'Alternative',
+  'Country', 'Jazz', 'Neo-Classical',
 ];
 
-const MOODS = [
+// Sync-industry mood vocabulary, tailored per category.
+// Sourced from Musicbed / Artlist featured-playlist language.
+const CATEGORY_MOODS: Record<string, string[]> = {
+  Sports:     ['Energetic', 'Driving', 'Powerful', 'Intense', 'Triumphant', 'Gritty', 'Determined', 'Raw', 'Explosive', 'Focused', 'Aggressive', 'Bold'],
+  Automotive: ['Cinematic', 'Driving', 'Powerful', 'Sleek', 'Adventurous', 'Sophisticated', 'Dynamic', 'Bold', 'Epic', 'Atmospheric', 'Majestic', 'Smooth'],
+  Technology: ['Futuristic', 'Innovative', 'Confident', 'Clean', 'Optimistic', 'Driving', 'Inspiring', 'Bright', 'Focused', 'Forward-moving', 'Warm', 'Sleek'],
+  Fashion:    ['Ethereal', 'Sophisticated', 'Mysterious', 'Confident', 'Dreamy', 'Dark', 'Luxurious', 'Edgy', 'Romantic', 'Aspirational', 'Seductive', 'Bold'],
+  Lifestyle:  ['Warm', 'Hopeful', 'Uplifting', 'Nostalgic', 'Playful', 'Carefree', 'Inspiring', 'Relaxed', 'Joyful', 'Emotional', 'Authentic', 'Peaceful'],
+  Beverage:   ['Playful', 'Refreshing', 'Vibrant', 'Carefree', 'Upbeat', 'Social', 'Energetic', 'Fun', 'Bright', 'Relaxed', 'Warm', 'Celebratory'],
+  Food:       ['Warm', 'Nostalgic', 'Inviting', 'Comforting', 'Playful', 'Joyful', 'Bright', 'Authentic', 'Celebratory', 'Cozy', 'Cheerful', 'Family'],
+  Healthcare: ['Calming', 'Hopeful', 'Warm', 'Trustworthy', 'Gentle', 'Uplifting', 'Peaceful', 'Emotional', 'Inspiring', 'Tender', 'Safe', 'Healing'],
+  Financial:  ['Confident', 'Trustworthy', 'Sophisticated', 'Powerful', 'Steady', 'Inspiring', 'Clean', 'Bold', 'Authoritative', 'Calm', 'Optimistic', 'Forward-looking'],
+};
+
+const DEFAULT_MOODS = [
   'Triumphant', 'Melancholic', 'Tense', 'Playful', 'Epic',
-  'Intimate', 'Defiant', 'Hopeful', 'Mysterious', 'Euphoric',
+  'Intimate', 'Hopeful', 'Mysterious', 'Uplifting', 'Driving', 'Emotional', 'Atmospheric',
 ];
 
 const CATEGORIES = Object.values(BRAND_CATEGORIES).map((c) => c.name);
@@ -95,82 +110,6 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   );
 }
 
-function SideCard({
-  active,
-  onClick,
-  glyph,
-  label,
-  sub,
-  description,
-  status,
-  isComingSoon,
-  showWaitlist,
-}: {
-  active: boolean;
-  onClick: () => void;
-  glyph: string;
-  label: string;
-  sub: string;
-  description: string;
-  status: string;
-  isComingSoon: boolean;
-  showWaitlist?: boolean;
-}) {
-  const Wrapper = isComingSoon ? 'div' : 'button';
-  const wrapperProps = isComingSoon
-    ? {}
-    : { onClick, type: 'button' as const };
-
-  return (
-    <Wrapper
-      {...wrapperProps}
-      className={`group relative text-left p-8 border transition-all duration-300 overflow-hidden flex flex-col ${
-        isComingSoon
-          ? 'bg-[#0F0E0D] border-[#1F1D1A] cursor-default'
-          : active
-          ? 'bg-[#F5EFE0] border-[#F5EFE0]'
-          : 'bg-[#141312] border-[#2A2826] hover:border-[#4A4642] hover:bg-[#181614] cursor-pointer'
-      }`}
-      style={{
-        borderRadius: '2px',
-        backgroundImage: active && !isComingSoon
-          ? "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='mn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23mn)' opacity='0.07'/%3E%3C/svg%3E\")"
-          : undefined,
-      }}
-    >
-      <div className="flex items-start justify-between mb-6">
-        <span className={`text-2xl transition-colors ${active && !isComingSoon ? 'text-[#E85D2F]' : 'text-[#5A5650] group-hover:text-[#8A8680]'}`}>
-          {glyph}
-        </span>
-        <span
-          className={`text-[10px] tracking-[0.2em] uppercase ${active && !isComingSoon ? 'text-[#8A8680]' : isComingSoon ? 'text-[#E85D2F]' : 'text-[#6A6660]'}`}
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          {status}
-        </span>
-      </div>
-      <h3
-        className={`text-3xl mb-2 leading-tight ${active && !isComingSoon ? 'text-[#1A1815]' : 'text-[#F5F1E8]'}`}
-        style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
-      >
-        {label}
-      </h3>
-      <div
-        className={`text-sm mb-4 ${active && !isComingSoon ? 'text-[#5A5650]' : 'text-[#A8A39A]'}`}
-        style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}
-      >
-        {sub}
-      </div>
-      <p
-        className={`text-sm leading-relaxed flex-1 ${active && !isComingSoon ? 'text-[#5A5650]' : 'text-[#8A8680]'}`}
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
-      >
-        {description}
-      </p>
-      {showWaitlist && <BrandWaitlist />}
-    </Wrapper>
-  );
-}
 
 function BriefTypeCard({
   active,
@@ -467,9 +406,13 @@ function BriefDocument({ brief }: { brief: Brief }) {
         </Section>
 
         <Section number="09" title="Commercial Terms">
+          <p className="text-xs text-[#8A8680] leading-relaxed mb-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            These terms are for this practice brief. Real placements are negotiated separately.
+          </p>
           <div className="space-y-4">
-            <KV label="Demo / Composition Fee" value={brief.terms.fee} />
-            <KV label="Backend" value={brief.terms.backend} />
+            <KV label="Composition Fee" value={brief.terms.fee} />
+            <KV label="Usage Type" value={brief.terms.usageType ?? brief.terms.backend ?? 'See brief'} />
+            {brief.terms.duration && <KV label="License Duration" value={brief.terms.duration} />}
             <KV label="Exclusivity" value={brief.terms.exclusivity} />
           </div>
         </Section>
@@ -593,68 +536,9 @@ function NextSteps() {
   );
 }
 
-function BrandWaitlist() {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes('@')) {
-      setStatus('error');
-      setTimeout(() => setStatus('idle'), 2000);
-      return;
-    }
-    setStatus('submitting');
-    // For now, log to console. Replace with real waitlist call when ready.
-    console.log('Brand waitlist signup:', email);
-    setTimeout(() => {
-      setStatus('success');
-      setEmail('');
-      setTimeout(() => setStatus('idle'), 4000);
-    }, 600);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-      <div className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        Join the waitlist
-      </div>
-      <div className="flex gap-2">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="your email"
-          className="flex-1 px-4 py-3 text-sm bg-[#0A0908] border border-[#3A3835] text-[#F5F1E8] placeholder:text-[#5A5650] focus:border-[#E85D2F] focus:outline-none"
-          style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
-          disabled={status === 'submitting' || status === 'success'}
-        />
-        <button
-          type="submit"
-          disabled={status === 'submitting' || status === 'success'}
-          className={`px-5 py-3 text-xs tracking-[0.15em] uppercase transition-colors ${
-            status === 'success'
-              ? 'bg-[#7A9A6E] text-[#0A0908]'
-              : status === 'error'
-              ? 'bg-[#B33A1A] text-[#F5F1E8]'
-              : 'bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D]'
-          }`}
-          style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-        >
-          {status === 'submitting' ? 'Adding…' :
-           status === 'success' ? '✓ Added' :
-           status === 'error' ? 'Invalid' :
-           'Notify Me'}
-        </button>
-      </div>
-    </form>
-  );
-}
 
 // ---------- MAIN APP ----------
 export default function BriefGenerator({ user }: { user: { email: string; fullName: string } | null }) {
-  const pathname = usePathname();
-  const [side, setSide] = useState<Side | null>(null);
   const [category, setCategory] = useState<string | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
@@ -695,26 +579,21 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
     return () => clearInterval(interval);
   }, [loading, loadingMessages.length]);
 
+  // Moods available for the currently selected category (or the default set).
+  const availableMoods = category ? (CATEGORY_MOODS[category] ?? DEFAULT_MOODS) : DEFAULT_MOODS;
+
+  const handleCategorySelect = (c: string) => {
+    const newMoods = CATEGORY_MOODS[c] ?? DEFAULT_MOODS;
+    setMoods((prev) => prev.filter((m) => newMoods.includes(m)));
+    setCategory(c);
+  };
+
   const toggleGenre = (g: string) => {
     setGenres((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : prev.length < 3 ? [...prev, g] : prev));
   };
 
   const toggleMood = (m: string) => {
     setMoods((prev) => (prev.includes(m) ? prev.filter((x) => x !== m) : prev.length < 3 ? [...prev, m] : prev));
-  };
-
-  const handleSideSelect = (s: Side) => {
-    if (s !== 'composers') {
-      return;
-    }
-    setSide(s);
-    setCategory(null);
-    setGenres([]);
-    setMoods([]);
-    setGenerated(null);
-    setTimeout(() => {
-      optionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
   };
 
   const canGenerate = !!(category && genres.length > 0 && moods.length > 0);
@@ -823,7 +702,6 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
   };
 
   const handleReset = () => {
-    setSide(null);
     setCategory(null);
     setGenres([]);
     setMoods([]);
@@ -870,34 +748,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
 </p>
       </section>
 
-      <section className="max-w-7xl mx-auto px-6 md:px-10 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-          <SideCard
-            active={side === 'composers'}
-            onClick={() => handleSideSelect('composers')}
-            glyph="◆"
-            label="For Composers"
-            sub="Practice Brief Generator"
-            description="Sharpen your craft on industry-grade briefs that read like the real ones. Build a catalog with intention."
-            status="Open"
-            isComingSoon={false}
-          />
-          <SideCard
-            active={false}
-            onClick={() => {}}
-            glyph="◆"
-            label="For Supervisors"
-            sub="Professional Brief Writing Tool"
-            description="Draft, refine, and deploy briefs to composers, through Sonant or your own network."
-            status="Coming Soon"
-            isComingSoon={true}
-            showWaitlist={true}
-          />
-        </div>
-      </section>
-
-      {side === 'composers' && (
-        <section ref={optionsRef} className="max-w-7xl mx-auto px-6 md:px-10 py-12 fade-up">
+      <section ref={optionsRef} className="max-w-7xl mx-auto px-6 md:px-10 py-12">
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
@@ -944,7 +795,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">Where do you want your music to live</p>
             <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
               {CATEGORIES.map((c) => (
-                <Chip key={c} active={category === c} onClick={() => setCategory(c)}>
+                <Chip key={c} active={category === c} onClick={() => handleCategorySelect(c)}>
                   {c}
                 </Chip>
               ))}
@@ -979,9 +830,9 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 Emotional arc <span className="text-sm text-[#8A8680] ml-2">(up to 3)</span>
               </h2>
             </div>
-            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">Pick one to hold throughout — or up to three to sequence the arc</p>
+            <p className="text-sm text-[#8A8680] mb-6 ml-[5.5rem]">Options update based on your category. Pick one to hold throughout — or up to three to sequence the arc.</p>
             <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
-              {MOODS.map((m) => (
+              {availableMoods.map((m) => (
                 <Chip key={m} active={moods.includes(m)} onClick={() => toggleMood(m)}>
                   {m}
                 </Chip>
@@ -1058,7 +909,6 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             )}
           </div>
         </section>
-      )}
 
       {loading && (
         <section className="max-w-7xl mx-auto px-6 md:px-10 py-16 fade-up">

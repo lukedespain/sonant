@@ -63,8 +63,10 @@ export interface Brief {
   deliverables: string[];
   terms: {
     fee: string;
-    backend: string;
+    usageType: string;
+    duration: string;
     exclusivity: string;
+    backend?: string; // legacy field kept for old saved briefs
   };
 }
 
@@ -222,7 +224,7 @@ ${scrubInstructions}
 
 9. Tempo, key, length, format are specific. Tempo is a BPM range. Key is musical guidance ("Modal preferred, avoid clear major resolutions"). Length matches the deliverable.
 
-10. Commercial terms are category-realistic. Sports = $5-12K demo fee. Tech = $5-10K. Anthem = $10-25K. Healthcare = $5-15K. Financial = $8-18K. Beverage = $5-15K. Fashion = $5-15K. Food = $5-12K. Lifestyle = $4-10K.
+10. Commercial terms must be written in plain language that a composer at any level can understand without Googling. No industry shorthand without explanation. Category fee ranges: Sports = $5-12K, Tech = $5-10K, Anthem = $10-25K, Healthcare = $5-15K, Financial = $8-18K, Beverage = $5-15K, Fashion = $5-15K, Food = $5-12K, Lifestyle = $4-10K. For each field: "fee" = state the exact dollar amount offered and precisely what it covers (e.g., "$7,500 flat composition fee for the demo. If the track is selected for the campaign, a separate licensing fee is negotiated at time of placement."). "usageType" = state exactly where and how the music will be used, in plain terms (e.g., "National broadcast television and paid digital pre-roll. No radio, no out-of-home, no retail."). "duration" = state how long the license lasts (e.g., "18 months from the first air date, with an optional 12-month renewal at the client's discretion." or "In perpetuity for the specific campaign assets listed above."). "exclusivity" = state clearly yes or no, and what it means for the composer (e.g., "Non-exclusive. You can pitch this track to other supervisors and libraries. We will not pitch it to direct competitors in the same product category for 90 days." or "Exclusive for 6 months from first air date, then non-exclusive. Exclusivity applies to this campaign only.").
 
 11. Be CONCISE. Real briefs are tight. Avoid filler. Every sentence should carry information. Avoid the AI tendency to over-explain.
 
@@ -327,9 +329,10 @@ Return ONLY a valid JSON object matching this exact schema (no preamble, no mark
     "<deliverable item>"
   ],
   "terms": {
-    "fee": "<demo or composition fee, category- and type-realistic>",
-    "backend": "<royalty/publishing arrangement>",
-    "exclusivity": "<exclusivity terms>"
+    "fee": "<plain language: exact dollar amount + what it covers>",
+    "usageType": "<plain language: exactly where and how the music will be used>",
+    "duration": "<plain language: how long the license lasts>",
+    "exclusivity": "<plain language: exclusive or non-exclusive, with a clear explanation of what that means for the composer>"
   },
   "vocals": "<vocal direction — see the vocal instruction above>"
 }
@@ -460,7 +463,7 @@ function validateBrief(obj: unknown): string[] {
   if (typeof terms !== 'object' || terms === null) {
     problems.push('Missing terms object.');
   } else {
-    for (const field of ['fee', 'backend', 'exclusivity']) {
+    for (const field of ['fee', 'usageType', 'duration', 'exclusivity']) {
       if (typeof terms[field] !== 'string') {
         problems.push(`Missing terms.${field}`);
       }

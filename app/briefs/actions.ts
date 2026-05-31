@@ -84,12 +84,13 @@ export async function submitTrack(briefId: string) {
     return { error: 'You must be signed in to submit a track.' };
   }
 
-  // Confirm the brief belongs to this user before recording a submission.
-  const { data: brief, error: briefError } = await supabase
+  // Confirm the brief exists — admin client bypasses RLS so composers can
+  // submit tracks to any brief in the catalog, not just their own.
+  const admin = createAdminClient();
+  const { data: brief, error: briefError } = await admin
     .from('briefs')
     .select('id, generated_content')
     .eq('id', briefId)
-    .eq('user_id', user.id)
     .single();
 
   if (briefError || !brief) {
@@ -122,6 +123,7 @@ export async function submitTrack(briefId: string) {
 
   revalidatePath('/library');
   revalidatePath(`/library/${briefId}`);
+  revalidatePath(`/browse/${briefId}`);
   return { success: true };
 }
 
