@@ -1,5 +1,7 @@
 // app/api/briefs/start/route.ts
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { generateBrief } from '@/app/briefs/generate';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -19,8 +21,36 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Could not start generation.' }, { status: 500 });
   }
 
+  if (process.env.NODE_ENV === 'development') {
+    // In local dev the Netlify background function isn't available.
+    // Run generation inline so the polling loop finds a result immediately.
+    const admin = createAdminClient();
+    generateBrief(input).then(async (result) => {
+      if (result.error || !result.brief) {
+        await admin
+          .from('brief_jobs')
+          .update({ status: 'error', error_message: result.error ?? 'Unknown error' })
+          .eq('id', job.id);
+      } else {
+        await admin
+          .from('brief_jobs')
+          .update({ status: 'done', result: result.brief })
+          .eq('id', job.id);
+      }
+    }).catch(async (err) => {
+      console.error('Inline generation error:', err);
+      const admin = createAdminClient();
+      await admin
+        .from('brief_jobs')
+        .update({ status: 'error', error_message: 'Generation crashed.' })
+        .eq('id', job.id);
+    });
+
+    return NextResponse.json({ jobId: job.id });
+  }
+
+  // Production: fire the Netlify background function detached.
   const origin = new URL(req.url).origin;
-  // Fire the background function. Do NOT await — let it run detached.
   fetch(`${origin}/.netlify/functions/generate-brief-background`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
