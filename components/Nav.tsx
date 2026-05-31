@@ -19,7 +19,7 @@ export default function Nav({ user }: NavProps) {
     pathname?.startsWith('/auth')
 
   const isActive = (href: string) =>
-    pathname === href || pathname?.startsWith(href + '/')
+    href === '/' ? pathname === '/' : pathname === href || pathname?.startsWith(href + '/')
 
   const closeMenu = () => setMenuOpen(false)
 
@@ -56,6 +56,14 @@ export default function Nav({ user }: NavProps) {
             style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
             <Link
+              href="/"
+              className={`cursor-pointer transition-colors ${
+                isActive('/') ? 'text-[#F5F1E8]' : 'text-[#8A8680] hover:text-[#F5F1E8]'
+              }`}
+            >
+              Generator
+            </Link>
+            <Link
               href="/submissions"
               className={`cursor-pointer transition-colors ${
                 isActive('/submissions') ? 'text-[#F5F1E8]' : 'text-[#8A8680] hover:text-[#F5F1E8]'
@@ -90,24 +98,13 @@ export default function Nav({ user }: NavProps) {
                 <Link
                   href="/browse"
                   className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-colors ${
-                    isActive('/browse')
+                    isActive('/browse') || isActive('/library')
                       ? 'border-[#E85D2F] text-[#E85D2F]'
                       : 'border-[#3A3835] hover:border-[#E85D2F] hover:text-[#E85D2F]'
                   }`}
                   style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
                 >
-                  Browse Briefs
-                </Link>
-                <Link
-                  href="/library"
-                  className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-colors ${
-                    isActive('/library')
-                      ? 'border-[#E85D2F] text-[#E85D2F]'
-                      : 'border-[#3A3835] hover:border-[#E85D2F] hover:text-[#E85D2F]'
-                  }`}
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  My Library
+                  Briefs
                 </Link>
                 <Link
                   href="/account"
@@ -158,6 +155,16 @@ export default function Nav({ user }: NavProps) {
         <div className="md:hidden border-t border-[#1F1D1A] px-6 pb-6 flex flex-col">
           {/* Nav links */}
           <Link
+            href="/"
+            onClick={closeMenu}
+            className={`py-4 text-sm border-b border-[#1F1D1A] transition-colors ${
+              isActive('/') ? 'text-[#F5F1E8]' : 'text-[#8A8680]'
+            }`}
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Generator
+          </Link>
+          <Link
             href="/submissions"
             onClick={closeMenu}
             className={`py-4 text-sm border-b border-[#1F1D1A] transition-colors ${
@@ -196,25 +203,13 @@ export default function Nav({ user }: NavProps) {
                   href="/browse"
                   onClick={closeMenu}
                   className={`text-xs tracking-[0.2em] uppercase px-4 py-3 border text-center transition-colors ${
-                    isActive('/browse')
+                    isActive('/browse') || isActive('/library')
                       ? 'border-[#E85D2F] text-[#E85D2F]'
                       : 'border-[#3A3835] text-[#8A8680]'
                   }`}
                   style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
                 >
-                  Browse Briefs
-                </Link>
-                <Link
-                  href="/library"
-                  onClick={closeMenu}
-                  className={`text-xs tracking-[0.2em] uppercase px-4 py-3 border text-center transition-colors ${
-                    isActive('/library')
-                      ? 'border-[#E85D2F] text-[#E85D2F]'
-                      : 'border-[#3A3835] text-[#8A8680]'
-                  }`}
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  My Library
+                  Briefs
                 </Link>
                 <Link
                   href="/account"

@@ -24,11 +24,21 @@ export default async function BrowsePage() {
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
-  const { data: briefs } = await admin
+
+  // Fetch all briefs for the "All Briefs" tab
+  const { data: allBriefs } = await admin
     .from('briefs')
     .select('id, mode, target, genres, moods, generated_content, created_at')
     .order('created_at', { ascending: false })
     .limit(200)
+    .returns<BriefRow[]>();
+
+  // Fetch only the current user's briefs for "My Briefs" tab
+  const { data: myBriefs } = await admin
+    .from('briefs')
+    .select('id, mode, target, genres, moods, generated_content, created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
     .returns<BriefRow[]>();
 
   return (
@@ -36,12 +46,12 @@ export default async function BrowsePage() {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
 
         <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Brief Catalog
+          ◆ Briefs
         </div>
 
         <div className="flex items-end justify-between gap-6 mb-3 flex-wrap">
           <h1 className="text-5xl md:text-6xl tracking-tight leading-tight" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-            Browse <span className="italic">all briefs</span>.
+            Your <span className="italic">briefs</span>.
           </h1>
           <Link
             href="/"
@@ -52,11 +62,11 @@ export default async function BrowsePage() {
           </Link>
         </div>
 
-        <p className="text-base text-[#A8A39A] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Every brief generated on Sonant. Find one that matches what you want to write, or generate your own.
+        <p className="text-base text-[#A8A39A] mb-10 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          Browse every brief generated on Sonant, or filter down to your own.
         </p>
 
-        <BrowseClient briefs={briefs ?? []} />
+        <BrowseClient allBriefs={allBriefs ?? []} myBriefs={myBriefs ?? []} />
       </div>
     </div>
   );
