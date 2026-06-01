@@ -30,6 +30,14 @@
   /* Legacy aliases kept for the body rule below */
   --background: var(--bg-base);
   --foreground: var(--text-primary);
+
+  /* Submission status card colors */
+  --status-accepted-bg:      #182A15;
+  --status-accepted-border:  #2C4528;
+  --status-pending-bg:       #26200B;
+  --status-pending-border:   #3D3210;
+  --status-reviewed-bg:      #1C1A17;
+  --status-reviewed-border:  #302D28;
 }
 
 /* Light mode — warm cream palette inspired by Sonant print materials */
@@ -50,6 +58,14 @@
   --text-muted:     #5A5650;
   --text-dim:       #6A6660;
   --text-dimmer:    #8A8680;
+
+  /* Submission status card colors */
+  --status-accepted-bg:      #ECF2E8;
+  --status-accepted-border:  #C8DEC0;
+  --status-pending-bg:       #F5EDD0;
+  --status-pending-border:   #DDD0A0;
+  --status-reviewed-bg:      #EDECEA;
+  --status-reviewed-border:  #D5D1CB;
 }
 
 @theme inline {

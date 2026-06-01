@@ -51,7 +51,7 @@ export default async function BrowsePage() {
 
         <div className="flex items-end justify-between gap-6 mb-3 flex-wrap">
           <h1 className="text-5xl md:text-6xl tracking-tight leading-tight" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-            Your <span className="italic">briefs</span>.
+            Sonant <span className="italic">briefs</span>.
           </h1>
           <Link
             href="/"

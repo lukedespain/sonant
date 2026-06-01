@@ -792,7 +792,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 Pick a category
               </h2>
             </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Where do you want your music to live</p>
+            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Where your music lives.</p>
             <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
               {CATEGORIES.map((c) => (
                 <Chip key={c} active={category === c} onClick={() => handleCategorySelect(c)}>
@@ -808,14 +808,14 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 Step 03
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Genre palette <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
+                Choose emotional themes <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
               </h2>
             </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Where your strengths live</p>
+            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">The emotional direction of the brief.</p>
             <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
-              {GENRES.map((g) => (
-                <Chip key={g} active={genres.includes(g)} onClick={() => toggleGenre(g)}>
-                  {g}
+              {availableMoods.map((m) => (
+                <Chip key={m} active={moods.includes(m)} onClick={() => toggleMood(m)}>
+                  {m}
                 </Chip>
               ))}
             </div>
@@ -827,14 +827,14 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 Step 04
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Emotional arc <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
+                Select a genre palette <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
               </h2>
             </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Options update based on your category. Pick one to hold throughout — or up to three to sequence the arc.</p>
+            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Where your musical strengths live.</p>
             <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
-              {availableMoods.map((m) => (
-                <Chip key={m} active={moods.includes(m)} onClick={() => toggleMood(m)}>
-                  {m}
+              {GENRES.map((g) => (
+                <Chip key={g} active={genres.includes(g)} onClick={() => toggleGenre(g)}>
+                  {g}
                 </Chip>
               ))}
             </div>
@@ -848,10 +848,10 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 Step 05
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Vocals
+                Instrumental or vocal
               </h2>
             </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Should the brief call for a vocal track or an instrumental</p>
+            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Does this brief call for a vocalist or an instrumental.</p>
             <div className="flex flex-col sm:flex-row gap-3 ml-[5.5rem]">
               <button
                 onClick={() => setWithVocals(false)}

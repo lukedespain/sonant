@@ -24,11 +24,18 @@ export default function SubmissionsPage() {
 
         <div className="flex gap-3 flex-wrap mb-20">
           <Link
-            href="/library"
+            href="/browse"
             className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
-            Select a brief to submit a track to
+            Browse briefs
+          </Link>
+          <Link
+            href="/library"
+            className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+          >
+            My submissions
           </Link>
         </div>
 
