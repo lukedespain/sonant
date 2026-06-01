@@ -49,13 +49,37 @@ export async function POST(req: Request) {
     return NextResponse.json({ jobId: job.id });
   }
 
-  // Production: fire the Netlify background function detached.
+  // Production: fire the Netlify background function.
+  // Background functions return 202 immediately, so we await with a short
+  // timeout. If it fails to trigger we surface the error right away instead
+  // of making the client poll for 7.5 minutes before timing out.
   const origin = new URL(req.url).origin;
-  fetch(`${origin}/.netlify/functions/generate-brief-background`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ jobId: job.id }),
-  }).catch((e) => console.error('Background trigger failed:', e));
+  const admin = createAdminClient();
+  try {
+    const bgRes = await Promise.race([
+      fetch(`${origin}/.netlify/functions/generate-brief-background`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId: job.id }),
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('trigger timeout')), 12000)
+      ),
+    ]);
+    if (!bgRes.ok) {
+      console.error('Background function trigger returned', bgRes.status);
+      await admin
+        .from('brief_jobs')
+        .update({ status: 'error', error_message: 'Failed to start generation. Please try again.' })
+        .eq('id', job.id);
+    }
+  } catch (e) {
+    console.error('Background trigger failed:', e);
+    await admin
+      .from('brief_jobs')
+      .update({ status: 'error', error_message: 'Failed to start generation. Please try again.' })
+      .eq('id', job.id);
+  }
 
   return NextResponse.json({ jobId: job.id });
 }

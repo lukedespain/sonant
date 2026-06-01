@@ -54,5 +54,3 @@ export default async (req: Request) => {
     return new Response('Error', { status: 500 });
   }
 };
-
-export const config = { type: 'experimental-background' };
