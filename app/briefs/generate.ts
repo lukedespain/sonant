@@ -206,7 +206,7 @@ ${scrubInstructions}
 
 # DISCIPLINE
 
-1. Invent a fictional brand name appropriate to the category. Do NOT use real brand names. Use the category's seed list as starting inspiration but feel free to invent your own.
+1. Invent a fictional brand name appropriate to the category. Do NOT use real brand names. The seed list is for inspiration only — treat each brief as a fresh invention and actively avoid defaulting to the same names. Vary the register: not every sports brand is heavy/industrial, not every tech brand is sleek/minimal. Draw from the full range of the seed pool and invent beyond it freely.
 
 2. Match the brief's format and tone to the brief type AND the category's default register. A Flash brief should be terse and compressed. A Standard brief should be structured but not overwritten. An Anthem brief should be expansive and reflect multi-use-case scope.
 
