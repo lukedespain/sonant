@@ -28,7 +28,7 @@ export default async function AccountPage() {
           Welcome, <span className="italic">{profile?.full_name?.split(' ')[0] || 'composer'}</span>.
         </h1>
 
-        <p className="text-base text-[#A8A39A] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <p className="text-base text-[var(--text-tertiary)] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           Manage your account, check your usage, and jump back into briefs.
         </p>
 
@@ -42,14 +42,14 @@ export default async function AccountPage() {
         <div className="flex gap-3 flex-wrap">
           <Link
             href="/"
-            className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors"
+            className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
             ◆ Generate New Brief
           </Link>
           <Link
             href="/library"
-            className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
           >
             View Library
@@ -57,7 +57,7 @@ export default async function AccountPage() {
           <form action={signOut}>
             <button
               type="submit"
-              className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+              className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
             >
               Sign Out
@@ -71,8 +71,8 @@ export default async function AccountPage() {
 
 function InfoCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-[#141312] border border-[#2A2826] p-5" style={{ borderRadius: '2px' }}>
-      <div className="text-[10px] tracking-[0.25em] uppercase text-[#8A8680] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+    <div className="bg-[var(--bg-card)] border border-[var(--border-card)] p-5" style={{ borderRadius: '2px' }}>
+      <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
         {label}
       </div>
       <div className="text-base" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>

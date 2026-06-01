@@ -45,7 +45,7 @@ export default async function BriefDetailPage({ params }: PageProps) {
           <div className="flex items-center justify-between gap-3">
             <Link
               href="/library"
-              className="text-xs tracking-[0.2em] uppercase text-[#8A8680] hover:text-[#F5F1E8] transition-colors"
+              className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
               ← Back to Library
@@ -64,7 +64,7 @@ export default async function BriefDetailPage({ params }: PageProps) {
           </div>
 
           {/* Tip */}
-          <p className="text-[10px] tracking-[0.15em] uppercase text-[#8A8680] text-right" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-muted)] text-right" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
             Tip: when exporting, set destination to &ldquo;Save as PDF&rdquo;
           </p>
         </div>

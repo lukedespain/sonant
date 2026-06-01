@@ -31,7 +31,7 @@ function CtaButton() {
       href={GUMROAD_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-block text-xs tracking-[0.2em] uppercase px-6 py-4 bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors"
+      className="inline-block text-xs tracking-[0.2em] uppercase px-6 py-4 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
       style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
     >
       ◆ Get the Guide, $35
@@ -80,40 +80,40 @@ export default function RoyaltiesPage() {
         </div>
 
         {/* The Hook */}
-        <section className="border-t border-[#2A2826] pt-12 mb-20 max-w-2xl mx-auto text-center">
+        <section className="border-t border-[var(--border-card)] pt-12 mb-20 max-w-2xl mx-auto text-center">
           <p
-            className="text-xl md:text-2xl text-[#F5F1E8] mb-7 leading-snug"
+            className="text-xl md:text-2xl text-[var(--text-primary)] mb-7 leading-snug"
             style={displayItalic}
           >
             If your only royalty check comes from your distributor, you are leaving money on the table.
           </p>
-          <p className="text-base text-[#A8A39A] mb-4 leading-relaxed" style={bodyFont}>
+          <p className="text-base text-[var(--text-tertiary)] mb-4 leading-relaxed" style={bodyFont}>
             DistroKid, TuneCore, LANDR. They only collect one stream of income for you. The other ~25% of the money you&apos;re owed is sitting in collection societies right now, unclaimed.
           </p>
-          <p className="text-base text-[#A8A39A] mb-4 leading-relaxed" style={bodyFont}>
+          <p className="text-base text-[var(--text-tertiary)] mb-4 leading-relaxed" style={bodyFont}>
             Not because you did anything wrong. Because the system is fragmented by design, and no one shows independent artists how to plug into the rest of it.
           </p>
-          <p className="text-base text-[#F5F1E8] leading-relaxed" style={bodyFont}>
+          <p className="text-base text-[var(--text-primary)] leading-relaxed" style={bodyFont}>
             This guide does.
           </p>
         </section>
 
         {/* What is this? */}
-        <section className="border-t border-[#2A2826] pt-12 mb-20 max-w-2xl mx-auto text-center">
+        <section className="border-t border-[var(--border-card)] pt-12 mb-20 max-w-2xl mx-auto text-center">
           <Eyebrow>◆ What is this?</Eyebrow>
           <h2
-            className="text-2xl md:text-3xl tracking-tight leading-snug mb-5 text-[#F5F1E8]"
+            className="text-2xl md:text-3xl tracking-tight leading-snug mb-5 text-[var(--text-primary)]"
             style={displayFont}
           >
             Not a textbook. Not a glossary. A complete royalty collection system.
           </h2>
-          <p className="text-base text-[#A8A39A] leading-relaxed" style={bodyFont}>
+          <p className="text-base text-[var(--text-tertiary)] leading-relaxed" style={bodyFont}>
             You get the tracking sheets to organize your catalog, plus a step-by-step manual that shows you how to register your tracks, claim your missing money, and run the system yourself. Every step is shown on a real released track, Echo Bliss by tethermind, so you see exactly how it works.
           </p>
         </section>
 
         {/* What do I get? */}
-        <section className="border-t border-[#2A2826] pt-12 mb-20 max-w-2xl mx-auto text-center">
+        <section className="border-t border-[var(--border-card)] pt-12 mb-20 max-w-2xl mx-auto text-center">
           <Eyebrow>◆ What do I get?</Eyebrow>
           <ul className="space-y-5 text-left">
             {WHAT_YOU_GET.map((item, i) => (
@@ -121,7 +121,7 @@ export default function RoyaltiesPage() {
                 <span className="text-[#E85D2F] shrink-0 mt-0.5" style={eyebrowFont}>
                   ◆
                 </span>
-                <span className="text-base text-[#A8A39A] leading-relaxed" style={bodyFont}>
+                <span className="text-base text-[var(--text-tertiary)] leading-relaxed" style={bodyFont}>
                   {item}
                 </span>
               </li>
@@ -130,33 +130,33 @@ export default function RoyaltiesPage() {
         </section>
 
         {/* Why should I care? */}
-        <section className="border-t border-[#2A2826] pt-12 mb-20 max-w-2xl mx-auto text-center">
+        <section className="border-t border-[var(--border-card)] pt-12 mb-20 max-w-2xl mx-auto text-center">
           <Eyebrow>◆ Why should I care?</Eyebrow>
           <p
-            className="text-xl md:text-2xl text-[#F5F1E8] mb-7 leading-snug"
+            className="text-xl md:text-2xl text-[var(--text-primary)] mb-7 leading-snug"
             style={displayItalic}
           >
             You already did the hard part. You wrote it, recorded it, released it.
           </p>
-          <p className="text-base text-[#A8A39A] mb-4 leading-relaxed" style={bodyFont}>
+          <p className="text-base text-[var(--text-tertiary)] mb-4 leading-relaxed" style={bodyFont}>
             These royalties are not a bonus. They are money your music has already earned, sitting in collection societies with your name not attached to it. Some of it has deadlines. Neighboring rights and back-claims do not wait forever.
           </p>
-          <p className="text-base text-[#A8A39A] leading-relaxed" style={bodyFont}>
+          <p className="text-base text-[var(--text-tertiary)] leading-relaxed" style={bodyFont}>
             Setting this up takes an afternoon. Leaving it unset costs you on every release, forever.
           </p>
         </section>
 
         {/* Is this for me? */}
-        <section className="border-t border-[#2A2826] pt-12 mb-20 max-w-2xl mx-auto text-center">
+        <section className="border-t border-[var(--border-card)] pt-12 mb-20 max-w-2xl mx-auto text-center">
           <Eyebrow>◆ Is this for me?</Eyebrow>
-          <p className="text-base text-[#A8A39A] leading-relaxed" style={bodyFont}>
+          <p className="text-base text-[var(--text-tertiary)] leading-relaxed" style={bodyFont}>
             This is for the independent musician who is releasing music seriously but handling the business side alone. If you have tracks out, or tracks coming, and a nagging sense that you are being underpaid, this guide closes that gap. It is not for established composers with a publisher already handling registration. It is for the rest of us.
           </p>
         </section>
 
         {/* Closing CTA */}
-        <section className="border-t border-[#2A2826] pt-12 mb-4 max-w-2xl mx-auto text-center">
-          <p className="text-base text-[#A8A39A] mb-8 leading-relaxed" style={bodyFont}>
+        <section className="border-t border-[var(--border-card)] pt-12 mb-4 max-w-2xl mx-auto text-center">
+          <p className="text-base text-[var(--text-tertiary)] mb-8 leading-relaxed" style={bodyFont}>
             Set it up once and start getting paid for everything you&apos;re owed, on past and future releases.
           </p>
           <CtaButton />

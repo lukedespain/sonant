@@ -59,29 +59,29 @@ export default async function LibraryPage() {
           </h1>
           <Link
             href="/"
-            className="text-xs tracking-[0.2em] uppercase px-5 py-3 bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors whitespace-nowrap"
+            className="text-xs tracking-[0.2em] uppercase px-5 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors whitespace-nowrap"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
             ◆ New Brief
           </Link>
         </div>
 
-        <p className="text-base text-[#A8A39A] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <p className="text-base text-[var(--text-tertiary)] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           Every brief you&apos;ve saved, ready to revisit, write to, or build a track against.
         </p>
 
         {!briefs || briefs.length === 0 ? (
-          <div className="border border-[#2A2826] bg-[#141312] p-12 text-center" style={{ borderRadius: '2px' }}>
-            <div className="text-3xl text-[#5A5650] mb-4">◇</div>
+          <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-12 text-center" style={{ borderRadius: '2px' }}>
+            <div className="text-3xl text-[var(--text-dimmer)] mb-4">◇</div>
             <h2 className="text-xl mb-2" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
               Your library is empty.
             </h2>
-            <p className="text-sm text-[#8A8680] mb-6 max-w-md mx-auto" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-sm text-[var(--text-muted)] mb-6 max-w-md mx-auto" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               Generate a brief on the homepage, hit Save, and it&apos;ll appear here.
             </p>
             <Link
               href="/"
-              className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors"
+              className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
             >
               ◆ Generate a Brief
@@ -95,18 +95,18 @@ export default async function LibraryPage() {
               <Link
                 key={brief.id}
                 href={`/library/${brief.id}`}
-                className="block p-6 border border-[#2A2826] bg-[#141312] hover:border-[#E85D2F] hover:bg-[#181614] transition-colors group"
+                className="block p-6 border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[#E85D2F] hover:bg-[var(--bg-card-hover)] transition-colors group"
                 style={{ borderRadius: '2px' }}
               >
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <h3
-                    className="text-2xl leading-tight text-[#F5F1E8] group-hover:text-[#E85D2F] transition-colors"
+                    className="text-2xl leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors"
                     style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
                   >
                     Project <span className="italic">{brief.generated_content?.codename || 'Untitled'}</span>
                   </h3>
                   <span
-                    className="text-[10px] tracking-wider text-[#5A5650] shrink-0 mt-1.5"
+                    className="text-[10px] tracking-wider text-[var(--text-dimmer)] shrink-0 mt-1.5"
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
                     {new Date(brief.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -114,7 +114,7 @@ export default async function LibraryPage() {
                 </div>
 
                 <div
-                  className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680] mb-4"
+                  className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4"
                   style={{ fontFamily: "'JetBrains Mono', monospace" }}
                 >
                   {brief.mode === 'brand' ? 'Brand' : brief.mode === 'film' ? 'Film' : 'Games'} · {brief.target}
@@ -124,7 +124,7 @@ export default async function LibraryPage() {
                   {[...brief.genres.slice(0, 3), ...brief.moods.slice(0, 3)].map((tag, i) => (
                     <span
                       key={`${tag}-${i}`}
-                      className="text-[10px] tracking-wider px-2 py-1 bg-[#0A0908] text-[#A8A39A] border border-[#2A2826]"
+                      className="text-[10px] tracking-wider px-2 py-1 bg-[var(--bg-base)] text-[var(--text-tertiary)] border border-[var(--border-card)]"
                       style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
                     >
                       {tag}
@@ -133,7 +133,7 @@ export default async function LibraryPage() {
                 </div>
 
                 {submissionStatus && (
-                  <div className="mt-4 pt-4 border-t border-[#2A2826] flex items-center gap-2">
+                  <div className="mt-4 pt-4 border-t border-[var(--border-card)] flex items-center gap-2">
                     <span
                       className="w-1.5 h-1.5 rounded-full"
                       style={{
@@ -141,7 +141,7 @@ export default async function LibraryPage() {
                           submissionStatus === 'accepted'
                             ? '#7A9A6E'
                             : submissionStatus === 'not_accepted'
-                            ? '#8A8680'
+                            ? 'var(--text-muted)'
                             : '#E8A33D',
                       }}
                     />
@@ -153,7 +153,7 @@ export default async function LibraryPage() {
                           submissionStatus === 'accepted'
                             ? '#7A9A6E'
                             : submissionStatus === 'not_accepted'
-                            ? '#8A8680'
+                            ? 'var(--text-muted)'
                             : '#E8A33D',
                       }}
                     >

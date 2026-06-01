@@ -24,7 +24,7 @@ export async function sendSubmissionReceivedEmail(params: {
             Every submission gets an individual review with written feedback.
             We will be in touch once yours has been reviewed.
           </p>
-          <p style="color: #8A8680; font-size: 13px; margin-top: 32px;">
+          <p style="color: var(--text-muted); font-size: 13px; margin-top: 32px;">
             Sonant
           </p>
         </div>
@@ -70,7 +70,7 @@ export async function sendDecisionEmail(params: {
           <div style="border-left: 2px solid #E85D2F; padding-left: 16px; margin: 24px 0; color: #1A1815;">
             ${feedback.replace(/\n/g, '<br>')}
           </div>
-          <p style="color: #8A8680; font-size: 13px; margin-top: 32px;">
+          <p style="color: var(--text-muted); font-size: 13px; margin-top: 32px;">
             Sonant
           </p>
         </div>

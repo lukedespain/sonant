@@ -27,9 +27,9 @@ const ALL_CATEGORIES = [
 function BriefGrid({ briefs, detailBase }: { briefs: BriefRow[]; detailBase: string }) {
   if (briefs.length === 0) {
     return (
-      <div className="border border-[#2A2826] bg-[#141312] p-12 text-center" style={{ borderRadius: '2px' }}>
-        <div className="text-3xl text-[#5A5650] mb-4">◇</div>
-        <p className="text-sm text-[#8A8680]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-12 text-center" style={{ borderRadius: '2px' }}>
+        <div className="text-3xl text-[var(--text-dimmer)] mb-4">◇</div>
+        <p className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           No briefs match your filters. Try clearing some.
         </p>
       </div>
@@ -42,18 +42,18 @@ function BriefGrid({ briefs, detailBase }: { briefs: BriefRow[]; detailBase: str
         <Link
           key={brief.id}
           href={`${detailBase}/${brief.id}`}
-          className="block p-6 border border-[#2A2826] bg-[#141312] hover:border-[#E85D2F] hover:bg-[#181614] transition-colors group"
+          className="block p-6 border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[#E85D2F] hover:bg-[var(--bg-card-hover)] transition-colors group"
           style={{ borderRadius: '2px' }}
         >
           <div className="flex items-start justify-between gap-3 mb-2">
             <h3
-              className="text-2xl leading-tight text-[#F5F1E8] group-hover:text-[#E85D2F] transition-colors"
+              className="text-2xl leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors"
               style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
             >
               Project <span className="italic">{brief.generated_content?.codename || 'Untitled'}</span>
             </h3>
             <span
-              className="text-[10px] tracking-wider text-[#5A5650] shrink-0 mt-1.5"
+              className="text-[10px] tracking-wider text-[var(--text-dimmer)] shrink-0 mt-1.5"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
               {new Date(brief.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -61,14 +61,14 @@ function BriefGrid({ briefs, detailBase }: { briefs: BriefRow[]; detailBase: str
           </div>
 
           <div
-            className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680] mb-4"
+            className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
             {brief.mode === 'brand' ? 'Brand' : brief.mode === 'film' ? 'Film' : 'Games'} · {brief.target}
           </div>
 
           {brief.generated_content?.project && (
-            <p className="text-sm text-[#8A8680] mb-4 leading-relaxed line-clamp-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-sm text-[var(--text-muted)] mb-4 leading-relaxed line-clamp-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               {brief.generated_content.project as string}
             </p>
           )}
@@ -77,7 +77,7 @@ function BriefGrid({ briefs, detailBase }: { briefs: BriefRow[]; detailBase: str
             {[...brief.genres.slice(0, 3), ...brief.moods.slice(0, 3)].map((tag, i) => (
               <span
                 key={`${tag}-${i}`}
-                className="text-[10px] tracking-wider px-2 py-1 bg-[#0A0908] text-[#A8A39A] border border-[#2A2826]"
+                className="text-[10px] tracking-wider px-2 py-1 bg-[var(--bg-base)] text-[var(--text-tertiary)] border border-[var(--border-card)]"
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
               >
                 {tag}
@@ -139,7 +139,7 @@ export default function BrowseClient({
     return result;
   }, [sourceBriefs, search, filterCategory, filterMood, filterGenre, sortBy]);
 
-  const selectClass = `text-xs tracking-[0.15em] uppercase bg-[#141312] border border-[#2A2826] text-[#C4BFB5] px-3 py-2 focus:border-[#E85D2F] focus:outline-none appearance-none pr-6`;
+  const selectClass = `text-xs tracking-[0.15em] uppercase bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-secondary)] px-3 py-2 focus:border-[#E85D2F] focus:outline-none appearance-none pr-6`;
 
   const clearFilters = () => {
     setSearch('');
@@ -153,15 +153,15 @@ export default function BrowseClient({
   return (
     <>
       {/* Tabs */}
-      <div className="flex gap-1 mb-8 border-b border-[#1F1D1A]">
+      <div className="flex gap-1 mb-8 border-b border-[var(--border-base)]">
         {([['all', `All Briefs (${allBriefs.length})`], ['mine', `My Briefs (${myBriefs.length})`]] as [Tab, string][]).map(([tab, label]) => (
           <button
             key={tab}
             onClick={() => { setActiveTab(tab); clearFilters(); }}
             className={`px-5 py-3 text-xs tracking-[0.2em] uppercase transition-colors -mb-px border-b-2 ${
               activeTab === tab
-                ? 'text-[#F5F1E8] border-[#E85D2F]'
-                : 'text-[#8A8680] border-transparent hover:text-[#C4BFB5]'
+                ? 'text-[var(--text-primary)] border-[#E85D2F]'
+                : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
             }`}
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
@@ -178,7 +178,7 @@ export default function BrowseClient({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name or project…"
-            className="w-full px-4 py-2.5 text-sm bg-[#141312] border border-[#2A2826] text-[#F5F1E8] placeholder:text-[#5A5650] focus:border-[#E85D2F] focus:outline-none"
+            className="w-full px-4 py-2.5 text-sm bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] placeholder:text-[var(--text-dimmer)] focus:border-[#E85D2F] focus:outline-none"
             style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
           />
         </div>
@@ -188,7 +188,7 @@ export default function BrowseClient({
             <option value="">All Categories</option>
             {ALL_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
         </div>
 
         <div className="relative">
@@ -196,7 +196,7 @@ export default function BrowseClient({
             <option value="">All Moods</option>
             {allMoods.map((m) => <option key={m} value={m}>{m}</option>)}
           </select>
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
         </div>
 
         <div className="relative">
@@ -204,7 +204,7 @@ export default function BrowseClient({
             <option value="">All Genres</option>
             {allGenres.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
         </div>
 
         <div className="relative">
@@ -212,17 +212,17 @@ export default function BrowseClient({
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
           </select>
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
         </div>
 
         {hasFilters && (
-          <button onClick={clearFilters} className="text-xs tracking-[0.15em] uppercase text-[#8A8680] hover:text-[#E85D2F] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <button onClick={clearFilters} className="text-xs tracking-[0.15em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
             Clear
           </button>
         )}
       </div>
 
-      <p className="text-xs text-[#5A5650] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+      <p className="text-xs text-[var(--text-dimmer)] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
         {filtered.length} brief{filtered.length !== 1 ? 's' : ''} found
       </p>
 

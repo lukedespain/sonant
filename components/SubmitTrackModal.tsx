@@ -42,7 +42,7 @@ export default function SubmitTrackModal({
       {/* Trigger button */}
       <button
         onClick={() => setOpen(true)}
-        className="text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors"
+        className="text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
         style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
       >
         ↗ Submit a Track to This Brief
@@ -56,7 +56,7 @@ export default function SubmitTrackModal({
           onClick={() => !submitting && setOpen(false)}
         >
           <div
-            className="w-full max-w-lg border border-[#2A2826] bg-[#141312] p-8"
+            className="w-full max-w-lg border border-[var(--border-card)] bg-[var(--bg-card)] p-8"
             style={{ borderRadius: '2px' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -68,7 +68,7 @@ export default function SubmitTrackModal({
             </div>
 
             <h2
-              className="text-2xl mb-4 leading-tight text-[#F5F1E8]"
+              className="text-2xl mb-4 leading-tight text-[var(--text-primary)]"
               style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
             >
               Submitting for <span className="italic">{projectName}</span>
@@ -76,7 +76,7 @@ export default function SubmitTrackModal({
 
             {alreadySubmitted && (
               <div
-                className="text-xs text-[#C4BFB5] border border-[#3A3835] bg-[#0A0908] p-3 mb-5"
+                className="text-xs text-[var(--text-secondary)] border border-[var(--border-subtle)] bg-[var(--bg-base)] p-3 mb-5"
                 style={{ borderRadius: '2px', fontFamily: "'DM Sans', sans-serif" }}
               >
                 You&apos;ve already submitted a track for this brief. You can submit
@@ -85,7 +85,7 @@ export default function SubmitTrackModal({
             )}
 
             <p
-              className="text-sm text-[#A8A39A] leading-relaxed mb-5"
+              className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-5"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
               Tracks are uploaded through our Disco inbox. Follow these steps:
@@ -109,7 +109,7 @@ export default function SubmitTrackModal({
               ↗ Open the Upload Page
             </a>
 <p
-              className="text-xs text-[#8A8680] leading-relaxed mb-4"
+              className="text-xs text-[var(--text-muted)] leading-relaxed mb-4"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
               ◆ You keep full ownership. Non-exclusive, no fees. Placements split
@@ -138,8 +138,8 @@ export default function SubmitTrackModal({
                 disabled={submitting}
                 className={`flex-1 text-xs tracking-[0.15em] uppercase px-6 py-3 transition-colors ${
                   submitting
-                    ? 'bg-[#1F1D1A] text-[#5A5650] cursor-not-allowed'
-                    : 'bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D]'
+                    ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
+                    : 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D]'
                 }`}
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
               >
@@ -148,7 +148,7 @@ export default function SubmitTrackModal({
               <button
                 onClick={() => setOpen(false)}
                 disabled={submitting}
-                className="text-xs tracking-[0.15em] uppercase px-6 py-3 border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+                className="text-xs tracking-[0.15em] uppercase px-6 py-3 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
               >
                 Cancel
@@ -171,7 +171,7 @@ function Step({ n, text }: { n: string; text: string }) {
         0{n}
       </span>
       <span
-        className="text-sm text-[#C4BFB5] leading-relaxed"
+        className="text-sm text-[var(--text-secondary)] leading-relaxed"
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
         {text}

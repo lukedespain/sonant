@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import { Providers } from "./providers";
 import { createClient } from "@/lib/supabase/server";
 
 const geistSans = Geist({
@@ -33,10 +34,13 @@ export default async function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#0A0908] text-[#F5F1E8]">
-        <Nav user={user} />
-        {children}
+      <body className="min-h-full flex flex-col">
+        <Providers>
+          <Nav user={user} />
+          {children}
+        </Providers>
       </body>
     </html>
   );

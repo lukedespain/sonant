@@ -30,7 +30,7 @@ export default function LoginPage() {
           Sign <span className="italic">in</span>.
         </h1>
 
-        <p className="text-sm text-[#A8A39A] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           Pick up where you left off.
         </p>
 
@@ -46,7 +46,7 @@ export default function LoginPage() {
 
           <SubmitButton />
 
-          <p className="text-xs text-[#6A6660] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Don&apos;t have an account?{' '}
             <Link href="/signup" className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
               Sign up
@@ -70,8 +70,8 @@ function SubmitButton() {
       disabled={pending}
       className={`w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase transition-all mt-2 ${
         pending
-          ? 'bg-[#1F1D1A] text-[#5A5650] cursor-not-allowed'
-          : 'bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D]'
+          ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
+          : 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D]'
       }`}
       style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
     >
@@ -84,7 +84,7 @@ function Field({ label, name, type, required }: { label: string; name: string; t
     <div>
       <label
         htmlFor={name}
-        className="block text-[10px] tracking-[0.25em] uppercase text-[#8A8680] mb-2"
+        className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
       >
         {label}
@@ -94,7 +94,7 @@ function Field({ label, name, type, required }: { label: string; name: string; t
         name={name}
         type={type}
         required={required}
-        className="w-full px-4 py-3 bg-[#141312] border border-[#2A2826] text-[#F5F1E8] focus:border-[#E85D2F] focus:outline-none transition-colors"
+        className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none transition-colors"
         style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
       />
     </div>

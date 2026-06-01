@@ -55,14 +55,14 @@ export default async function BrowsePage() {
           </h1>
           <Link
             href="/"
-            className="text-xs tracking-[0.2em] uppercase px-5 py-3 bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D] transition-colors whitespace-nowrap"
+            className="text-xs tracking-[0.2em] uppercase px-5 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors whitespace-nowrap"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
             ◆ Generate New Brief
           </Link>
         </div>
 
-        <p className="text-base text-[#A8A39A] mb-10 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <p className="text-base text-[var(--text-tertiary)] mb-10 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           Browse every brief generated on Sonant, or filter down to your own.
         </p>
 

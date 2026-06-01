@@ -1,8 +1,55 @@
 @import "tailwindcss";
 
+/* ============================================================
+   SONANT DESIGN TOKENS
+   Dark mode is the default. Light mode overrides via
+   [data-theme="light"] on the <html> element (set by next-themes).
+   ============================================================ */
+
 :root {
-  --background: #0A0908;
-  --foreground: #F5F1E8;
+  /* Backgrounds */
+  --bg-base:       #0A0908;
+  --bg-card:       #141312;
+  --bg-card-deep:  #0F0E0D;
+  --bg-card-hover: #181614;
+
+  /* Borders */
+  --border-base:   #1F1D1A;
+  --border-card:   #2A2826;
+  --border-subtle: #3A3835;
+  --border-hover:  #4A4642;
+
+  /* Text */
+  --text-primary:   #F5F1E8;
+  --text-secondary: #C4BFB5;
+  --text-tertiary:  #A8A39A;
+  --text-muted:     #8A8680;
+  --text-dim:       #6A6660;
+  --text-dimmer:    #5A5650;
+
+  /* Legacy aliases kept for the body rule below */
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+}
+
+/* Light mode — warm cream palette inspired by Sonant print materials */
+[data-theme="light"] {
+  --bg-base:       #F9F7F4;
+  --bg-card:       #FFFFFF;
+  --bg-card-deep:  #F5F3F0;
+  --bg-card-hover: #EDE9E3;
+
+  --border-base:   #E8E4DE;
+  --border-card:   #E0DCD6;
+  --border-subtle: #D5D0CA;
+  --border-hover:  #C8C4BE;
+
+  --text-primary:   #1A1815;
+  --text-secondary: #3A3630;
+  --text-tertiary:  #4A4640;
+  --text-muted:     #5A5650;
+  --text-dim:       #6A6660;
+  --text-dimmer:    #8A8680;
 }
 
 @theme inline {
@@ -13,32 +60,29 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-base);
+  color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 @media print {
-  /* White page background instead of the app's dark background */
   body {
     background: #ffffff !important;
   }
 
-  /* Hide the app chrome */
   nav,
   footer,
   .no-print {
     display: none !important;
   }
 
-  /* Print the brief with its real colors and cream texture */
   .brief-document {
     box-shadow: none !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Keep sections and headings from splitting across pages */
   .brief-document section,
   .brief-document h1,
   .brief-document h2,

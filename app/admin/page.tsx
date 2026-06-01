@@ -67,7 +67,7 @@ export default async function AdminPage() {
         </h1>
 
         <p
-          className="text-base text-[#A8A39A] mb-12 max-w-xl"
+          className="text-base text-[var(--text-tertiary)] mb-12 max-w-xl"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
           Every track submitted to the catalog. Record a decision with written
@@ -76,11 +76,11 @@ export default async function AdminPage() {
 
         {rows.length === 0 ? (
           <div
-            className="border border-[#2A2826] bg-[#141312] p-12 text-center"
+            className="border border-[var(--border-card)] bg-[var(--bg-card)] p-12 text-center"
             style={{ borderRadius: '2px' }}
           >
             <p
-              className="text-sm text-[#8A8680]"
+              className="text-sm text-[var(--text-muted)]"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
               No submissions yet.

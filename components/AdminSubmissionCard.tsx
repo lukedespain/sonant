@@ -50,19 +50,19 @@ export default function AdminSubmissionCard({
 
   return (
     <div
-      className="border border-[#2A2826] bg-[#141312] p-6"
+      className="border border-[var(--border-card)] bg-[var(--bg-card)] p-6"
       style={{ borderRadius: '2px' }}
     >
       <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
         <div>
           <h3
-            className="text-xl mb-1 text-[#F5F1E8]"
+            className="text-xl mb-1 text-[var(--text-primary)]"
             style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
           >
             Project <span className="italic">{projectName}</span>
           </h3>
           <div
-            className="text-[10px] tracking-[0.2em] uppercase text-[#8A8680]"
+            className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)]"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
             {composerEmail} · {submittedAt}
@@ -71,7 +71,7 @@ export default function AdminSubmissionCard({
             <a href={`/library/${briefId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block mt-2 text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[#3A3835] text-[#C4BFB5] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            className="inline-block mt-2 text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
           >
             ↗ View Brief
@@ -92,7 +92,7 @@ export default function AdminSubmissionCard({
               status === 'accepted'
                 ? '#7A9A6E'
                 : status === 'not_accepted'
-                ? '#8A8680'
+                ? 'var(--text-muted)'
                 : '#E8A33D',
           }}
         >
@@ -109,7 +109,7 @@ export default function AdminSubmissionCard({
         onChange={(e) => setFeedback(e.target.value)}
         placeholder="Written feedback for the composer. This is included in the decision email."
         rows={4}
-        className="w-full px-4 py-3 bg-[#0A0908] border border-[#2A2826] text-[#F5F1E8] focus:border-[#E85D2F] focus:outline-none transition-colors text-sm mb-3"
+        className="w-full px-4 py-3 bg-[var(--bg-base)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none transition-colors text-sm mb-3"
         style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
       />
 
@@ -128,8 +128,8 @@ export default function AdminSubmissionCard({
           disabled={submitting}
           className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 transition-colors ${
             submitting
-              ? 'bg-[#1F1D1A] text-[#5A5650] cursor-not-allowed'
-              : 'bg-[#7A9A6E] text-[#0A0908] hover:bg-[#8BAB7E]'
+              ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
+              : 'bg-[#7A9A6E] text-[var(--bg-base)] hover:bg-[#8BAB7E]'
           }`}
           style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
         >
@@ -140,8 +140,8 @@ export default function AdminSubmissionCard({
           disabled={submitting}
           className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 border transition-colors ${
             submitting
-              ? 'border-[#1F1D1A] text-[#5A5650] cursor-not-allowed'
-              : 'border-[#3A3835] text-[#C4BFB5] hover:border-[#FF8B6B] hover:text-[#FF8B6B]'
+              ? 'border-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
+              : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#FF8B6B] hover:text-[#FF8B6B]'
           }`}
           style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
         >
@@ -149,7 +149,7 @@ export default function AdminSubmissionCard({
         </button>
         {isDecided && (
           <span
-            className="text-[10px] tracking-[0.15em] uppercase text-[#5A5650] self-center"
+            className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-dimmer)] self-center"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
             Decision recorded · re-deciding re-sends the email

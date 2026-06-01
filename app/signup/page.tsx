@@ -32,7 +32,7 @@ export default function SignUpPage() {
           Start your <span className="italic">catalog</span>.
         </h1>
 
-        <p className="text-sm text-[#A8A39A] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           Free during beta. Generate as many briefs as you want.
         </p>
 
@@ -62,15 +62,15 @@ export default function SignUpPage() {
               disabled={submitting}
               className={`w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase transition-all mt-2 ${
                 submitting
-                  ? 'bg-[#1F1D1A] text-[#5A5650] cursor-not-allowed'
-                  : 'bg-[#E85D2F] text-[#0A0908] hover:bg-[#FF6E3D]'
+                  ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
+                  : 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D]'
               }`}
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
             >
               {submitting ? '◆ Creating Account…' : '◆ Create Account'}
             </button>
 
-            <p className="text-xs text-[#6A6660] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               Already have an account?{' '}
               <Link href="/login" className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
                 Sign in
@@ -88,7 +88,7 @@ function Field({ label, name, type, required, minLength }: { label: string; name
     <div>
       <label
         htmlFor={name}
-        className="block text-[10px] tracking-[0.25em] uppercase text-[#8A8680] mb-2"
+        className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
       >
         {label}
@@ -99,7 +99,7 @@ function Field({ label, name, type, required, minLength }: { label: string; name
         type={type}
         required={required}
         minLength={minLength}
-        className="w-full px-4 py-3 bg-[#141312] border border-[#2A2826] text-[#F5F1E8] focus:border-[#E85D2F] focus:outline-none transition-colors"
+        className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none transition-colors"
         style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
       />
     </div>
