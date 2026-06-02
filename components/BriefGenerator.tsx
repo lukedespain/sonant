@@ -741,7 +741,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           ◆ Sonant / v0.3
         </div>
         <h1 className="text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[0.95] mb-8 max-w-5xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-  Write to briefs. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Build a catalog.</span>
+  Practice writing to briefs. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Build a catalog.</span>
 </h1>
 <p className="text-lg md:text-xl text-[var(--text-tertiary)] max-w-2xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
   Sonant generates industry-standard music briefs for composers to practice against. Write to real specs, sharpen your craft, and build work worth pitching.
