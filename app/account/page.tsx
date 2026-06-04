@@ -48,6 +48,13 @@ export default async function AccountPage() {
             ◆ Generate New Brief
           </Link>
           <Link
+            href="/browse?tab=mine"
+            className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+          >
+            My Briefs
+          </Link>
+          <Link
             href="/library"
             className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}

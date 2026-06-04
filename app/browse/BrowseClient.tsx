@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface BriefRow {
@@ -97,12 +98,19 @@ export default function BrowseClient({
   allBriefs: BriefRow[];
   myBriefs: BriefRow[];
 }) {
-  const [activeTab, setActiveTab] = useState<Tab>('all');
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<Tab>(
+    searchParams.get('tab') === 'mine' ? 'mine' : 'all'
+  );
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterMood, setFilterMood] = useState('');
   const [filterGenre, setFilterGenre] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
+
+  useEffect(() => {
+    if (searchParams.get('tab') === 'mine') setActiveTab('mine');
+  }, [searchParams]);
 
   const sourceBriefs = activeTab === 'all' ? allBriefs : myBriefs;
 
