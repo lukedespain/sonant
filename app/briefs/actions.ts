@@ -44,6 +44,34 @@ export async function saveBrief(input: SaveBriefInput) {
     return { error: 'Could not save brief. Please try again.' };
   }
 
+  // Increment briefs_generated_this_month, resetting if we've rolled into a new month.
+  try {
+    const admin = createAdminClient();
+    const now = new Date();
+
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('briefs_generated_this_month, monthly_reset_date')
+      .eq('id', user.id)
+      .single();
+
+    const lastReset = profile?.monthly_reset_date ? new Date(profile.monthly_reset_date) : null;
+    const shouldReset =
+      !lastReset ||
+      lastReset.getMonth() !== now.getMonth() ||
+      lastReset.getFullYear() !== now.getFullYear();
+
+    const updatePayload: Record<string, unknown> = {
+      briefs_generated_this_month: shouldReset ? 1 : (profile?.briefs_generated_this_month ?? 0) + 1,
+    };
+    if (shouldReset) updatePayload.monthly_reset_date = now.toISOString();
+
+    await admin.from('profiles').update(updatePayload).eq('id', user.id);
+  } catch (counterErr) {
+    // Counter failure is non-blocking — brief is already saved.
+    console.error('Counter update error:', counterErr);
+  }
+
   revalidatePath('/account');
   return { success: true, briefId: data.id };
 }
