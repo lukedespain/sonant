@@ -39,9 +39,10 @@ export interface Brief {
   terms: {
     fee: string;
     usageType?: string;
+    // Legacy fields kept for old saved briefs
     duration?: string;
-    exclusivity: string;
-    backend?: string; // legacy field kept for old saved briefs
+    exclusivity?: string;
+    backend?: string;
   };
 }
 
@@ -127,7 +128,7 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
           <MetaItem label="Client" value={brief.client} />
           <MetaItem label="Project" value={brief.project} />
           <MetaItem label="Deliverable" value={brief.deliverable} />
-          <MetaItem label="Usage" value={brief.usage} />
+          <MetaItem label="Usage" value="Exclusive. In perpetuity. Win fee on selection." />
         </div>
 
         <Section number="01" title="The Story">
@@ -175,7 +176,20 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
           </ul>
         </Section>
 
-        <Section number="05" title="References & Tonal Frame">
+        {brief.avoid.length > 0 && (
+          <Section number="05" title="What To Avoid">
+            <ul className="space-y-2">
+              {brief.avoid.map((a, i) => (
+                <li key={i} className="flex gap-3 items-baseline" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <span className="text-[#B33A1A]">×</span>
+                  <span className="text-base">{a}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        <Section number="06" title="References & Tonal Frame">
           <div className="space-y-5 mb-8">
             <KV label="Genre Palette" value={brief.genrePalette} />
             <KV label="Emotional Arc" value={brief.emotionalArc} />
@@ -200,7 +214,7 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
           </ul>
         </Section>
 
-        <Section number="06" title="Technical Specs">
+        <Section number="07" title="Technical Specs">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             <KV label="Tempo" value={brief.tempo} />
             <KV label="Key" value={brief.key} />
@@ -216,19 +230,6 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
             </div>
           </div>
         </Section>
-
-        {brief.avoid.length > 0 && (
-          <Section number="07" title="What To Avoid">
-            <ul className="space-y-2">
-              {brief.avoid.map((a, i) => (
-                <li key={i} className="flex gap-3 items-baseline" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  <span className="text-[#B33A1A]">×</span>
-                  <span className="text-base">{a}</span>
-                </li>
-              ))}
-            </ul>
-          </Section>
-        )}
 
         <Section number="08" title="Deliverables If Selected">
           <ul className="space-y-2">
@@ -246,10 +247,9 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
             These terms are for this practice brief. Real placements are negotiated separately.
           </p>
           <div className="space-y-4">
-            <KV label="Composition Fee" value={brief.terms.fee} />
-            <KV label="Usage Type" value={brief.terms.usageType ?? brief.terms.backend ?? 'See brief'} />
-            {brief.terms.duration && <KV label="License Duration" value={brief.terms.duration} />}
-            <KV label="Exclusivity" value={brief.terms.exclusivity} />
+            <KV label="Win Fee" value={brief.terms.fee} />
+            <KV label="Back End" value="Composer retains 100% of the writer's share. Music house retains 100% of the publisher's share." />
+            <KV label="Exclusivity" value="Exclusive. License in perpetuity." />
           </div>
         </Section>
 
@@ -264,7 +264,7 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
               </div>
             </div>
             <p className="text-sm italic text-[#5A5650] leading-relaxed pt-3" style={{ fontFamily: "'Fraunces', serif" }}>
-              Note: Please don&apos;t share this brief externally, it may contain sensitive information. Submissions become eligible for the Sonant Catalog if accepted.
+              This is a practice brief. Write to it, share it, use it. If you produce something that genuinely answers the brief, submit your track for consideration in the Sonant Catalog.
             </p>
           </div>
         </Section>

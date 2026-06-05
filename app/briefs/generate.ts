@@ -208,29 +208,33 @@ ${scrubInstructions}
 
 1. Invent a fictional brand name appropriate to the category. Do NOT use real brand names. The seed list is for inspiration only — treat each brief as a fresh invention and actively avoid defaulting to the same names. Vary the register: not every sports brand is heavy/industrial, not every tech brand is sleek/minimal. Draw from the full range of the seed pool and invent beyond it freely.
 
+1a. The "project" field is a short campaign label only — 3 to 5 words maximum. Examples: "Premium brand relaunch campaign", "Summer product launch", "Brand awareness campaign". Do NOT append platform details, distribution channels, or any secondary clause after a comma. No "national broadcast and digital", no "paid social and streaming", nothing after the core campaign type.
+
 2. Match the brief's format and tone to the brief type AND the category's default register. A Flash brief should be terse and compressed. A Standard brief should be structured but not overwritten. An Anthem brief should be expansive and reflect multi-use-case scope.
 
 3. Vary the consideration labels per brief. Pick labels that match what the brief is actually about (e.g., "Restraint / Texture / Identity" for a wellness brief; "Hook / Polish / Reuse" for an anthem). Do NOT default to "Pacing / Personality / Surprise."
 
 4. Reference tracks must always include a delta — what's RIGHT about the reference and what should be DIFFERENT. Avoid flat "make it sound like X" directives.
 
-5. Include 1-3 specific items in the "avoid" list. Name failure modes specifically, not generically. For Tier C briefs, output an empty avoid array — keeping the brief lean and approachable is more important than listing failure modes at this level.
+5. Include exactly 3 items in the "avoid" list. One sentence each — no paragraphs. Name failure modes specifically, not generically.
 
 6. The studio identity in fileNaming is Sonant. File naming convention format: \`Sonant_[BrandSlug]_YourInitials_TrackTitle_YYYYMMDD.wav\`.
 
-7. The greeting and story should sound like a real human wrote them — varied sentence rhythm, occasional informal language, distinct voice. Do NOT use the same opening structure every time.
+7. The greeting and story should sound like a real human wrote them — varied sentence rhythm, occasional informal language, distinct voice. Do NOT use the same opening structure every time. The "story" field is concise — one solid paragraph, 2-4 sentences. No long demographic breakdowns or brand history essays.
 
-8. The "ask" section articulates the core creative challenge. Length depends on brief type: Flash = 1 sentence; Standard = 2-3 sentences; Anthem = 3-4 sentences.
+8. The "ask" section is a full descriptive paragraph about the sonic direction — 3-5 sentences. This is the heart of the brief. It should cover the emotional feel, the musical approach, and what makes this track challenging to execute well.
 
 9. Tempo, key, length, format are specific. Tempo must be written as a BPM range using an en dash — e.g. "115–125 BPM" or "Uptempo, 115–125 BPM". Never list two separate BPM numbers without a dash between them. Key is musical guidance ("Modal preferred, avoid clear major resolutions"). Length matches the deliverable.
 
-10. Commercial terms must be written in plain language that a composer at any level can understand without Googling. No industry shorthand without explanation. Category fee ranges: Sports = $5-12K, Tech = $5-10K, Anthem = $10-25K, Healthcare = $5-15K, Financial = $8-18K, Beverage = $5-15K, Fashion = $5-15K, Food = $5-12K, Lifestyle = $4-10K. For each field: "fee" = state the exact dollar amount offered and precisely what it covers (e.g., "$7,500 flat composition fee for the demo. If the track is selected for the campaign, a separate licensing fee is negotiated at time of placement."). "usageType" = state exactly where and how the music will be used, in plain terms (e.g., "National broadcast television and paid digital pre-roll. No radio, no out-of-home, no retail."). "duration" = state how long the license lasts (e.g., "18 months from the first air date, with an optional 12-month renewal at the client's discretion." or "In perpetuity for the specific campaign assets listed above."). "exclusivity" = state clearly yes or no, and what it means for the composer (e.g., "Non-exclusive. You can pitch this track to other supervisors and libraries. We will not pitch it to direct competitors in the same product category for 90 days." or "Exclusive for 6 months from first air date, then non-exclusive. Exclusivity applies to this campaign only.").
+10. Commercial terms require only one generated field: "fee". Format exactly as "$X,XXX flat win fee paid upon final selection and delivery of master files." — one specific dollar amount, no ranges, no breakdowns. Pick a realistic amount from these category ranges: Fashion/Automotive = $6,000-$10,000; Sports/Tech/Financial = $4,000-$7,000; Healthcare/Lifestyle = $3,000-$6,000; Beverage/Food = $2,500-$5,000. Do not generate usageType, duration, exclusivity, or any other terms fields.
 
-11. Be CONCISE. Real briefs are tight. Avoid filler. Every sentence should carry information. Avoid the AI tendency to over-explain.
+11. Deliverables must always include these three base items: (1) 30-second master, (2) 15-second cut-down, (3) Multitrack stems. For VOCAL briefs only, also add: (4) Instrumental (INST) version, (5) A cappella (ACA) version. No other deliverable types.
 
-12. COHERENCE OVER VARIETY. Every musical choice (vocal type, lyric theme, tempo, track type) must fit the established genre and emotional arc. A calm ambient brief does not ask for aggressive scat vocals. An upbeat pop brief does not ask for a funeral lyric theme. When choosing from any vocabulary, favor the common, fitting option over the unusual one. The brief must read as one coherent creative world.
+12. Be CONCISE. Real briefs are tight. Avoid filler. Every sentence should carry information. Avoid the AI tendency to over-explain.
 
-13. PUNCTUATION. Never use em dashes or en dashes anywhere in the brief. Use commas, periods, or parentheses instead. This is a strict house style rule with no exceptions.
+13. COHERENCE OVER VARIETY. Every musical choice (vocal type, lyric theme, tempo, track type) must fit the established genre and emotional arc. A calm ambient brief does not ask for aggressive scat vocals. An upbeat pop brief does not ask for a funeral lyric theme. When choosing from any vocabulary, favor the common, fitting option over the unusual one. The brief must read as one coherent creative world.
+
+14. PUNCTUATION. Never use em dashes or en dashes anywhere in the brief. Use commas, periods, or parentheses instead. This is a strict house style rule with no exceptions.
 Generate briefs that real composers would recognize as authentic. Avoid AI-generated-feeling text. Be specific. Trust the composer's intelligence.`;
 }
 
@@ -253,16 +257,6 @@ function buildUserPrompt(input: GenerateBriefInput): string {
 
   return `Generate a music brief with the following parameters.
 
-**Campaign Tier:** ${input.briefType === 'flash' ? 'Tier C — Local / Organic Social' : input.briefType === 'anthem' ? 'Tier A — National / Enterprise' : 'Tier B — Regional / Mid-Market'}
-**Tier Density Rule:** ${
-  input.briefType === 'flash'
-    ? 'HARD LIMIT: under 250 words total. No dense brand history or backstory. Skip long narrative paragraphs entirely. Focus purely on: sonic vibe (1-2 punchy sentences), 1-2 reference tracks with deltas, and basic usage terms. Every sentence must be immediately clear and actionable. A beginner composer should find this brief approachable, not overwhelming. If in doubt, cut it.'
-    : input.briefType === 'anthem'
-    ? 'Target 700-900 words. Full enterprise-level detail required: include a visual storyboard description, target audience psychographics, strict industry-category exclusivity clauses, complex renewal and licensing terms, and multiple delivery asset specifications (stems, formats, cutdowns). This must feel like a real brief from a national advertiser — dense, specific, and professionally demanding.'
-    : 'Target 350-450 words. Include a short campaign narrative (2-3 sentences), clear target demographics (1 sentence), and a concise delivery stems list. Category exclusivity introduced. Professional sync tone — detailed enough to be instructive, lean enough to remain readable. No enterprise complexity — accessible to a working composer at any level.'
-}
-**Brief Type Notes:** ${briefType.registerNotes}
-**Target Word Count:** ${briefType.targetWordCount}
 **Structural Counts:** ${briefType.considerationCount} consideration(s), ${briefType.directionCount} direction(s), ${briefType.referenceCount} reference(s)
 
 **Category:** ${category.name}
@@ -302,12 +296,12 @@ Return ONLY a valid JSON object matching this exact schema (no preamble, no mark
   "deadline": "${deadline}",
   "client": "<fictional brand name>",
   "classification": "CONFIDENTIAL",
-  "project": "<short project description>",
+  "project": "<3-5 word campaign type only — e.g. 'Premium brand relaunch campaign', 'Summer product launch', 'Brand awareness campaign'. No platforms, no distribution details, no second clause.>",
   "deliverable": "<deliverable spec, e.g., ':30 master + :15 cutdown'>",
   "usage": "<usage rights statement>",
   "greeting": "<warm or terse opening — match the brief type's register>",
-  "story": "<the spot's narrative or campaign context — length depends on brief type>",
-  "ask": "<core creative challenge — length depends on brief type>",
+  "story": "<concise brand/campaign context — one solid paragraph, 2-4 sentences>",
+  "ask": "<full descriptive paragraph about the sonic direction — 3-5 sentences covering emotional feel, musical approach, and the creative challenge>",
   "considerations": [
     ${'{ "label": "<varied label>", "body": "<concise body>" },'.repeat(briefType.considerationCount).slice(0, -1)}
   ],
@@ -330,16 +324,13 @@ Return ONLY a valid JSON object matching this exact schema (no preamble, no mark
     "<specific failure mode>"
   ],
   "deliverables": [
-    "<deliverable item>",
-    "<deliverable item>",
-    "<deliverable item>",
-    "<deliverable item>"
+    "30-second master",
+    "15-second cut-down",
+    "Multitrack stems"
+    // vocal briefs also add: "Instrumental (INST) version", "A cappella (ACA) version"
   ],
   "terms": {
-    "fee": "<plain language: exact dollar amount + what it covers>",
-    "usageType": "<plain language: exactly where and how the music will be used>",
-    "duration": "<plain language: how long the license lasts>",
-    "exclusivity": "<plain language: exclusive or non-exclusive, with a clear explanation of what that means for the composer>"
+    "fee": "<format: '$X,XXX flat win fee paid upon final selection and delivery of master files.'>"
   },
   "vocals": "<vocal direction — see the vocal instruction above>"
 }
@@ -470,7 +461,7 @@ function validateBrief(obj: unknown): string[] {
   if (typeof terms !== 'object' || terms === null) {
     problems.push('Missing terms object.');
   } else {
-    for (const field of ['fee', 'usageType', 'duration', 'exclusivity']) {
+    for (const field of ['fee']) {
       if (typeof terms[field] !== 'string') {
         problems.push(`Missing terms.${field}`);
       }

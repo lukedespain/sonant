@@ -292,7 +292,7 @@ function BriefDocument({ brief }: { brief: Brief }) {
           <MetaItem label="Client" value={brief.client} />
           <MetaItem label="Project" value={brief.project} />
           <MetaItem label="Deliverable" value={brief.deliverable} />
-          <MetaItem label="Usage" value={brief.usage} />
+          <MetaItem label="Usage" value="Exclusive. In perpetuity. Win fee on selection." />
         </div>
 
         <Section number="01" title="The Story">
@@ -340,7 +340,20 @@ function BriefDocument({ brief }: { brief: Brief }) {
           </ul>
         </Section>
 
-        <Section number="05" title="References & Tonal Frame">
+        {brief.avoid.length > 0 && (
+          <Section number="05" title="What To Avoid">
+            <ul className="space-y-2">
+              {brief.avoid.map((a, i) => (
+                <li key={i} className="flex gap-3 items-baseline" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <span className="text-[#B33A1A]">×</span>
+                  <span className="text-base">{a}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        <Section number="06" title="References & Tonal Frame">
           <div className="space-y-5 mb-8">
             <KV label="Genre Palette" value={brief.genrePalette} />
             <KV label="Emotional Arc" value={brief.emotionalArc} />
@@ -365,7 +378,7 @@ function BriefDocument({ brief }: { brief: Brief }) {
           </ul>
         </Section>
 
-        <Section number="06" title="Technical Specs">
+        <Section number="07" title="Technical Specs">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             <KV label="Vocals" value={brief.vocals} />
             <KV label="Tempo" value={brief.tempo} />
@@ -381,17 +394,6 @@ function BriefDocument({ brief }: { brief: Brief }) {
               {brief.fileNaming}
             </div>
           </div>
-        </Section>
-
-        <Section number="07" title="What To Avoid">
-          <ul className="space-y-2">
-            {brief.avoid.map((a, i) => (
-              <li key={i} className="flex gap-3 items-baseline" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                <span className="text-[#B33A1A]">×</span>
-                <span className="text-base">{a}</span>
-              </li>
-            ))}
-          </ul>
         </Section>
 
         <Section number="08" title="Deliverables If Selected">
@@ -410,17 +412,16 @@ function BriefDocument({ brief }: { brief: Brief }) {
             These terms are for this practice brief. Real placements are negotiated separately.
           </p>
           <div className="space-y-4">
-            <KV label="Composition Fee" value={brief.terms.fee} />
-            <KV label="Usage Type" value={brief.terms.usageType ?? brief.terms.backend ?? 'See brief'} />
-            {brief.terms.duration && <KV label="License Duration" value={brief.terms.duration} />}
-            <KV label="Exclusivity" value={brief.terms.exclusivity} />
+            <KV label="Win Fee" value={brief.terms.fee} />
+            <KV label="Back End" value="Composer retains 100% of the writer's share. Music house retains 100% of the publisher's share." />
+            <KV label="Exclusivity" value="Exclusive. License in perpetuity." />
           </div>
         </Section>
 
         <Section number="10" title="Submission">
           <div className="space-y-4">
             <p className="text-sm italic text-[var(--text-dimmer)] leading-relaxed pt-3" style={{ fontFamily: "'Fraunces', serif" }}>
-              Note: Please don&apos;t share this brief externally — it may contain sensitive information. Submissions become eligible for the Sonant Catalog if accepted.
+              This is a practice brief. Write to it, share it, use it. If you produce something that genuinely answers the brief, submit your track for consideration in the Sonant Catalog.
             </p>
           </div>
         </Section>
@@ -540,7 +541,6 @@ function NextSteps() {
 // ---------- MAIN APP ----------
 export default function BriefGenerator({ user }: { user: { email: string; fullName: string } | null }) {
   const [category, setCategory] = useState<string | null>(null);
-  const [campaignTier, setCampaignTier] = useState<'C' | 'B' | 'A' | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
   const [domain, setDomain] = useState<'brand' | 'film' | 'games'>('brand');
@@ -562,7 +562,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
   }, []);
 
   const loadingMessages = [
-    'Drafting brief — this takes 30-60 seconds…',
+    'Drafting brief…',
     'Pattern selection underway…',
     'Composing reference architecture…',
     'Refining direction and considerations…',
@@ -597,7 +597,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
     setMoods((prev) => (prev.includes(m) ? prev.filter((x) => x !== m) : prev.length < 3 ? [...prev, m] : prev));
   };
 
-  const canGenerate = !!(category && campaignTier && genres.length > 0 && moods.length > 0);
+  const canGenerate = !!(category && genres.length > 0 && moods.length > 0);
 
   const handleGenerate = async () => {
     if (!canGenerate || !category) return;
@@ -613,7 +613,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           category,
           genres,
           moods,
-          briefType: campaignTier === 'C' ? 'flash' : campaignTier === 'A' ? 'anthem' : 'standard',
+          briefType: 'standard',
           withVocals,
         }),
       });
@@ -704,7 +704,6 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
 
   const handleReset = () => {
     setCategory(null);
-    setCampaignTier(null);
     setGenres([]);
     setMoods([]);
     setGenerated(null);
@@ -791,41 +790,6 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 Step 02
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Choose your campaign tier
-              </h2>
-            </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Control the complexity and legal scope of your brief.</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 ml-[5.5rem]">
-              <BriefTypeCard
-                active={campaignTier === 'C'}
-                onClick={() => setCampaignTier('C')}
-                wordCount="Tier C"
-                label="Local / Organic Social"
-                description="Short, straightforward briefs. Ideal for beginners or quick portfolio tracks. Non-exclusive, lower stakes."
-              />
-              <BriefTypeCard
-                active={campaignTier === 'B'}
-                onClick={() => setCampaignTier('B')}
-                wordCount="Tier B"
-                label="Regional / Mid-Market"
-                description="Medium length. Introduces realistic platform restrictions, category exclusivity, and standard delivery asset requests."
-              />
-              <BriefTypeCard
-                active={campaignTier === 'A'}
-                onClick={() => setCampaignTier('A')}
-                wordCount="Tier A"
-                label="National / Enterprise"
-                description="High complexity. Visual storyboards, audience psychographics, strict exclusivity restrictions, and high-budget deliverables."
-              />
-            </div>
-          </div>
-
-          <div className="mb-14">
-            <div className="flex items-baseline gap-4 mb-3">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 03
-              </span>
-              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Pick a category
               </h2>
             </div>
@@ -842,7 +806,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 04
+                Step 03
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Choose emotional themes <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
@@ -861,7 +825,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 05
+                Step 04
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Select a genre palette <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
@@ -880,7 +844,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 06
+                Step 05
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Instrumental or vocal
@@ -939,7 +903,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             </div>
             {!canGenerate && !loading && (
               <p className="text-xs text-[var(--text-dim)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Pick a category, a campaign tier, at least one emotional theme, at least one genre, and choose vocal or instrumental.
+                Pick a category, at least one emotional theme, at least one genre, and choose vocal or instrumental.
               </p>
             )}
           </div>
@@ -949,7 +913,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
         <section className="max-w-7xl mx-auto px-6 md:px-10 py-16 fade-up">
           <div className="ml-[5.5rem] max-w-xl">
             <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4 pulse-soft" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              ◆ Working
+              ◆ Working — this takes 30-60 seconds
             </div>
             <div className="text-2xl leading-relaxed text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
               {loadingMessages[loadingStep]}
