@@ -217,16 +217,18 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
           </div>
         </Section>
 
-        <Section number="07" title="What To Avoid">
-          <ul className="space-y-2">
-            {brief.avoid.map((a, i) => (
-              <li key={i} className="flex gap-3 items-baseline" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                <span className="text-[#B33A1A]">×</span>
-                <span className="text-base">{a}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
+        {brief.avoid.length > 0 && (
+          <Section number="07" title="What To Avoid">
+            <ul className="space-y-2">
+              {brief.avoid.map((a, i) => (
+                <li key={i} className="flex gap-3 items-baseline" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <span className="text-[#B33A1A]">×</span>
+                  <span className="text-base">{a}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
 
         <Section number="08" title="Deliverables If Selected">
           <ul className="space-y-2">

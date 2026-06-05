@@ -214,7 +214,7 @@ ${scrubInstructions}
 
 4. Reference tracks must always include a delta — what's RIGHT about the reference and what should be DIFFERENT. Avoid flat "make it sound like X" directives.
 
-5. Include 1-3 specific items in the "avoid" list. Name failure modes specifically, not generically.
+5. Include 1-3 specific items in the "avoid" list. Name failure modes specifically, not generically. For Tier C briefs, output an empty avoid array — keeping the brief lean and approachable is more important than listing failure modes at this level.
 
 6. The studio identity in fileNaming is Sonant. File naming convention format: \`Sonant_[BrandSlug]_YourInitials_TrackTitle_YYYYMMDD.wav\`.
 
@@ -222,7 +222,7 @@ ${scrubInstructions}
 
 8. The "ask" section articulates the core creative challenge. Length depends on brief type: Flash = 1 sentence; Standard = 2-3 sentences; Anthem = 3-4 sentences.
 
-9. Tempo, key, length, format are specific. Tempo is a BPM range. Key is musical guidance ("Modal preferred, avoid clear major resolutions"). Length matches the deliverable.
+9. Tempo, key, length, format are specific. Tempo must be written as a BPM range using an en dash — e.g. "115–125 BPM" or "Uptempo, 115–125 BPM". Never list two separate BPM numbers without a dash between them. Key is musical guidance ("Modal preferred, avoid clear major resolutions"). Length matches the deliverable.
 
 10. Commercial terms must be written in plain language that a composer at any level can understand without Googling. No industry shorthand without explanation. Category fee ranges: Sports = $5-12K, Tech = $5-10K, Anthem = $10-25K, Healthcare = $5-15K, Financial = $8-18K, Beverage = $5-15K, Fashion = $5-15K, Food = $5-12K, Lifestyle = $4-10K. For each field: "fee" = state the exact dollar amount offered and precisely what it covers (e.g., "$7,500 flat composition fee for the demo. If the track is selected for the campaign, a separate licensing fee is negotiated at time of placement."). "usageType" = state exactly where and how the music will be used, in plain terms (e.g., "National broadcast television and paid digital pre-roll. No radio, no out-of-home, no retail."). "duration" = state how long the license lasts (e.g., "18 months from the first air date, with an optional 12-month renewal at the client's discretion." or "In perpetuity for the specific campaign assets listed above."). "exclusivity" = state clearly yes or no, and what it means for the composer (e.g., "Non-exclusive. You can pitch this track to other supervisors and libraries. We will not pitch it to direct competitors in the same product category for 90 days." or "Exclusive for 6 months from first air date, then non-exclusive. Exclusivity applies to this campaign only.").
 
@@ -253,7 +253,14 @@ function buildUserPrompt(input: GenerateBriefInput): string {
 
   return `Generate a music brief with the following parameters.
 
-**Brief Type:** ${briefType.label}
+**Campaign Tier:** ${input.briefType === 'flash' ? 'Tier C — Local / Organic Social' : input.briefType === 'anthem' ? 'Tier A — National / Enterprise' : 'Tier B — Regional / Mid-Market'}
+**Tier Density Rule:** ${
+  input.briefType === 'flash'
+    ? 'HARD LIMIT: under 250 words total. No dense brand history or backstory. Skip long narrative paragraphs entirely. Focus purely on: sonic vibe (1-2 punchy sentences), 1-2 reference tracks with deltas, and basic usage terms. Every sentence must be immediately clear and actionable. A beginner composer should find this brief approachable, not overwhelming. If in doubt, cut it.'
+    : input.briefType === 'anthem'
+    ? 'Target 700-900 words. Full enterprise-level detail required: include a visual storyboard description, target audience psychographics, strict industry-category exclusivity clauses, complex renewal and licensing terms, and multiple delivery asset specifications (stems, formats, cutdowns). This must feel like a real brief from a national advertiser — dense, specific, and professionally demanding.'
+    : 'Target 350-450 words. Include a short campaign narrative (2-3 sentences), clear target demographics (1 sentence), and a concise delivery stems list. Category exclusivity introduced. Professional sync tone — detailed enough to be instructive, lean enough to remain readable. No enterprise complexity — accessible to a working composer at any level.'
+}
 **Brief Type Notes:** ${briefType.registerNotes}
 **Target Word Count:** ${briefType.targetWordCount}
 **Structural Counts:** ${briefType.considerationCount} consideration(s), ${briefType.directionCount} direction(s), ${briefType.referenceCount} reference(s)
@@ -312,7 +319,7 @@ Return ONLY a valid JSON object matching this exact schema (no preamble, no mark
   "references": [
     ${'{ "track": "<artist — track>", "why": "<reference + delta>" },'.repeat(briefType.referenceCount).slice(0, -1)}
   ],
-  "tempo": "<BPM range>",
+  "tempo": "<BPM range using en dash, e.g. 115–125 BPM or Uptempo, 115–125 BPM>",
   "key": "<musical guidance>",
   "length": "<length with cut points>",
   "format": "<technical format spec>",

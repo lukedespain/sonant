@@ -68,15 +68,15 @@ const GENRES = [
 // Sync-industry mood vocabulary, tailored per category.
 // Sourced from Musicbed / Artlist featured-playlist language.
 const CATEGORY_MOODS: Record<string, string[]> = {
-  Sports:     ['Energetic', 'Driving', 'Powerful', 'Intense', 'Triumphant', 'Gritty', 'Determined', 'Raw', 'Explosive', 'Focused', 'Aggressive', 'Bold'],
-  Automotive: ['Cinematic', 'Driving', 'Powerful', 'Sleek', 'Adventurous', 'Sophisticated', 'Dynamic', 'Bold', 'Epic', 'Atmospheric', 'Majestic', 'Smooth'],
-  Technology: ['Futuristic', 'Innovative', 'Confident', 'Clean', 'Optimistic', 'Driving', 'Inspiring', 'Bright', 'Focused', 'Forward-moving', 'Warm', 'Sleek'],
-  Fashion:    ['Ethereal', 'Sophisticated', 'Mysterious', 'Confident', 'Dreamy', 'Dark', 'Luxurious', 'Edgy', 'Romantic', 'Aspirational', 'Seductive', 'Bold'],
-  Lifestyle:  ['Warm', 'Hopeful', 'Uplifting', 'Nostalgic', 'Playful', 'Carefree', 'Inspiring', 'Relaxed', 'Joyful', 'Emotional', 'Authentic', 'Peaceful'],
-  Beverage:   ['Playful', 'Refreshing', 'Vibrant', 'Carefree', 'Upbeat', 'Social', 'Energetic', 'Fun', 'Bright', 'Relaxed', 'Warm', 'Celebratory'],
-  Food:       ['Warm', 'Nostalgic', 'Inviting', 'Comforting', 'Playful', 'Joyful', 'Bright', 'Authentic', 'Celebratory', 'Cozy', 'Cheerful', 'Family'],
-  Healthcare: ['Calming', 'Hopeful', 'Warm', 'Trustworthy', 'Gentle', 'Uplifting', 'Peaceful', 'Emotional', 'Inspiring', 'Tender', 'Safe', 'Healing'],
-  Financial:  ['Confident', 'Trustworthy', 'Sophisticated', 'Powerful', 'Steady', 'Inspiring', 'Clean', 'Bold', 'Authoritative', 'Calm', 'Optimistic', 'Forward-looking'],
+  Sports:     ['Triumphant', 'Intense', 'Energetic', 'Powerful', 'Driving', 'Gritty', 'Focused', 'Relentless'],
+  Automotive: ['Sleek', 'Driving', 'Powerful', 'Sophisticated', 'Dynamic', 'Bold', 'Epic', 'Majestic'],
+  Technology: ['Innovative', 'Clean', 'Futuristic', 'Minimal', 'Sophisticated', 'Inspiring', 'Curious', 'Pulsing'],
+  Fashion:    ['Chic', 'Ethereal', 'Sultry', 'Bold', 'Playful', 'Upbeat', 'Intimate', 'Moody'],
+  Lifestyle:  ['Chic', 'Ethereal', 'Sultry', 'Bold', 'Playful', 'Upbeat', 'Intimate', 'Moody'],
+  Beverage:   ['Vibrant', 'Playful', 'Refreshing', 'Upbeat', 'Warm', 'Nostalgic', 'Quirky', 'Crisp'],
+  Food:       ['Vibrant', 'Playful', 'Refreshing', 'Upbeat', 'Warm', 'Nostalgic', 'Quirky', 'Crisp'],
+  Healthcare: ['Empathetic', 'Trustworthy', 'Warm', 'Hopeful', 'Grounded', 'Steady', 'Calming', 'Inspiring'],
+  Financial:  ['Empathetic', 'Trustworthy', 'Warm', 'Hopeful', 'Grounded', 'Steady', 'Calming', 'Inspiring'],
 };
 
 const DEFAULT_MOODS = [
@@ -540,6 +540,7 @@ function NextSteps() {
 // ---------- MAIN APP ----------
 export default function BriefGenerator({ user }: { user: { email: string; fullName: string } | null }) {
   const [category, setCategory] = useState<string | null>(null);
+  const [campaignTier, setCampaignTier] = useState<'C' | 'B' | 'A' | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
   const [domain, setDomain] = useState<'brand' | 'film' | 'games'>('brand');
@@ -596,7 +597,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
     setMoods((prev) => (prev.includes(m) ? prev.filter((x) => x !== m) : prev.length < 3 ? [...prev, m] : prev));
   };
 
-  const canGenerate = !!(category && genres.length > 0 && moods.length > 0);
+  const canGenerate = !!(category && campaignTier && genres.length > 0 && moods.length > 0);
 
   const handleGenerate = async () => {
     if (!canGenerate || !category) return;
@@ -612,7 +613,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           category,
           genres,
           moods,
-          briefType: 'standard',
+          briefType: campaignTier === 'C' ? 'flash' : campaignTier === 'A' ? 'anthem' : 'standard',
           withVocals,
         }),
       });
@@ -703,6 +704,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
 
   const handleReset = () => {
     setCategory(null);
+    setCampaignTier(null);
     setGenres([]);
     setMoods([]);
     setGenerated(null);
@@ -789,6 +791,41 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 Step 02
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+                Choose your campaign tier
+              </h2>
+            </div>
+            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Control the complexity and legal scope of your brief.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 ml-[5.5rem]">
+              <BriefTypeCard
+                active={campaignTier === 'C'}
+                onClick={() => setCampaignTier('C')}
+                wordCount="Tier C"
+                label="Local / Organic Social"
+                description="Short, straightforward briefs. Ideal for beginners or quick portfolio tracks. Non-exclusive, lower stakes."
+              />
+              <BriefTypeCard
+                active={campaignTier === 'B'}
+                onClick={() => setCampaignTier('B')}
+                wordCount="Tier B"
+                label="Regional / Mid-Market"
+                description="Medium length. Introduces realistic platform restrictions, category exclusivity, and standard delivery asset requests."
+              />
+              <BriefTypeCard
+                active={campaignTier === 'A'}
+                onClick={() => setCampaignTier('A')}
+                wordCount="Tier A"
+                label="National / Enterprise"
+                description="High complexity. Visual storyboards, audience psychographics, strict exclusivity restrictions, and high-budget deliverables."
+              />
+            </div>
+          </div>
+
+          <div className="mb-14">
+            <div className="flex items-baseline gap-4 mb-3">
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                Step 03
+              </span>
+              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Pick a category
               </h2>
             </div>
@@ -805,7 +842,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 03
+                Step 04
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Choose emotional themes <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
@@ -824,7 +861,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 04
+                Step 05
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Select a genre palette <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
@@ -840,12 +877,10 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             </div>
           </div>
 
-          
-
           <div className="mb-14">
             <div className="flex items-baseline gap-4 mb-3">
               <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 05
+                Step 06
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
                 Instrumental or vocal
@@ -904,7 +939,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
             </div>
             {!canGenerate && !loading && (
               <p className="text-xs text-[var(--text-dim)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Pick a category, at least one genre, at least one mood, and choose between vocal or instrumental.
+                Pick a category, a campaign tier, at least one emotional theme, at least one genre, and choose vocal or instrumental.
               </p>
             )}
           </div>
