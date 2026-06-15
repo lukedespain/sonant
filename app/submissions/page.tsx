@@ -11,7 +11,7 @@ export default function SubmissionsPage() {
         </div>
 
         <h1 className="text-5xl md:text-6xl tracking-tight leading-tight mb-6 max-w-3xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          Where briefs meet <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>music</span>.
+          Write it. Submit it. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Get placed.</span>
         </h1>
 
         <p className="text-base md:text-lg text-[var(--text-tertiary)] mb-3 max-w-2xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
