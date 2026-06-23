@@ -3,59 +3,59 @@
 import { useState } from 'react';
 import type { Brief } from './BriefDocument';
 
-function buildSunoPrompt(brief: Brief): { styleTags: string; description: string } {
+function buildStylePrompt(brief: Brief): string {
   const isVocal = brief.deliverables?.some(d =>
     d.toLowerCase().includes('cappella') || d.toLowerCase().includes(' inst')
   );
 
-  const styleTags = [
-    brief.genrePalette,
-    brief.emotionalArc,
-    brief.tempo,
-    brief.key,
-    isVocal ? 'vocal' : 'instrumental',
-  ].filter(Boolean).join(', ');
+  const parts: string[] = [];
 
-  const directionBlock = brief.direction
-    .slice(0, 4)
-    .map(d => `• ${d.trim()}`)
-    .join('\n');
+  // Core genre and mood
+  if (brief.genrePalette) parts.push(brief.genrePalette);
+  if (brief.emotionalArc) parts.push(brief.emotionalArc);
 
-  const avoidBlock = brief.avoid.length > 0
-    ? `\nAvoid: ${brief.avoid.join(' | ')}`
-    : '';
+  // Tempo and key
+  if (brief.tempo) parts.push(brief.tempo);
+  if (brief.key) parts.push(brief.key);
 
-  const refBlock = brief.references.length > 0
-    ? `\nReference energy (style only, not imitation): ${brief.references.map(r => r.track).join(', ')}`
-    : '';
+  // Up to 3 sonic direction points (condensed to first sentence each)
+  brief.direction.slice(0, 3).forEach(d => {
+    const condensed = d.split('.')[0].trim();
+    if (condensed) parts.push(condensed);
+  });
 
-  const description = [
-    brief.ask,
-    '',
-    directionBlock,
-    avoidBlock,
-    refBlock,
-  ].filter(s => s !== undefined).join('\n').trim();
+  // Avoid keywords (first clause of each item, no full sentences)
+  if (brief.avoid.length > 0) {
+    const avoidSnippets = brief.avoid
+      .slice(0, 3)
+      .map(a => a.split('.')[0].replace(/^avoid\s+/i, '').trim())
+      .join(', ');
+    parts.push(`Avoid: ${avoidSnippets}`);
+  }
 
-  return { styleTags, description };
+  // Reference artists only (not full track titles)
+  if (brief.references.length > 0) {
+    const artists = brief.references
+      .map(r => r.track.split(/\s[–—-]\s/)[0].trim())
+      .join(', ');
+    parts.push(`Reference energy: ${artists}`);
+  }
+
+  parts.push(isVocal ? 'with vocals' : 'instrumental');
+
+  return parts.filter(Boolean).join(', ');
 }
 
 export default function SunoPromptModal({ brief }: { brief: Brief }) {
   const [open, setOpen] = useState(false);
-  const [copiedStyle, setCopiedStyle] = useState(false);
-  const [copiedDesc, setCopiedDesc] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const { styleTags, description } = buildSunoPrompt(brief);
+  const stylePrompt = buildStylePrompt(brief);
 
-  function copyText(text: string, which: 'style' | 'desc') {
-    navigator.clipboard.writeText(text).then(() => {
-      if (which === 'style') {
-        setCopiedStyle(true);
-        setTimeout(() => setCopiedStyle(false), 1800);
-      } else {
-        setCopiedDesc(true);
-        setTimeout(() => setCopiedDesc(false), 1800);
-      }
+  function copyStyle() {
+    navigator.clipboard.writeText(stylePrompt).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
     });
   }
 
@@ -90,7 +90,7 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
                   ◆ AI Music Prompt
                 </div>
                 <div className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                  Project {brief.codename} · optimized for Suno / Udio
+                  Project {brief.codename} · Suno / Udio
                 </div>
               </div>
               <button
@@ -103,67 +103,36 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
               </button>
             </div>
 
-            <div className="px-6 py-5 space-y-6">
-              {/* Style Tags */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                    Style Tags — paste into Suno&apos;s Style field
-                  </div>
-                  <button
-                    onClick={() => copyText(styleTags, 'style')}
-                    className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                  >
-                    {copiedStyle ? '✓ Copied' : '⎘ Copy'}
-                  </button>
+            <div className="px-6 py-5">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  Style — paste into Suno&apos;s Style field. Leave lyrics blank.
                 </div>
-                <pre
-                  className="text-sm leading-relaxed p-4 whitespace-pre-wrap break-words select-all"
-                  style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    background: 'var(--bg-base)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: '2px',
-                    color: 'var(--text-primary)',
-                  }}
+                <button
+                  onClick={copyStyle}
+                  className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors shrink-0 ml-3"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
                 >
-                  {styleTags}
-                </pre>
+                  {copied ? '✓ Copied' : '⎘ Copy'}
+                </button>
               </div>
-
-              {/* Description Prompt */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                    Description — paste into Suno&apos;s Lyrics / Description field
-                  </div>
-                  <button
-                    onClick={() => copyText(description, 'desc')}
-                    className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                  >
-                    {copiedDesc ? '✓ Copied' : '⎘ Copy'}
-                  </button>
-                </div>
-                <pre
-                  className="text-sm leading-relaxed p-4 whitespace-pre-wrap break-words select-all"
-                  style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    background: 'var(--bg-base)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: '2px',
-                    color: 'var(--text-primary)',
-                  }}
-                >
-                  {description}
-                </pre>
-              </div>
+              <pre
+                className="text-sm leading-relaxed p-4 whitespace-pre-wrap break-words select-all"
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  background: 'var(--bg-base)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '2px',
+                  color: 'var(--text-primary)',
+                }}
+              >
+                {stylePrompt}
+              </pre>
             </div>
 
             <div className="px-6 pb-5">
               <p className="text-[10px] text-[var(--text-dimmer)] leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Style Tags goes in Suno&apos;s &quot;Style of Music&quot; box. Description goes in the lyrics/description area with &quot;Instrumental&quot; or leave blank for Suno to generate vocals.
+                Paste this into Suno&apos;s &quot;Style of Music&quot; box only. Leave the lyrics field empty — Suno will generate an instrumental based on the style tags alone.
               </p>
             </div>
           </div>
