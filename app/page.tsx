@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import BriefGenerator from '@/components/BriefGenerator';
 
+const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
+
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -19,5 +21,7 @@ export default async function Home() {
     };
   }
 
-  return <BriefGenerator user={userInfo} />;
+  const isAdmin = user?.id === ADMIN_USER_ID;
+
+  return <BriefGenerator user={userInfo} isAdmin={isAdmin} />;
 }

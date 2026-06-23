@@ -9,6 +9,8 @@ import {
   BRIEF_TYPES,
   BriefTypeId,
 } from '@/lib/brief-patterns';
+import SunoPromptModal from './SunoPromptModal';
+import type { Brief as BriefDocType } from './BriefDocument';
 
 // ---------- TYPES ----------
 
@@ -539,7 +541,7 @@ function NextSteps() {
 
 
 // ---------- MAIN APP ----------
-export default function BriefGenerator({ user }: { user: { email: string; fullName: string } | null }) {
+export default function BriefGenerator({ user, isAdmin = false }: { user: { email: string; fullName: string } | null; isAdmin?: boolean }) {
   const [category, setCategory] = useState<string | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
@@ -935,6 +937,7 @@ export default function BriefGenerator({ user }: { user: { email: string; fullNa
                 ◆ Brief Generated · {generated.briefId}
               </div>
               <div className="flex gap-3 flex-wrap">
+                {isAdmin && <SunoPromptModal brief={generated as unknown as BriefDocType} />}
                 <button
                   onClick={handleGenerate}
                   className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"

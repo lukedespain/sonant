@@ -5,7 +5,10 @@ import BriefDocument, { type Brief } from '@/components/BriefDocument';
 import ExportPdfButton from '@/components/ExportPdfButton';
 import SubmitTrackModal from '@/components/SubmitTrackModal';
 import DeleteBriefButton from './DeleteBriefButton';
+import SunoPromptModal from '@/components/SunoPromptModal';
 import { getSubmissionStatus } from '@/app/briefs/actions';
+
+const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -35,7 +38,7 @@ export default async function BriefDetailPage({ params }: PageProps) {
   const brief = briefRow.generated_content as Brief;
   const submission = await getSubmissionStatus(briefRow.id);
   const alreadySubmitted = submission !== null;
- 
+  const isAdmin = user.id === ADMIN_USER_ID;
 
   return (
     <div className="pt-20 pb-12 flex-1 overflow-x-hidden">
@@ -57,9 +60,12 @@ export default async function BriefDetailPage({ params }: PageProps) {
             />
           </div>
 
-          {/* Row 2: Export PDF | Delete */}
+          {/* Row 2: Export PDF | Delete (+ AI Prompt for admin) */}
           <div className="flex items-center justify-between gap-3">
-            <ExportPdfButton />
+            <div className="flex items-center gap-3">
+              <ExportPdfButton />
+              {isAdmin && <SunoPromptModal brief={brief} />}
+            </div>
             <DeleteBriefButton briefId={briefRow.id} />
           </div>
 
