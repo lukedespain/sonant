@@ -3,9 +3,18 @@
 import Anthropic from '@anthropic-ai/sdk';
 import {
   BRAND_CATEGORIES,
+  FILM_CATEGORIES,
+  GAMES_CATEGORIES,
   SCRUB_LIST,
   getActivePatterns,
+  type CategoryMeta,
 } from '@/lib/brief-patterns';
+
+function getCategoriesForMode(mode: 'brand' | 'film' | 'games'): Record<string, CategoryMeta> {
+  if (mode === 'film') return FILM_CATEGORIES;
+  if (mode === 'games') return GAMES_CATEGORIES;
+  return BRAND_CATEGORIES;
+}
 
 // ============================================================
 // TYPES
@@ -90,7 +99,7 @@ function lengthForMode(mode: 'brand' | 'film' | 'games'): string {
 // PROMPT BUILDER
 // ============================================================
 
-function buildSystemPrompt(): string {
+function buildSystemPrompt(mode: 'brand' | 'film' | 'games'): string {
   const activePatterns = getActivePatterns();
 
   const patternDescriptions = activePatterns
@@ -109,7 +118,21 @@ function buildSystemPrompt(): string {
 - Real people: ${SCRUB_LIST.realPeople.join(', ')}
 - Real brands: ${SCRUB_LIST.realBrands.join(', ')}`;
 
-  return `You are a music supervisor at Sonant Studio writing briefs for composers to practice sync writing.
+  const roleIntro =
+    mode === 'film'
+      ? 'You are a music supervisor at Sonant Studio writing briefs for composers to practice scoring film and television cues.'
+      : mode === 'games'
+      ? 'You are a game audio director at Sonant Studio writing briefs for composers to practice writing game music.'
+      : 'You are a music supervisor at Sonant Studio writing briefs for composers to practice sync writing.';
+
+  const modeRule =
+    mode === 'games'
+      ? '\n11. The track must loop seamlessly. Mention the loop requirement naturally in "ask" — one sentence on loop point invisibility or seamless cycling. Do not make it the entire focus.'
+      : mode === 'film'
+      ? '\n11. Write the scene description in "story" as a director or script supervisor would — what is visible on screen, not brand or marketing language. No demographic copy.'
+      : '';
+
+  return `${roleIntro}
 
 Output is a JSON object matching the schema in the user message. Every field required. Return only valid JSON.
 
@@ -123,17 +146,17 @@ ${patternDescriptions}
 
 # RULES
 
-1. Invent a fictional brand or client name appropriate to the category. No real brands. Vary the register — not every sports brand is heavy and gritty, not every tech brand is minimal and clean. Draw from the seed pool and invent beyond it freely.
+1. Invent a fictional ${mode === 'film' ? 'production company' : mode === 'games' ? 'game studio' : 'brand or client'} name appropriate to the category. No real ${mode === 'brand' ? 'brands' : 'studio or publisher names'}. Draw from the seed pool and invent beyond it freely.
 
-2. The "project" field is a short campaign label only — 3 to 5 words. No platforms, no distribution details, no comma-separated secondary clause after the core label.
+2. The "project" field is ${mode === 'film' ? 'a short film or series title — 2 to 4 words' : mode === 'games' ? 'a short game title or feature label — 2 to 4 words' : 'a short campaign label only — 3 to 5 words. No platforms, no distribution details'}.
 
-3. "story" is The Scene — 3 to 4 sentences. Visual, immediate, cinematic. What is happening in the world of this brief. Short, varied sentence rhythm. No demographic breakdowns or brand history.
+3. "story" is The Scene — 3 to 4 sentences. ${mode === 'film' ? 'Describe what is happening on screen: specific visual action, setting, character behavior. Cinematic and immediate. This is a scene description, not brand copy.' : mode === 'games' ? 'Describe the in-game moment or world context: what the player sees, where they are, the atmosphere. Specific and immersive.' : 'Visual, immediate, cinematic. What is happening in the world of this brief. Short, varied sentence rhythm. No demographic breakdowns or brand history.'}
 
-4. "ask" is The Music — 4 to 5 sentences. What this track needs to do emotionally. The sonic approach. What makes it hard to execute well. This is the heart of the brief.
+4. "ask" is The Music — 4 to 5 sentences. What this ${mode === 'film' ? 'cue' : mode === 'games' ? 'game track' : 'track'} needs to do emotionally. The sonic approach. What makes it hard to execute well. This is the heart of the brief.
 
 5. "direction" is 4 to 5 punchy bullets. One specific idea per bullet. Direct and actionable. Avoid starting every bullet with the same word.
 
-6. "references" is exactly 2 entries. "track" format: "Artist Name, Track Title" (comma separator). "like": one specific thing to borrow — energy, texture, or structure. "avoid": one specific thing NOT to imitate. One sentence each. No em dashes.
+6. "references" is exactly 2 entries. "track" format: "Artist Name, Track Title" (comma separator). ${mode === 'film' ? 'Use film score composers and tracks where appropriate (e.g. Jonny Greenwood, Nico Muhly, Johann Johannsson, Ryuichi Sakamoto, Ennio Morricone, Bernard Herrmann, or relevant contemporary artists).' : mode === 'games' ? 'Use game composers and OST tracks where appropriate (e.g. Disasterpeace, Darren Korb, Austin Wintory, Jesper Kyd, Yoko Shimomura, or relevant artists).' : ''} "like": one specific thing to borrow. "avoid": one specific thing NOT to imitate. One sentence each. No em dashes.
 
 7. No em dashes anywhere in the brief. Use commas, periods, or parentheses instead.
 
@@ -142,12 +165,14 @@ ${patternDescriptions}
 9. Be concise. One clear idea per sentence. Avoid over-explaining.
 
 10. Every choice must fit the established genre and mood. Coherence over novelty.
+${modeRule}
 
 ${scrubInstructions}`;
 }
 
 function buildUserPrompt(input: GenerateBriefInput): string {
-  const category = BRAND_CATEGORIES[input.category];
+  const categories = getCategoriesForMode(input.mode);
+  const category = categories[input.category];
   if (!category) throw new Error(`Unknown category: ${input.category}`);
 
   const briefId = makeBriefId();
@@ -157,19 +182,67 @@ function buildUserPrompt(input: GenerateBriefInput): string {
   const length = lengthForMode(input.mode);
   const vocals = input.withVocals ? 'Vocal' : 'Instrumental';
 
-  return `Generate a music brief with the following parameters.
-
-**Category:** ${category.name}
+  const categoryBlock =
+    input.mode === 'film'
+      ? `**Scene Type:** ${category.name}
+**Typical Register:** ${category.defaultRegister}
+**Common Failure Modes:** ${category.failureModesToAvoid.join('; ')}
+**Fictional Production Companies (inspiration only — invent your own):** ${category.fictionalBrandSeeds.join(', ')}
+**Scene Notes:** ${category.registerNotes}`
+      : input.mode === 'games'
+      ? `**Game Context:** ${category.name}
+**Audio Register:** ${category.defaultRegister}
+**Common Failure Modes:** ${category.failureModesToAvoid.join('; ')}
+**Fictional Game Studios (inspiration only — invent your own):** ${category.fictionalBrandSeeds.join(', ')}
+**Context Notes:** ${category.registerNotes}`
+      : `**Category:** ${category.name}
 **Default Register:** ${category.defaultRegister}
 **Failure Modes to Avoid:** ${category.failureModesToAvoid.join('; ')}
 **Fictional Brand Seeds (inspiration only — invent your own or pick from these):** ${category.fictionalBrandSeeds.join(', ')}
-**Register Notes:** ${category.registerNotes}
+**Register Notes:** ${category.registerNotes}`;
+
+  const codenameInstruction =
+    input.mode === 'film'
+      ? `**Codename:** Invent a cinematic 1-2 word cue title evoking the scene and mood. Should sound like a real film score cue name. Examples: "First Light", "Last Train", "The Weight of It", "Threshold", "Burning Low", "Cold Open", "Still Water", "The Long Road". Specific to this brief's emotional register.`
+      : input.mode === 'games'
+      ? `**Codename:** Invent a 1-2 word game audio cue title that fits the game world and context. Should sound like a real game OST track name. Examples: "Ironhold", "The Breach", "Ancient Path", "Final Descent", "Ember Core", "Ashveil", "Threshold Run", "The Hollow". Specific to this brief's context and world.`
+      : `**Codename:** Invent a fresh 1-2 word project codename. Should evoke the genre and mood, not the brand category. Examples: "Nightshift", "Paper Lanterns", "Cold Open", "Slow Tide", "Afterglow", "Ironwood". No real trademarks. Make it specific to this brief's mood. Vary it so generated briefs rarely repeat.`;
+
+  const clientDesc =
+    input.mode === 'film'
+      ? '<fictional production company or streaming studio name>'
+      : input.mode === 'games'
+      ? '<fictional game studio name>'
+      : '<fictional brand name appropriate to the category>';
+
+  const projectDesc =
+    input.mode === 'film'
+      ? '<2-4 word film or series title>'
+      : input.mode === 'games'
+      ? '<2-4 word game title or scene label>'
+      : '<3-5 word campaign label only — no platforms, no distribution details>';
+
+  const storyDesc =
+    input.mode === 'film'
+      ? '<3-4 sentences describing what is happening on screen: specific visual action, setting, character behavior. Cinematic and immediate — this is a scene description, not marketing copy>'
+      : input.mode === 'games'
+      ? '<3-4 sentences describing the in-game moment or world context: what the player sees, where they are, the game atmosphere>'
+      : '<3-4 visual, cinematic sentences describing the scene or world of this brief>';
+
+  const askDesc =
+    input.mode === 'games'
+      ? '<4-5 sentences about what this track needs to do emotionally and sonically, including one sentence on why seamless looping matters here and what makes it hard to execute>'
+      : '<4-5 sentences about what this track needs to do emotionally, sonically, and what makes it hard to execute>';
+
+  return `Generate a music brief with the following parameters.
+
+${categoryBlock}
 
 **Genre Palette:** ${input.genres.join(', ')}
 **Emotional Arc:** ${input.moods.join(', ')}
 **Track Type:** ${vocals}
 
-**Codename:** Invent a fresh 1-2 word project codename. Should evoke the genre and mood, not the brand category. Examples: "Nightshift", "Paper Lanterns", "Cold Open", "Slow Tide", "Afterglow", "Ironwood". No real trademarks. Make it specific to this brief's mood. Vary it so generated briefs rarely repeat.
+${codenameInstruction}
 
 **Pre-generated metadata — use these values exactly:**
 - mode: "${input.mode}"
@@ -186,15 +259,15 @@ Return ONLY a valid JSON object. No preamble, no markdown fences, no explanation
 
 {
   "mode": "${input.mode}",
-  "codename": "<1-2 word project codename evoking the genre and mood>",
+  "codename": "<1-2 word codename>",
   "briefId": "${briefId}",
   "issued": "${issued}",
   "deadline": "${deadline}",
-  "client": "<fictional brand name appropriate to the category>",
+  "client": "${clientDesc}",
   "classification": "${classification}",
-  "project": "<3-5 word campaign label only — no platforms, no distribution details>",
-  "story": "<3-4 visual, cinematic sentences describing the scene or world of this brief>",
-  "ask": "<4-5 sentences about what this track needs to do emotionally, sonically, and what makes it hard to execute>",
+  "project": "${projectDesc}",
+  "story": "${storyDesc}",
+  "ask": "${askDesc}",
   "direction": [
     "<specific actionable direction — one idea per bullet>",
     "<specific actionable direction>",
@@ -311,7 +384,7 @@ function validateBrief(obj: unknown): string[] {
 export async function generateBrief(
   input: GenerateBriefInput
 ): Promise<{ brief?: Brief; error?: string }> {
-  if (!BRAND_CATEGORIES[input.category]) {
+  if (!getCategoriesForMode(input.mode)[input.category]) {
     return { error: `Unknown category: ${input.category}` };
   }
 
@@ -326,7 +399,7 @@ export async function generateBrief(
   }
 
   const client = new Anthropic({ apiKey });
-  const systemPrompt = buildSystemPrompt();
+  const systemPrompt = buildSystemPrompt(input.mode);
   const baseUserPrompt = buildUserPrompt(input);
 
   async function attemptGeneration(

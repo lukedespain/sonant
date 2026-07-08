@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { saveBrief } from '@/app/briefs/actions';
 import { addAnonBrief } from '@/lib/anon-briefs';
-import { BRAND_CATEGORIES } from '@/lib/brief-patterns';
+import { BRAND_CATEGORIES, FILM_CATEGORIES, GAMES_CATEGORIES } from '@/lib/brief-patterns';
 import SunoPromptModal from './SunoPromptModal';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
 
@@ -36,7 +36,19 @@ const DEFAULT_MOODS = [
   'Intimate', 'Hopeful', 'Mysterious', 'Uplifting', 'Driving', 'Emotional', 'Atmospheric',
 ];
 
-const CATEGORIES = Object.values(BRAND_CATEGORIES).map((c) => c.name);
+const FILM_MOODS = [
+  'Melancholic', 'Tense', 'Haunting', 'Hopeful', 'Intimate',
+  'Eerie', 'Bittersweet', 'Suspenseful', 'Epic', 'Dramatic', 'Serene', 'Nostalgic',
+];
+
+const GAMES_MOODS = [
+  'Intense', 'Atmospheric', 'Mysterious', 'Adventurous', 'Triumphant',
+  'Ominous', 'Focused', 'Playful', 'Epic', 'Tense', 'Serene', 'Heroic',
+];
+
+const BRAND_CATEGORY_NAMES = Object.values(BRAND_CATEGORIES).map((c) => c.name);
+const FILM_CATEGORY_NAMES = Object.values(FILM_CATEGORIES).map((c) => c.name);
+const GAMES_CATEGORY_NAMES = Object.values(GAMES_CATEGORIES).map((c) => c.name);
 
 // ---------- COMPONENTS ----------
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -139,7 +151,7 @@ function DomainCard({
         }`}
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
       >
-        {disabled ? 'Coming Soon' : 'Available'}
+        {disabled ? 'Coming Soon' : active ? 'Selected' : 'Select'}
       </div>
       <h4
         className={`text-2xl mb-2 ${
@@ -303,11 +315,28 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
     return () => clearInterval(interval);
   }, [loading, loadingMessages.length]);
 
-  // Moods available for the currently selected category (or the default set).
-  const availableMoods = category ? (CATEGORY_MOODS[category] ?? DEFAULT_MOODS) : DEFAULT_MOODS;
+  const domainMoods =
+    domain === 'film' ? FILM_MOODS :
+    domain === 'games' ? GAMES_MOODS :
+    null;
+
+  const availableMoods = domainMoods
+    ? domainMoods
+    : (category ? (CATEGORY_MOODS[category] ?? DEFAULT_MOODS) : DEFAULT_MOODS);
+
+  const domainCategories =
+    domain === 'film' ? FILM_CATEGORY_NAMES :
+    domain === 'games' ? GAMES_CATEGORY_NAMES :
+    BRAND_CATEGORY_NAMES;
+
+  const handleDomainChange = (newDomain: 'brand' | 'film' | 'games') => {
+    setDomain(newDomain);
+    setCategory(null);
+    setMoods([]);
+  };
 
   const handleCategorySelect = (c: string) => {
-    const newMoods = CATEGORY_MOODS[c] ?? DEFAULT_MOODS;
+    const newMoods = domainMoods ?? (CATEGORY_MOODS[c] ?? DEFAULT_MOODS);
     setMoods((prev) => prev.filter((m) => newMoods.includes(m)));
     setCategory(c);
   };
@@ -486,23 +515,21 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 ml-[5.5rem]">
               <DomainCard
                 active={domain === 'brand'}
-                onClick={() => setDomain('brand')}
+                onClick={() => handleDomainChange('brand')}
                 label="Brand & Advertising"
                 description="Commercials, campaigns, and brand spots."
               />
               <DomainCard
-                active={false}
-                disabled
-                onClick={() => {}}
+                active={domain === 'film'}
+                onClick={() => handleDomainChange('film')}
                 label="Film & Television"
                 description="Scored cues for film and TV scenes."
               />
               <DomainCard
-                active={false}
-                disabled
-                onClick={() => {}}
-                label="Video Game"
-                description="Trailers, background loops, and sound design."
+                active={domain === 'games'}
+                onClick={() => handleDomainChange('games')}
+                label="Video Games"
+                description="Combat loops, exploration, cutscenes, and title screens."
               />
             </div>
           </div>
@@ -513,12 +540,14 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
                 Step 02
               </span>
               <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Pick a category
+                {domain === 'film' ? 'Pick a scene type' : domain === 'games' ? 'Pick a game context' : 'Pick a category'}
               </h2>
             </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Where your music lives.</p>
+            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">
+              {domain === 'film' ? 'What genre or type of scene are you scoring.' : domain === 'games' ? 'What kind of moment or context this music plays in.' : 'Where your music lives.'}
+            </p>
             <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
-              {CATEGORIES.map((c) => (
+              {domainCategories.map((c) => (
                 <Chip key={c} active={category === c} onClick={() => handleCategorySelect(c)}>
                   {c}
                 </Chip>
@@ -535,7 +564,7 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
                 Choose emotional themes <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
               </h2>
             </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">The emotional direction of the brief.</p>
+            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">{domain === 'games' ? 'The emotional register of the cue.' : 'The emotional direction of the brief.'}</p>
             <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
               {availableMoods.map((m) => (
                 <Chip key={m} active={moods.includes(m)} onClick={() => toggleMood(m)}>
