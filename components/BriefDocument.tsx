@@ -97,7 +97,7 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(to bottom, rgba(245,239,224,0) 50%, #F5EFE0 100%)',
+                'linear-gradient(to bottom, rgba(245,239,224,0) 82%, rgba(245,239,224,0.7) 93%, #F5EFE0 100%)',
             }}
           />
         </div>
