@@ -24,8 +24,8 @@ function buildStylePrompt(brief: Brief): string {
     if (condensed) parts.push(condensed);
   });
 
-  // Avoid keywords (first clause of each item, no full sentences)
-  if (brief.avoid.length > 0) {
+  // Avoid keywords — use legacy avoid array if present, otherwise from references
+  if (brief.avoid && brief.avoid.length > 0) {
     const avoidSnippets = brief.avoid
       .slice(0, 3)
       .map(a => a.split('.')[0].replace(/^avoid\s+/i, '').trim())
