@@ -3,47 +3,94 @@
 import { useState } from 'react';
 import type { Brief } from './BriefDocument';
 
+const GENRE_INSTRUMENTS: Record<string, string> = {
+  'ambient': 'synth pads, sustained drones',
+  'orchestral': 'strings, orchestra',
+  'neo-classical': 'piano, chamber strings',
+  'folk / acoustic': 'acoustic guitar, fingerpicked, natural recording',
+  'folk/acoustic': 'acoustic guitar, fingerpicked',
+  'jazz': 'jazz piano, upright bass, brushed drums',
+  'hip-hop': 'sampled drums, lo-fi beats',
+  'electronic': 'synthesizer, drum machine',
+  'rock': 'electric guitar, live drums',
+  'cinematic': 'cinematic strings, film score',
+  'r&b / soul': 'warm bass, soul production',
+  'indie': 'indie production, layered guitars',
+  'country': 'acoustic guitar, pedal steel',
+  'alternative': 'alternative guitar, indie drums',
+  'pop': 'pop production, melodic hooks',
+};
+
+function extractDirectionTags(direction: string[]): string[] {
+  const tags: string[] = [];
+  const SKIP_STARTERS = /^(think|avoid|lean into|lean toward|use |build |keep |let |make |create |try |write |consider |explore |focus |one or two|the track|your track|this track|ensure|if there)/i;
+
+  for (const d of direction.slice(0, 4)) {
+    const trimmed = d.trim();
+    if (SKIP_STARTERS.test(trimmed)) continue;
+    const clause = trimmed.split(/[.,]/)[0].trim().toLowerCase();
+    const words = clause.split(/\s+/).slice(0, 6).join(' ');
+    if (words.length >= 4 && words.length <= 50) tags.push(words);
+  }
+  return tags;
+}
+
 function buildStylePrompt(brief: Brief): string {
-  const isVocal = brief.deliverables?.some(d =>
-    d.toLowerCase().includes('cappella') || d.toLowerCase().includes(' inst')
-  );
+  const tags: string[] = [];
 
-  const parts: string[] = [];
+  // 1. Genre tags (split and lowercase)
+  brief.genrePalette
+    .split(/[,/]/)
+    .map(g => g.trim().toLowerCase())
+    .filter(Boolean)
+    .forEach(g => tags.push(g));
 
-  // Core genre and mood
-  if (brief.genrePalette) parts.push(brief.genrePalette);
-  if (brief.emotionalArc) parts.push(brief.emotionalArc);
+  // 2. Mood/emotional arc
+  brief.emotionalArc
+    .split(/[,/]/)
+    .map(m => m.trim().toLowerCase())
+    .filter(Boolean)
+    .forEach(m => tags.push(m));
 
-  // Tempo and key
-  if (brief.tempo) parts.push(brief.tempo);
-  if (brief.key) parts.push(brief.key);
-
-  // Up to 3 sonic direction points (condensed to first sentence each)
-  brief.direction.slice(0, 3).forEach(d => {
-    const condensed = d.split('.')[0].trim();
-    if (condensed) parts.push(condensed);
-  });
-
-  // Avoid keywords — use legacy avoid array if present, otherwise from references
-  if (brief.avoid && brief.avoid.length > 0) {
-    const avoidSnippets = brief.avoid
-      .slice(0, 3)
-      .map(a => a.split('.')[0].replace(/^avoid\s+/i, '').trim())
-      .join(', ');
-    parts.push(`Avoid: ${avoidSnippets}`);
+  // 3. Instrumentation from genre (one hint per matched genre)
+  const genres = brief.genrePalette.split(/[,/]/).map(g => g.trim().toLowerCase());
+  const addedInstruments = new Set<string>();
+  for (const g of genres) {
+    const hint = GENRE_INSTRUMENTS[g];
+    if (hint && !addedInstruments.has(hint)) {
+      tags.push(hint);
+      addedInstruments.add(hint);
+    }
   }
 
-  // Reference artists only (not full track titles)
+  // 4. Tempo (cleaned up)
+  if (brief.tempo) {
+    tags.push(brief.tempo.replace('BPM', 'bpm').replace('–', '-').replace('—', '-'));
+  }
+
+  // 5. Key (first phrase only, lowercase)
+  if (brief.key) {
+    const keyPhrase = brief.key.split(/[;]/)[0].trim().toLowerCase();
+    if (keyPhrase.length < 55) tags.push(keyPhrase);
+  }
+
+  // 6. Direction: short positive descriptors only
+  extractDirectionTags(brief.direction).forEach(t => tags.push(t));
+
+  // 7. References: "in the style of Artist, Artist"
   if (brief.references.length > 0) {
     const artists = brief.references
-      .map(r => r.track.split(/\s[–—-]\s/)[0].trim())
-      .join(', ');
-    parts.push(`Reference energy: ${artists}`);
+      .map(r => r.track.split(/[,–—]/)[0].trim())
+      .filter(Boolean);
+    if (artists.length > 0) tags.push(`in the style of ${artists.join(', ')}`);
   }
 
-  parts.push(isVocal ? 'with vocals' : 'instrumental');
+  // 8. Vocal type
+  const isVocal = brief.vocals?.toLowerCase().includes('vocal') &&
+    !brief.vocals?.toLowerCase().includes('instrumental');
+  tags.push(isVocal ? 'with vocals' : 'no vocals, instrumental');
 
-  return parts.filter(Boolean).join(', ');
+  return tags.filter(Boolean).join(', ');
 }
 
 export default function SunoPromptModal({ brief }: { brief: Brief }) {
