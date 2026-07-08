@@ -58,17 +58,25 @@ function BriefCard({ brief, detailBase }: { brief: BriefRow; detailBase: string 
       <div className={imageUrl ? 'px-5 pb-5 pt-3' : 'p-6'}>
         {/* Title row */}
         <div className="flex items-start justify-between gap-3 mb-2">
-          <h3
-            className="text-xl leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
-          >
+          <h3 className="leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors">
             <span
-              className="text-[10px] tracking-[0.2em] uppercase not-italic"
+              className="text-[10px] tracking-[0.25em] uppercase not-italic align-middle"
               style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-muted)', fontWeight: 400 }}
             >
-              {modeLabel}
+              {modeLabel.toUpperCase()} PROJECT
             </span>
-            {' / '}Project <span className="italic">{codename}</span>
+            <span
+              className="not-italic align-middle mx-2 text-[10px] tracking-widest"
+              style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-dimmer)' }}
+            >
+              /
+            </span>
+            <span
+              className="text-xl italic"
+              style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
+            >
+              {codename}
+            </span>
           </h3>
           <span
             className="text-[10px] tracking-wider text-[var(--text-dimmer)] shrink-0 mt-1"
