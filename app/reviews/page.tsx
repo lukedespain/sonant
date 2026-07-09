@@ -1,35 +1,27 @@
 export default function ReviewsPage() {
   return (
-    <div className="pt-20 pb-12 flex-1">
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
+    <div className="pt-20 pb-24 flex-1">
+      <div className="max-w-5xl mx-auto px-6 md:px-10">
 
-        {/* HERO */}
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Live Reviews
+        {/* Hero */}
+        <div className="mb-20">
+          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            ◆ Reviews
+          </div>
+          <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-5 max-w-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+            Honest feedback on your <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>work</span>.
+          </h1>
+          <p className="text-base text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            A focused listening session. We walk through your track, identify the gap between brief and music, and name patterns worth tracking. Run by someone who has reviewed thousands of sync and composition tracks.
+          </p>
         </div>
 
-        <h1 className="text-5xl md:text-6xl tracking-tight leading-tight mb-6 max-w-3xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          Honest feedback on your <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>work</span>.
-        </h1>
-
-        <p className="text-base md:text-lg text-[var(--text-tertiary)] mb-4 max-w-2xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          A Live Review is a focused listening session where we walk through your track
-          together, identify the gap between what the brief asked for and where your music
-          lands, and name the patterns worth tracking in your work.
-        </p>
-
-        <p className="text-base text-[var(--text-muted)] mb-20 max-w-2xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Reviews are run by someone who has reviewed hundreds of tracks written to sync briefs, and thousands more for composition, production, mixing, and mastering feedback.
-        </p>
-
-        <div className="border-t border-[var(--border-base)] mb-20" />
-
-        {/* SESSION CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-20 max-w-4xl">
+        {/* Session cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-20">
           <SessionCard
             duration="15-Minute Session"
             oldPrice="$25"
-            body="One track. Focused feedback. Best for sanity-checking a creative choice or a check-in before submission."
+            body="One track. Focused feedback. Best for sanity-checking a creative choice or a final check before submission."
             cta="Book a 15-min Session"
             bookingUrl="https://cal.com/sonant/15min"
           />
@@ -42,40 +34,52 @@ export default function ReviewsPage() {
           />
         </div>
 
-        <div className="border-t border-[var(--border-base)] mb-20" />
+        {/* Two-column detail */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
+          <div>
+            <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-8" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              ◆ Who This Is For
+            </div>
+            <ul className="space-y-3">
+              {[
+                'Composers who want craft-level feedback, not just "sounds great."',
+                'Composers building portfolios for sync, library, or catalog work.',
+                'Composers who have noticed patterns in their own work and want to test them.',
+              ].map((text) => (
+                <li key={text} className="flex gap-3 items-start">
+                  <span className="text-[#E85D2F] text-sm mt-0.5 shrink-0">◆</span>
+                  <span className="text-base text-[var(--text-secondary)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    {text}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* WHO THIS IS FOR */}
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-8" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Who This Is For
-        </div>
-
-        <div className="max-w-2xl mb-20">
-          <ul className="space-y-4 mb-8">
-            <Bullet text={'Composers who want craft-level feedback, not just \u201Csounds great.\u201D'} />
-            <Bullet text="Composers building portfolios for sync, library, or catalog work." />
-            <Bullet text="Composers who've noticed patterns in their own work and want to test them." />
-          </ul>
-
-          <p className="text-base text-[var(--text-tertiary)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Not the right fit for composers looking for validation, or composers who
-            haven&apos;t generated a brief yet. Generate one first, write to it, then book.
-          </p>
-        </div>
-
-        <div className="border-t border-[var(--border-base)] mb-20" />
-
-        {/* WHAT TO BRING */}
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-8" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ What to Bring
-        </div>
-
-        <div className="max-w-2xl">
-          <ul className="space-y-4">
-            <Bullet text="A track you've written, ideally to a Sonant brief" />
-            <Bullet text="The brief open and ready to reference" />
-            <Bullet text="One question you want answered, if you have one" />
-            <Bullet text="Honest expectations. Feedback is direct, not soft." />
-          </ul>
+          <div>
+            <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-8" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              ◆ What to Bring
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                'A finished track',
+                'The brief open',
+                'One clear question',
+                'Direct feedback expected',
+              ].map((tag) => (
+                <span
+                  key={tag}
+                  className="text-xs tracking-wide px-3 py-2 border border-[var(--border-card)] bg-[var(--bg-card)] text-[var(--text-secondary)]"
+                  style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <p className="text-sm text-[var(--text-muted)] mt-6 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Generate a brief first, write to it, then book. Reviews work best when there&apos;s a brief to measure against.
+            </p>
+          </div>
         </div>
 
       </div>
@@ -115,7 +119,8 @@ function SessionCard({
         {body}
       </p>
 
-      <a href={bookingUrl}
+      <a
+        href={bookingUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
@@ -124,19 +129,5 @@ function SessionCard({
         {cta}
       </a>
     </div>
-  );
-}
-
-function Bullet({ text }: { text: string }) {
-  return (
-    <li className="flex gap-3 items-start">
-      <span className="text-[#E85D2F] text-sm mt-0.5">◆</span>
-      <span
-        className="text-base text-[var(--text-secondary)] leading-relaxed"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
-      >
-        {text}
-      </span>
-    </li>
   );
 }

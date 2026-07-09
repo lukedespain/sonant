@@ -38,6 +38,20 @@
   --status-pending-border:   #3D3210;
   --status-reviewed-bg:      #1C1A17;
   --status-reviewed-border:  #302D28;
+
+  /* Brief document — dark mode */
+  --brief-bg-from:       #1E1C19;
+  --brief-bg-to:         #1A1815;
+  --brief-text-h:        #EDE8DF;
+  --brief-text-body:     #C4BFB5;
+  --brief-text-meta:     #6A6660;
+  --brief-divider:       rgba(240, 235, 224, 0.09);
+  --brief-ref-border:    rgba(240, 235, 224, 0.13);
+  --brief-img-fade-from: rgba(30, 28, 25, 0);
+  --brief-img-fade-to:   #1E1C19;
+  --brief-arrow:         #E85D2F;
+  --brief-use-color:     #7A9A6E;
+  --brief-skip-color:    #B33A1A;
 }
 
 /* Light mode — warm cream palette inspired by Sonant print materials */
@@ -66,6 +80,20 @@
   --status-pending-border:   #DDD0A0;
   --status-reviewed-bg:      #EDECEA;
   --status-reviewed-border:  #D5D1CB;
+
+  /* Brief document — light/paper mode */
+  --brief-bg-from:       #F5EFE0;
+  --brief-bg-to:         #F2EBDA;
+  --brief-text-h:        #1A1815;
+  --brief-text-body:     #1A1815;
+  --brief-text-meta:     #8A8680;
+  --brief-divider:       rgba(42, 38, 32, 0.18);
+  --brief-ref-border:    rgba(42, 38, 32, 0.15);
+  --brief-img-fade-from: rgba(245, 239, 224, 0);
+  --brief-img-fade-to:   #F5EFE0;
+  --brief-arrow:         #E85D2F;
+  --brief-use-color:     #5A8A50;
+  --brief-skip-color:    #B33A1A;
 }
 
 @theme inline {
@@ -80,6 +108,52 @@ body {
   color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
+  padding-bottom: 130px;
+}
+
+/* AudioPlayerBar seekbar */
+.sonant-seekbar {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  display: block;
+}
+
+.sonant-seekbar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #E85D2F;
+  cursor: pointer;
+  margin-top: -4px;
+}
+
+.sonant-seekbar::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 2px;
+}
+
+.sonant-seekbar::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #E85D2F;
+  border: none;
+  cursor: pointer;
+}
+
+.sonant-seekbar::-moz-range-track {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+}
+
+@media print {
+  body { padding-bottom: 0 !important; }
 }
 
 @media print {

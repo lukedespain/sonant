@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import AudioPlayerBar from "@/components/AudioPlayerBar";
 import { Providers } from "./providers";
 import { createClient } from "@/lib/supabase/server";
 
@@ -40,6 +41,7 @@ export default async function RootLayout({
         <Providers>
           <Nav user={user} />
           {children}
+          <AudioPlayerBar />
         </Providers>
       </body>
     </html>

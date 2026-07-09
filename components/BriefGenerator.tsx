@@ -55,120 +55,78 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   return (
     <button
       onClick={onClick}
-      className={`group relative transition-all duration-200 px-4 py-2.5 text-sm rounded-full border tracking-wide ${
+      className={`transition-all duration-150 px-4 py-2.5 text-sm rounded-full border tracking-wide ${
         active
           ? 'bg-[#F5EFE0] border-[#F5EFE0] text-[#1A1815]'
           : 'bg-transparent border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--text-dim)] hover:text-[var(--text-primary)]'
       }`}
-      style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontWeight: active ? 500 : 400,
-        backgroundImage: active
-          ? "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='cn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23cn)' opacity='0.06'/%3E%3C/svg%3E\")"
-          : undefined,
-      }}
+      style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: active ? 500 : 400 }}
     >
       {children}
     </button>
   );
 }
 
-
-function BriefTypeCard({
-  active,
-  onClick,
-  label,
-  description,
-  wordCount,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  description: string;
-  wordCount: string;
-}) {
+function BrandIcon() {
   return (
-    <button
-      onClick={onClick}
-      className={`text-left p-6 border transition-all duration-200 ${
-        active
-          ? 'bg-[#F5EFE0] border-[#F5EFE0]'
-          : 'bg-[var(--bg-card)] border-[var(--border-card)] hover:border-[var(--border-hover)]'
-      }`}
-      style={{ borderRadius: '2px' }}
-    >
-      <div
-        className={`text-xs tracking-[0.25em] uppercase mb-2 ${active ? 'text-[#E85D2F]' : 'text-[var(--text-muted)]'}`}
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
-      >
-        {wordCount}
-      </div>
-      <h4
-        className={`text-2xl mb-2 ${active ? 'text-[#1A1815]' : 'text-[var(--text-primary)]'}`}
-        style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}
-      >
-        {label}
-      </h4>
-      <p
-        className={`text-sm leading-relaxed ${active ? 'text-[var(--text-dimmer)]' : 'text-[var(--text-muted)]'}`}
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
-      >
-        {description}
-      </p>
-    </button>
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <circle cx="13" cy="13" r="9.5" />
+    </svg>
+  );
+}
+function FilmIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="8,5 21,13 8,21" />
+    </svg>
+  );
+}
+function GamesIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <rect x="4" y="4" width="18" height="18" />
+    </svg>
   );
 }
 
 function DomainCard({
   active,
-  disabled,
   onClick,
+  icon,
   label,
   description,
 }: {
   active: boolean;
-  disabled?: boolean;
   onClick: () => void;
+  icon: React.ReactNode;
   label: string;
   description: string;
 }) {
   return (
     <button
-      onClick={disabled ? undefined : onClick}
-      disabled={disabled}
-      className={`text-left p-6 border transition-all duration-200 ${
-        disabled
-          ? 'bg-[var(--bg-card)] border-[var(--border-card)] cursor-not-allowed'
-          : active
-          ? 'bg-[#F5EFE0] border-[#F5EFE0]'
-          : 'bg-[var(--bg-card)] border-[var(--border-card)] hover:border-[var(--border-hover)]'
+      onClick={onClick}
+      className={`flex flex-col items-center text-center pt-7 pb-6 px-4 border transition-all duration-200 ${
+        active
+          ? 'border-[#E85D2F] bg-[#E85D2F]/8'
+          : 'border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[var(--border-hover)]'
       }`}
       style={{ borderRadius: '2px' }}
     >
-      <div
-        className={`text-xs tracking-[0.25em] uppercase mb-2 ${
-          disabled ? 'text-[var(--text-dimmer)]' : active ? 'text-[#E85D2F]' : 'text-[var(--text-muted)]'
-        }`}
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
-      >
-        {disabled ? 'Coming Soon' : active ? 'Selected' : 'Select'}
+      <div className={`mb-4 transition-colors ${active ? 'text-[#E85D2F]' : 'text-[var(--text-muted)]'}`}>
+        {icon}
       </div>
-      <h4
-        className={`text-2xl mb-2 ${
-          disabled ? 'text-[var(--text-dimmer)]' : active ? 'text-[#1A1815]' : 'text-[var(--text-primary)]'
-        }`}
-        style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}
+      <div
+        className={`text-xl mb-2 transition-colors ${active ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
+        style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
       >
         {label}
-      </h4>
-      <p
-        className={`text-sm leading-relaxed ${
-          disabled ? 'text-[var(--border-subtle)]' : active ? 'text-[var(--text-dimmer)]' : 'text-[var(--text-muted)]'
-        }`}
+      </div>
+      <div
+        className={`text-xs leading-snug transition-colors ${active ? 'text-[var(--text-muted)]' : 'text-[var(--text-dimmer)]'}`}
         style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
         {description}
-      </p>
+      </div>
     </button>
   );
 }
@@ -467,9 +425,6 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
     <div
       className="min-h-screen"
       style={{
-        background: 'var(--bg-base)',
-        backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")",
         color: 'var(--text-primary)',
         fontFamily: "'DM Sans', sans-serif",
       }}
@@ -489,192 +444,194 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
 
     
 
-      <section className="max-w-7xl mx-auto px-6 md:px-10 pt-20 pb-12">
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Sonant / v0.3
+      {/* ── Hero ── */}
+      <section className="max-w-5xl mx-auto px-6 md:px-10 pt-20 pb-10">
+        <div
+          className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-5"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        >
+          ◆ Generator
         </div>
-        <h1 className="text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[0.95] mb-8 max-w-5xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-  Practice writing to briefs. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Build a catalog.</span>
-</h1>
-<p className="text-lg md:text-xl text-[var(--text-tertiary)] max-w-2xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
-  Sonant generates industry-standard music briefs for composers to practice against. Write to real specs, sharpen your craft, and build work worth pitching.
-</p>
+        <h1
+          className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-3 max-w-2xl"
+          style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+        >
+          Generate a brief. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Write the music.</span>
+        </h1>
+        <p
+          className="text-sm text-[var(--text-muted)]"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          Select a creative brief type to generate
+        </p>
       </section>
 
-      <section ref={optionsRef} className="max-w-7xl mx-auto px-6 md:px-10 py-12">
-          <div className="mb-14">
-            <div className="flex items-baseline gap-4 mb-3">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 01
-              </span>
-              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Choose your brief type
-              </h2>
-            </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">What kind of project is this music for</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 ml-[5.5rem]">
-              <DomainCard
-                active={domain === 'brand'}
-                onClick={() => handleDomainChange('brand')}
-                label="Brand & Advertising"
-                description="Commercials, campaigns, and brand spots."
-              />
-              <DomainCard
-                active={domain === 'film'}
-                onClick={() => handleDomainChange('film')}
-                label="Film & Television"
-                description="Scored cues for film and TV scenes."
-              />
-              <DomainCard
-                active={domain === 'games'}
-                onClick={() => handleDomainChange('games')}
-                label="Video Games"
-                description="Combat loops, exploration, cutscenes, and title screens."
-              />
-            </div>
-          </div>
+      <div className="border-t border-[var(--border-base)]" />
 
-          <div className="mb-14">
-            <div className="flex items-baseline gap-4 mb-3">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 02
-              </span>
-              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                {domain === 'film' ? 'Pick a scene type' : domain === 'games' ? 'Pick a game context' : 'Pick a category'}
-              </h2>
-            </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">
-              {domain === 'film' ? 'What genre or type of scene are you scoring.' : domain === 'games' ? 'What kind of moment or context this music plays in.' : 'Where your music lives.'}
-            </p>
-            <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
-              {domainCategories.map((c) => (
-                <Chip key={c} active={category === c} onClick={() => handleCategorySelect(c)}>
-                  {c}
-                </Chip>
-              ))}
-            </div>
-          </div>
+      {/* ── Form ── */}
+      <section ref={optionsRef} className="max-w-2xl mx-auto px-6 pb-20 pt-12">
 
-          <div className="mb-14">
-            <div className="flex items-baseline gap-4 mb-3">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 03
-              </span>
-              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Choose emotional themes <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
-              </h2>
-            </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">{domain === 'games' ? 'The emotional register of the cue.' : 'The emotional direction of the brief.'}</p>
-            <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
-              {availableMoods.map((m) => (
-                <Chip key={m} active={moods.includes(m)} onClick={() => toggleMood(m)}>
-                  {m}
-                </Chip>
-              ))}
-            </div>
-          </div>
+        {/* Domain cards */}
+        <div
+          className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        >
+          Brief Type
+        </div>
+        <div className="grid grid-cols-3 gap-3 mb-12">
+          <DomainCard
+            active={domain === 'brand'}
+            onClick={() => handleDomainChange('brand')}
+            icon={<BrandIcon />}
+            label="Brand"
+            description="Commercials, campaigns, and brand spots."
+          />
+          <DomainCard
+            active={domain === 'film'}
+            onClick={() => handleDomainChange('film')}
+            icon={<FilmIcon />}
+            label="Film"
+            description="Scored cues for film and TV scenes."
+          />
+          <DomainCard
+            active={domain === 'games'}
+            onClick={() => handleDomainChange('games')}
+            icon={<GamesIcon />}
+            label="Game"
+            description="Combat loops, exploration, cutscenes, and title screens."
+          />
+        </div>
 
-          <div className="mb-14">
-            <div className="flex items-baseline gap-4 mb-3">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 04
-              </span>
-              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Select a genre palette <span className="text-sm text-[var(--text-muted)] ml-2">(up to 3)</span>
-              </h2>
-            </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Where your musical strengths live.</p>
-            <div className="flex flex-wrap gap-2.5 ml-[5.5rem]">
-              {GENRES.map((g) => (
-                <Chip key={g} active={genres.includes(g)} onClick={() => toggleGenre(g)}>
-                  {g}
-                </Chip>
-              ))}
-            </div>
+        {/* Category */}
+        <div className="mb-10">
+          <div
+            className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            {domain === 'film' ? 'Scene Type' : domain === 'games' ? 'Game Context' : 'Category'}
           </div>
+          <div className="flex flex-wrap gap-2">
+            {domainCategories.map((c) => (
+              <Chip key={c} active={category === c} onClick={() => handleCategorySelect(c)}>
+                {c}
+              </Chip>
+            ))}
+          </div>
+        </div>
 
-          <div className="mb-14">
-            <div className="flex items-baseline gap-4 mb-3">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Step 05
-              </span>
-              <h2 className="text-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-                Instrumental or vocal
-              </h2>
-            </div>
-            <p className="text-sm text-[var(--text-muted)] mb-6 ml-[5.5rem]">Does this brief call for a vocalist or an instrumental.</p>
-            <div className="flex flex-col sm:flex-row gap-3 ml-[5.5rem]">
+        {/* Mood */}
+        <div className="mb-10">
+          <div
+            className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Mood <span className="opacity-50">— up to 3</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {availableMoods.map((m) => (
+              <Chip key={m} active={moods.includes(m)} onClick={() => toggleMood(m)}>
+                {m}
+              </Chip>
+            ))}
+          </div>
+        </div>
+
+        {/* Genre */}
+        <div className="mb-10">
+          <div
+            className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Genre <span className="opacity-50">— up to 3</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {GENRES.map((g) => (
+              <Chip key={g} active={genres.includes(g)} onClick={() => toggleGenre(g)}>
+                {g}
+              </Chip>
+            ))}
+          </div>
+        </div>
+
+        {/* Vocal toggle */}
+        <div className="mb-12">
+          <div
+            className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Track Type
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setWithVocals(false)}
+              className={`flex-1 py-3 text-xs tracking-[0.15em] uppercase transition-all border ${
+                !withVocals
+                  ? 'border-[#E85D2F] bg-[#E85D2F]/10 text-[#E85D2F]'
+                  : 'border-[var(--border-card)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--border-subtle)]'
+              }`}
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+            >
+              Instrumental
+            </button>
+            <button
+              onClick={() => setWithVocals(true)}
+              className={`flex-1 py-3 text-xs tracking-[0.15em] uppercase transition-all border ${
+                withVocals
+                  ? 'border-[#E85D2F] bg-[#E85D2F]/10 text-[#E85D2F]'
+                  : 'border-[var(--border-card)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--border-subtle)]'
+              }`}
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+            >
+              With Vocals
+            </button>
+          </div>
+        </div>
+
+        {/* Generate */}
+        <div>
+          <div className="flex items-center gap-4 mb-3 flex-wrap">
+            <button
+              onClick={handleGenerate}
+              disabled={!canGenerate || loading}
+              className={`flex-1 py-4 text-sm tracking-[0.15em] uppercase transition-all ${
+                canGenerate && !loading
+                  ? 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] cursor-pointer'
+                  : 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
+              }`}
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+            >
+              {loading ? '◆ Generating…' : '◆ Generate Brief'}
+            </button>
+            {(category || genres.length > 0 || moods.length > 0) && !loading && (
               <button
-                onClick={() => setWithVocals(false)}
-                className={`px-6 py-3 text-sm tracking-[0.1em] uppercase transition-all border ${
-                  !withVocals
-                    ? 'border-[#E85D2F] bg-[#E85D2F]/10 text-[var(--text-primary)]'
-                    : 'border-[var(--border-card)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--border-subtle)]'
-                }`}
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                onClick={handleReset}
+                className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
-                Instrumental
+                Reset
               </button>
-              <button
-                onClick={() => setWithVocals(true)}
-                className={`px-6 py-3 text-sm tracking-[0.1em] uppercase transition-all border ${
-                  withVocals
-                    ? 'border-[#E85D2F] bg-[#E85D2F]/10 text-[var(--text-primary)]'
-                    : 'border-[var(--border-card)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--border-subtle)]'
-                }`}
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-              >
-                With Vocals
-              </button>
-            </div>
-          </div>
-
-          <div className="ml-[5.5rem]">
-            <div className="flex items-center gap-4 mb-4 flex-wrap">
-              <button
-                onClick={handleGenerate}
-                disabled={!canGenerate || loading}
-                className={`px-8 py-4 text-sm tracking-[0.15em] uppercase transition-all ${
-                  canGenerate && !loading
-                    ? 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] cursor-pointer'
-                    : 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
-                }`}
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-              >
-                {loading ? '◆ Generating…' : '◆ Generate Brief'}
-              </button>
-              {(category || genres.length > 0 || moods.length > 0) && !loading && (
-                <button
-                  onClick={handleReset}
-                  className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  Reset
-                </button>
-              )}
-            </div>
-            {!canGenerate && !loading && (
-              <p className="text-xs text-[var(--text-dim)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Pick a category, at least one emotional theme, at least one genre, and choose vocal or instrumental.
-              </p>
             )}
           </div>
-        </section>
+          {!canGenerate && !loading && (
+            <p className="text-[10px] text-[var(--text-dimmer)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              Pick a category · mood · genre to unlock
+            </p>
+          )}
+        </div>
+      </section>
 
       {loading && (
-        <section className="max-w-7xl mx-auto px-6 md:px-10 py-16 fade-up">
-          <div className="ml-[5.5rem] max-w-xl">
-            <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4 pulse-soft" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              ◆ Working — this takes 30-60 seconds
-            </div>
-            <div className="text-2xl leading-relaxed text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-              {loadingMessages[loadingStep]}
-            </div>
-            <div className="mt-8 flex gap-1.5">
-              {loadingMessages.map((_, i) => (
-                <div key={i} className={`h-px flex-1 transition-colors duration-300 ${i <= loadingStep ? 'bg-[#E85D2F]' : 'bg-[var(--border-card)]'}`} />
-              ))}
-            </div>
+        <section className="max-w-2xl mx-auto px-6 py-16 fade-up">
+          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4 pulse-soft" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            ◆ Working — this takes 30-60 seconds
+          </div>
+          <div className="text-2xl leading-relaxed text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+            {loadingMessages[loadingStep]}
+          </div>
+          <div className="mt-8 flex gap-1.5">
+            {loadingMessages.map((_, i) => (
+              <div key={i} className={`h-px flex-1 transition-colors duration-300 ${i <= loadingStep ? 'bg-[#E85D2F]' : 'bg-[var(--border-card)]'}`} />
+            ))}
           </div>
         </section>
       )}

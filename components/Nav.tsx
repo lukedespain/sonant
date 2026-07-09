@@ -20,15 +20,24 @@ export default function Nav({ user }: NavProps) {
     pathname?.startsWith('/auth')
 
   const isActive = (href: string) =>
-    href === '/' ? pathname === '/' : pathname === href || pathname?.startsWith(href + '/')
+    href === '/browse'
+      ? pathname === '/browse' || pathname?.startsWith('/browse/') || pathname === '/library' || pathname?.startsWith('/library/')
+      : pathname === href || pathname?.startsWith(href + '/')
 
   const closeMenu = () => setMenuOpen(false)
+
+  const navLinks = [
+    { href: '/browse', label: 'Catalog' },
+    { href: '/generator', label: 'Generator' },
+    { href: '/reviews', label: 'Reviews' },
+    { href: '/submissions', label: 'FAQ' },
+  ]
 
   return (
     <nav className="border-b border-[var(--border-base)]">
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
 
-        {/* Logo */}
+        {/* Logo — links to home */}
         <Link href="/" className="flex items-center gap-3" onClick={closeMenu}>
           <div
             className="w-8 h-8 flex items-center justify-center"
@@ -56,70 +65,36 @@ export default function Nav({ user }: NavProps) {
             className="hidden md:flex items-center gap-8 text-sm"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
-            <Link
-              href="/"
-              className={`cursor-pointer transition-colors ${
-                isActive('/') ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Generator
-            </Link>
-            <Link
-              href="/submissions"
-              className={`cursor-pointer transition-colors ${
-                isActive('/submissions') ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Submissions
-            </Link>
-            <Link
-              href="/reviews"
-              className={`cursor-pointer transition-colors ${
-                isActive('/reviews') ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Live Reviews
-            </Link>
-            <Link
-              href="/catalog"
-              className={`cursor-pointer transition-colors ${
-                isActive('/catalog') ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              Catalog
-            </Link>
+            {navLinks.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`cursor-pointer transition-colors ${
+                  isActive(href) ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         )}
 
-        {/* Desktop right buttons */}
+        {/* Desktop right: theme + account */}
         {!isAuthPage && (
           <div className="hidden md:flex items-center gap-3">
             <ThemeToggle />
             {user ? (
-              <>
-                <Link
-                  href="/browse"
-                  className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-colors ${
-                    isActive('/browse') || isActive('/library')
-                      ? 'border-[#E85D2F] text-[#E85D2F]'
-                      : 'border-[var(--border-subtle)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
-                  }`}
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  Briefs
-                </Link>
-                <Link
-                  href="/account"
-                  className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-colors ${
-                    isActive('/account')
-                      ? 'border-[#E85D2F] text-[#E85D2F]'
-                      : 'border-[var(--border-subtle)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
-                  }`}
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  Account
-                </Link>
-              </>
+              <Link
+                href="/account"
+                className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-colors ${
+                  isActive('/account')
+                    ? 'border-[#E85D2F] text-[#E85D2F]'
+                    : 'border-[var(--border-subtle)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                }`}
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                Account
+              </Link>
             ) : (
               <Link
                 href="/login"
@@ -152,96 +127,49 @@ export default function Nav({ user }: NavProps) {
         )}
       </div>
 
-      {/* Mobile menu panel */}
+      {/* Mobile menu */}
       {!isAuthPage && menuOpen && (
         <div className="md:hidden border-t border-[var(--border-base)] px-6 pb-6 flex flex-col">
-          {/* Nav links */}
-          <Link
-            href="/"
-            onClick={closeMenu}
-            className={`py-4 text-sm border-b border-[var(--border-base)] transition-colors ${
-              isActive('/') ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
-            }`}
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Generator
-          </Link>
-          <Link
-            href="/submissions"
-            onClick={closeMenu}
-            className={`py-4 text-sm border-b border-[var(--border-base)] transition-colors ${
-              isActive('/submissions') ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
-            }`}
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Submissions
-          </Link>
-          <Link
-            href="/reviews"
-            onClick={closeMenu}
-            className={`py-4 text-sm border-b border-[var(--border-base)] transition-colors ${
-              isActive('/reviews') ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
-            }`}
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Live Reviews
-          </Link>
-          <Link
-            href="/catalog"
-            onClick={closeMenu}
-            className={`py-4 text-sm border-b border-[var(--border-base)] transition-colors ${
-              isActive('/catalog') ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
-            }`}
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Catalog
-          </Link>
-
-          {/* Theme toggle */}
-          <div className="flex items-center justify-between py-4 border-b border-[var(--border-base)]">
-            <span
-              className="text-sm text-[var(--text-muted)]"
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={closeMenu}
+              className={`py-4 text-sm border-b border-[var(--border-base)] transition-colors ${
+                isActive(href) ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
+              }`}
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
+              {label}
+            </Link>
+          ))}
+
+          <div className="flex items-center justify-between py-4 border-b border-[var(--border-base)]">
+            <span className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               Theme
             </span>
             <ThemeToggle />
           </div>
 
-          {/* User buttons */}
           <div className="flex flex-col gap-3 pt-5">
             {user ? (
-              <>
-                <Link
-                  href="/browse"
-                  onClick={closeMenu}
-                  className={`text-xs tracking-[0.2em] uppercase px-4 py-3 border text-center transition-colors ${
-                    isActive('/browse') || isActive('/library')
-                      ? 'border-[#E85D2F] text-[#E85D2F]'
-                      : 'border-[var(--border-subtle)] text-[var(--text-muted)]'
-                  }`}
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  Briefs
-                </Link>
-                <Link
-                  href="/account"
-                  onClick={closeMenu}
-                  className={`text-xs tracking-[0.2em] uppercase px-4 py-3 border text-center transition-colors ${
-                    isActive('/account')
-                      ? 'border-[#E85D2F] text-[#E85D2F]'
-                      : 'border-[var(--border-subtle)] text-[var(--text-muted)]'
-                  }`}
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  Account
-                </Link>
-              </>
+              <Link
+                href="/account"
+                onClick={closeMenu}
+                className={`text-xs tracking-[0.2em] uppercase px-4 py-3 border text-center transition-colors ${
+                  isActive('/account')
+                    ? 'border-[#E85D2F] text-[#E85D2F]'
+                    : 'border-[var(--border-subtle)] text-[var(--text-muted)]'
+                }`}
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                Account
+              </Link>
             ) : (
               <Link
                 href="/login"
                 onClick={closeMenu}
-                className="text-xs tracking-[0.2em] uppercase px-4 py-3 border border-[var(--border-subtle)] text-[var(--text-muted)] text-center transition-colors"
+                className="text-xs tracking-[0.2em] uppercase px-4 py-3 border border-[var(--border-subtle)] text-[var(--text-muted)] text-center"
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
               >
                 Sign In

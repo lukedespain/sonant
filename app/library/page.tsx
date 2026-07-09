@@ -125,7 +125,7 @@ export default async function LibraryPage() {
               return (
                 <Link
                   key={brief.id}
-                  href={`/library/${brief.id}`}
+                  href={`/browse/${brief.id}`}
                   className={`block p-6 border transition-colors group hover:border-[#E85D2F] ${cardClass}`}
                   style={{ borderRadius: '2px' }}
                 >
@@ -148,7 +148,7 @@ export default async function LibraryPage() {
                     className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4"
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
-                    {brief.mode === 'brand' ? 'Brand' : brief.mode === 'film' ? 'Film' : 'Games'} · {brief.target}
+                    {brief.mode === 'brand' ? 'Brand' : brief.mode === 'film' ? 'Film' : 'Game'} · {brief.target}
                   </div>
 
                   <div className="flex flex-wrap gap-1.5 mb-4">

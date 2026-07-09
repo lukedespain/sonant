@@ -4,7 +4,7 @@ export interface Reference {
   track: string;
   like?: string;
   avoid?: string;
-  why?: string; // legacy: old saved briefs used 'why' instead of like/avoid
+  why?: string;
 }
 
 export interface Brief {
@@ -39,14 +39,14 @@ export interface Brief {
   usage?: string;
 }
 
-const NOISE_BG =
-  "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E\"), linear-gradient(180deg, #F5EFE0 0%, #F2EBDA 100%)";
+const NOISE_SVG =
+  "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E\")";
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-[#E85D2F] mb-3"
-      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase mb-3"
+      style={{ fontFamily: "'JetBrains Mono', monospace", color: '#E85D2F' }}
     >
       <span>◆</span>
       <span>{children}</span>
@@ -58,14 +58,14 @@ function SonicItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div
-        className="text-[10px] tracking-[0.2em] uppercase text-[#8A8680] mb-1"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        className="text-[10px] tracking-[0.2em] uppercase mb-1"
+        style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
       >
         {label}
       </div>
       <div
         className="text-sm leading-snug"
-        style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, color: '#1A1815' }}
+        style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, color: 'var(--brief-text-h)' }}
       >
         {value}
       </div>
@@ -78,10 +78,9 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
     <div
       className="relative shadow-2xl brief-document w-full overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #F5EFE0 0%, #F2EBDA 100%)',
-        color: '#1A1815',
+        backgroundImage: `${NOISE_SVG}, linear-gradient(180deg, var(--brief-bg-from) 0%, var(--brief-bg-to) 100%)`,
+        color: 'var(--brief-text-h)',
         borderRadius: '2px',
-        backgroundImage: NOISE_BG,
       }}
     >
       {/* Hero image */}
@@ -97,7 +96,7 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(to bottom, rgba(245,239,224,0) 82%, rgba(245,239,224,0.7) 93%, #F5EFE0 100%)',
+                'linear-gradient(to bottom, var(--brief-img-fade-from) 82%, var(--brief-img-fade-to) 100%)',
             }}
           />
         </div>
@@ -105,29 +104,29 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
 
       <div className="p-8 md:p-12">
         {/* Header */}
-        <div className="mb-8 pb-6 border-b border-[#2A2620]/20">
+        <div className="mb-8 pb-6" style={{ borderBottom: '1px solid var(--brief-divider)' }}>
           <div className="flex items-start justify-between gap-4 mb-3">
             <div
-              className="text-[10px] tracking-[0.3em] uppercase text-[#8A8680]"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              className="text-[10px] tracking-[0.3em] uppercase"
+              style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
             >
               Music Brief / {brief.classification}
             </div>
             <div className="text-right shrink-0">
               <div
-                className="text-[10px] tracking-[0.2em] uppercase text-[#8A8680] mb-1"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                className="text-[10px] tracking-[0.2em] uppercase mb-1"
+                style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
               >
                 Deadline
               </div>
-              <div className="text-sm font-medium" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <div className="text-sm font-medium" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}>
                 {brief.deadline}
               </div>
             </div>
           </div>
           <h1
             className="text-4xl md:text-5xl tracking-tight leading-none mb-3"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300, color: 'var(--brief-text-h)' }}
           >
             Project{' '}
             <span className="italic" style={{ fontWeight: 400 }}>
@@ -135,8 +134,8 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
             </span>
           </h1>
           <div
-            className="text-xs text-[#5A5650] tracking-wide"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            className="text-xs tracking-wide"
+            style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
           >
             {brief.briefId} · {brief.client} · {brief.project} · Issued {brief.issued}
           </div>
@@ -147,7 +146,7 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
           <Label>The Scene</Label>
           <p
             className="text-xl md:text-2xl leading-relaxed"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300, color: 'var(--brief-text-h)' }}
           >
             {brief.story}
           </p>
@@ -156,7 +155,7 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
         {/* The Music */}
         <div className="mb-8">
           <Label>The Music</Label>
-          <p className="text-base leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-base leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
             {brief.ask}
           </p>
         </div>
@@ -168,12 +167,11 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
             {brief.direction.map((d, i) => (
               <li key={i} className="flex gap-3 items-baseline">
                 <span
-                  className="text-[#E85D2F] shrink-0"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-arrow)', flexShrink: 0 }}
                 >
                   →
                 </span>
-                <span className="text-base leading-snug" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <span className="text-base leading-snug" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
                   {d}
                 </span>
               </li>
@@ -186,25 +184,25 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
           <Label>References</Label>
           <div className="space-y-5">
             {brief.references.map((r, i) => (
-              <div key={i} className="pl-4 border-l-2 border-[#2A2620]/15">
+              <div key={i} className="pl-4" style={{ borderLeft: '2px solid var(--brief-ref-border)' }}>
                 <div
                   className="text-base font-medium mb-1.5"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}
                 >
                   {r.track}
                 </div>
                 {(r.like || r.why) && (
                   <div
-                    className="text-sm mb-1 text-[#3A3630]"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                    className="text-sm mb-1"
+                    style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}
                   >
-                    <span className="font-semibold" style={{ color: '#5A8A50' }}>Use:</span>{' '}
+                    <span className="font-semibold" style={{ color: 'var(--brief-use-color)' }}>Use:</span>{' '}
                     {r.like ?? r.why}
                   </div>
                 )}
                 {r.avoid && (
-                  <div className="text-sm text-[#3A3630]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                    <span className="font-semibold" style={{ color: '#B33A1A' }}>Skip:</span>{' '}
+                  <div className="text-sm" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
+                    <span className="font-semibold" style={{ color: 'var(--brief-skip-color)' }}>Skip:</span>{' '}
                     {r.avoid}
                   </div>
                 )}
@@ -227,14 +225,14 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
         </div>
 
         {/* Footer */}
-        <div className="mt-8 pt-6 border-t border-[#2A2620]/20 flex items-center justify-between">
+        <div className="mt-8 pt-6 flex items-center justify-between" style={{ borderTop: '1px solid var(--brief-divider)' }}>
           <div
-            className="text-[10px] tracking-[0.2em] uppercase text-[#8A8680]"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            className="text-[10px] tracking-[0.2em] uppercase"
+            style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
           >
             {brief.briefId} · Sonant Practice Brief
           </div>
-          <div className="text-xs italic text-[#5A5650]" style={{ fontFamily: "'Fraunces', serif" }}>
+          <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
             Write it. Submit it. Get placed.
           </div>
         </div>

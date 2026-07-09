@@ -1,43 +1,9 @@
 // app/api/briefs/start/route.ts
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { generateBrief, type Brief } from '@/app/briefs/generate';
+import { generateBrief } from '@/app/briefs/generate';
+import { attachImageIfAdmin } from '@/app/briefs/generateImage';
 import { NextResponse } from 'next/server';
-
-async function generateBriefImage(brief: Brief): Promise<string | undefined> {
-  const falApiKey = process.env.FAL_API_KEY;
-  if (!falApiKey) return undefined;
-
-  const modeDescriptor =
-    brief.mode === 'film' ? 'cinematic film still' :
-    brief.mode === 'games' ? 'cinematic game key art' :
-    'brand campaign photograph';
-
-  const sceneContext = brief.story.split(/(?<=\.)\s+/).slice(0, 2).join(' ').trim();
-
-  const prompt = `${modeDescriptor}, ${sceneContext}, ${brief.emotionalArc} mood, professional photography, dramatic natural lighting, no text overlays, no logos, high production value, editorial style, shot like a major brand or film production`;
-
-  try {
-    const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Key ${falApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt,
-        image_size: 'landscape_16_9',
-        num_inference_steps: 4,
-        num_images: 1,
-      }),
-    });
-    if (!response.ok) return undefined;
-    const data = await response.json() as { images?: { url: string }[] };
-    return data?.images?.[0]?.url;
-  } catch {
-    return undefined;
-  }
-}
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -67,13 +33,10 @@ export async function POST(req: Request) {
           .update({ status: 'error', error_message: result.error ?? 'Unknown error' })
           .eq('id', job.id);
       } else {
-        const imageUrl = await generateBriefImage(result.brief);
-        const briefWithImage = imageUrl
-          ? { ...result.brief, imageUrl }
-          : result.brief;
+        await attachImageIfAdmin(result.brief, job.id, user?.id, admin);
         await admin
           .from('brief_jobs')
-          .update({ status: 'done', result: briefWithImage })
+          .update({ status: 'done', result: result.brief })
           .eq('id', job.id);
       }
     }).catch(async (err) => {
@@ -89,9 +52,6 @@ export async function POST(req: Request) {
   }
 
   // Production: fire the Netlify background function.
-  // Background functions return 202 immediately, so we await with a short
-  // timeout. If it fails to trigger we surface the error right away instead
-  // of making the client poll for 7.5 minutes before timing out.
   const origin = new URL(req.url).origin;
   const admin = createAdminClient();
   try {
