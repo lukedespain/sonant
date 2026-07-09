@@ -34,9 +34,12 @@ async function generateAndUpload(
 
   try {
     const scene = (brief.story ?? brief.codename ?? 'a music composition scene').slice(0, 280);
+    const modeLabel = brief.mode === 'film' ? 'film scene' : brief.mode === 'games' ? 'game world' : 'brand visual';
+    const toneClause = [brief.genrePalette, brief.emotionalArc?.slice(0, 80)].filter(Boolean).join(', ');
+    const contextLine = toneClause ? `${modeLabel} with ${toneClause} tone, ` : `${modeLabel}, `;
 
     const prompt =
-      `loose pen and ink sketch with soft watercolor wash, hand-drawn artistic illustration, ${scene}, ` +
+      `loose pen and ink sketch with soft watercolor wash, hand-drawn artistic illustration, ${contextLine}${scene}, ` +
       `fine ink line work and cross-hatching visible throughout, transparent watercolor washes in warm amber and burnt sienna, ` +
       `monochromatic warm orange-amber palette only, absolutely no blue no green no purple, ` +
       `warm peach and ochre tones, white sketchbook paper texture showing through the wash, ` +
