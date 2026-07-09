@@ -3,89 +3,118 @@
 import { useState } from 'react';
 import type { Brief } from './BriefDocument';
 
-const GENRE_INSTRUMENTS: Record<string, string> = {
-  'ambient': 'synth pads, sustained drones',
-  'orchestral': 'strings, orchestra',
-  'neo-classical': 'piano, chamber strings',
-  'folk / acoustic': 'acoustic guitar, fingerpicked, natural recording',
-  'folk/acoustic': 'acoustic guitar, fingerpicked',
-  'jazz': 'jazz piano, upright bass, brushed drums',
-  'hip-hop': 'sampled drums, lo-fi beats',
-  'electronic': 'synthesizer, drum machine',
-  'rock': 'electric guitar, live drums',
-  'cinematic': 'cinematic strings, film score',
-  'r&b / soul': 'warm bass, soul production',
-  'indie': 'indie production, layered guitars',
-  'country': 'acoustic guitar, pedal steel',
-  'alternative': 'alternative guitar, indie drums',
-  'pop': 'pop production, melodic hooks',
+// Individual instrument tags per genre — no multi-item strings
+const GENRE_INSTRUMENTS: Record<string, string[]> = {
+  'ambient':        ['synth pads', 'drones'],
+  'orchestral':     ['strings', 'orchestra'],
+  'neo-classical':  ['piano', 'chamber strings'],
+  'folk / acoustic':['acoustic guitar', 'fingerpicked'],
+  'folk/acoustic':  ['acoustic guitar', 'fingerpicked'],
+  'folk':           ['acoustic guitar', 'fingerpicked'],
+  'acoustic':       ['acoustic guitar'],
+  'jazz':           ['jazz piano', 'upright bass', 'brushed drums'],
+  'hip-hop':        ['sampled drums', 'lo-fi'],
+  'electronic':     ['synthesizer', 'drum machine'],
+  'rock':           ['electric guitar', 'live drums'],
+  'cinematic':      ['cinematic strings', 'film score'],
+  'r&b / soul':     ['warm bass', 'soul chords'],
+  'r&b':            ['warm bass', 'soul chords'],
+  'soul':           ['soul chords', 'warm bass'],
+  'indie':          ['layered guitars', 'indie drums'],
+  'country':        ['acoustic guitar', 'pedal steel'],
+  'alternative':    ['electric guitar', 'indie drums'],
+  'pop':            ['pop production', 'melodic hooks'],
+  'classical':      ['piano', 'strings'],
+  'blues':          ['electric guitar', 'blues harp'],
 };
 
-function extractDirectionTags(direction: string[]): string[] {
-  const tags: string[] = [];
-  const SKIP_STARTERS = /^(think|avoid|lean into|lean toward|use |build |keep |let |make |create |try |write |consider |explore |focus |one or two|the track|your track|this track|ensure|if there)/i;
+// Extract 1-3 word mood descriptors from the emotional arc sentence
+function extractMoodTags(arc: string): string[] {
+  const STRIP_LEAD = /^(begins?\s+|starts?\s+|opens?\s+(into\s+)?|resolves?\s+(to\s+)?|builds?\s+(into\s+)?|holds?\s+|shifts?\s+(to\s+)?|transitions?\s+(into\s+)?|moves?\s+(to\s+)?|maintains?\s+|ends?\s+(in\s+)?)/i;
+  const STRIP_PREP = /^(into|toward|to|with|in|through|a sense of|the feeling of|sense of)\s+/i;
 
-  for (const d of direction.slice(0, 4)) {
-    const trimmed = d.trim();
-    if (SKIP_STARTERS.test(trimmed)) continue;
-    const clause = trimmed.split(/[.,]/)[0].trim().toLowerCase();
-    const words = clause.split(/\s+/).slice(0, 6).join(' ');
-    if (words.length >= 4 && words.length <= 50) tags.push(words);
-  }
+  return arc
+    .split(/[,;]/)
+    .map(part => {
+      let s = part.trim().toLowerCase();
+      s = s.replace(STRIP_LEAD, '');
+      s = s.replace(STRIP_PREP, '');
+      return s.split(/\s+/).slice(0, 3).join(' ').trim();
+    })
+    .filter(t => t.length >= 3 && !/^(and|but|the|a |an |that|this|with|into)/.test(t))
+    .slice(0, 4);
+}
+
+// Extract BPM range and tempo word as separate tags
+function extractTempoTags(tempo: string): string[] {
+  const tags: string[] = [];
+  const desc = tempo.match(/\b(slow|medium|fast|moderate|up-tempo|uptempo|mid-tempo)\b/i);
+  if (desc) tags.push(desc[0].toLowerCase());
+  const bpm = tempo.match(/(\d+)[^\d]*(\d+)?\s*bpm/i);
+  if (bpm) tags.push(bpm[2] ? `${bpm[1]}-${bpm[2]} bpm` : `${bpm[1]} bpm`);
   return tags;
+}
+
+// Extract just the key signature (e.g. "D minor", "modal", "Dorian")
+function extractKeyTag(key: string): string[] {
+  const match = key.match(/([A-G][b#]?\s+)?(minor|major|modal|dorian|mixolydian|phrygian|lydian|aeolian|pentatonic)/i);
+  if (match) return [match[0].trim().toLowerCase()];
+  const simple = key.match(/\b(minor|major|modal|dorian|mixolydian)\b/i);
+  return simple ? [simple[0].toLowerCase()] : [];
+}
+
+// Pull 1-4 word positive descriptors from direction lines — skip all instructional sentences
+function extractDirectionTags(direction: string[]): string[] {
+  const SKIP = /^(think|avoid|lean|use |build |keep |let |make |create |try |write |consider |explore |focus |leave |stay |push |pull |don't|do not|ensure|if |the track|your track|this track|note |be )/i;
+  const tags: string[] = [];
+
+  for (const d of direction.slice(0, 6)) {
+    const trimmed = d.trim();
+    if (SKIP.test(trimmed)) continue;
+    const clause = trimmed.split(/[.,;:]/)[0].trim().toLowerCase();
+    const words = clause.split(/\s+/).slice(0, 4);
+    // Only include if it reads as a descriptor (≤4 words, no verb at start)
+    if (words.length >= 1 && words.length <= 4 && !/^(is|are|has|have|was|were|will|should|must|can|could|would)\b/.test(words[0])) {
+      tags.push(words.join(' '));
+    }
+  }
+  return [...new Set(tags)];
 }
 
 function buildStylePrompt(brief: Brief): string {
   const tags: string[] = [];
 
-  // 1. Genre tags (split and lowercase)
+  // 1. Genre tags
   brief.genrePalette
     .split(/[,/]/)
     .map(g => g.trim().toLowerCase())
     .filter(Boolean)
     .forEach(g => tags.push(g));
 
-  // 2. Mood/emotional arc
-  brief.emotionalArc
-    .split(/[,/]/)
-    .map(m => m.trim().toLowerCase())
-    .filter(Boolean)
-    .forEach(m => tags.push(m));
+  // 2. Mood tags (extracted from emotional arc — words only, no sentences)
+  extractMoodTags(brief.emotionalArc).forEach(m => tags.push(m));
 
-  // 3. Instrumentation from genre (one hint per matched genre)
+  // 3. Instrument tags (individual tags per genre, max 2 per genre)
   const genres = brief.genrePalette.split(/[,/]/).map(g => g.trim().toLowerCase());
-  const addedInstruments = new Set<string>();
+  const seen = new Set<string>();
   for (const g of genres) {
-    const hint = GENRE_INSTRUMENTS[g];
-    if (hint && !addedInstruments.has(hint)) {
-      tags.push(hint);
-      addedInstruments.add(hint);
+    for (const hint of (GENRE_INSTRUMENTS[g] ?? []).slice(0, 2)) {
+      if (!seen.has(hint)) { tags.push(hint); seen.add(hint); }
     }
   }
 
-  // 4. Tempo (cleaned up)
-  if (brief.tempo) {
-    tags.push(brief.tempo.replace('BPM', 'bpm').replace('–', '-').replace('—', '-'));
-  }
+  // 4. Tempo (descriptor + BPM as separate tags)
+  extractTempoTags(brief.tempo).forEach(t => tags.push(t));
 
-  // 5. Key (first phrase only, lowercase)
-  if (brief.key) {
-    const keyPhrase = brief.key.split(/[;]/)[0].trim().toLowerCase();
-    if (keyPhrase.length < 55) tags.push(keyPhrase);
-  }
+  // 5. Key signature only
+  extractKeyTag(brief.key).forEach(k => tags.push(k));
 
-  // 6. Direction: short positive descriptors only
+  // 6. Short direction descriptors (no artist names, no sentences)
   extractDirectionTags(brief.direction).forEach(t => tags.push(t));
 
-  // 7. References: "in the style of Artist, Artist"
-  if (brief.references.length > 0) {
-    const artists = brief.references
-      .map(r => r.track.split(/[,–—]/)[0].trim())
-      .filter(Boolean);
-    if (artists.length > 0) tags.push(`in the style of ${artists.join(', ')}`);
-  }
+  // NO artist/reference names — they confuse AI music generators
 
-  // 8. Vocal type
+  // 7. Vocal type
   const isVocal = brief.vocals?.toLowerCase().includes('vocal') &&
     !brief.vocals?.toLowerCase().includes('instrumental');
   tags.push(isVocal ? 'with vocals' : 'no vocals, instrumental');
