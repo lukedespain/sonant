@@ -16,21 +16,14 @@ export default function ReviewsPage() {
           </p>
         </div>
 
-        {/* Session cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-20">
+        {/* Session card */}
+        <div className="max-w-lg mb-20">
           <SessionCard
             duration="15-Minute Session"
             oldPrice="$25"
             body="One track. Focused feedback. Best for sanity-checking a creative choice or a final check before submission."
             cta="Book a 15-min Session"
             bookingUrl="https://cal.com/sonant/15min"
-          />
-          <SessionCard
-            duration="30-Minute Session"
-            oldPrice="$50"
-            body="Up to two tracks. Pattern-level feedback. Best for composers building toward catalog submission or wanting deeper craft conversations."
-            cta="Book a 30-min Session"
-            bookingUrl="https://cal.com/sonant/30min"
           />
         </div>
 

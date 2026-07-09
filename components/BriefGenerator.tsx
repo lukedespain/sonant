@@ -132,7 +132,36 @@ function DomainCard({
 }
 
 
-function NextSteps() {
+function NextSteps({ briefId }: { briefId: string | null }) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = React.useState(false);
+  const [uploaded, setUploaded] = React.useState(false);
+  const [uploadError, setUploadError] = React.useState<string | null>(null);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !briefId) return;
+    setUploading(true);
+    setUploadError(null);
+
+    const body = new FormData();
+    body.set('file', file);
+    body.set('briefId', briefId);
+
+    const res = await fetch('/api/community-tracks/upload', { method: 'POST', body });
+    setUploading(false);
+
+    if (!res.ok) {
+      let msg = `Upload failed (${res.status})`;
+      try { msg = (await res.json()).error ?? msg; } catch { /* ignore */ }
+      if (res.status === 413) msg = 'File too large — convert to MP3 and try again.';
+      setUploadError(msg);
+    } else {
+      setUploaded(true);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
   return (
     <section className="max-w-5xl mx-auto px-6 md:px-10 py-20">
       <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
@@ -146,23 +175,24 @@ function NextSteps() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Path 01 — Upload */}
         <div className="relative p-8 border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[var(--border-hover)] transition-colors flex flex-col" style={{ borderRadius: '2px' }}>
           <div className="flex items-start justify-between mb-6">
-            <span className="text-2xl text-[#E85D2F]">↗</span>
+            <span className="text-2xl text-[#E85D2F]">↑</span>
             <span className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-dim)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Submission · Path 01
+              Upload · Path 01
             </span>
           </div>
           <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-            Submit to the <span className="italic">Sonant Catalog</span>
+            Upload to <span className="italic">This Brief</span>
           </h3>
           <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Submit your finished track + this brief for review. Selected work enters the Sonant Catalog — pitched to music supervisors at brands, agencies, studios, and game developers.
+            Drop your finished track directly to this brief. Every upload is reviewed — selected work enters the Sonant Catalog and gets pitched to music supervisors.
           </p>
           <ul className="space-y-2 mb-8 flex-1">
             {[
+              'Attached directly to this brief',
               'Reviewed by working composers and supervisors',
-              'High-bar curation — not everything makes it',
               '70/30 split in composer favor on placements',
               'Non-exclusive: submit elsewhere too',
             ].map((b, i) => (
@@ -173,19 +203,36 @@ function NextSteps() {
             ))}
           </ul>
           <div className="space-y-3">
-            <Link
-              href="/submissions"
-              className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#F5EFE0] text-[#1A1815] hover:bg-[#FFFFFF] transition-colors text-center"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-            >
-              ↗ How Submissions Work
-            </Link>
+            <input ref={fileInputRef} type="file" accept="audio/mp3,audio/mpeg,audio/aac,audio/mp4" onChange={handleFileChange} className="hidden" />
+            {uploaded ? (
+              <div
+                className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center text-[#7A9A6E] border border-[#7A9A6E]/40 bg-[#7A9A6E]/5"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                ◆ Track Uploaded
+              </div>
+            ) : (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading || !briefId}
+                className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#F5EFE0] text-[#1A1815] hover:bg-[#FFFFFF] transition-colors text-center disabled:opacity-50"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+              >
+                {uploading ? '◆ Uploading…' : '↑ Upload Your Track'}
+              </button>
+            )}
+            {uploadError && (
+              <p className="text-[10px] text-[#FF8B6B]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                × {uploadError}
+              </p>
+            )}
             <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Free during Beta · Every track reviewed
+              Free during Beta · MP3 or AAC · Max 50 MB
             </div>
           </div>
         </div>
 
+        {/* Path 02 — Live Review */}
         <div className="relative p-8 border border-[#E85D2F]/30 bg-[var(--bg-card)] hover:border-[#E85D2F]/60 transition-colors flex flex-col" style={{ borderRadius: '2px' }}>
           <div className="flex items-start justify-between mb-6">
             <span className="text-2xl text-[#E85D2F]">▷</span>
@@ -221,10 +268,21 @@ function NextSteps() {
               ▷ Book a Live Review
             </Link>
             <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Free during Beta · 15 or 30 minute sessions
+              Free during Beta · 15 minute sessions
             </div>
           </div>
         </div>
+      </div>
+
+      {/* FAQ link */}
+      <div className="mt-8 text-center">
+        <Link
+          href="/submissions"
+          className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        >
+          ◆ FAQ &amp; How It Works →
+        </Link>
       </div>
     </section>
   );
@@ -243,6 +301,7 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
   const [loadingStep, setLoadingStep] = useState(0);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedBriefId, setSavedBriefId] = useState<string | null>(null);
   const briefRef = useRef<HTMLElement>(null);
   const optionsRef = useRef<HTMLElement>(null);
 
@@ -394,6 +453,7 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
             setSaveError(saveResult.error);
           } else {
             setSaveStatus('saved');
+            setSavedBriefId(saveResult.briefId ?? null);
           }
         } else {
           addAnonBrief({
@@ -674,7 +734,7 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
             </div>
             <BriefDocument brief={generated} />
           </section>
-          {user && <NextSteps />}
+          {user && <NextSteps briefId={savedBriefId} />}
           {!user && (
             <section className="max-w-5xl mx-auto px-6 md:px-10 pb-20">
               <div className="border border-[#E85D2F]/30 bg-[#E85D2F]/5 p-8 flex flex-col md:flex-row md:items-center justify-between gap-6" style={{ borderRadius: '2px' }}>
