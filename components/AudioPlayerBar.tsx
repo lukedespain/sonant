@@ -12,7 +12,7 @@ function fmt(s: number) {
 }
 
 export default function AudioPlayerBar() {
-  const { track, isPlaying, currentTime, duration, toggle, seek } = useAudioPlayer();
+  const { track, isPlaying, currentTime, duration, volume, toggle, seek, setVolume } = useAudioPlayer();
   const [seeking, setSeeking] = useState(false);
   const [seekVal, setSeekVal] = useState(0);
 
@@ -38,7 +38,7 @@ export default function AudioPlayerBar() {
         </button>
 
         {/* Track info + seekbar */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           {/* Top row: filename + brief link + time */}
           <div className="flex items-baseline justify-between gap-2 mb-1.5">
             <div className="min-w-0 flex items-baseline gap-2 overflow-hidden">
@@ -81,6 +81,31 @@ export default function AudioPlayerBar() {
             style={{
               background: `linear-gradient(to right, #E85D2F ${pct}%, var(--border-subtle) ${pct}%)`,
             }}
+          />
+        </div>
+
+        {/* Volume — hidden on small screens */}
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setVolume(volume === 0 ? 1 : 0)}
+            className="text-[var(--text-dimmer)] hover:text-[var(--text-secondary)] transition-colors text-sm leading-none"
+            aria-label={volume === 0 ? 'Unmute' : 'Mute'}
+          >
+            {volume === 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}
+          </button>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.02}
+            value={volume}
+            onChange={(e) => setVolume(Number(e.target.value))}
+            className="sonant-seekbar"
+            style={{
+              width: '72px',
+              background: `linear-gradient(to right, #E85D2F ${volume * 100}%, var(--border-subtle) ${volume * 100}%)`,
+            }}
+            aria-label="Volume"
           />
         </div>
       </div>

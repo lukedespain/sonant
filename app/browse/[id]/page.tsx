@@ -126,15 +126,30 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
         <BriefDocument brief={brief} />
 
-        {/* Community tracks — shown on all briefs */}
-        <CommunityTracksSection
-          briefId={briefRow.id}
-          briefName={briefName}
-          tracks={communityTracks}
-          canUpload={!!user}
-          isAdmin={isAdmin}
-          featuredTrackId={featuredTrackId}
-        />
+        {isFeatured ? (
+          /* Competitive briefs — submissions are private, handled by Sonant team */
+          <div className="mt-10 no-print border border-[var(--border-card)] bg-[var(--bg-card)] p-8" style={{ borderRadius: '2px' }}>
+            <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              ◆ Submissions
+            </div>
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Competitive brief submissions are sent privately to the Sonant team — your track won&apos;t be publicly listed. We review all submissions and accepted tracks are added to the catalog and pitched to real buyers.
+            </p>
+            <p className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Use the &ldquo;Submit Track&rdquo; button above to send your entry.
+            </p>
+          </div>
+        ) : (
+          /* Practice/community briefs — public upload list */
+          <CommunityTracksSection
+            briefId={briefRow.id}
+            briefName={briefName}
+            tracks={communityTracks}
+            canUpload={!!user}
+            isAdmin={isAdmin}
+            featuredTrackId={featuredTrackId}
+          />
+        )}
 
         {/* Disco admin input — hidden for now, keeping code for future use */}
         {/* isAdmin && (

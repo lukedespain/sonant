@@ -14,10 +14,12 @@ interface ContextValue {
   isPlaying: boolean;
   currentTime: number;
   duration: number;
+  volume: number;
   play: (t: TrackInfo) => void;
   pause: () => void;
   toggle: () => void;
   seek: (time: number) => void;
+  setVolume: (v: number) => void;
 }
 
 const Ctx = createContext<ContextValue | null>(null);
@@ -28,6 +30,13 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolumeState] = useState(1);
+
+  function setVolume(v: number) {
+    const clamped = Math.max(0, Math.min(1, v));
+    setVolumeState(clamped);
+    if (ref.current) ref.current.volume = clamped;
+  }
 
   function play(newTrack: TrackInfo) {
     const el = ref.current;
@@ -62,7 +71,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <Ctx.Provider value={{ track, isPlaying, currentTime, duration, play, pause, toggle, seek }}>
+    <Ctx.Provider value={{ track, isPlaying, currentTime, duration, volume, play, pause, toggle, seek, setVolume }}>
       <audio
         ref={ref}
         onTimeUpdate={() => setCurrentTime(ref.current?.currentTime ?? 0)}

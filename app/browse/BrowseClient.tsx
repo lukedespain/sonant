@@ -288,8 +288,8 @@ export default function BrowseClient({
   const selectClass = `text-xs tracking-[0.15em] uppercase bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-secondary)] px-3 py-2 focus:border-[#E85D2F] focus:outline-none appearance-none pr-6`;
 
   const tabs: { key: Tab; label: string; count: number }[] = [
-    { key: 'featured', label: 'Sonant Briefs (Competition)', count: featuredBriefs.length },
-    { key: 'community', label: 'Community Briefs (Practice)', count: communityBriefs.length },
+    { key: 'featured', label: 'Competitive Briefs', count: featuredBriefs.length },
+    { key: 'community', label: 'Practice Briefs', count: communityBriefs.length },
     ...(isLoggedIn ? [{ key: 'mine' as Tab, label: 'My Briefs', count: myBriefs.length }] : []),
   ];
 
@@ -313,10 +313,15 @@ export default function BrowseClient({
         ))}
       </div>
 
-      {/* Context line for Practice tab */}
+      {/* Context line per tab */}
+      {activeTab === 'featured' && (
+        <p className="text-xs text-[var(--text-muted)] mb-6 leading-relaxed max-w-2xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          Briefs created by the Sonant team, modeled on real industry requests. Submissions are reviewed privately — accepted tracks go into the catalog and get pitched to brands, supervisors, and studios.
+        </p>
+      )}
       {activeTab === 'community' && (
-        <p className="text-xs text-[var(--text-muted)] mb-6 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          User-generated briefs — no stakes, just reps. Great for experimenting with genres outside your usual wheelhouse.
+        <p className="text-xs text-[var(--text-muted)] mb-6 leading-relaxed max-w-2xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          User-generated briefs from the community — no stakes, just reps. Upload your track publicly and get ears on it. Great for experimenting with genres outside your usual wheelhouse.
         </p>
       )}
 
