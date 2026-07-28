@@ -23,73 +23,105 @@ const MODE_LABELS: Record<string, string> = {
 
 export default async function LandingPage() {
   const admin = createAdminClient();
-  const { data: featuredBriefs } = await admin
-    .from('briefs')
-    .select('id, mode, generated_content')
-    .eq('user_id', ADMIN_USER_ID)
-    .not('generated_content->imageUrl', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(3)
-    .returns<FeaturedBrief[]>();
 
-  const briefs = featuredBriefs ?? [];
+  // One brief per mode for the current round
+  const roundBriefs = (
+    await Promise.all(
+      ['brand', 'film', 'games'].map((mode) =>
+        admin
+          .from('briefs')
+          .select('id, mode, generated_content')
+          .eq('user_id', ADMIN_USER_ID)
+          .eq('mode', mode)
+          .not('generated_content->imageUrl', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .returns<FeaturedBrief[]>()
+          .then(({ data }) => data?.[0] ?? null)
+      )
+    )
+  ).filter(Boolean) as FeaturedBrief[];
 
   return (
-    <div className="flex-1" style={{ color: 'var(--text-primary)' }}>
+    <div className="flex-1">
 
       {/* ── Hero ── */}
-      <section className="max-w-5xl mx-auto px-6 md:px-10 pt-24 pb-20">
+      <section className="min-h-[88vh] flex flex-col justify-center max-w-6xl mx-auto px-6 md:px-10 pt-20 pb-16">
         <div
-          className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-6"
+          className="text-[10px] tracking-[0.5em] uppercase text-[#E85D2F] mb-8"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
-          ◆ Sonant
+          ◆ Open for submissions
         </div>
         <h1
-          className="text-6xl md:text-7xl tracking-tight leading-[1.02] mb-6 max-w-3xl"
-          style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+          className="tracking-tight leading-[0.95] mb-8"
+          style={{
+            fontFamily: "'Fraunces', serif",
+            fontWeight: 300,
+            fontSize: 'clamp(3.5rem, 9vw, 7.5rem)',
+          }}
         >
-          Write to briefs.{' '}
+          Real briefs.<br />
           <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>
-            Get heard.
+            Real placement.
           </span>
         </h1>
         <p
-          className="text-lg text-[var(--text-tertiary)] mb-10 max-w-xl leading-relaxed"
+          className="text-base md:text-lg text-[var(--text-tertiary)] mb-10 max-w-md leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          A practice ground and placement platform for composers. Study real creative briefs, write music to spec, and submit your best work to get in front of brands and music supervisors.
+          Write to a curated brief, submit your track, and compete for a spot in the Sonant catalog — pitched to brands, supervisors, and studios.
         </p>
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex items-center gap-6 flex-wrap">
           <Link
             href="/browse"
-            className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+            className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
-            ◆ Explore the Catalog
+            ◆ See the Briefs
           </Link>
-          <Link
-            href="/generator"
-            className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+          <a
+            href={DISCO_CATALOG_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            Generate a Brief
-          </Link>
+            Listen to the catalog →
+          </a>
         </div>
       </section>
 
-      {/* ── Featured Briefs preview ── */}
-      {briefs.length > 0 && (
-        <section className="border-t border-[var(--border-base)] py-16">
-          <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <div
-              className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-8"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              ◆ From the Catalog
+      {/* ── Current Round ── */}
+      {roundBriefs.length > 0 && (
+        <section className="border-t border-[var(--border-base)]">
+          <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
+            <div className="flex items-end justify-between mb-12">
+              <div>
+                <div
+                  className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-3"
+                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                >
+                  ◆ Current Round
+                </div>
+                <h2
+                  className="text-3xl md:text-4xl tracking-tight leading-tight"
+                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+                >
+                  Write to one of these.
+                </h2>
+              </div>
+              <Link
+                href="/browse"
+                className="hidden md:block text-xs tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors shrink-0 mb-1"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                All briefs →
+              </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              {briefs.map((brief) => {
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {roundBriefs.map((brief) => {
                 const codename = brief.generated_content?.codename ?? 'Untitled';
                 const imageUrl = brief.generated_content?.imageUrl;
                 const modeLabel = MODE_LABELS[brief.mode] ?? brief.mode;
@@ -97,190 +129,169 @@ export default async function LandingPage() {
                   <Link
                     key={brief.id}
                     href={`/browse/${brief.id}`}
-                    className="block border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[#E85D2F] transition-colors group overflow-hidden"
+                    className="group block border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[#E85D2F]/50 transition-all duration-300 overflow-hidden"
                     style={{ borderRadius: '2px' }}
                   >
                     {imageUrl && (
-                      <div className="relative w-full overflow-hidden" style={{ height: '140px' }}>
+                      <div className="relative w-full overflow-hidden" style={{ height: '220px' }}>
                         <img
                           src={imageUrl}
                           alt=""
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
                         />
                         <div
                           className="absolute inset-0"
-                          style={{ background: 'linear-gradient(to bottom, transparent 50%, var(--bg-card) 100%)' }}
+                          style={{ background: 'linear-gradient(to bottom, transparent 35%, var(--bg-card) 100%)' }}
                         />
+                        <div
+                          className="absolute top-4 left-4 text-[9px] tracking-[0.3em] uppercase px-2.5 py-1"
+                          style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            background: 'rgba(10,9,8,0.65)',
+                            color: '#E85D2F',
+                            borderRadius: '2px',
+                            backdropFilter: 'blur(6px)',
+                          }}
+                        >
+                          {modeLabel}
+                        </div>
                       </div>
                     )}
-                    <div className="px-5 pb-5 pt-3">
-                      <div
-                        className="text-[9px] tracking-[0.25em] uppercase text-[#E85D2F] mb-1"
-                        style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                      >
-                        ◆ Sonant Brief
-                      </div>
+                    <div className="px-6 pb-6 pt-4">
                       <p
-                        className="text-lg italic leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors"
+                        className="text-2xl italic leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors mb-3"
                         style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
                       >
                         {codename}
                       </p>
-                      <p
-                        className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] mt-1"
+                      <span
+                        className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] group-hover:text-[#E85D2F]/60 transition-colors"
                         style={{ fontFamily: "'JetBrains Mono', monospace" }}
                       >
-                        {modeLabel} Project
-                      </p>
+                        Read the brief →
+                      </span>
                     </div>
                   </Link>
                 );
               })}
             </div>
-            <Link
-              href="/browse"
-              className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              View all briefs →
-            </Link>
           </div>
         </section>
       )}
 
-      {/* ── Three pillars ── */}
-      <section className="border-t border-[var(--border-base)] py-16">
-        <div className="max-w-5xl mx-auto px-6 md:px-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[var(--border-card)]" style={{ borderRadius: '2px' }}>
+      {/* ── How it works ── */}
+      <section className="border-t border-[var(--border-base)]">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
+          <div
+            className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-14"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            ◆ How it works
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
             {[
               {
-                tag: '◆ Catalog',
-                title: 'Real briefs. Real standards.',
-                body: 'Sonant publishes creative briefs written to actual industry specs — the kind a music supervisor sends a composer. Browse them, write to them, and hear what others made.',
-                cta: 'Browse the Catalog',
-                href: '/browse',
+                n: '01',
+                title: 'Read the brief',
+                body: 'Every brief is built to real industry spec — mood, tempo, instrumentation, references. Read it like a client sent it.',
               },
               {
-                tag: '◆ Generator',
-                title: 'Generate your own brief.',
-                body: 'Build a custom brief for any project type — brand, film, or game. Write to it, upload your track, and use it as a portfolio piece that shows you can write to spec.',
-                cta: 'Open the Generator',
-                href: '/generator',
+                n: '02',
+                title: 'Write your track',
+                body: 'Compose to spec in your DAW. Use the AI prompt generator to spark ideas, then take it somewhere only you can take it.',
               },
               {
-                tag: '◆ Reviews',
-                title: 'Get feedback that matters.',
-                body: 'Book a live music review and get real-time feedback on how well your track matches the brief. Learn what works, what needs work, and what would change the result.',
-                cta: 'Book a Review',
-                href: '/reviews',
+                n: '03',
+                title: 'Submit and compete',
+                body: 'Upload directly to the brief. The strongest track gets placed in the catalog and pitched to real buyers.',
               },
-            ].map(({ tag, title, body, cta, href }) => (
-              <div key={href} className="bg-[var(--bg-card)] p-8 flex flex-col">
+            ].map(({ n, title, body }) => (
+              <div key={n}>
                 <div
-                  className="text-[10px] tracking-[0.35em] uppercase text-[#E85D2F] mb-5"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                  className="text-6xl leading-none mb-6"
+                  style={{
+                    fontFamily: "'Fraunces', serif",
+                    fontWeight: 300,
+                    color: 'var(--border-hover)',
+                  }}
                 >
-                  {tag}
+                  {n}
                 </div>
-                <h2
-                  className="text-2xl leading-tight mb-4 text-[var(--text-primary)]"
-                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+                <h3
+                  className="text-xl mb-3 text-[var(--text-primary)]"
+                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
                 >
                   {title}
-                </h2>
+                </h3>
                 <p
-                  className="text-sm text-[var(--text-muted)] leading-relaxed mb-6 flex-1"
+                  className="text-sm text-[var(--text-muted)] leading-relaxed"
                   style={{ fontFamily: "'DM Sans', sans-serif" }}
                 >
                   {body}
                 </p>
-                <Link
-                  href={href}
-                  className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  {cta} →
-                </Link>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Submit to the catalog ── */}
-      <section className="border-t border-[var(--border-base)] py-16">
-        <div className="max-w-5xl mx-auto px-6 md:px-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+      {/* ── Catalog ── */}
+      <section className="border-t border-[var(--border-base)]">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div>
               <div
-                className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5"
+                className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-5"
                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
-                ◆ Submissions
+                ◆ The Catalog
               </div>
               <h2
-                className="text-4xl tracking-tight leading-[1.05] mb-5"
+                className="text-4xl md:text-5xl tracking-tight leading-[1.05] mb-6"
                 style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
               >
-                Submit your music to the catalog.
+                This is where<br />
+                your track<br />
+                <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>
+                  ends up.
+                </span>
               </h2>
               <p
-                className="text-base text-[var(--text-tertiary)] leading-relaxed mb-6"
+                className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-8 max-w-sm"
                 style={{ fontFamily: "'DM Sans', sans-serif" }}
               >
-                If you've written to a Sonant featured brief and your track is ready, submit it for consideration. Accepted tracks join the Sonant catalog and get pitched directly to brands, agencies, and music supervisors.
+                Accepted tracks join the Sonant catalog on Disco — built for music supervisors and sync licensing. Your music, in front of real buyers.
               </p>
-              <p
-                className="text-sm text-[var(--text-muted)] leading-relaxed mb-8"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              <a
+                href={DISCO_CATALOG_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
               >
-                Every submission gets a written response. If it's not the right fit, you'll know why — and what would change that.
-              </p>
-              <div className="flex gap-3 flex-wrap">
-                <Link
-                  href="/browse"
-                  className="px-5 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-                >
-                  Browse Sonant Briefs
-                </Link>
-                <Link
-                  href="/submissions"
-                  className="px-5 py-2.5 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  How It Works
-                </Link>
-              </div>
+                ↗ Listen to the Catalog
+              </a>
             </div>
-            <div className="space-y-6">
+
+            <div>
               {[
-                { num: '01', title: 'Browse the catalog', body: 'Find a Sonant brief that fits your style and strengths. Read it carefully — the details matter.' },
-                { num: '02', title: 'Write to it', body: 'Compose your track to the brief\'s specs. Mood, arc, instrumentation — match the brief, not just the genre.' },
-                { num: '03', title: 'Submit', body: 'Submit your track directly from the brief page. No fee, no forms, no middleman.' },
-                { num: '04', title: 'Get a response', body: 'Every submission gets written feedback. Accepted tracks join the catalog and get pitched to real buyers.' },
-              ].map(({ num, title, body }) => (
-                <div key={num} className="flex gap-5">
-                  <div
-                    className="text-[10px] tracking-[0.3em] text-[#E85D2F] mt-1 shrink-0"
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                'Modeled on real sync and licensing requests',
+                'Every submission reviewed and responded to',
+                '70/30 in your favor on any placement',
+                'Non-exclusive — your music stays yours',
+                'Free to submit during beta',
+              ].map((point) => (
+                <div
+                  key={point}
+                  className="flex items-start gap-4 py-5 border-b border-[var(--border-base)] first:border-t first:border-[var(--border-base)]"
+                >
+                  <span className="text-[#E85D2F] text-xs mt-0.5 shrink-0">◆</span>
+                  <span
+                    className="text-sm text-[var(--text-secondary)] leading-relaxed"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}
                   >
-                    {num}
-                  </div>
-                  <div>
-                    <div
-                      className="text-sm font-medium text-[var(--text-primary)] mb-1"
-                      style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}
-                    >
-                      {title}
-                    </div>
-                    <p
-                      className="text-sm text-[var(--text-muted)] leading-relaxed"
-                      style={{ fontFamily: "'DM Sans', sans-serif" }}
-                    >
-                      {body}
-                    </p>
-                  </div>
+                    {point}
+                  </span>
                 </div>
               ))}
             </div>
@@ -289,39 +300,32 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Footer CTA ── */}
-      <section className="border-t border-[var(--border-base)] py-16">
-        <div className="max-w-5xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <p
-              className="text-2xl mb-2"
-              style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-            >
-              Ready to start?
-            </p>
-            <p
-              className="text-sm text-[var(--text-muted)]"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
-            >
-              Pick a brief, write your music, and see where it goes.
-            </p>
-          </div>
-          <div className="flex gap-3 flex-wrap">
+      <section className="border-t border-[var(--border-base)]">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-24 flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
+          <h2
+            className="text-4xl md:text-5xl tracking-tight leading-[1.05]"
+            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+          >
+            The brief is waiting.<br />
+            <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>
+              Start writing.
+            </span>
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <Link
               href="/browse"
-              className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+              className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
             >
-              ◆ Explore the Catalog
+              ◆ See the Briefs
             </Link>
-            <a
-              href={DISCO_CATALOG_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            <Link
+              href="/generator"
+              className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors text-center"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
             >
-              Listen to the Music
-            </a>
+              Generate a brief
+            </Link>
           </div>
         </div>
       </section>
