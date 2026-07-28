@@ -286,8 +286,8 @@ export default function BrowseClient({
   const selectClass = `text-xs tracking-[0.15em] uppercase bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-secondary)] px-3 py-2 focus:border-[#E85D2F] focus:outline-none appearance-none pr-6`;
 
   const tabs: { key: Tab; label: string; count: number }[] = [
-    { key: 'featured', label: 'Sonant Briefs', count: featuredBriefs.length },
-    { key: 'community', label: 'Community Briefs', count: communityBriefs.length },
+    { key: 'featured', label: 'Sonant Briefs (Competition)', count: featuredBriefs.length },
+    { key: 'community', label: 'Community Briefs (Practice)', count: communityBriefs.length },
     { key: 'mine', label: 'My Briefs', count: myBriefs.length },
   ];
 
@@ -310,6 +310,13 @@ export default function BrowseClient({
           </button>
         ))}
       </div>
+
+      {/* Context line for Practice tab */}
+      {activeTab === 'community' && (
+        <p className="text-xs text-[var(--text-muted)] mb-6 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          User-generated briefs — no stakes, just reps. Great for experimenting with genres outside your usual wheelhouse.
+        </p>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6 items-end">
@@ -334,29 +341,33 @@ export default function BrowseClient({
           <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
         </div>
 
-        <div className="relative">
-          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-            <option value="">All Categories</option>
-            {availableCategories.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-        </div>
+        {activeTab !== 'featured' && (
+          <>
+            <div className="relative">
+              <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+                <option value="">All Categories</option>
+                {availableCategories.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
+            </div>
 
-        <div className="relative">
-          <select value={filterMood} onChange={(e) => setFilterMood(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-            <option value="">All Moods</option>
-            {allMoods.map((m) => <option key={m} value={m}>{m}</option>)}
-          </select>
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-        </div>
+            <div className="relative">
+              <select value={filterMood} onChange={(e) => setFilterMood(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+                <option value="">All Moods</option>
+                {allMoods.map((m) => <option key={m} value={m}>{m}</option>)}
+              </select>
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
+            </div>
 
-        <div className="relative">
-          <select value={filterGenre} onChange={(e) => setFilterGenre(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-            <option value="">All Genres</option>
-            {allGenres.map((g) => <option key={g} value={g}>{g}</option>)}
-          </select>
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-        </div>
+            <div className="relative">
+              <select value={filterGenre} onChange={(e) => setFilterGenre(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+                <option value="">All Genres</option>
+                {allGenres.map((g) => <option key={g} value={g}>{g}</option>)}
+              </select>
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
+            </div>
+          </>
+        )}
 
         {hasFilters && (
           <button onClick={clearFilters} className="text-xs tracking-[0.15em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace" }}>

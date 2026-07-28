@@ -57,12 +57,12 @@ export default async function BrowsePage() {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
 
         <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Catalog
+          ◆ Briefs
         </div>
 
         <div className="flex items-end justify-between gap-6 mb-4 flex-wrap">
           <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-            Read the brief. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Hear the music.</span>
+            Read the brief. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Win the slot.</span>
           </h1>
           <a
             href="https://sonant.disco.ac/cat/152887908"
@@ -76,7 +76,7 @@ export default async function BrowsePage() {
         </div>
 
         <p className="text-sm text-[var(--text-tertiary)] mb-10 max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Sonant briefs are curated prompts written to real industry specs — the same kind of creative direction a music supervisor sends a composer. Read them, write to them, and listen to what the community made.
+          Each round has three Sonant briefs — one Brand, one Film, one Game. Submit your track. The strongest placement goes into the catalog and gets pitched to real buyers.
         </p>
 
         <BrowseClient
