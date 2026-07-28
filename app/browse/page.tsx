@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import BrowseClient from './BrowseClient';
@@ -26,7 +25,6 @@ interface BriefRow {
 export default async function BrowsePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
 
   const admin = createAdminClient();
 
@@ -45,12 +43,14 @@ export default async function BrowsePage() {
     .limit(200)
     .returns<BriefRow[]>();
 
-  const { data: myBriefs } = await supabase
-    .from('briefs')
-    .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .returns<BriefRow[]>();
+  const { data: myBriefs } = user
+    ? await supabase
+        .from('briefs')
+        .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .returns<BriefRow[]>()
+    : { data: null };
 
   return (
     <div className="pt-20 pb-12 flex-1">
@@ -83,6 +83,7 @@ export default async function BrowsePage() {
           featuredBriefs={featuredBriefs ?? []}
           communityBriefs={communityBriefs ?? []}
           myBriefs={myBriefs ?? []}
+          isLoggedIn={!!user}
         />
       </div>
     </div>

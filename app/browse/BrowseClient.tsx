@@ -209,16 +209,18 @@ export default function BrowseClient({
   featuredBriefs,
   communityBriefs,
   myBriefs,
+  isLoggedIn,
 }: {
   featuredBriefs: BriefRow[];
   communityBriefs: BriefRow[];
   myBriefs: BriefRow[];
+  isLoggedIn: boolean;
 }) {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>(() => {
     const t = searchParams.get('tab');
     if (t === 'community') return 'community';
-    if (t === 'mine') return 'mine';
+    if (t === 'mine' && isLoggedIn) return 'mine';
     return 'featured';
   });
   const [search, setSearch] = useState('');
@@ -288,7 +290,7 @@ export default function BrowseClient({
   const tabs: { key: Tab; label: string; count: number }[] = [
     { key: 'featured', label: 'Sonant Briefs (Competition)', count: featuredBriefs.length },
     { key: 'community', label: 'Community Briefs (Practice)', count: communityBriefs.length },
-    { key: 'mine', label: 'My Briefs', count: myBriefs.length },
+    ...(isLoggedIn ? [{ key: 'mine' as Tab, label: 'My Briefs', count: myBriefs.length }] : []),
   ];
 
   return (

@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -27,7 +27,6 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
 
   const admin = createAdminClient();
   const { data: briefRow, error } = await admin
@@ -41,7 +40,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
   const brief = briefRow.generated_content as Brief;
   const briefName = brief.codename ?? 'Untitled';
   const isFeatured = briefRow.user_id === ADMIN_USER_ID;
-  const isAdmin = user.id === ADMIN_USER_ID;
+  const isAdmin = !!user && user.id === ADMIN_USER_ID;
 
   const submission = isFeatured ? await getSubmissionStatus(briefRow.id) : null;
   const alreadySubmitted = submission !== null;
@@ -60,7 +59,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
     file_name: t.file_name,
     file_url: t.file_url,
     created_at: t.created_at,
-    canDelete: t.user_id === user.id || isAdmin,
+    canDelete: !!user && (t.user_id === user.id || isAdmin),
   }));
 
   // Resolve featured track details from the community tracks list
@@ -91,16 +90,25 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           <div className="flex items-center gap-3 flex-wrap">
             {isAdmin && <RegenerateImageButton briefId={briefRow.id} />}
             {isAdmin && <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />}
-            {isAdmin && <SunoPromptModal brief={brief} />}
+            <SunoPromptModal brief={brief} />
             <ExportPdfButton />
-            {isFeatured && (
+            {isFeatured && user && (
               <SubmitTrackModal
                 briefId={briefRow.id}
                 projectName={brief.codename}
                 alreadySubmitted={alreadySubmitted}
               />
             )}
-            {(isAdmin || user.id === briefRow.user_id) && (
+            {isFeatured && !user && (
+              <Link
+                href="/login"
+                className="px-5 py-2 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+              >
+                ↗ Sign In to Submit
+              </Link>
+            )}
+            {!!user && (isAdmin || user.id === briefRow.user_id) && (
               <DeleteBriefButton briefId={briefRow.id} redirectPath="/browse" />
             )}
           </div>
@@ -123,7 +131,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           briefId={briefRow.id}
           briefName={briefName}
           tracks={communityTracks}
-          canUpload={true}
+          canUpload={!!user}
           isAdmin={isAdmin}
           featuredTrackId={featuredTrackId}
         />
