@@ -16,7 +16,7 @@ export async function signUp(formData: FormData) {
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm?next=/browse`,
     },
   });
 
@@ -32,6 +32,7 @@ export async function signIn(formData: FormData) {
 
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
+  const redirectTo = formData.get('redirectTo') as string | null;
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -40,7 +41,9 @@ export async function signIn(formData: FormData) {
   }
 
   revalidatePath('/', 'layout');
-  redirect('/account');
+  // Only follow relative paths to prevent open redirect
+  const safePath = redirectTo?.startsWith('/') ? redirectTo : '/browse';
+  redirect(safePath);
 }
 
 export async function signOut() {

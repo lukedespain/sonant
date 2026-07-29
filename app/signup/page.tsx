@@ -1,13 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { signUp } from '@/app/auth/actions';
 
 export default function SignUpPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignUpForm />
+    </Suspense>
+  );
+}
+
+function SignUpForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') ?? '/browse';
 
   async function handleSubmit(formData: FormData) {
     setError(null);
@@ -29,11 +40,11 @@ export default function SignUpPage() {
         </div>
 
         <h1 className="text-4xl md:text-5xl tracking-tight leading-tight mb-3" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          Start your <span className="italic">catalog</span>.
+          Join the <span className="italic">competition</span>.
         </h1>
 
         <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Free during beta. Generate as many briefs as you want.
+          Free during beta. Submit to competitive briefs and compete for placement in the Sonant catalog.
         </p>
 
         {success ? (
@@ -42,7 +53,7 @@ export default function SignUpPage() {
               ◆ Check your email
             </div>
             <p className="text-base leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              We sent a confirmation link to verify your account. Click it and you&apos;ll be signed in.
+              We sent a confirmation link to verify your account. Click it and you&apos;ll be taken straight to the briefs.
             </p>
           </div>
         ) : (
@@ -72,7 +83,7 @@ export default function SignUpPage() {
 
             <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               Already have an account?{' '}
-              <Link href="/login" className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
+              <Link href={`/login${redirectTo !== '/browse' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`} className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
                 Sign in
               </Link>
             </p>

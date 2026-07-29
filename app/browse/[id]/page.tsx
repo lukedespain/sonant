@@ -101,7 +101,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             )}
             {isFeatured && !user && (
               <Link
-                href="/login"
+                href={`/login?redirect=/browse/${briefRow.id}`}
                 className="px-5 py-2 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
               >
