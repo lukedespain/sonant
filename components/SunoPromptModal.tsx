@@ -182,7 +182,7 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
             <div className="px-6 py-5">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                  Style — paste into Suno&apos;s Style field. Leave lyrics blank.
+                  Style: paste into Suno&apos;s Style field. Leave lyrics blank.
                 </div>
                 <button
                   onClick={copyStyle}
@@ -208,7 +208,7 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
 
             <div className="px-6 pb-5">
               <p className="text-[10px] text-[var(--text-dimmer)] leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Paste this into Suno&apos;s &quot;Style of Music&quot; box only. Leave the lyrics field empty — Suno will generate an instrumental based on the style tags alone.
+                Paste this into Suno&apos;s &quot;Style of Music&quot; box only. Leave the lyrics field empty. Suno will generate an instrumental based on the style tags alone.
               </p>
             </div>
           </div>

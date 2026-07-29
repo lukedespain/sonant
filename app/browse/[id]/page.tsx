@@ -148,7 +148,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
               ◆ Submissions
             </div>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Competitive brief submissions are sent privately to the Sonant team — your track won&apos;t be publicly listed. We review all submissions and accepted tracks are added to the catalog and pitched to real buyers.
+              Competitive brief submissions are sent privately to the Sonant team. Your track won&apos;t be publicly listed. We review all submissions and accepted tracks are added to the catalog and pitched to real buyers.
             </p>
             <p className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               Use the &ldquo;Submit Track&rdquo; button above to send your entry.

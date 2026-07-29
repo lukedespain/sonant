@@ -18,7 +18,7 @@ export default function CatalogPage() {
           </h1>
 
           <p className="text-base text-[var(--text-tertiary)] mb-3 max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Accepted tracks from Sonant brief competitions join the Sonant catalog on Disco — a platform built for music supervisors and sync licensing. Your music, in front of real buyers.
+            Accepted tracks from Sonant brief competitions join the Sonant catalog on Disco, a platform built for music supervisors and sync licensing. Your music, in front of real buyers.
           </p>
           <p className="text-sm text-[var(--text-muted)] mb-10 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Every submission is individually reviewed. The bar is the point.
@@ -54,17 +54,17 @@ export default function CatalogPage() {
               {
                 n: '01',
                 title: 'Write to a Sonant brief',
-                body: 'Each month, three competition briefs go live — one Brand, one Film, one Game. Read the brief like a client sent it. Write your track to spec.',
+                body: 'Each month, three competition briefs go live: one Brand, one Film, one Game. Read the brief like a client sent it. Write your track to spec.',
               },
               {
                 n: '02',
                 title: 'Submit privately',
-                body: 'Submissions go directly to the Sonant team — not publicly listed. Every submission gets reviewed and receives a written response.',
+                body: 'Submissions go directly to the Sonant team and are not publicly listed. Every submission gets reviewed and receives written feedback.',
               },
               {
                 n: '03',
                 title: 'Accepted tracks get placed',
-                body: 'Strong tracks are added to the catalog and actively pitched to brands, agencies, studios, and music supervisors. You keep 70% of any sync fee. Non-exclusive — your music stays yours.',
+                body: 'Strong tracks are added to the catalog and actively pitched to brands, agencies, studios, and music supervisors. You keep 70% of any sync fee. Non-exclusive: your music stays yours.',
               },
             ].map(({ n, title, body }) => (
               <div key={n} className="border-b border-[var(--border-base)] py-8 grid grid-cols-1 md:grid-cols-[80px_1fr_2fr] gap-6">

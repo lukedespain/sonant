@@ -108,7 +108,7 @@ export default async function CommunityPage() {
             The <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>leaderboard.</span>
           </h1>
           <p className="text-base text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Ranked by competition submissions, featured tracks, and community uploads. Updated in real time.
+            Click any column to rank composers by what matters most to you. Updated in real time.
           </p>
         </div>
 

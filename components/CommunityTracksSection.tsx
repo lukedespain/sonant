@@ -85,7 +85,7 @@ export default function CommunityTracksSection({
         const json = await res.json();
         msg = json.error ?? msg;
       } catch {
-        if (res.status === 413) msg = 'File too large — convert to MP3 and try again.';
+        if (res.status === 413) msg = 'File too large. Convert to MP3 and try again.';
       }
       setUploadError(msg);
     } else {

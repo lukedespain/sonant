@@ -154,7 +154,7 @@ function NextSteps({ briefId }: { briefId: string | null }) {
     if (!res.ok) {
       let msg = `Upload failed (${res.status})`;
       try { msg = (await res.json()).error ?? msg; } catch { /* ignore */ }
-      if (res.status === 413) msg = 'File too large — convert to MP3 and try again.';
+      if (res.status === 413) msg = 'File too large. Convert to MP3 and try again.';
       setUploadError(msg);
     } else {
       setUploaded(true);
@@ -187,7 +187,7 @@ function NextSteps({ briefId }: { briefId: string | null }) {
             Upload to <span className="italic">This Brief</span>
           </h3>
           <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Drop your finished track directly to this brief. Every upload is reviewed — selected work enters the Sonant Catalog and gets pitched to music supervisors.
+            Drop your finished track directly to this brief. Every upload is reviewed. Selected work enters the Sonant Catalog and gets pitched to music supervisors.
           </p>
           <ul className="space-y-2 mb-8 flex-1">
             {[
@@ -522,7 +522,7 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
           className="text-sm text-[var(--text-muted)] mb-5"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Build a practice brief to write to. Pick a type, category, mood, and genre — we&apos;ll generate a full creative direction.
+          Build a practice brief to write to. Pick a type, category, mood, and genre. We&apos;ll generate a full creative direction.
         </p>
         <Link
           href="/browse"
@@ -592,7 +592,7 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
             className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            Mood <span className="opacity-50">— up to 3</span>
+            Mood <span className="opacity-50">· up to 3</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {availableMoods.map((m) => (
@@ -609,7 +609,7 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
             className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            Genre <span className="opacity-50">— up to 3</span>
+            Genre <span className="opacity-50">· up to 3</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {GENRES.map((g) => (
@@ -690,7 +690,7 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
       {loading && (
         <section className="max-w-2xl mx-auto px-6 py-16 fade-up">
           <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4 pulse-soft" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            ◆ Working — this takes 30-60 seconds
+            ◆ Working · this takes 30-60 seconds
           </div>
           <div className="text-2xl leading-relaxed text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
             {loadingMessages[loadingStep]}
