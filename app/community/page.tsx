@@ -9,6 +9,7 @@ interface ComposerRow {
   submissions: number;
   uploads: number;
   featured: number;
+  generations: number;
   score: number;
 }
 
@@ -76,6 +77,12 @@ export default async function CommunityPage() {
     .select('featured_track_id')
     .not('featured_track_id', 'is', null);
 
+  // Fetch user-generated briefs (generations) — exclude admin-owned Sonant briefs
+  const { data: allGeneratedBriefs } = await admin
+    .from('briefs')
+    .select('user_id')
+    .neq('user_id', ADMIN_USER_ID);
+
   const featuredTrackIds = new Set((featuredBriefs ?? []).map((b) => b.featured_track_id as string));
 
   // Count per user
@@ -93,10 +100,16 @@ export default async function CommunityPage() {
     }
   });
 
-  // All unique user ids across both lists
+  const generationsCount: Record<string, number> = {};
+  (allGeneratedBriefs ?? []).forEach((b) => {
+    generationsCount[b.user_id] = (generationsCount[b.user_id] ?? 0) + 1;
+  });
+
+  // All unique user ids across all activity lists
   const allUserIds = [...new Set([
     ...Object.keys(submissionsCount),
     ...Object.keys(uploadsCount),
+    ...Object.keys(generationsCount),
   ])];
 
   if (allUserIds.length === 0) {
@@ -113,14 +126,14 @@ export default async function CommunityPage() {
     (profiles ?? []).map((p: { id: string; full_name: string }) => [p.id, p.full_name])
   );
 
-  // Build ranked list
-  // Score: submissions × 3 + featured × 2 + uploads × 1
+  // Score: submissions × 3 + featured × 2 + uploads × 1 + generations × 0 (participation only)
   const composers: ComposerRow[] = allUserIds.map((id) => ({
     id,
     name: profileMap[id] ?? 'Anonymous',
     submissions: submissionsCount[id] ?? 0,
     uploads: uploadsCount[id] ?? 0,
     featured: featuredCount[id] ?? 0,
+    generations: generationsCount[id] ?? 0,
     score: (submissionsCount[id] ?? 0) * 3 + (featuredCount[id] ?? 0) * 2 + (uploadsCount[id] ?? 0),
   }));
 
@@ -149,6 +162,7 @@ export default async function CommunityPage() {
             { label: 'Submissions', desc: 'Sonant brief entries' },
             { label: 'Featured', desc: 'Community tracks selected as featured' },
             { label: 'Uploads', desc: 'Community brief tracks' },
+            { label: 'Generations', desc: 'Briefs generated' },
           ].map(({ label, desc }) => (
             <div key={label} className="flex items-center gap-2">
               <span className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }} title={desc}>
@@ -197,7 +211,8 @@ export default async function CommunityPage() {
                 <div className="flex items-center gap-8 shrink-0">
                   <Stat label="Submissions" value={composer.submissions} highlight={composer.submissions > 0} />
                   <Stat label="Featured" value={composer.featured} highlight={composer.featured > 0} />
-                  <Stat label="Uploads" value={composer.uploads} highlight={false} />
+                  <Stat label="Uploads" value={composer.uploads} highlight={composer.uploads > 0} />
+                  <Stat label="Generations" value={composer.generations} highlight={false} />
                 </div>
               </div>
             );
