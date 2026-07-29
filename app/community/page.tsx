@@ -6,6 +6,7 @@ const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
 interface ComposerRow {
   id: string;
   name: string;
+  avatarUrl: string | null;
   submissions: number;
   uploads: number;
   featured: number;
@@ -119,17 +120,18 @@ export default async function CommunityPage() {
   // Fetch profiles
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, full_name')
+    .select('id, full_name, avatar_url')
     .in('id', allUserIds);
 
   const profileMap = Object.fromEntries(
-    (profiles ?? []).map((p: { id: string; full_name: string }) => [p.id, p.full_name])
+    (profiles ?? []).map((p: { id: string; full_name: string; avatar_url?: string | null }) => [p.id, { name: p.full_name, avatarUrl: p.avatar_url ?? null }])
   );
 
   // Score: submissions × 3 + featured × 2 + uploads × 1 + generations × 0 (participation only)
   const composers: ComposerRow[] = allUserIds.map((id) => ({
     id,
-    name: profileMap[id] ?? 'Anonymous',
+    name: profileMap[id]?.name ?? 'Anonymous',
+    avatarUrl: profileMap[id]?.avatarUrl ?? null,
     submissions: submissionsCount[id] ?? 0,
     uploads: uploadsCount[id] ?? 0,
     featured: featuredCount[id] ?? 0,
@@ -191,10 +193,13 @@ export default async function CommunityPage() {
 
                 {/* Avatar */}
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0"
-                  style={{ background: color, fontFamily: "'DM Sans', sans-serif" }}
+                  className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xs font-semibold text-white shrink-0"
+                  style={{ background: composer.avatarUrl ? undefined : color, fontFamily: "'DM Sans', sans-serif" }}
                 >
-                  {initials(composer.name)}
+                  {composer.avatarUrl
+                    ? <img src={composer.avatarUrl} alt={composer.name} className="w-full h-full object-cover" />
+                    : initials(composer.name)
+                  }
                 </div>
 
                 {/* Name */}

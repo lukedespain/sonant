@@ -1,51 +1,54 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { signOut } from '@/app/auth/actions';
+import AccountClient from './AccountClient';
 
 export default async function AccountPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect('/login');
-  }
+  if (!user) redirect('/login');
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+  const { data: profile } = await admin
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single();
 
+  const memberSince = profile?.created_at
+    ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : '';
+
   return (
     <div className="pt-20 pb-12 flex-1">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
           ◆ Account
         </div>
 
-        <h1 className="text-5xl md:text-6xl tracking-tight leading-tight mb-3" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          Welcome, <span className="italic">{profile?.full_name?.split(' ')[0] || 'composer'}</span>.
+        <h1 className="text-5xl md:text-6xl tracking-tight leading-tight mb-10" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+          Your <span className="italic">profile.</span>
         </h1>
 
-        <p className="text-base text-[var(--text-tertiary)] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Manage your account, check your usage, and jump back into briefs.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12 max-w-3xl">
-          <InfoCard label="Email" value={user.email || ''} />
-          <InfoCard label="Tier" value="Beta Tester" />
-          <InfoCard label="Briefs This Month" value="Unlimited" />
-          <InfoCard label="Member Since" value={profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ''} />
-        </div>
+        <AccountClient
+          userId={user.id}
+          initialName={profile?.full_name ?? ''}
+          initialAvatarUrl={(profile as any)?.avatar_url ?? null}
+          email={user.email ?? ''}
+          tier={profile?.tier === 'pro' ? 'Pro' : 'Beta Tester'}
+          memberSince={memberSince}
+        />
 
         <div className="flex gap-3 flex-wrap">
           <Link
-            href="/"
+            href="/generator"
             className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
-            ◆ Generate New Brief
+            ◆ Generate Brief
           </Link>
           <Link
             href="/browse?tab=mine"
@@ -71,19 +74,6 @@ export default async function AccountPage() {
             </button>
           </form>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function InfoCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-card)] p-5" style={{ borderRadius: '2px' }}>
-      <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        {label}
-      </div>
-      <div className="text-base" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>
-        {value}
       </div>
     </div>
   );
