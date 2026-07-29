@@ -72,7 +72,7 @@ function BriefCard({ brief, detailBase, featured }: { brief: BriefRow; detailBas
   const project = brief.generated_content?.project;
   const imageUrl = brief.generated_content?.imageUrl;
   const modeLabel = MODE_LABELS[brief.mode] ?? brief.mode;
-  const date = new Date(brief.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const date = featured ? 'Aug 1 – Aug 31' : new Date(brief.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
     <Link
@@ -175,7 +175,7 @@ function BriefCard({ brief, detailBase, featured }: { brief: BriefRow; detailBas
               className="text-[10px] text-[var(--text-dimmer)]"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
-              No tracks submitted yet
+              {featured ? 'Submit your track →' : 'No tracks uploaded yet'}
             </span>
           )}
         </div>
@@ -241,13 +241,16 @@ export default function BrowseClient({
 
   const sourceBriefs = activeTab === 'featured' ? featuredBriefs : activeTab === 'community' ? communityBriefs : myBriefs;
 
+  const BRAND_CATEGORIES = ['Automotive', 'Beverage', 'Fashion', 'Financial', 'Food', 'Healthcare', 'Lifestyle', 'Sports', 'Technology'];
+  const FILM_CATEGORIES = ['Action', 'Documentary', 'Drama', 'Horror', 'Romance / Indie', 'Sci-Fi', 'Thriller / Suspense'];
+  const GAME_CATEGORIES = ['Boss Battle', 'Cinematic / Cutscene', 'Combat / Action', 'Exploration / Open World', 'Horror / Stealth', 'Main Menu / Title', 'Puzzle / Casual'];
+
   const availableCategories = useMemo(() => {
-    const set = new Set<string>();
-    sourceBriefs
-      .filter((b) => !filterMode || b.mode === filterMode)
-      .forEach((b) => set.add(b.target));
-    return Array.from(set).sort();
-  }, [sourceBriefs, filterMode]);
+    if (filterMode === 'brand') return BRAND_CATEGORIES;
+    if (filterMode === 'film') return FILM_CATEGORIES;
+    if (filterMode === 'games') return GAME_CATEGORIES;
+    return [...BRAND_CATEGORIES, ...FILM_CATEGORIES, ...GAME_CATEGORIES].sort();
+  }, [filterMode]);
 
   const allMoods = useMemo(() => {
     const set = new Set<string>();
@@ -288,8 +291,8 @@ export default function BrowseClient({
   const selectClass = `text-xs tracking-[0.15em] uppercase bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-secondary)] px-3 py-2 focus:border-[#E85D2F] focus:outline-none appearance-none pr-6`;
 
   const tabs: { key: Tab; label: string; count: number }[] = [
-    { key: 'featured', label: 'Competitive Briefs', count: featuredBriefs.length },
-    { key: 'community', label: 'Practice Briefs', count: communityBriefs.length },
+    { key: 'featured', label: 'Sonant Briefs', count: featuredBriefs.length },
+    { key: 'community', label: 'Community Briefs', count: communityBriefs.length },
     ...(isLoggedIn ? [{ key: 'mine' as Tab, label: 'My Briefs', count: myBriefs.length }] : []),
   ];
 
@@ -313,17 +316,39 @@ export default function BrowseClient({
         ))}
       </div>
 
-      {/* Context line per tab */}
-      {activeTab === 'featured' && (
-        <p className="text-xs text-[var(--text-muted)] mb-6 leading-relaxed max-w-2xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Briefs created by the Sonant team, modeled on real industry requests. Submissions are reviewed privately — accepted tracks go into the catalog and get pitched to brands, supervisors, and studios.
-        </p>
-      )}
-      {activeTab === 'community' && (
-        <p className="text-xs text-[var(--text-muted)] mb-6 leading-relaxed max-w-2xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          User-generated briefs from the community — no stakes, just reps. Upload your track publicly and get ears on it. Great for experimenting with genres outside your usual wheelhouse.
-        </p>
-      )}
+      {/* Dynamic hero per tab */}
+      <div className="mb-8">
+        {activeTab === 'featured' && (
+          <>
+            <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+              Each month, a new <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>competition.</span>
+            </h1>
+            <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              One Brand brief, one Film brief, one Game brief — written to real industry spec. Submit your track. The strongest placement goes into the catalog and gets pitched to real buyers.
+            </p>
+          </>
+        )}
+        {activeTab === 'community' && (
+          <>
+            <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+              Study the brief. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Write to it.</span>
+            </h1>
+            <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Briefs generated by the community — no stakes, just reps. Upload your track publicly and get ears on it. Great for experimenting outside your usual wheelhouse.
+            </p>
+          </>
+        )}
+        {activeTab === 'mine' && (
+          <>
+            <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+              Your generated <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>briefs.</span>
+            </h1>
+            <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Briefs you&apos;ve created with the generator — all in one place.
+            </p>
+          </>
+        )}
+      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6 items-end">
@@ -348,33 +373,29 @@ export default function BrowseClient({
           <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
         </div>
 
-        {activeTab !== 'featured' && (
-          <>
-            <div className="relative">
-              <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-                <option value="">All Categories</option>
-                {availableCategories.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-            </div>
+        <div className="relative">
+          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+            <option value="">All Categories</option>
+            {availableCategories.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
+        </div>
 
-            <div className="relative">
-              <select value={filterMood} onChange={(e) => setFilterMood(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-                <option value="">All Moods</option>
-                {allMoods.map((m) => <option key={m} value={m}>{m}</option>)}
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-            </div>
+        <div className="relative">
+          <select value={filterMood} onChange={(e) => setFilterMood(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+            <option value="">All Moods</option>
+            {allMoods.map((m) => <option key={m} value={m}>{m}</option>)}
+          </select>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
+        </div>
 
-            <div className="relative">
-              <select value={filterGenre} onChange={(e) => setFilterGenre(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-                <option value="">All Genres</option>
-                {allGenres.map((g) => <option key={g} value={g}>{g}</option>)}
-              </select>
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-            </div>
-          </>
-        )}
+        <div className="relative">
+          <select value={filterGenre} onChange={(e) => setFilterGenre(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+            <option value="">All Genres</option>
+            {allGenres.map((g) => <option key={g} value={g}>{g}</option>)}
+          </select>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
+        </div>
 
         {hasFilters && (
           <button onClick={clearFilters} className="text-xs tracking-[0.15em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace" }}>

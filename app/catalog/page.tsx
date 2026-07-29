@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+const DISCO_CATALOG_URL = 'https://sonant.disco.ac/cat/152887908';
+
 export default function CatalogPage() {
   return (
     <div className="pt-20 pb-24 flex-1">
@@ -7,41 +9,85 @@ export default function CatalogPage() {
 
         <div className="mb-20">
           <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            ◆ Catalog
+            ◆ The Catalog
           </div>
 
-          <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-5 max-w-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-            The catalog is <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>taking shape</span>.
+          <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-6 max-w-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+            This is where your track{' '}
+            <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>ends up.</span>
           </h1>
 
           <p className="text-base text-[var(--text-tertiary)] mb-3 max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            A curated library of music written to Sonant briefs. Every track individually reviewed. The bar is the point.
+            Accepted tracks from Sonant brief competitions join the Sonant catalog on Disco — a platform built for music supervisors and sync licensing. Your music, in front of real buyers.
           </p>
-          <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            First accepted tracks are in review now.
+          <p className="text-sm text-[var(--text-muted)] mb-10 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            Every submission is individually reviewed. The bar is the point.
           </p>
 
           <div className="flex items-center gap-4 flex-wrap">
-            <div className="inline-flex items-center gap-2 px-4 py-2 border border-[var(--border-card)] bg-[var(--bg-card)]" style={{ borderRadius: '2px' }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E85D2F] animate-pulse" />
-              <span className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                Building
-              </span>
-            </div>
-            <Link
-              href="/submissions"
+            <a
+              href={DISCO_CATALOG_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
             >
-              ◆ How Submissions Work
-            </Link>
+              ↗ Browse the Catalog
+            </a>
             <Link
-              href="/"
+              href="/browse"
               className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
             >
-              Generate a Brief
+              ◆ View This Month&apos;s Briefs
             </Link>
+          </div>
+        </div>
+
+        {/* How it works */}
+        <div className="border-t border-[var(--border-base)] pt-16">
+          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-10" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            ◆ How tracks get in
+          </div>
+          <div className="space-y-0 border-t border-[var(--border-base)]">
+            {[
+              {
+                n: '01',
+                title: 'Write to a Sonant brief',
+                body: 'Each month, three competition briefs go live — one Brand, one Film, one Game. Read the brief like a client sent it. Write your track to spec.',
+              },
+              {
+                n: '02',
+                title: 'Submit privately',
+                body: 'Submissions go directly to the Sonant team — not publicly listed. Every submission gets reviewed and receives a written response.',
+              },
+              {
+                n: '03',
+                title: 'Accepted tracks get placed',
+                body: 'Strong tracks are added to the catalog and actively pitched to brands, agencies, studios, and music supervisors. You keep 70% of any sync fee. Non-exclusive — your music stays yours.',
+              },
+            ].map(({ n, title, body }) => (
+              <div key={n} className="border-b border-[var(--border-base)] py-8 grid grid-cols-1 md:grid-cols-[80px_1fr_2fr] gap-6">
+                <div
+                  className="text-3xl leading-none"
+                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 300, color: 'var(--border-hover)' }}
+                >
+                  {n}
+                </div>
+                <h3
+                  className="text-base text-[var(--text-primary)] leading-snug"
+                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
+                >
+                  {title}
+                </h3>
+                <p
+                  className="text-sm text-[var(--text-muted)] leading-relaxed"
+                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  {body}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
