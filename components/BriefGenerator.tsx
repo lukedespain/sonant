@@ -55,12 +55,12 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   return (
     <button
       onClick={onClick}
-      className={`transition-all duration-150 px-4 py-2.5 text-sm rounded-full border tracking-wide ${
+      className={`transition-all duration-150 px-4 py-2.5 text-sm border tracking-wide ${
         active
-          ? 'bg-[#F5EFE0] border-[#F5EFE0] text-[#1A1815]'
+          ? 'bg-[#E85D2F]/10 border-[#E85D2F] text-[#E85D2F]'
           : 'bg-transparent border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--text-dim)] hover:text-[var(--text-primary)]'
       }`}
-      style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: active ? 500 : 400 }}
+      style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: active ? 500 : 400, borderRadius: '2px' }}
     >
       {children}
     </button>
@@ -519,11 +519,18 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
           Generate a brief. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Write the music.</span>
         </h1>
         <p
-          className="text-sm text-[var(--text-muted)]"
+          className="text-sm text-[var(--text-muted)] mb-5"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Select a creative brief type to generate
+          Build a practice brief to write to. Pick a type, category, mood, and genre — we&apos;ll generate a full creative direction.
         </p>
+        <Link
+          href="/browse"
+          className="text-xs tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        >
+          ◆ View this round&apos;s competitive briefs →
+        </Link>
       </section>
 
       <div className="border-t border-[var(--border-base)]" />
@@ -759,16 +766,6 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
         </>
       )}
 
-      <footer className="border-t border-[var(--border-base)] mt-12">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="text-xs tracking-wider text-[var(--text-dimmer)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            SONANT · BUILT FOR COMPOSERS · DEMO v0.3
-          </div>
-          <div className="text-xs italic text-[var(--text-dimmer)]" style={{ fontFamily: "'Fraunces', serif" }}>
-            &ldquo;The brief is the gift. The work is the answer.&rdquo;
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
