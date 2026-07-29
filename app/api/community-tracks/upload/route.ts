@@ -14,6 +14,7 @@ export async function POST(req: Request) {
   const formData = await req.formData();
   const file = formData.get('file') as File | null;
   const briefId = formData.get('briefId') as string | null;
+  const trackName = (formData.get('trackName') as string | null)?.trim() || null;
 
   if (!file || !briefId) {
     return NextResponse.json({ error: 'Missing file or briefId' }, { status: 400 });
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
       brief_id: briefId,
       user_id: user.id,
       file_url: publicUrl,
-      file_name: file.name,
+      file_name: trackName ?? file.name,
       storage_path: storagePath,
     });
 

@@ -11,6 +11,7 @@ interface Track {
   file_url: string;
   created_at: string;
   canDelete: boolean;
+  uploader_name: string;
 }
 
 export default function CommunityTracksSection({
@@ -20,6 +21,7 @@ export default function CommunityTracksSection({
   canUpload,
   isAdmin = false,
   featuredTrackId = null,
+  currentUserName = '',
 }: {
   briefId: string;
   briefName: string;
@@ -27,6 +29,7 @@ export default function CommunityTracksSection({
   canUpload: boolean;
   isAdmin?: boolean;
   featuredTrackId?: string | null;
+  currentUserName?: string;
 }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,15 +39,42 @@ export default function CommunityTracksSection({
   const [featPending, startFeatTransition] = useTransition();
   const { track: activeTrack, isPlaying, play, pause } = useAudioPlayer();
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  // Upload modal state
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [trackName, setTrackName] = useState('');
+  const [showModal, setShowModal] = useState(false);
+
+  function handleUploadClick() {
+    fileInputRef.current?.click();
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Pre-fill track name from filename (strip extension)
+    const nameWithoutExt = file.name.replace(/\.[^.]+$/, '');
+    setPendingFile(file);
+    setTrackName(nameWithoutExt);
+    setShowModal(true);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  function handleModalCancel() {
+    setShowModal(false);
+    setPendingFile(null);
+    setTrackName('');
+    setUploadError(null);
+  }
+
+  async function handleModalSubmit() {
+    if (!pendingFile) return;
     setUploading(true);
     setUploadError(null);
 
     const body = new FormData();
-    body.set('file', file);
+    body.set('file', pendingFile);
     body.set('briefId', briefId);
+    body.set('trackName', trackName.trim() || pendingFile.name);
 
     const res = await fetch('/api/community-tracks/upload', { method: 'POST', body });
     setUploading(false);
@@ -59,9 +89,11 @@ export default function CommunityTracksSection({
       }
       setUploadError(msg);
     } else {
+      setShowModal(false);
+      setPendingFile(null);
+      setTrackName('');
       router.refresh();
     }
-    if (fileInputRef.current) fileInputRef.current.value = '';
   }
 
   function handleDelete(trackId: string) {
@@ -133,7 +165,7 @@ export default function CommunityTracksSection({
                   {isCurrentlyPlaying ? '■' : '▶'}
                 </button>
 
-                {/* Track name */}
+                {/* Track name + uploader */}
                 <div className="flex-1 min-w-0">
                   <span
                     className="text-xs text-[var(--text-secondary)] truncate block"
@@ -141,14 +173,15 @@ export default function CommunityTracksSection({
                   >
                     {track.file_name}
                   </span>
-                  {isFeatured && (
-                    <span
-                      className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F]"
-                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                    >
-                      featured
-                    </span>
-                  )}
+                  <span
+                    className="text-[10px] text-[var(--text-dimmer)] truncate block"
+                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                  >
+                    {track.uploader_name}
+                    {isFeatured && (
+                      <span className="text-[#E85D2F] ml-2">· featured</span>
+                    )}
+                  </span>
                 </div>
 
                 {/* Admin star + delete */}
@@ -195,12 +228,12 @@ export default function CommunityTracksSection({
           />
           <div className="flex items-center gap-4">
             <button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleUploadClick}
               disabled={uploading}
               className="text-xs tracking-[0.2em] uppercase px-5 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
             >
-              {uploading ? '◆ Uploading…' : '◆ Upload Track'}
+              ◆ Upload Track
             </button>
             <span
               className="text-[10px] text-[var(--text-dimmer)]"
@@ -209,14 +242,98 @@ export default function CommunityTracksSection({
               MP3 or AAC · max 50 MB
             </span>
           </div>
-          {uploadError && (
-            <p
-              className="text-[10px] text-[#FF8B6B] mt-2"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              × {uploadError}
-            </p>
-          )}
+        </div>
+      )}
+
+      {/* Upload modal */}
+      {showModal && pendingFile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div
+            className="w-full max-w-md bg-[var(--bg-base)] border border-[var(--border-card)] p-8"
+            style={{ borderRadius: '2px' }}
+          >
+            <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              ◆ Upload Track
+            </div>
+
+            <div className="space-y-5">
+              {/* Project (read-only) */}
+              <div>
+                <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  Project
+                </label>
+                <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  {briefName}
+                </p>
+              </div>
+
+              {/* Track name (editable) */}
+              <div>
+                <label
+                  htmlFor="track-name-input"
+                  className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
+                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                >
+                  Track Name
+                </label>
+                <input
+                  id="track-name-input"
+                  type="text"
+                  value={trackName}
+                  onChange={(e) => setTrackName(e.target.value)}
+                  className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none transition-colors"
+                  style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+                />
+              </div>
+
+              {/* Uploader name (read-only) */}
+              {currentUserName && (
+                <div>
+                  <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    Uploaded By
+                  </label>
+                  <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    {currentUserName}
+                  </p>
+                </div>
+              )}
+
+              {/* File */}
+              <div>
+                <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  File
+                </label>
+                <p className="text-xs text-[var(--text-muted)] truncate" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  {pendingFile.name}
+                </p>
+              </div>
+            </div>
+
+            {uploadError && (
+              <p className="text-[10px] text-[#FF8B6B] mt-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                × {uploadError}
+              </p>
+            )}
+
+            <div className="flex gap-3 mt-8">
+              <button
+                onClick={handleModalSubmit}
+                disabled={uploading || !trackName.trim()}
+                className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+              >
+                {uploading ? '◆ Uploading…' : '◆ Upload'}
+              </button>
+              <button
+                onClick={handleModalCancel}
+                disabled={uploading}
+                className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

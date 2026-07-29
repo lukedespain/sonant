@@ -316,7 +316,7 @@ export default async function LandingPage() {
               </h2>
             </div>
             <Link
-              href="/submissions"
+              href="/faq"
               className="hidden md:block text-xs tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors shrink-0 mb-1"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >

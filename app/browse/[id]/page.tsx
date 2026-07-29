@@ -47,19 +47,34 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
   // Fetch community tracks for all briefs
   type CommunityTrackRaw = { id: string; user_id: string; file_name: string; file_url: string; created_at: string };
-  type CommunityTrack = { id: string; file_name: string; file_url: string; created_at: string; canDelete: boolean };
+  type CommunityTrack = { id: string; file_name: string; file_url: string; created_at: string; canDelete: boolean; uploader_name: string };
   const { data } = await admin
     .from('community_tracks')
     .select('id, user_id, file_name, file_url, created_at')
     .eq('brief_id', briefRow.id)
     .order('created_at')
     .returns<CommunityTrackRaw[]>();
+
+  // Fetch uploader names from profiles
+  const uploaderIds = [...new Set((data ?? []).map((t) => t.user_id))];
+  const { data: profiles } = uploaderIds.length
+    ? await admin.from('profiles').select('id, full_name').in('id', uploaderIds)
+    : { data: [] };
+  const profileMap = Object.fromEntries((profiles ?? []).map((p: { id: string; full_name: string }) => [p.id, p.full_name]));
+
+  // Fetch current user's display name for the upload modal
+  const { data: currentProfile } = user
+    ? await admin.from('profiles').select('full_name').eq('id', user.id).single()
+    : { data: null };
+  const currentUserName = (currentProfile as { full_name?: string } | null)?.full_name ?? '';
+
   const communityTracks: CommunityTrack[] = (data ?? []).map((t) => ({
     id: t.id,
     file_name: t.file_name,
     file_url: t.file_url,
     created_at: t.created_at,
     canDelete: !!user && (t.user_id === user.id || isAdmin),
+    uploader_name: profileMap[t.user_id] ?? 'Anonymous',
   }));
 
   // Resolve featured track details from the community tracks list
@@ -148,6 +163,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             canUpload={!!user}
             isAdmin={isAdmin}
             featuredTrackId={featuredTrackId}
+            currentUserName={currentUserName}
           />
         )}
 
