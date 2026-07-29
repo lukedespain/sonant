@@ -24,7 +24,7 @@ export default function FeedbackPage() {
 
             <div className="space-y-4 border-t border-[var(--border-base)] pt-8">
               {[
-                { label: 'Session length', value: '1 hour' },
+                { label: 'Session length', value: '45 minutes' },
                 { label: 'Standard rate', value: '$50 / session' },
                 { label: 'Pro member rate', value: '$25 / session' },
               ].map(({ label, value }) => (
@@ -49,7 +49,7 @@ export default function FeedbackPage() {
               style={{ borderRadius: '2px' }}
             >
               <iframe
-                src="https://cal.com/sonant/30-minutes?embed=true&theme=light"
+                src="https://cal.com/sonant/feedback?embed=true&theme=light"
                 style={{ width: '100%', height: '660px', border: 'none' }}
                 title="Book a 1:1 feedback session"
               />
