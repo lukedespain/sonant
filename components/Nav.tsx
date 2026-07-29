@@ -30,6 +30,7 @@ export default function Nav({ user }: NavProps) {
     { href: '/browse', label: 'Briefs' },
     { href: '/generator', label: 'Generator' },
     { href: '/catalog', label: 'Catalog' },
+    { href: '/community', label: 'Community' },
   ]
 
   return (
