@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createAdminClient } from '@/lib/supabase/admin';
+import LeaderboardClient from './LeaderboardClient';
 
 const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
 
@@ -11,51 +12,8 @@ interface ComposerRow {
   uploads: number;
   featured: number;
   generations: number;
-  score: number;
 }
 
-function initials(name: string) {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-const AVATAR_COLORS = [
-  '#E85D2F', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
-  '#955251', '#B565A7', '#009473', '#DD4132', '#45B5AA',
-];
-
-function avatarColor(id: string) {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-}
-
-function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return (
-    <div className="w-8 h-8 flex items-center justify-center text-sm font-bold text-[#E85D2F]" style={{ fontFamily: "'Fraunces', serif" }}>
-      01
-    </div>
-  );
-  if (rank === 2) return (
-    <div className="w-8 h-8 flex items-center justify-center text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'Fraunces', serif" }}>
-      02
-    </div>
-  );
-  if (rank === 3) return (
-    <div className="w-8 h-8 flex items-center justify-center text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'Fraunces', serif" }}>
-      03
-    </div>
-  );
-  return (
-    <div className="w-8 h-8 flex items-center justify-center text-xs text-[var(--text-dimmer)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-      {String(rank).padStart(2, '0')}
-    </div>
-  );
-}
 
 export default async function CommunityPage() {
   const admin = createAdminClient();
@@ -127,7 +85,6 @@ export default async function CommunityPage() {
     (profiles ?? []).map((p: { id: string; full_name: string; avatar_url?: string | null }) => [p.id, { name: p.full_name, avatarUrl: p.avatar_url ?? null }])
   );
 
-  // Score: submissions × 3 + featured × 2 + uploads × 1 + generations × 0 (participation only)
   const composers: ComposerRow[] = allUserIds.map((id) => ({
     id,
     name: profileMap[id]?.name ?? 'Anonymous',
@@ -136,10 +93,7 @@ export default async function CommunityPage() {
     uploads: uploadsCount[id] ?? 0,
     featured: featuredCount[id] ?? 0,
     generations: generationsCount[id] ?? 0,
-    score: (submissionsCount[id] ?? 0) * 3 + (featuredCount[id] ?? 0) * 2 + (uploadsCount[id] ?? 0),
   }));
-
-  composers.sort((a, b) => b.score - a.score || b.submissions - a.submissions || b.featured - a.featured);
 
   return (
     <div className="pt-20 pb-24 flex-1">
@@ -158,71 +112,7 @@ export default async function CommunityPage() {
           </p>
         </div>
 
-        {/* Legend */}
-        <div className="flex gap-6 mb-6 pb-4 border-b border-[var(--border-base)]">
-          {[
-            { label: 'Submissions', desc: 'Sonant brief entries' },
-            { label: 'Featured', desc: 'Community tracks selected as featured' },
-            { label: 'Uploads', desc: 'Community brief tracks' },
-            { label: 'Generations', desc: 'Briefs generated' },
-          ].map(({ label, desc }) => (
-            <div key={label} className="flex items-center gap-2">
-              <span className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }} title={desc}>
-                {label}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Leaderboard rows */}
-        <div className="space-y-0">
-          {composers.map((composer, i) => {
-            const rank = i + 1;
-            const color = avatarColor(composer.id);
-            const isTop3 = rank <= 3;
-            return (
-              <div
-                key={composer.id}
-                className={`flex items-center gap-5 py-5 border-b border-[var(--border-base)] transition-colors ${
-                  isTop3 ? 'hover:bg-[var(--bg-card)]' : 'hover:bg-[var(--bg-card)]'
-                } -mx-4 px-4`}
-                style={{ borderRadius: '2px' }}
-              >
-                {/* Rank */}
-                <RankBadge rank={rank} />
-
-                {/* Avatar */}
-                <div
-                  className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xs font-semibold text-white shrink-0"
-                  style={{ background: composer.avatarUrl ? undefined : color, fontFamily: "'DM Sans', sans-serif" }}
-                >
-                  {composer.avatarUrl
-                    ? <img src={composer.avatarUrl} alt={composer.name} className="w-full h-full object-cover" />
-                    : initials(composer.name)
-                  }
-                </div>
-
-                {/* Name */}
-                <div className="flex-1 min-w-0">
-                  <span
-                    className={`text-base truncate block ${isTop3 ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
-                    style={{ fontFamily: "'Fraunces', serif", fontWeight: isTop3 ? 400 : 300 }}
-                  >
-                    {composer.name}
-                  </span>
-                </div>
-
-                {/* Stats */}
-                <div className="flex items-center gap-8 shrink-0">
-                  <Stat label="Submissions" value={composer.submissions} highlight={composer.submissions > 0} />
-                  <Stat label="Featured" value={composer.featured} highlight={composer.featured > 0} />
-                  <Stat label="Uploads" value={composer.uploads} highlight={composer.uploads > 0} />
-                  <Stat label="Generations" value={composer.generations} highlight={false} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <LeaderboardClient composers={composers} />
 
         {/* CTA */}
         <div className="mt-16 border border-[var(--border-card)] bg-[var(--bg-card)] p-8 flex flex-col md:flex-row md:items-center justify-between gap-6" style={{ borderRadius: '2px' }}>
@@ -257,21 +147,6 @@ export default async function CommunityPage() {
   );
 }
 
-function Stat({ label, value, highlight }: { label: string; value: number; highlight: boolean }) {
-  return (
-    <div className="text-center min-w-[60px]">
-      <div
-        className={`text-xl tabular-nums ${highlight ? 'text-[#E85D2F]' : 'text-[var(--text-dimmer)]'}`}
-        style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-      >
-        {value}
-      </div>
-      <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mt-0.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        {label}
-      </div>
-    </div>
-  );
-}
 
 function EmptyState() {
   return (
