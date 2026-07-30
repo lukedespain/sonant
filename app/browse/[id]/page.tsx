@@ -62,11 +62,13 @@ export default async function BrowseBriefPage({ params }: PageProps) {
     : { data: [] };
   const profileMap = Object.fromEntries((profiles ?? []).map((p: { id: string; full_name: string }) => [p.id, p.full_name]));
 
-  // Fetch current user's display name for the upload modal
+  // Fetch current user's display name and tier for the upload modal and feature gating
   const { data: currentProfile } = user
-    ? await admin.from('profiles').select('full_name').eq('id', user.id).single()
+    ? await admin.from('profiles').select('full_name, tier').eq('id', user.id).single()
     : { data: null };
-  const currentUserName = (currentProfile as { full_name?: string } | null)?.full_name ?? '';
+  const currentUserName = (currentProfile as { full_name?: string; tier?: string } | null)?.full_name ?? '';
+  const isPro = isAdmin || user?.email?.endsWith('@sonant.ac') ||
+    (currentProfile as { tier?: string } | null)?.tier === 'pro';
 
   const communityTracks: CommunityTrack[] = (data ?? []).map((t) => ({
     id: t.id,
@@ -105,7 +107,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           <div className="flex items-center gap-3 flex-wrap">
             {isAdmin && <RegenerateImageButton briefId={briefRow.id} />}
             {isAdmin && <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />}
-            <SunoPromptModal brief={brief} />
+            {isPro && <SunoPromptModal brief={brief} />}
             <ExportPdfButton />
             {isFeatured && user && (
               <SubmitTrackModal
