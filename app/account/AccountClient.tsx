@@ -2,14 +2,26 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
+interface Stats {
+  submissions: number;
+  featured: number;
+  uploads: number;
+  generations: number;
+}
 
 interface Props {
   userId: string;
   initialName: string;
   initialAvatarUrl: string | null;
   email: string;
-  tier: string;
+  isPro: boolean;
   memberSince: string;
+  submissionCredits: number;
+  sessionCredits: number;
+  stats: Stats;
+  signOutAction: () => Promise<void>;
 }
 
 function getInitials(name: string) {
@@ -26,7 +38,36 @@ function avatarColor(id: string) {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-export default function AccountClient({ userId, initialName, initialAvatarUrl, email, tier, memberSince }: Props) {
+function CreditDot({ filled }: { filled: boolean }) {
+  return (
+    <div
+      className={`w-8 h-8 flex items-center justify-center text-base transition-colors ${
+        filled ? 'text-[#E85D2F]' : 'text-[var(--border-subtle)]'
+      }`}
+      style={{ fontFamily: "'Fraunces', serif" }}
+    >
+      ◆
+    </div>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="bg-[var(--bg-card)] border border-[var(--border-card)] p-5" style={{ borderRadius: '2px' }}>
+      <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        {label}
+      </div>
+      <div className="text-4xl text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
+export default function AccountClient({
+  userId, initialName, initialAvatarUrl, email, isPro,
+  memberSince, submissionCredits, sessionCredits, stats, signOutAction,
+}: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,15 +108,12 @@ export default function AccountClient({ userId, initialName, initialAvatarUrl, e
     const file = e.target.files?.[0];
     if (!file) return;
     if (fileInputRef.current) fileInputRef.current.value = '';
-
     setAvatarUploading(true);
     setAvatarError(null);
-
     const body = new FormData();
     body.set('file', file);
     const res = await fetch('/api/profile/avatar', { method: 'POST', body });
     setAvatarUploading(false);
-
     if (res.ok) {
       const { avatar_url } = await res.json();
       setAvatarUrl(avatar_url);
@@ -89,10 +127,10 @@ export default function AccountClient({ userId, initialName, initialAvatarUrl, e
   const color = avatarColor(userId);
 
   return (
-    <div>
+    <div className="space-y-10">
+
       {/* Profile header */}
-      <div className="flex items-start gap-6 mb-12">
-        {/* Avatar */}
+      <div className="flex items-start gap-6">
         <div className="relative shrink-0">
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -101,28 +139,19 @@ export default function AccountClient({ userId, initialName, initialAvatarUrl, e
             style={{ background: avatarUrl ? undefined : color, fontFamily: "'DM Sans', sans-serif" }}
             title="Upload photo"
           >
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-            ) : (
-              getInitials(name)
-            )}
-            {/* Hover overlay */}
+            {avatarUrl
+              ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+              : getInitials(name)
+            }
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <span className="text-[9px] tracking-[0.2em] uppercase text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 {avatarUploading ? '…' : 'Edit'}
               </span>
             </div>
           </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleAvatarChange}
-            className="hidden"
-          />
+          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatarChange} className="hidden" />
         </div>
 
-        {/* Name + email */}
         <div className="flex-1 pt-1">
           {nameEditing ? (
             <div className="flex items-center gap-3 mb-1">
@@ -130,24 +159,22 @@ export default function AccountClient({ userId, initialName, initialAvatarUrl, e
                 type="text"
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleNameSave(); if (e.key === 'Escape') { setNameEditing(false); setNameInput(name); } }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNameSave();
+                  if (e.key === 'Escape') { setNameEditing(false); setNameInput(name); }
+                }}
                 autoFocus
                 className="text-2xl bg-transparent border-b border-[#E85D2F] focus:outline-none text-[var(--text-primary)] w-full max-w-xs"
                 style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
               />
-              <button
-                onClick={handleNameSave}
-                disabled={nameSaving}
+              <button onClick={handleNameSave} disabled={nameSaving}
                 className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity disabled:opacity-40"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 {nameSaving ? 'Saving…' : 'Save'}
               </button>
-              <button
-                onClick={() => { setNameEditing(false); setNameInput(name); }}
+              <button onClick={() => { setNameEditing(false); setNameInput(name); }}
                 className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:opacity-70 transition-opacity"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 Cancel
               </button>
             </div>
@@ -156,47 +183,193 @@ export default function AccountClient({ userId, initialName, initialAvatarUrl, e
               <span className="text-2xl text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
                 {name}
               </span>
-              <button
-                onClick={() => { setNameEditing(true); setNameInput(name); }}
+              <button onClick={() => { setNameEditing(true); setNameInput(name); }}
                 className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 Edit
               </button>
             </div>
           )}
-          {nameError && (
-            <p className="text-[10px] text-[#FF8B6B] mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>× {nameError}</p>
-          )}
-          {avatarError && (
-            <p className="text-[10px] text-[#FF8B6B] mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>× {avatarError}</p>
-          )}
+          {nameError && <p className="text-[10px] text-[#FF8B6B] mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>× {nameError}</p>}
+          {avatarError && <p className="text-[10px] text-[#FF8B6B] mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>× {avatarError}</p>}
           <p className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>{email}</p>
-          <p className="text-[10px] text-[var(--text-dimmer)] mt-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            Click photo to update · JPG, PNG or WEBP · max 5 MB
-          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <span
+              className={`text-[9px] tracking-[0.25em] uppercase px-2 py-1 ${isPro ? 'bg-[#E85D2F] text-[var(--bg-base)]' : 'border border-[var(--border-subtle)] text-[var(--text-muted)]'}`}
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+            >
+              {isPro ? '◆ Pro' : 'Free'}
+            </span>
+            <span className="text-[10px] text-[var(--text-dimmer)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              Member since {memberSince}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Info cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 max-w-3xl">
-        <InfoCard label="Tier" value={tier} />
-        <InfoCard label="Briefs This Month" value="Unlimited" />
-        <InfoCard label="Member Since" value={memberSince} />
-      </div>
-    </div>
-  );
-}
+      {/* Credits */}
+      <div>
+        <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          ◆ Your Credits
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-function InfoCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-card)] p-5" style={{ borderRadius: '2px' }}>
-      <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        {label}
+          {/* Submission credits */}
+          <div className="bg-[var(--bg-card)] border border-[var(--border-card)] p-5" style={{ borderRadius: '2px' }}>
+            <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              Submission Credits
+            </div>
+            <div className="flex gap-1 mb-3">
+              {Array.from({ length: Math.max(submissionCredits, isPro ? 3 : 1) }).map((_, i) => (
+                <CreditDot key={i} filled={i < submissionCredits} />
+              ))}
+            </div>
+            <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              {submissionCredits === 0
+                ? 'No submission credits remaining.'
+                : `${submissionCredits} submission${submissionCredits === 1 ? '' : 's'} available.`}
+            </p>
+            <div className="flex gap-2 mt-4 flex-wrap">
+              <Link
+                href="/browse"
+                className="text-[9px] tracking-[0.2em] uppercase px-3 py-2 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                Browse Briefs
+              </Link>
+              <button
+                disabled
+                className="text-[9px] tracking-[0.2em] uppercase px-3 py-2 border border-[var(--border-subtle)] text-[var(--text-dimmer)] cursor-not-allowed"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                title="Coming soon"
+              >
+                + Buy Credits
+              </button>
+            </div>
+          </div>
+
+          {/* Feedback session credits */}
+          <div className="bg-[var(--bg-card)] border border-[var(--border-card)] p-5" style={{ borderRadius: '2px' }}>
+            <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              Feedback Sessions
+            </div>
+            <div className="flex gap-1 mb-3">
+              {sessionCredits > 0
+                ? Array.from({ length: sessionCredits }).map((_, i) => <CreditDot key={i} filled />)
+                : <CreditDot filled={false} />
+              }
+            </div>
+            <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              {sessionCredits === 0
+                ? 'No sessions available.'
+                : `${sessionCredits} session${sessionCredits === 1 ? '' : 's'} available. 45 min with Luke.`}
+            </p>
+            <div className="flex gap-2 mt-4 flex-wrap">
+              {sessionCredits > 0 ? (
+                <a
+                  href="https://cal.com/lukedespain"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[9px] tracking-[0.2em] uppercase px-3 py-2 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                >
+                  Book Session
+                </a>
+              ) : (
+                <button
+                  disabled
+                  className="text-[9px] tracking-[0.2em] uppercase px-3 py-2 bg-[#E85D2F]/40 text-[var(--bg-base)] cursor-not-allowed"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                >
+                  Book Session
+                </button>
+              )}
+              <button
+                disabled
+                className="text-[9px] tracking-[0.2em] uppercase px-3 py-2 border border-[var(--border-subtle)] text-[var(--text-dimmer)] cursor-not-allowed"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                title="Coming soon"
+              >
+                + Buy Session
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="text-base" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>
-        {value}
+
+      {/* Upgrade CTA — free users only */}
+      {!isPro && (
+        <div className="border border-[#E85D2F]/30 bg-[#E85D2F]/5 p-6" style={{ borderRadius: '2px' }}>
+          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            ◆ Go Pro
+          </div>
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            Unlimited brief generations, 3 submission credits, your first feedback session free, and half-price submissions after that.
+          </p>
+          <p className="text-xs text-[var(--text-muted)] mb-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            $12/month. Cancel anytime.
+          </p>
+          <button
+            disabled
+            className="text-[9px] tracking-[0.2em] uppercase px-5 py-3 bg-[#E85D2F] text-[var(--bg-base)] opacity-50 cursor-not-allowed"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+            title="Coming soon"
+          >
+            ◆ Upgrade to Pro — $12/mo
+          </button>
+          <p className="text-[9px] text-[var(--text-dimmer)] mt-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            Payments launching soon.
+          </p>
+        </div>
+      )}
+
+      {/* Activity stats */}
+      <div>
+        <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          ◆ Your Activity
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <StatCard label="Submissions" value={stats.submissions} />
+          <StatCard label="Featured" value={stats.featured} />
+          <StatCard label="Uploads" value={stats.uploads} />
+          <StatCard label="Generations" value={stats.generations} />
+        </div>
       </div>
+
+      {/* Actions */}
+      <div className="flex gap-3 flex-wrap pt-2">
+        <Link
+          href="/browse"
+          className="px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+          style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+        >
+          ◆ Browse Briefs
+        </Link>
+        <Link
+          href="/generator"
+          className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+          style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+        >
+          Generator
+        </Link>
+        <Link
+          href="/library"
+          className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+          style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+        >
+          My Submissions
+        </Link>
+        <form action={signOutAction}>
+          <button
+            type="submit"
+            className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+          >
+            Sign Out
+          </button>
+        </form>
+      </div>
+
     </div>
   );
 }
