@@ -79,6 +79,21 @@ export default function AccountClient({
   const [nameError, setNameError] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  async function startCheckout(type: 'pro' | 'submission' | 'session') {
+    setCheckoutLoading(type);
+    const res = await fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type }),
+    });
+    setCheckoutLoading(null);
+    if (res.ok) {
+      const { url } = await res.json();
+      window.location.href = url;
+    }
+  }
 
   async function handleNameSave() {
     if (!nameInput.trim() || nameInput.trim() === name) {
@@ -238,12 +253,12 @@ export default function AccountClient({
                 Browse Briefs
               </Link>
               <button
-                disabled
-                className="text-[9px] tracking-[0.2em] uppercase px-3 py-2 border border-[var(--border-subtle)] text-[var(--text-dimmer)] cursor-not-allowed"
+                onClick={() => startCheckout('submission')}
+                disabled={checkoutLoading === 'submission'}
+                className="text-[9px] tracking-[0.2em] uppercase px-3 py-2 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                title="Coming soon"
               >
-                + Buy Credits
+                {checkoutLoading === 'submission' ? '…' : `+ Buy Credit — $${isPro ? '5' : '10'}`}
               </button>
             </div>
           </div>
@@ -285,12 +300,12 @@ export default function AccountClient({
                 </button>
               )}
               <button
-                disabled
-                className="text-[9px] tracking-[0.2em] uppercase px-3 py-2 border border-[var(--border-subtle)] text-[var(--text-dimmer)] cursor-not-allowed"
+                onClick={() => startCheckout('session')}
+                disabled={checkoutLoading === 'session'}
+                className="text-[9px] tracking-[0.2em] uppercase px-3 py-2 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                title="Coming soon"
               >
-                + Buy Session
+                {checkoutLoading === 'session' ? '…' : `+ Buy Session — $${isPro ? '25' : '50'}`}
               </button>
             </div>
           </div>
@@ -310,16 +325,13 @@ export default function AccountClient({
             $12/month. Cancel anytime.
           </p>
           <button
-            disabled
-            className="text-[9px] tracking-[0.2em] uppercase px-5 py-3 bg-[#E85D2F] text-[var(--bg-base)] opacity-50 cursor-not-allowed"
+            onClick={() => startCheckout('pro')}
+            disabled={checkoutLoading === 'pro'}
+            className="text-[9px] tracking-[0.2em] uppercase px-5 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-            title="Coming soon"
           >
-            ◆ Upgrade to Pro — $12/mo
+            {checkoutLoading === 'pro' ? '◆ Redirecting…' : '◆ Upgrade to Pro — $12/mo'}
           </button>
-          <p className="text-[9px] text-[var(--text-dimmer)] mt-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            Payments launching soon.
-          </p>
         </div>
       )}
 
