@@ -48,11 +48,11 @@ function RankBadge({ rank }: { rank: number }) {
   );
 }
 
-const COLUMNS: { key: SortKey; label: string }[] = [
-  { key: 'submissions', label: 'Submissions' },
-  { key: 'featured',   label: 'Featured'    },
-  { key: 'uploads',    label: 'Uploads'      },
-  { key: 'generations', label: 'Generations' },
+const COLUMNS: { key: SortKey; label: string; short: string }[] = [
+  { key: 'submissions', label: 'Submissions', short: 'Sub'  },
+  { key: 'featured',   label: 'Featured',    short: 'Feat' },
+  { key: 'uploads',    label: 'Uploads',     short: 'Upl'  },
+  { key: 'generations', label: 'Generations', short: 'Gen' },
 ];
 
 export default function LeaderboardClient({ composers }: { composers: ComposerRow[] }) {
@@ -65,27 +65,28 @@ export default function LeaderboardClient({ composers }: { composers: ComposerRo
   return (
     <>
       {/* Column headers — aligned with stat columns */}
-      <div className="flex items-center gap-5 mb-3">
+      <div className="flex items-center gap-2 sm:gap-5 mb-3">
         {/* Spacers to match rank badge + avatar + name */}
-        <div className="w-8 shrink-0" />
-        <div className="w-10 shrink-0" />
+        <div className="w-6 sm:w-8 shrink-0" />
+        <div className="w-8 sm:w-10 shrink-0" />
         <div className="flex-1 min-w-0" />
 
         {/* Clickable sort headers */}
-        <div className="flex items-center gap-8 shrink-0">
-          {COLUMNS.map(({ key, label }) => {
+        <div className="flex items-center gap-2 sm:gap-8 shrink-0">
+          {COLUMNS.map(({ key, label, short }) => {
             const active = sortBy === key;
             return (
               <button
                 key={key}
                 onClick={() => setSortBy(key)}
-                className={`min-w-[60px] text-center flex flex-col items-center gap-0.5 group transition-colors ${
+                className={`min-w-[38px] sm:min-w-[60px] text-center flex flex-col items-center gap-0.5 group transition-colors ${
                   active ? 'text-[#E85D2F]' : 'text-[var(--text-dimmer)] hover:text-[var(--text-muted)]'
                 }`}
                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
-                <span className="text-[8px] tracking-[0.25em] uppercase leading-none">
-                  {label}
+                <span className="text-[7px] sm:text-[8px] tracking-[0.15em] sm:tracking-[0.25em] uppercase leading-none">
+                  <span className="sm:hidden">{short}</span>
+                  <span className="hidden sm:inline">{label}</span>
                 </span>
                 <span className="text-[10px] leading-none">
                   {active ? '↓' : <span className="opacity-0 group-hover:opacity-40">↓</span>}
@@ -107,13 +108,15 @@ export default function LeaderboardClient({ composers }: { composers: ComposerRo
           return (
             <div
               key={composer.id}
-              className="flex items-center gap-5 py-5 border-b border-[var(--border-base)] hover:bg-[var(--bg-card)] transition-colors -mx-4 px-4"
+              className="flex items-center gap-2 sm:gap-5 py-4 sm:py-5 border-b border-[var(--border-base)] hover:bg-[var(--bg-card)] transition-colors -mx-4 px-4"
               style={{ borderRadius: '2px' }}
             >
-              <RankBadge rank={rank} />
+              <div className="w-6 sm:w-8 shrink-0 flex items-center justify-center">
+                <RankBadge rank={rank} />
+              </div>
 
               <div
-                className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-xs font-semibold text-white shrink-0"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex items-center justify-center text-[10px] sm:text-xs font-semibold text-white shrink-0"
                 style={{ background: composer.avatarUrl ? undefined : color, fontFamily: "'DM Sans', sans-serif" }}
               >
                 {composer.avatarUrl
@@ -124,21 +127,21 @@ export default function LeaderboardClient({ composers }: { composers: ComposerRo
 
               <div className="flex-1 min-w-0">
                 <span
-                  className={`text-base truncate block ${isTop3 ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
+                  className={`text-sm sm:text-base truncate block ${isTop3 ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
                   style={{ fontFamily: "'Fraunces', serif", fontWeight: isTop3 ? 400 : 300 }}
                 >
                   {composer.name}
                 </span>
               </div>
 
-              <div className="flex items-center gap-8 shrink-0">
+              <div className="flex items-center gap-2 sm:gap-8 shrink-0">
                 {COLUMNS.map(({ key }) => {
                   const active = sortBy === key;
                   const val = composer[key];
                   return (
-                    <div key={key} className="text-center min-w-[60px]">
+                    <div key={key} className="text-center min-w-[38px] sm:min-w-[60px]">
                       <div
-                        className={`text-xl tabular-nums transition-colors ${
+                        className={`text-base sm:text-xl tabular-nums transition-colors ${
                           active && val > 0
                             ? 'text-[#E85D2F]'
                             : active
