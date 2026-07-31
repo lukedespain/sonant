@@ -315,15 +315,33 @@ export default function AccountClient({
       {/* Upgrade CTA — free users only */}
       {!isPro && (
         <div className="border border-[#E85D2F]/30 bg-[#E85D2F]/5 p-6" style={{ borderRadius: '2px' }}>
-          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
             ◆ Go Pro
           </div>
-          <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Unlimited brief generations, 3 submission credits, your first feedback session free, and half-price submissions after that.
-          </p>
-          <p className="text-xs text-[var(--text-muted)] mb-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            $12/month. Cancel anytime.
-          </p>
+
+          {/* Free vs Pro comparison */}
+          <div className="grid grid-cols-2 gap-px bg-[var(--border-base)] border border-[var(--border-base)] mb-5" style={{ borderRadius: '2px' }}>
+            {/* Headers */}
+            <div className="bg-[var(--bg-card)] px-4 py-2.5">
+              <span className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Free</span>
+            </div>
+            <div className="bg-[#E85D2F]/10 px-4 py-2.5">
+              <span className="text-[9px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>◆ Pro — $12/mo</span>
+            </div>
+            {/* Row 1 */}
+            <div className="bg-[var(--bg-card)] px-4 py-3 text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>1 submission credit/mo</div>
+            <div className="bg-[#E85D2F]/5 px-4 py-3 text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>3 submission credits/mo</div>
+            {/* Row 2 */}
+            <div className="bg-[var(--bg-card)] px-4 py-3 text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>—</div>
+            <div className="bg-[#E85D2F]/5 px-4 py-3 text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>1 welcome feedback session</div>
+            {/* Row 3 */}
+            <div className="bg-[var(--bg-card)] px-4 py-3 text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$10/extra credit</div>
+            <div className="bg-[#E85D2F]/5 px-4 py-3 text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$5/extra credit</div>
+            {/* Row 4 */}
+            <div className="bg-[var(--bg-card)] px-4 py-3 text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$50/session</div>
+            <div className="bg-[#E85D2F]/5 px-4 py-3 text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$25/session</div>
+          </div>
+
           <button
             onClick={() => startCheckout('pro')}
             disabled={checkoutLoading === 'pro'}
