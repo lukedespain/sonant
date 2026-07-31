@@ -12,7 +12,7 @@ export interface Brief {
   codename: string;
   briefId: string;
   issued: string;
-  deadline: string;
+  deadline?: string;
   client: string;
   classification: string;
   project: string;
@@ -73,7 +73,7 @@ function SonicItem({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function BriefDocument({ brief }: { brief: Brief }) {
+export default function BriefDocument({ brief, isFeatured = false }: { brief: Brief; isFeatured?: boolean }) {
   return (
     <div
       className="relative shadow-2xl brief-document w-full overflow-hidden"
@@ -105,23 +105,12 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
       <div className="p-8 md:p-12">
         {/* Header */}
         <div className="mb-8 pb-6" style={{ borderBottom: '1px solid var(--brief-divider)' }}>
-          <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="mb-3">
             <div
               className="text-[10px] tracking-[0.3em] uppercase"
               style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
             >
               Music Brief
-            </div>
-            <div className="text-right shrink-0">
-              <div
-                className="text-[10px] tracking-[0.2em] uppercase mb-1"
-                style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
-              >
-                Deadline
-              </div>
-              <div className="text-sm font-medium" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}>
-                {brief.deadline}
-              </div>
             </div>
           </div>
           <h1
@@ -230,11 +219,13 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
             className="text-[10px] tracking-[0.2em] uppercase"
             style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
           >
-            {brief.briefId} · Sonant Practice Brief
+            {brief.briefId} · {isFeatured ? 'Sonant Brief' : 'Community Brief'}
           </div>
-          <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
-            Write it. Submit it. Get placed.
-          </div>
+          {isFeatured && (
+            <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
+              Write it. Submit it. Get placed.
+            </div>
+          )}
         </div>
       </div>
     </div>

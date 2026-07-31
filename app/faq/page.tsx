@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: 'What is the Brief Generator?',
-    a: 'The generator builds a full creative brief based on the type of project (brand, film, or game), the category, mood, and genre you select. It produces the same kind of direction a music supervisor would send: scene context, emotional arc, instrumentation notes, reference points, and a deadline. Use it to practice writing to spec, then upload your track directly to the brief.',
+    a: 'The generator builds a full creative brief based on the type of project (brand, film, or game), the category, mood, and genre you select. It produces the same kind of direction a music supervisor would send: scene context, emotional arc, instrumentation notes, and reference points. Use it to practice writing to spec, then upload your track directly to the brief.',
   },
   {
     q: 'Can I share my community brief with other composers?',

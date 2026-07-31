@@ -141,7 +141,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           />
         )}
 
-        <BriefDocument brief={brief} />
+        <BriefDocument brief={brief} isFeatured={isFeatured} />
 
         {isFeatured ? (
           /* Competitive briefs — submissions are private, handled by Sonant team */

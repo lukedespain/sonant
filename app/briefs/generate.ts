@@ -31,7 +31,6 @@ export interface Brief {
   codename: string;
   briefId: string;
   issued: string;
-  deadline: string;
   client: string;
   classification: string;
   project: string;
@@ -79,12 +78,6 @@ function makeBriefId(): string {
 
 function todayFormatted(): string {
   return new Date().toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric',
-  });
-}
-
-function deadlineFormatted(): string {
-  return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   });
 }
@@ -177,7 +170,6 @@ function buildUserPrompt(input: GenerateBriefInput): string {
 
   const briefId = makeBriefId();
   const issued = todayFormatted();
-  const deadline = deadlineFormatted();
   const classification = `${input.category} / ${input.mode === 'brand' ? 'Brand' : input.mode === 'film' ? 'Film' : 'Games'}`;
   const length = lengthForMode(input.mode);
   const vocals = input.withVocals ? 'Vocal' : 'Instrumental';
@@ -248,7 +240,6 @@ ${codenameInstruction}
 - mode: "${input.mode}"
 - briefId: "${briefId}"
 - issued: "${issued}"
-- deadline: "${deadline}"
 - classification: "${classification}"
 - genrePalette: "${input.genres.join(', ')}"
 - emotionalArc: "${input.moods.join(', ')}"
@@ -262,7 +253,6 @@ Return ONLY a valid JSON object. No preamble, no markdown fences, no explanation
   "codename": "<1-2 word codename>",
   "briefId": "${briefId}",
   "issued": "${issued}",
-  "deadline": "${deadline}",
   "client": "${clientDesc}",
   "classification": "${classification}",
   "project": "${projectDesc}",
@@ -348,7 +338,7 @@ function validateBrief(obj: unknown): string[] {
   const b = obj as Record<string, unknown>;
 
   const requiredStrings = [
-    'mode', 'codename', 'briefId', 'issued', 'deadline', 'client',
+    'mode', 'codename', 'briefId', 'issued', 'client',
     'classification', 'project', 'story', 'ask', 'genrePalette',
     'emotionalArc', 'tempo', 'key', 'length', 'vocals',
   ];

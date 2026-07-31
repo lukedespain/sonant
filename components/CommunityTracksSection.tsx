@@ -132,12 +132,35 @@ export default function CommunityTracksSection({
       </div>
 
       {tracks.length === 0 ? (
-        <p
-          className="text-sm text-[var(--text-muted)] mb-6"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
-          {canUpload ? 'Be the first to upload a track for this brief.' : 'No tracks uploaded yet.'}
-        </p>
+        <div className="mb-6">
+          {canUpload ? (
+            <p className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Be the first to upload a track for this brief.
+            </p>
+          ) : (
+            <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-6" style={{ borderRadius: '2px' }}>
+              <p className="text-sm text-[var(--text-secondary)] mb-4" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                No tracks uploaded yet. Create a free account to upload your take on this brief.
+              </p>
+              <div className="flex items-center gap-4 flex-wrap">
+                <a
+                  href={`/signup?redirect=/browse/${briefId}`}
+                  className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                >
+                  ◆ Create Free Account
+                </a>
+                <a
+                  href={`/login?redirect=/browse/${briefId}`}
+                  className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                >
+                  Sign in →
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="space-y-2 mb-6">
           {tracks.map((track) => {

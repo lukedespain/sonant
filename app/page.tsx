@@ -137,7 +137,7 @@ export default async function LandingPage() {
                 {
                   n: '02',
                   title: 'Get a full brief',
-                  body: 'Scene context, mood, tempo, instrumentation, reference points, and a deadline. The same format a music supervisor sends.',
+                  body: 'Scene context, mood, tempo, instrumentation, and reference points. The same format a music supervisor sends.',
                 },
                 {
                   n: '03',
