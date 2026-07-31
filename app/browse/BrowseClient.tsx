@@ -72,7 +72,6 @@ function BriefCard({ brief, detailBase, featured }: { brief: BriefRow; detailBas
   const project = brief.generated_content?.project;
   const imageUrl = brief.generated_content?.imageUrl;
   const modeLabel = MODE_LABELS[brief.mode] ?? brief.mode;
-  const date = featured ? 'Aug 1 – Aug 31' : new Date(brief.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   return (
     <Link
@@ -122,27 +121,12 @@ function BriefCard({ brief, detailBase, featured }: { brief: BriefRow; detailBas
               /
             </span>
             <span
-              className="inline-flex items-center gap-1 text-[10px] tracking-[0.2em] uppercase not-italic align-middle"
+              className="text-[10px] tracking-[0.2em] uppercase not-italic align-middle"
               style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-muted)', fontWeight: 400 }}
             >
-              {brief.mode === 'brand' && (
-                <svg width="9" height="9" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="13" cy="13" r="9.5" /></svg>
-              )}
-              {brief.mode === 'film' && (
-                <svg width="9" height="9" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="8,5 21,13 8,21" /></svg>
-              )}
-              {brief.mode === 'games' && (
-                <svg width="9" height="9" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="4" y="4" width="18" height="18" /></svg>
-              )}
               {modeLabel} Project
             </span>
           </h3>
-          <span
-            className="text-[10px] tracking-wider text-[var(--text-dimmer)] shrink-0 mt-1"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            {date}
-          </span>
         </div>
 
         {/* Project name */}

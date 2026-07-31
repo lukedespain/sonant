@@ -144,26 +144,6 @@ export default async function LandingPage() {
                           className="absolute inset-0"
                           style={{ background: 'linear-gradient(to bottom, transparent 35%, var(--bg-card) 100%)' }}
                         />
-                        <div
-                          className="absolute top-4 left-4 flex items-center gap-1.5 text-[9px] tracking-[0.25em] uppercase px-2.5 py-1.5"
-                          style={{
-                            fontFamily: "'JetBrains Mono', monospace",
-                            background: '#FFFFFF',
-                            color: '#1A1410',
-                            borderRadius: '2px',
-                          }}
-                        >
-                          {brief.mode === 'brand' && (
-                            <svg width="10" height="10" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="13" cy="13" r="9.5" /></svg>
-                          )}
-                          {brief.mode === 'film' && (
-                            <svg width="10" height="10" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="8,5 21,13 8,21" /></svg>
-                          )}
-                          {brief.mode === 'games' && (
-                            <svg width="10" height="10" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="4" y="4" width="18" height="18" /></svg>
-                          )}
-                          {modeLabel}
-                        </div>
                       </div>
                     )}
                     <div className="px-6 pb-6 pt-4">
@@ -177,7 +157,7 @@ export default async function LandingPage() {
                         className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] group-hover:text-[#E85D2F]/60 transition-colors"
                         style={{ fontFamily: "'JetBrains Mono', monospace" }}
                       >
-                        Read the brief →
+                        {modeLabel} Brief →
                       </span>
                     </div>
                   </Link>
