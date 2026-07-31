@@ -52,7 +52,7 @@ export default async function LandingPage() {
           className="text-[10px] tracking-[0.5em] uppercase text-[#E85D2F] mb-8"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
-          ◆ Built for composers, by composers.
+          ◆ Built for music composers.
         </div>
         <h1
           className="tracking-tight leading-[0.92] mb-8"
@@ -71,7 +71,7 @@ export default async function LandingPage() {
           className="text-base md:text-lg text-[var(--text-tertiary)] mb-10 max-w-lg leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          A brief is the creative direction a composer receives from a client or music supervisor. Sonant helps composers practice writing to professional specs, get feedback, and build a sync catalog worth pitching.
+          A <em>brief</em> is the creative direction a composer receives from a client or music supervisor. Sonant helps composers practice writing to briefs, receive written and live feedback, and build a sync catalog worth pitching.
         </p>
         <div className="flex items-center gap-6 flex-wrap">
           <Link

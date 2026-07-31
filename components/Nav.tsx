@@ -78,17 +78,10 @@ export default function Nav({ user }: NavProps) {
           </div>
         )}
 
-        {/* Desktop right: theme + 1:1 Feedback + account */}
+        {/* Desktop right: theme + account */}
         {!isAuthPage && (
           <div className="hidden md:flex items-center gap-3">
             <ThemeToggle />
-            <Link
-              href="/feedback"
-              className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-            >
-              1:1 Feedback
-            </Link>
             {user ? (
               <Link
                 href="/account"
@@ -99,7 +92,7 @@ export default function Nav({ user }: NavProps) {
                 }`}
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
               >
-                Account
+                Dashboard
               </Link>
             ) : (
               <Link
@@ -158,14 +151,6 @@ export default function Nav({ user }: NavProps) {
           </div>
 
           <div className="flex flex-col gap-3 pt-5">
-            <Link
-              href="/feedback"
-              onClick={closeMenu}
-              className="text-xs tracking-[0.2em] uppercase px-4 py-3 border border-[var(--border-subtle)] text-[var(--text-muted)] text-center"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-            >
-              1:1 Feedback
-            </Link>
             {user ? (
               <Link
                 href="/account"
@@ -177,7 +162,7 @@ export default function Nav({ user }: NavProps) {
                 }`}
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
               >
-                Account
+                Dashboard
               </Link>
             ) : (
               <Link
