@@ -320,26 +320,71 @@ export default function AccountClient({
           </div>
 
           {/* Free vs Pro comparison */}
-          <div className="grid grid-cols-2 gap-px bg-[var(--border-base)] border border-[var(--border-base)] mb-5" style={{ borderRadius: '2px' }}>
-            {/* Headers */}
-            <div className="bg-[var(--bg-card)] px-4 py-2.5">
-              <span className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Free</span>
+          <div className="border border-[var(--border-base)] mb-5 overflow-hidden" style={{ borderRadius: '2px' }}>
+            {/* Header row */}
+            <div className="grid grid-cols-[1fr_1fr_1fr]">
+              <div className="px-4 py-3 bg-[var(--bg-card)]" />
+              <div className="px-4 py-3 bg-[var(--bg-card)] border-l border-[var(--border-base)]">
+                <span className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Free</span>
+              </div>
+              <div className="px-4 py-3 bg-[#E85D2F]/10 border-l border-[var(--border-base)]">
+                <span className="text-[9px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>◆ Pro</span>
+              </div>
             </div>
-            <div className="bg-[#E85D2F]/10 px-4 py-2.5">
-              <span className="text-[9px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>◆ Pro — $12/mo</span>
+            {/* Submissions */}
+            <div className="grid grid-cols-[1fr_1fr_1fr] border-t border-[var(--border-base)]">
+              <div className="px-4 py-4 bg-[var(--bg-card)]">
+                <span className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Submissions</span>
+              </div>
+              <div className="px-4 py-4 bg-[var(--bg-card)] border-l border-[var(--border-base)]">
+                <div className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>1 credit/mo</div>
+                <div className="text-xs text-[var(--text-dimmer)] mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>carries over</div>
+              </div>
+              <div className="px-4 py-4 bg-[#E85D2F]/5 border-l border-[var(--border-base)]">
+                <div className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>3 credits/mo</div>
+                <div className="text-xs text-[var(--text-muted)] mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>carries over</div>
+              </div>
             </div>
-            {/* Row 1 */}
-            <div className="bg-[var(--bg-card)] px-4 py-3 text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>1 submission credit/mo</div>
-            <div className="bg-[#E85D2F]/5 px-4 py-3 text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>3 submission credits/mo</div>
-            {/* Row 2 */}
-            <div className="bg-[var(--bg-card)] px-4 py-3 text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>—</div>
-            <div className="bg-[#E85D2F]/5 px-4 py-3 text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>1 welcome feedback session</div>
-            {/* Row 3 */}
-            <div className="bg-[var(--bg-card)] px-4 py-3 text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$10/extra credit</div>
-            <div className="bg-[#E85D2F]/5 px-4 py-3 text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$5/extra credit</div>
-            {/* Row 4 */}
-            <div className="bg-[var(--bg-card)] px-4 py-3 text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$50/session</div>
-            <div className="bg-[#E85D2F]/5 px-4 py-3 text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$25/session</div>
+            {/* Feedback calls */}
+            <div className="grid grid-cols-[1fr_1fr_1fr] border-t border-[var(--border-base)]">
+              <div className="px-4 py-4 bg-[var(--bg-card)]">
+                <span className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Feedback calls</span>
+              </div>
+              <div className="px-4 py-4 bg-[var(--bg-card)] border-l border-[var(--border-base)]">
+                <div className="text-sm text-[var(--text-dimmer)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>—</div>
+              </div>
+              <div className="px-4 py-4 bg-[#E85D2F]/5 border-l border-[var(--border-base)]">
+                <div className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>✓ 45-min welcome call</div>
+              </div>
+            </div>
+            {/* Extra credit */}
+            <div className="grid grid-cols-[1fr_1fr_1fr] border-t border-[var(--border-base)]">
+              <div className="px-4 py-4 bg-[var(--bg-card)]">
+                <span className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Extra credit</span>
+              </div>
+              <div className="px-4 py-4 bg-[var(--bg-card)] border-l border-[var(--border-base)]">
+                <div className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$10</div>
+              </div>
+              <div className="px-4 py-4 bg-[#E85D2F]/5 border-l border-[var(--border-base)]">
+                <div className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  $5 <span className="text-xs text-[var(--text-muted)]">· 50% off</span>
+                </div>
+              </div>
+            </div>
+            {/* Extra session */}
+            <div className="grid grid-cols-[1fr_1fr_1fr] border-t border-[var(--border-base)]">
+              <div className="px-4 py-4 bg-[var(--bg-card)]">
+                <span className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Extra session</span>
+              </div>
+              <div className="px-4 py-4 bg-[var(--bg-card)] border-l border-[var(--border-base)]">
+                <div className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>$50</div>
+              </div>
+              <div className="px-4 py-4 bg-[#E85D2F]/5 border-l border-[var(--border-base)]">
+                <div className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  $25 <span className="text-xs text-[var(--text-muted)]">· 50% off</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button
