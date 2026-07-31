@@ -51,7 +51,7 @@ export default async function LandingPage() {
           className="text-[10px] tracking-[0.5em] uppercase text-[#E85D2F] mb-8"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
-          ◆ Open for submissions
+          ◆ Brand · Film · Game
         </div>
         <h1
           className="tracking-tight leading-[0.95] mb-8"
@@ -61,7 +61,7 @@ export default async function LandingPage() {
             fontSize: 'clamp(3.5rem, 9vw, 7.5rem)',
           }}
         >
-          Write to<br />the brief.<br />
+          Write to the brief.<br />
           <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>
             Build your catalog.
           </span>
@@ -70,7 +70,7 @@ export default async function LandingPage() {
           className="text-base md:text-lg text-[var(--text-tertiary)] mb-10 max-w-md leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Sonant gives composers professional-style briefs for brand, film, and game projects — the same format a music supervisor sends. Write to get better. Submit to get placed.
+          Sonant gives composers professional-style briefs for brand, film, and game. Practice writing to spec, submit your tracks for catalog review, and get written feedback on every submission. Book a 1:1 session for live notes on how your track hits the brief.
         </p>
         <div className="flex items-center gap-6 flex-wrap">
           <Link
