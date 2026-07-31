@@ -4,11 +4,21 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+const SUBMISSION_TURNAROUND_DAYS = 2;
+
 interface Stats {
   submissions: number;
   featured: number;
   uploads: number;
   generations: number;
+}
+
+interface SubmissionRecord {
+  id: string;
+  briefId: string;
+  codename: string;
+  status: string;
+  createdAt: string;
 }
 
 interface Props {
@@ -21,8 +31,17 @@ interface Props {
   submissionCredits: number;
   sessionCredits: number;
   stats: Stats;
+  submissions: SubmissionRecord[];
   signOutAction: () => Promise<void>;
 }
+
+const STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  received:       { label: 'Received',       color: 'text-[var(--text-muted)]' },
+  in_review:      { label: 'In review',      color: 'text-[#E8B82F]' },
+  feedback_ready: { label: 'Feedback ready', color: 'text-[#88B04B]' },
+  accepted:       { label: 'Accepted',       color: 'text-[#88B04B]' },
+  not_accepted:   { label: 'Not accepted',   color: 'text-[var(--text-muted)]' },
+};
 
 function getInitials(name: string) {
   return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
@@ -66,7 +85,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
 
 export default function AccountClient({
   userId, initialName, initialAvatarUrl, email, isPro,
-  memberSince, submissionCredits, sessionCredits, stats, signOutAction,
+  memberSince, submissionCredits, sessionCredits, stats, submissions, signOutAction,
 }: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -403,6 +422,47 @@ export default function AccountClient({
           <StatCard label="Generations" value={stats.generations} />
         </div>
       </div>
+
+      {/* Submission status */}
+      {submissions.length > 0 && (
+        <div>
+          <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            ◆ Sonant Brief Submissions
+          </div>
+          <div className="space-y-2">
+            {submissions.map((s) => {
+              const { label, color } = STATUS_LABELS[s.status] ?? { label: s.status, color: 'text-[var(--text-muted)]' };
+              const isActive = s.status === 'received' || s.status === 'in_review';
+              return (
+                <div
+                  key={s.id}
+                  className="bg-[var(--bg-card)] border border-[var(--border-card)] px-5 py-4 flex items-center justify-between gap-4"
+                  style={{ borderRadius: '2px' }}
+                >
+                  <div>
+                    <div className="text-sm text-[var(--text-primary)] mb-1" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+                      {s.codename}
+                    </div>
+                    <div className="text-[10px] text-[var(--text-dimmer)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      {new Date(s.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className={`text-[10px] tracking-[0.2em] uppercase font-medium ${color}`} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      {label}
+                    </div>
+                    {isActive && (
+                      <div className="text-[10px] text-[var(--text-dimmer)] mt-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                        ~{SUBMISSION_TURNAROUND_DAYS} business days
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex gap-3 flex-wrap pt-2">

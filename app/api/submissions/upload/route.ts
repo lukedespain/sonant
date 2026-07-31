@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     .insert({
       user_id: user.id,
       brief_id: briefId,
-      status: 'pending',
+      status: 'received',
       file_name: displayName,
       storage_path: storagePath,
     });

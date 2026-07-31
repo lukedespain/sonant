@@ -3,6 +3,7 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = 'Sonant <hello@sonant.ac>';
+const LUKE = 'music@lukedespain.com';
 
 // Sent when a composer submits a track for review.
 export async function sendSubmissionReceivedEmail(params: {
@@ -79,6 +80,33 @@ export async function sendDecisionEmail(params: {
     return { success: true };
   } catch (error) {
     console.error('sendDecisionEmail failed:', error);
+    return { error: 'Email failed to send.' };
+  }
+}
+
+export async function sendCatalogAccessRequestEmail(params: {
+  email: string;
+  role: string;
+  lookingFor: string;
+}) {
+  const { email, role, lookingFor } = params;
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: LUKE,
+      subject: `Catalog access request from ${email}`,
+      html: `
+        <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
+          <h2 style="font-weight: 500;">New catalog access request</h2>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Role:</strong> ${role}</p>
+          <p><strong>Looking for:</strong> ${lookingFor || '(not provided)'}</p>
+        </div>
+      `,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('sendCatalogAccessRequestEmail failed:', error);
     return { error: 'Email failed to send.' };
   }
 }

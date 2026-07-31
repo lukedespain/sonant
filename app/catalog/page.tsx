@@ -1,6 +1,5 @@
 import Link from 'next/link';
-
-const DISCO_CATALOG_URL = 'https://sonant.disco.ac/cat/152887908';
+import CatalogRequestForm from '@/components/CatalogRequestForm';
 
 export default function CatalogPage() {
   return (
@@ -18,29 +17,37 @@ export default function CatalogPage() {
           </h1>
 
           <p className="text-base text-[var(--text-tertiary)] mb-3 max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Tracks accepted from active Sonant briefs join the Sonant catalog on Disco, a platform built for music supervisors and sync licensing. Your music, in front of real buyers.
+            Tracks accepted from active Sonant briefs join the Sonant catalog, actively pitched to music supervisors, agencies, studios, and sync buyers.
           </p>
           <p className="text-sm text-[var(--text-muted)] mb-10 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Every submission is individually reviewed. The bar is the point.
           </p>
 
-          <div className="flex items-center gap-4 flex-wrap">
-            <a
-              href={DISCO_CATALOG_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-            >
-              ↗ Browse the Catalog
-            </a>
-            <Link
-              href="/browse"
-              className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-            >
-              ◆ View Active Briefs
-            </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+            <div>
+              <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                For music buyers
+              </div>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                The catalog is curated and access is by request. We&apos;ll be in touch within 1–2 business days.
+              </p>
+              <CatalogRequestForm />
+            </div>
+            <div>
+              <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                For composers
+              </div>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                Submit your track to an active Sonant brief. Every submission gets written feedback. Accepted tracks are added here.
+              </p>
+              <Link
+                href="/browse"
+                className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                ◆ View Active Briefs
+              </Link>
+            </div>
           </div>
         </div>
 

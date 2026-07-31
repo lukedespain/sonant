@@ -29,6 +29,7 @@ export default function AccountPreviewPage() {
             submissionCredits={0}
             sessionCredits={0}
             stats={sharedStats}
+            submissions={[]}
             signOutAction={noopSignOut}
           />
         </section>
@@ -48,6 +49,7 @@ export default function AccountPreviewPage() {
             submissionCredits={1}
             sessionCredits={0}
             stats={sharedStats}
+            submissions={[]}
             signOutAction={noopSignOut}
           />
         </section>
@@ -67,6 +69,7 @@ export default function AccountPreviewPage() {
             submissionCredits={3}
             sessionCredits={1}
             stats={sharedStats}
+            submissions={[]}
             signOutAction={noopSignOut}
           />
         </section>

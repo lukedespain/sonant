@@ -20,20 +20,46 @@ export default async function AccountPage() {
     .eq('id', user.id)
     .single();
 
-  // Activity stats
+  // Activity stats + recent submissions
   const [
     { count: submissionsCount },
     { count: uploadsCount },
     { data: generatedBriefs },
     { data: featuredBriefs },
     { data: userTracks },
+    { data: recentSubmissions },
   ] = await Promise.all([
     admin.from('submissions').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
     admin.from('community_tracks').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
     admin.from('briefs').select('id').eq('user_id', user.id).neq('user_id', ADMIN_USER_ID),
     admin.from('briefs').select('featured_track_id').not('featured_track_id', 'is', null),
     admin.from('community_tracks').select('id').eq('user_id', user.id),
+    admin.from('submissions')
+      .select('id, status, created_at, brief_id')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(10),
   ]);
+
+  // Fetch brief codenames for submissions
+  const briefIds = [...new Set((recentSubmissions ?? []).map((s) => s.brief_id as string))];
+  const { data: submissionBriefs } = briefIds.length
+    ? await admin.from('briefs').select('id, generated_content').in('id', briefIds)
+    : { data: [] };
+  const briefCodenames = Object.fromEntries(
+    (submissionBriefs ?? []).map((b) => [
+      b.id,
+      (b.generated_content as { codename?: string })?.codename ?? 'Untitled',
+    ])
+  );
+
+  const submissionsForDashboard = (recentSubmissions ?? []).map((s) => ({
+    id: s.id as string,
+    briefId: s.brief_id as string,
+    codename: briefCodenames[s.brief_id as string] ?? 'Untitled',
+    status: s.status as string,
+    createdAt: s.created_at as string,
+  }));
 
   const featuredTrackIds = new Set((featuredBriefs ?? []).map((b) => b.featured_track_id as string));
   const userTrackIds = new Set((userTracks ?? []).map((t) => t.id));
@@ -70,6 +96,7 @@ export default async function AccountPage() {
             uploads: uploadsCount ?? 0,
             generations: generatedBriefs?.length ?? 0,
           }}
+          submissions={submissionsForDashboard}
           signOutAction={signOut}
         />
       </div>

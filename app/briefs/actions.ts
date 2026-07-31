@@ -134,7 +134,7 @@ export async function submitTrack(briefId: string) {
     .insert({
       user_id: user.id,
       brief_id: briefId,
-      status: 'pending',
+      status: 'received',
     });
 
   if (error) {
