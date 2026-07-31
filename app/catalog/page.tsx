@@ -26,15 +26,6 @@ export default function CatalogPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
             <div>
               <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                For music buyers
-              </div>
-              <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                The catalog is curated and access is by request. We&apos;ll be in touch within 1–2 business days.
-              </p>
-              <CatalogRequestForm />
-            </div>
-            <div>
-              <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 For composers
               </div>
               <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -47,6 +38,24 @@ export default function CatalogPage() {
               >
                 ◆ View Active Briefs
               </Link>
+              <div className="mt-4">
+                <Link
+                  href="/account"
+                  className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
+                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                >
+                  Submitted music to Sonant? Check your dashboard →
+                </Link>
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                For music buyers
+              </div>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                The catalog is curated and access is by request. We&apos;ll be in touch within 1–2 business days.
+              </p>
+              <CatalogRequestForm />
             </div>
           </div>
         </div>
