@@ -110,7 +110,7 @@ export default function BriefDocument({ brief }: { brief: Brief }) {
               className="text-[10px] tracking-[0.3em] uppercase"
               style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
             >
-              Music Brief / {brief.classification}
+              Music Brief
             </div>
             <div className="text-right shrink-0">
               <div
