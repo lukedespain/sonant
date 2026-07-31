@@ -39,7 +39,7 @@ export default function CatalogPage() {
               className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
             >
-              ◆ View This Month&apos;s Briefs
+              ◆ View Active Briefs
             </Link>
           </div>
         </div>

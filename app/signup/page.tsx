@@ -44,7 +44,7 @@ function SignUpForm() {
         </h1>
 
         <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Free during beta. Write to active Sonant briefs and earn a spot in the catalog.
+          Write to professional-style briefs, get written feedback, and earn a spot in the Sonant catalog. One free submission per month.
         </p>
 
         {success ? (
