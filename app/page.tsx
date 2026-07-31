@@ -43,24 +43,6 @@ export default async function LandingPage() {
   const featured = briefs?.[0] ?? null;
   const gc = featured?.generated_content ?? null;
 
-  const steps = [
-    {
-      n: '01',
-      title: 'Choose a brief',
-      body: 'Generate one with the Brief Generator, or write to an active Sonant brief. Brand, film, or game.',
-    },
-    {
-      n: '02',
-      title: 'Write your track',
-      body: 'Take the brief into your DAW. Study the references, match the spec, bring your voice.',
-    },
-    {
-      n: '03',
-      title: 'Submit or upload',
-      body: 'Submit privately to a Sonant brief for review and feedback — or upload publicly to a community brief.',
-    },
-  ];
-
   return (
     <div className="flex-1">
 
@@ -82,20 +64,14 @@ export default async function LandingPage() {
         >
           Write to a brief.<br />
           <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>
-            Build your catalog.
+            Build a catalog worth pitching.
           </span>
         </h1>
         <p
-          className="text-base md:text-lg text-[var(--text-tertiary)] mb-3 max-w-md leading-relaxed"
+          className="text-base md:text-lg text-[var(--text-tertiary)] mb-10 max-w-lg leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Sonant is a brief tool and submission platform for composers building a sync catalog.
-        </p>
-        <p
-          className="text-sm text-[var(--text-muted)] mb-10 max-w-md leading-relaxed"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
-          A brief is the creative direction a client or supervisor gives you — what the music needs to do, not just how it should sound.
+          A brief is the creative direction a composer receives from a client or music supervisor. Sonant helps composers practice writing to professional specs, get feedback, and build a sync catalog worth pitching.
         </p>
         <div className="flex items-center gap-6 flex-wrap">
           <Link
@@ -199,126 +175,52 @@ export default async function LandingPage() {
         </section>
       )}
 
-      {/* ── How it Works ── */}
+      {/* ── Compact workflow ── */}
       <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16">
-          <div
-            className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-10"
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-10">
+          <p
+            className="text-sm text-[var(--text-muted)] leading-relaxed"
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Choose a brief → Write your track → Upload publicly or submit privately
+          </p>
+        </div>
+      </section>
+
+      {/* ── 1:1 nudge ── */}
+      <section className="border-t border-[var(--border-base)]">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-10 flex items-baseline gap-4 flex-wrap">
+          <p
+            className="text-sm text-[var(--text-muted)] leading-relaxed"
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Need another set of ears before you submit? Book a 1:1 feedback session.
+          </p>
+          <Link
+            href="/feedback"
+            className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors shrink-0"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            ◆ How it works
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 border-t border-[var(--border-base)]">
-            {steps.map(({ n, title, body }, i) => (
-              <div
-                key={n}
-                className={[
-                  'pt-8 pb-8 flex gap-5',
-                  i === 0 && 'border-b border-[var(--border-base)] md:border-b-0 md:border-r md:pr-10',
-                  i === 1 && 'border-b border-[var(--border-base)] md:border-b-0 md:border-r md:px-10',
-                  i === 2 && 'md:pl-10',
-                ].filter(Boolean).join(' ')}
-              >
-                <span
-                  className="text-[10px] text-[var(--text-dimmer)] shrink-0 mt-0.5"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  {n}
-                </span>
-                <div>
-                  <h3
-                    className="text-base mb-2 text-[var(--text-primary)]"
-                    style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
-                  >
-                    {title}
-                  </h3>
-                  <p
-                    className="text-sm text-[var(--text-muted)] leading-relaxed"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}
-                  >
-                    {body}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+            Book a session →
+          </Link>
         </div>
       </section>
 
-      {/* ── Support Strip ── */}
-      <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-14">
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className="pb-10 md:pb-0 md:pr-14 border-b border-[var(--border-base)] md:border-b-0 md:border-r md:border-[var(--border-base)]">
-              <div
-                className="text-[9px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-3"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                ◆ 1:1 Feedback
-              </div>
-              <p
-                className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4 max-w-sm"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                45-minute sessions. Listen to your track together, compare it against the brief, get specific notes in real time. $50 standard · $25 for Pro members.
-              </p>
-              <Link
-                href="/feedback"
-                className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                Book a session →
-              </Link>
-            </div>
-            <div className="pt-10 md:pt-0 md:pl-14">
-              <div
-                className="text-[9px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-3"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                ◆ Pro Membership
-              </div>
-              <p
-                className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4 max-w-sm"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                $12/month. Three submission credits per month, 50% off sessions, and a welcome feedback call. Cancel anytime.
-              </p>
-              <Link
-                href="/account"
-                className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                See Pro benefits →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Final CTA ── */}
+      {/* ── Ready to start? ── */}
       <section className="border-t border-[var(--border-base)]">
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
           <div className="max-w-xl">
-            <div
-              className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-5"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              ◆ Your Account
-            </div>
             <h2
               className="text-4xl md:text-5xl tracking-tight leading-[1.05] mb-5"
               style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
             >
-              One free submission<br />
-              <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>
-                credit per month.
-              </span>
+              Ready to <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>start?</span>
             </h2>
             <p
               className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-sm"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
-              Every free account includes one submission credit per month. Credits carry over. Every submission — accepted or not — gets written feedback.
+              Create a free account to save briefs, upload community takes, and receive one private Sonant submission credit each month.
             </p>
             <div className="flex items-center gap-6 flex-wrap">
               <Link
