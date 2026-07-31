@@ -234,14 +234,12 @@ export default function AccountClient({
             <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               Submission Credits
             </div>
-            <div className="flex gap-1 mb-3">
-              {Array.from({ length: Math.max(submissionCredits, isPro ? 3 : 1) }).map((_, i) => (
-                <CreditDot key={i} filled={i < submissionCredits} />
-              ))}
+            <div className="text-5xl mb-3 text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+              {submissionCredits}
             </div>
             <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               {submissionCredits === 0
-                ? 'No submission credits remaining.'
+                ? 'No credits remaining.'
                 : `${submissionCredits} submission${submissionCredits === 1 ? '' : 's'} available.`}
             </p>
             <div className="flex gap-2 mt-4 flex-wrap">
@@ -268,11 +266,8 @@ export default function AccountClient({
             <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               Feedback Sessions
             </div>
-            <div className="flex gap-1 mb-3">
-              {sessionCredits > 0
-                ? Array.from({ length: sessionCredits }).map((_, i) => <CreditDot key={i} filled />)
-                : <CreditDot filled={false} />
-              }
+            <div className="text-5xl mb-3 text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+              {sessionCredits}
             </div>
             <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               {sessionCredits === 0
@@ -316,7 +311,7 @@ export default function AccountClient({
       {!isPro && (
         <div className="border border-[#E85D2F]/30 bg-[#E85D2F]/5 p-6" style={{ borderRadius: '2px' }}>
           <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            ◆ Go Pro
+            ◆ Pro Membership
           </div>
 
           {/* Free vs Pro comparison */}
@@ -337,12 +332,10 @@ export default function AccountClient({
                 <span className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Submissions</span>
               </div>
               <div className="px-4 py-4 bg-[var(--bg-card)] border-l border-[var(--border-base)]">
-                <div className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>1 credit/mo</div>
-                <div className="text-xs text-[var(--text-dimmer)] mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>carries over</div>
+                <div className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>1 credit/mo <span className="text-xs text-[var(--text-dimmer)]">(carries over)</span></div>
               </div>
               <div className="px-4 py-4 bg-[#E85D2F]/5 border-l border-[var(--border-base)]">
-                <div className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>3 credits/mo</div>
-                <div className="text-xs text-[var(--text-muted)] mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>carries over</div>
+                <div className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>3 credits/mo <span className="text-xs text-[var(--text-muted)]">(carries over)</span></div>
               </div>
             </div>
             {/* Feedback calls */}
