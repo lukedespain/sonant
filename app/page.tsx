@@ -175,37 +175,6 @@ export default async function LandingPage() {
         </section>
       )}
 
-      {/* ── Compact workflow ── */}
-      <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-10">
-          <p
-            className="text-sm text-[var(--text-muted)] leading-relaxed"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Choose a brief → Write your track → Upload publicly or submit privately
-          </p>
-        </div>
-      </section>
-
-      {/* ── 1:1 nudge ── */}
-      <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-10 flex items-baseline gap-4 flex-wrap">
-          <p
-            className="text-sm text-[var(--text-muted)] leading-relaxed"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Need another set of ears before you submit? Book a 1:1 feedback session.
-          </p>
-          <Link
-            href="/feedback"
-            className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors shrink-0"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            Book a session →
-          </Link>
-        </div>
-      </section>
-
       {/* ── Ready to start? ── */}
       <section className="border-t border-[var(--border-base)]">
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
