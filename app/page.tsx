@@ -103,11 +103,14 @@ export default async function LandingPage() {
                   ◆ Active Briefs
                 </div>
                 <h2
-                  className="text-3xl md:text-4xl tracking-tight leading-tight"
+                  className="text-3xl md:text-4xl tracking-tight leading-tight mb-4"
                   style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
                 >
                   Write to one of these.
                 </h2>
+                <p className="text-sm text-[var(--text-muted)] max-w-lg leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  Sonant briefs are written by our team to professional sync spec — the same format used in real brand, film, and game music requests. Three categories: Brand (advertising & campaigns), Film (TV & trailers), Game (video games & interactive). Submit your track to any open brief. Every submission gets written feedback.
+                </p>
               </div>
               <Link
                 href="/browse"
@@ -142,15 +145,23 @@ export default async function LandingPage() {
                           style={{ background: 'linear-gradient(to bottom, transparent 35%, var(--bg-card) 100%)' }}
                         />
                         <div
-                          className="absolute top-4 left-4 text-[9px] tracking-[0.3em] uppercase px-2.5 py-1"
+                          className="absolute top-4 left-4 flex items-center gap-1.5 text-[9px] tracking-[0.25em] uppercase px-2.5 py-1.5"
                           style={{
                             fontFamily: "'JetBrains Mono', monospace",
-                            background: 'rgba(10,9,8,0.65)',
-                            color: '#E85D2F',
+                            background: '#FFFFFF',
+                            color: '#1A1410',
                             borderRadius: '2px',
-                            backdropFilter: 'blur(6px)',
                           }}
                         >
+                          {brief.mode === 'brand' && (
+                            <svg width="10" height="10" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="13" cy="13" r="9.5" /></svg>
+                          )}
+                          {brief.mode === 'film' && (
+                            <svg width="10" height="10" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="8,5 21,13 8,21" /></svg>
+                          )}
+                          {brief.mode === 'games' && (
+                            <svg width="10" height="10" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="4" y="4" width="18" height="18" /></svg>
+                          )}
                           {modeLabel}
                         </div>
                       </div>
@@ -196,7 +207,7 @@ export default async function LandingPage() {
               {
                 n: '02',
                 title: 'Write your track',
-                body: 'Compose to spec in your DAW. Use the AI prompt generator to spark ideas, then take it somewhere only you can take it.',
+                body: 'Compose to spec in your DAW. Study the references, nail the mood and tempo, and bring your voice to the direction. Mix, master, and get it submission-ready.',
               },
               {
                 n: '03',
