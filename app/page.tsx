@@ -3,48 +3,69 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
 
-interface FeaturedBrief {
-  id: string;
-  generated_content: {
-    codename?: string;
-    project?: string;
-    imageUrl?: string;
-    [key: string]: unknown;
-  };
-  mode: string;
-}
-
 const MODE_LABELS: Record<string, string> = {
   brand: 'Brand',
   film: 'Film',
   games: 'Game',
 };
 
+interface BriefContent {
+  codename?: string;
+  project?: string;
+  story?: string;
+  ask?: string;
+  genrePalette?: string;
+  emotionalArc?: string;
+  tempo?: string;
+  client?: string;
+  imageUrl?: string;
+  [key: string]: unknown;
+}
+
+interface FeaturedBrief {
+  id: string;
+  mode: string;
+  generated_content: BriefContent;
+}
+
 export default async function LandingPage() {
   const admin = createAdminClient();
 
-  const roundBriefs = (
-    await Promise.all(
-      ['brand', 'film', 'games'].map((mode) =>
-        admin
-          .from('briefs')
-          .select('id, mode, generated_content')
-          .eq('user_id', ADMIN_USER_ID)
-          .eq('mode', mode)
-          .not('generated_content->imageUrl', 'is', null)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .returns<FeaturedBrief[]>()
-          .then(({ data }) => data?.[0] ?? null)
-      )
-    )
-  ).filter(Boolean) as FeaturedBrief[];
+  const { data: briefs } = await admin
+    .from('briefs')
+    .select('id, mode, generated_content')
+    .eq('user_id', ADMIN_USER_ID)
+    .not('generated_content->imageUrl', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .returns<FeaturedBrief[]>();
+
+  const featured = briefs?.[0] ?? null;
+  const gc = featured?.generated_content ?? null;
+
+  const steps = [
+    {
+      n: '01',
+      title: 'Choose a brief',
+      body: 'Generate one with the Brief Generator, or write to an active Sonant brief. Brand, film, or game.',
+    },
+    {
+      n: '02',
+      title: 'Write your track',
+      body: 'Take the brief into your DAW. Study the references, match the spec, bring your voice.',
+    },
+    {
+      n: '03',
+      title: 'Submit or upload',
+      body: 'Submit privately to a Sonant brief for review and feedback — or upload publicly to a community brief.',
+    },
+  ];
 
   return (
     <div className="flex-1">
 
       {/* ── Hero ── */}
-      <section className="min-h-[88vh] flex flex-col justify-center max-w-6xl mx-auto px-6 md:px-10 pt-20 pb-16">
+      <section className="min-h-[88vh] flex flex-col justify-center max-w-6xl mx-auto px-6 md:px-10 pt-24 pb-16">
         <div
           className="text-[10px] tracking-[0.5em] uppercase text-[#E85D2F] mb-8"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -52,7 +73,7 @@ export default async function LandingPage() {
           ◆ Built for composers, by composers.
         </div>
         <h1
-          className="tracking-tight leading-[0.95] mb-8"
+          className="tracking-tight leading-[0.92] mb-8"
           style={{
             fontFamily: "'Fraunces', serif",
             fontWeight: 300,
@@ -65,10 +86,10 @@ export default async function LandingPage() {
           </span>
         </h1>
         <p
-          className="text-base md:text-lg text-[var(--text-tertiary)] mb-4 max-w-md leading-relaxed"
+          className="text-base md:text-lg text-[var(--text-tertiary)] mb-3 max-w-md leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Sonant is a brief tool and submission platform for composers building a sync catalog. Generate a brief, write your track, and submit it for review. Every submission gets written feedback.
+          Sonant is a brief tool and submission platform for composers building a sync catalog.
         </p>
         <p
           className="text-sm text-[var(--text-muted)] mb-10 max-w-md leading-relaxed"
@@ -82,391 +103,247 @@ export default async function LandingPage() {
             className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
-            ◆ Start a Practice Brief
+            ◆ Generate a Brief
           </Link>
           <Link
             href="/browse"
             className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            Submit to a Sonant Brief →
+            Browse Sonant Briefs →
           </Link>
         </div>
       </section>
 
-      {/* ── Generator ── */}
+      {/* ── Choose Your Path ── */}
       <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-            <div>
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <div className="pb-12 md:pb-0 md:pr-16 border-b border-[var(--border-base)] md:border-b-0 md:border-r md:border-[var(--border-base)]">
               <div
-                className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-5"
+                className="text-[9px] tracking-[0.35em] uppercase text-[var(--text-muted)] mb-5"
                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
-                ◆ The Brief Generator
+                Practice publicly
               </div>
-              <h2
-                className="text-4xl md:text-5xl tracking-tight leading-[1.05] mb-6"
+              <p
+                className="text-xl md:text-2xl text-[var(--text-primary)] leading-snug mb-6"
                 style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
               >
-                Start with<br />
-                <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>a direction.</span>
-              </h2>
-              <p
-                className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-5 max-w-sm"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                The Brief Generator builds a complete creative brief in seconds — scene context, mood, tempo, instrumentation, and reference points. Brand, film, or game. Use it to practice writing to spec, explore new genres, or warm up before tackling a Sonant brief.
-              </p>
-              <p
-                className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-sm"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                Generations are free and unlimited. Generated briefs are public — any composer can write their own take on the same brief.
+                Generate a brief, write your track, and upload your take alongside other composers. No review — just reps.
               </p>
               <Link
                 href="/generator"
-                className="inline-block px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                className="text-xs tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
-                ◆ Try the Generator
+                Try the generator →
               </Link>
             </div>
-            <div>
-              {[
-                {
-                  n: '01',
-                  title: 'Choose your category',
-                  body: 'Brand, film, or game. Pick the type of project and narrow it down — automotive campaign, sci-fi trailer, open-world game. The generator builds from there.',
-                },
-                {
-                  n: '02',
-                  title: 'Get a full brief',
-                  body: 'Scene context, mood, tempo, instrumentation, and reference points. The same format a music supervisor sends.',
-                },
-                {
-                  n: '03',
-                  title: 'Write your track',
-                  body: 'Take the brief into your DAW. Study the references, match the spec, bring your voice. Upload your track directly to the brief when you\'re done.',
-                },
-              ].map(({ n, title, body }) => (
-                <div key={n} className="border-b border-[var(--border-base)] py-7 flex gap-6 first:border-t first:border-[var(--border-base)]">
-                  <div
-                    className="text-3xl leading-none shrink-0"
-                    style={{ fontFamily: "'Fraunces', serif", fontWeight: 300, color: 'var(--border-hover)' }}
-                  >
-                    {n}
-                  </div>
-                  <div>
-                    <h3
-                      className="text-base mb-2 text-[var(--text-primary)]"
-                      style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
-                    >
-                      {title}
-                    </h3>
-                    <p
-                      className="text-sm text-[var(--text-muted)] leading-relaxed"
-                      style={{ fontFamily: "'DM Sans', sans-serif" }}
-                    >
-                      {body}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="pt-12 md:pt-0 md:pl-16">
+              <div
+                className="text-[9px] tracking-[0.35em] uppercase text-[var(--text-muted)] mb-5"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Submit privately
+              </div>
+              <p
+                className="text-xl md:text-2xl text-[var(--text-primary)] leading-snug mb-6"
+                style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+              >
+                Write to a curated Sonant brief. Submit privately, receive written feedback, and be considered for catalog placement.
+              </p>
+              <Link
+                href="/browse"
+                className="text-xs tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Browse Sonant Briefs →
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Active Briefs ── */}
-      {roundBriefs.length > 0 && (
+      {/* ── Featured Brief ── */}
+      {featured && gc && (
         <section className="border-t border-[var(--border-base)]">
-          <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
-            <div className="flex items-end justify-between mb-12">
-              <div>
-                <div
-                  className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-3"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  ◆ Active Briefs
-                </div>
-                <h2
-                  className="text-3xl md:text-4xl tracking-tight leading-tight mb-4"
-                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-                >
-                  Write to one of these.
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 max-w-lg">
-                  <div className="border border-[var(--border-base)] p-4" style={{ borderRadius: '2px' }}>
-                    <div className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Practice Briefs</div>
-                    <p className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      Generated by you or the community. Public uploads, no review — just reps.
-                    </p>
-                  </div>
-                  <div className="border border-[#E85D2F]/30 bg-[#E85D2F]/5 p-4" style={{ borderRadius: '2px' }}>
-                    <div className="text-[9px] tracking-[0.25em] uppercase text-[#E85D2F] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>◆ Sonant Briefs</div>
-                    <p className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      Curated by Sonant. Private submission, written feedback, possible catalog placement.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <Link
-                href="/browse"
-                className="hidden md:block text-xs tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors shrink-0 mb-1"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                All briefs →
-              </Link>
+          <div className="max-w-6xl mx-auto px-6 md:px-10 py-16">
+            <div
+              className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-12"
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              ◆ Active Sonant Brief
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {roundBriefs.map((brief) => {
-                const codename = brief.generated_content?.codename ?? 'Untitled';
-                const imageUrl = brief.generated_content?.imageUrl;
-                const modeLabel = MODE_LABELS[brief.mode] ?? brief.mode;
-                return (
-                  <Link
-                    key={brief.id}
-                    href={`/browse/${brief.id}`}
-                    className="group block border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[#E85D2F]/50 transition-all duration-300 overflow-hidden"
-                    style={{ borderRadius: '2px' }}
-                  >
-                    {imageUrl && (
-                      <div className="relative w-full overflow-hidden" style={{ height: '220px' }}>
-                        <img
-                          src={imageUrl}
-                          alt=""
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
-                        />
-                        <div
-                          className="absolute inset-0"
-                          style={{ background: 'linear-gradient(to bottom, transparent 35%, var(--bg-card) 100%)' }}
-                        />
-                      </div>
-                    )}
-                    <div className="px-6 pb-6 pt-4">
-                      <p
-                        className="text-2xl italic leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors mb-3"
-                        style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
-                      >
-                        {codename}
-                      </p>
-                      <span
-                        className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] group-hover:text-[#E85D2F]/60 transition-colors"
-                        style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                      >
-                        {modeLabel} Brief →
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+            {gc.imageUrl ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+                <div className="overflow-hidden" style={{ borderRadius: '2px' }}>
+                  <img
+                    src={gc.imageUrl}
+                    alt=""
+                    className="w-full object-cover"
+                    style={{ maxHeight: '460px', objectPosition: 'center' }}
+                  />
+                </div>
+                <div>
+                  <FeaturedBriefContent featured={featured} gc={gc} />
+                </div>
+              </div>
+            ) : (
+              <div className="max-w-2xl">
+                <FeaturedBriefContent featured={featured} gc={gc} />
+              </div>
+            )}
           </div>
         </section>
       )}
 
-      {/* ── Catalog ── */}
+      {/* ── How it Works ── */}
       <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div>
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16">
+          <div
+            className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-10"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            ◆ How it works
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 border-t border-[var(--border-base)]">
+            {steps.map(({ n, title, body }, i) => (
               <div
-                className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-5"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                key={n}
+                className={[
+                  'pt-8 pb-8 flex gap-5',
+                  i === 0 && 'border-b border-[var(--border-base)] md:border-b-0 md:border-r md:pr-10',
+                  i === 1 && 'border-b border-[var(--border-base)] md:border-b-0 md:border-r md:px-10',
+                  i === 2 && 'md:pl-10',
+                ].filter(Boolean).join(' ')}
               >
-                ◆ The Catalog
-              </div>
-              <h2
-                className="text-4xl md:text-5xl tracking-tight leading-[1.05] mb-6"
-                style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-              >
-                This is where<br />
-                your track<br />
-                <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>
-                  ends up.
-                </span>
-              </h2>
-              <p
-                className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-8 max-w-sm"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                Accepted tracks join the Sonant catalog on Disco, built for music supervisors and sync licensing. Your music, in front of real buyers.
-              </p>
-              <div className="flex flex-col gap-3">
-                <Link
-                  href="/catalog"
-                  className="inline-block px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-                >
-                  ◆ Explore the Catalog
-                </Link>
-                <Link
-                  href="/account"
-                  className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
+                <span
+                  className="text-[10px] text-[var(--text-dimmer)] shrink-0 mt-0.5"
                   style={{ fontFamily: "'JetBrains Mono', monospace" }}
                 >
-                  Submitted music to Sonant? Check your dashboard →
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              {[
-                'Curated around what the market actually needs',
-                'Written feedback on every submission — accepted or not',
-                '70/30 in your favor on any placement',
-                'Non-exclusive: your music stays yours',
-                'One free submission per month, always',
-              ].map((point) => (
-                <div
-                  key={point}
-                  className="flex items-start gap-4 py-5 border-b border-[var(--border-base)] first:border-t first:border-[var(--border-base)]"
-                >
-                  <span className="text-[#E85D2F] text-xs mt-0.5 shrink-0">◆</span>
-                  <span
-                    className="text-sm text-[var(--text-secondary)] leading-relaxed"
+                  {n}
+                </span>
+                <div>
+                  <h3
+                    className="text-base mb-2 text-[var(--text-primary)]"
+                    style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
+                  >
+                    {title}
+                  </h3>
+                  <p
+                    className="text-sm text-[var(--text-muted)] leading-relaxed"
                     style={{ fontFamily: "'DM Sans', sans-serif" }}
                   >
-                    {point}
-                  </span>
+                    {body}
+                  </p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── 1:1 Feedback ── */}
+      {/* ── Support Strip ── */}
       <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div>
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-14">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <div className="pb-10 md:pb-0 md:pr-14 border-b border-[var(--border-base)] md:border-b-0 md:border-r md:border-[var(--border-base)]">
               <div
-                className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-5"
+                className="text-[9px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-3"
                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
                 ◆ 1:1 Feedback
               </div>
-              <h2
-                className="text-4xl md:text-5xl tracking-tight leading-[1.05] mb-6"
-                style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-              >
-                Get ears<br />
-                <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>on your track.</span>
-              </h2>
               <p
-                className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-8 max-w-sm"
+                className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4 max-w-sm"
                 style={{ fontFamily: "'DM Sans', sans-serif" }}
               >
-                A focused 45-minute session where we listen to your track together, compare it against the brief, and give you specific notes in real time. Good for checking a track before submission, understanding why something isn&apos;t hitting, or getting a second ear on a mix you&apos;ve been staring at too long.
+                45-minute sessions. Listen to your track together, compare it against the brief, get specific notes in real time. $50 standard · $25 for Pro members.
               </p>
               <Link
                 href="/feedback"
-                className="inline-block px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
               >
-                ◆ Book a Session
+                Book a session →
               </Link>
             </div>
-
-            <div>
-              {[
-                { label: 'Session length', value: '45 minutes' },
-                { label: 'Standard rate', value: '$50 per session' },
-                { label: 'Pro members', value: '$25 per session' },
-                { label: 'Pro welcome', value: 'One free session included' },
-              ].map(({ label, value }) => (
-                <div
-                  key={label}
-                  className="flex items-center justify-between gap-4 py-5 border-b border-[var(--border-base)] first:border-t first:border-[var(--border-base)]"
-                >
-                  <span className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>{label}</span>
-                  <span className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>{value}</span>
-                </div>
-              ))}
+            <div className="pt-10 md:pt-0 md:pl-14">
+              <div
+                className="text-[9px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-3"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                ◆ Pro Membership
+              </div>
+              <p
+                className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4 max-w-sm"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
+                $12/month. Three submission credits per month, 50% off sessions, and a welcome feedback call. Cancel anytime.
+              </p>
+              <Link
+                href="/account"
+                className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                See Pro benefits →
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Account / Dashboard ── */}
+      {/* ── Final CTA ── */}
       <section className="border-t border-[var(--border-base)]">
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
-          <div
-            className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-14"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            ◆ Your Account
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
-            {[
-              {
-                n: '01',
-                title: 'Submission credits',
-                body: 'Every free account gets one submission credit per month. Credits carry over, so you can stack them up before sending in your best work.',
-              },
-              {
-                n: '02',
-                title: 'Feedback sessions',
-                body: 'Book a 1:1 session directly from your dashboard. Pro members get one welcome session included and 50% off every additional booking.',
-              },
-              {
-                n: '03',
-                title: 'Pro membership',
-                body: 'Pro is $12/month. Three submission credits per month, cheaper sessions, and a welcome feedback call. Cancel anytime.',
-              },
-            ].map(({ n, title, body }) => (
-              <div key={n}>
-                <div
-                  className="text-6xl leading-none mb-6"
-                  style={{
-                    fontFamily: "'Fraunces', serif",
-                    fontWeight: 300,
-                    color: 'var(--border-hover)',
-                  }}
-                >
-                  {n}
-                </div>
-                <h3
-                  className="text-xl mb-3 text-[var(--text-primary)]"
-                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
-                >
-                  {title}
-                </h3>
-                <p
-                  className="text-sm text-[var(--text-muted)] leading-relaxed"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}
-                >
-                  {body}
-                </p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-12 flex items-center gap-6 flex-wrap">
-            <Link
-              href="/signup"
-              className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-            >
-              ◆ Create Free Account
-            </Link>
-            <Link
-              href="/account"
-              className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+          <div className="max-w-xl">
+            <div
+              className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-5"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
-              Go to Dashboard →
-            </Link>
+              ◆ Your Account
+            </div>
+            <h2
+              className="text-4xl md:text-5xl tracking-tight leading-[1.05] mb-5"
+              style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+            >
+              One free submission<br />
+              <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>
+                credit per month.
+              </span>
+            </h2>
+            <p
+              className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-sm"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              Every free account includes one submission credit per month. Credits carry over. Every submission — accepted or not — gets written feedback.
+            </p>
+            <div className="flex items-center gap-6 flex-wrap">
+              <Link
+                href="/signup"
+                className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+              >
+                ◆ Create Free Account
+              </Link>
+              <Link
+                href="/account"
+                className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Go to Dashboard →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── FAQ ── */}
       <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-20">
-          <div className="flex items-end justify-between mb-12">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16">
+          <div className="flex items-end justify-between mb-10">
             <div>
               <div
                 className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-3"
@@ -475,7 +352,7 @@ export default async function LandingPage() {
                 ◆ FAQ
               </div>
               <h2
-                className="text-3xl md:text-4xl tracking-tight leading-tight"
+                className="text-3xl tracking-tight"
                 style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
               >
                 How Sonant <span className="italic">works.</span>
@@ -493,15 +370,15 @@ export default async function LandingPage() {
             {[
               {
                 q: 'What is Sonant?',
-                a: 'A platform for composers who want to write music for brands, film, and games. Sonant publishes curated briefs written to real sync industry spec — the same format a music supervisor sends. Use them to practice, build your catalog, and submit your best work. Every submission gets written feedback. Tracks that fit get placed and pitched to real buyers.',
+                a: 'A platform for composers who want to write music for brands, film, and games. Sonant publishes curated briefs written to real sync industry spec. Use them to practice, build your catalog, and submit your best work. Every submission gets written feedback. Tracks that fit get placed and pitched to real buyers.',
               },
               {
-                q: 'What\'s the difference between a Sonant brief and a community brief?',
+                q: "What's the difference between a Sonant brief and a community brief?",
                 a: 'Sonant briefs are curated by the Sonant team around what the catalog actually needs. Submitted tracks go through a review and, if accepted, get placed in the Sonant catalog and pitched to buyers. Community briefs are generated by composers using the Brief Generator — no review, no submission, just practice and reps.',
               },
               {
                 q: 'What are the terms if my track gets placed?',
-                a: 'You own your music. Sonant is non-exclusive. If Sonant brokers a placement, you keep 70% of the sync fee. You\'re free to pitch the same track anywhere else.',
+                a: "You own your music. Sonant is non-exclusive. If Sonant brokers a placement, you keep 70% of the sync fee. You're free to pitch the same track anywhere else.",
               },
               {
                 q: 'Do I need an account?',
@@ -510,7 +387,7 @@ export default async function LandingPage() {
             ].map(({ q, a }) => (
               <div
                 key={q}
-                className="border-b border-[var(--border-base)] py-7 grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-6"
+                className="border-b border-[var(--border-base)] py-6 grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-6"
               >
                 <h3
                   className="text-base text-[var(--text-primary)] leading-snug"
@@ -531,5 +408,89 @@ export default async function LandingPage() {
       </section>
 
     </div>
+  );
+}
+
+function FeaturedBriefContent({ featured, gc }: { featured: FeaturedBrief; gc: BriefContent }) {
+  return (
+    <>
+      <div
+        className="text-[9px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-3"
+        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      >
+        {MODE_LABELS[featured.mode] ?? featured.mode} Brief
+      </div>
+      <h2
+        className="text-4xl md:text-5xl tracking-tight leading-[1.05] italic mb-8 text-[var(--text-primary)]"
+        style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
+      >
+        {gc.codename ?? 'Untitled'}
+      </h2>
+      {gc.story && (
+        <div className="mb-6">
+          <div
+            className="text-[9px] tracking-[0.3em] uppercase text-[var(--text-dimmer)] mb-2"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            The Scene
+          </div>
+          <p
+            className="text-sm text-[var(--text-secondary)] leading-relaxed"
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
+          >
+            {gc.story}
+          </p>
+        </div>
+      )}
+      {gc.ask && (
+        <div className="mb-8 pl-4 border-l-2 border-[#E85D2F]">
+          <div
+            className="text-[9px] tracking-[0.3em] uppercase text-[var(--text-dimmer)] mb-2"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            The Music
+          </div>
+          <p
+            className="text-sm text-[var(--text-muted)] leading-relaxed"
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
+          >
+            {gc.ask}
+          </p>
+        </div>
+      )}
+      <div className="flex flex-wrap gap-2 mb-8">
+        {gc.genrePalette && (
+          <span
+            className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] border border-[var(--border-base)] px-3 py-1.5"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+          >
+            {gc.genrePalette}
+          </span>
+        )}
+        {gc.tempo && (
+          <span
+            className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] border border-[var(--border-base)] px-3 py-1.5"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+          >
+            {gc.tempo}
+          </span>
+        )}
+        {gc.emotionalArc && (
+          <span
+            className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] border border-[var(--border-base)] px-3 py-1.5"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+          >
+            {gc.emotionalArc}
+          </span>
+        )}
+      </div>
+      <Link
+        href={`/browse/${featured.id}`}
+        className="inline-block px-7 py-3.5 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+      >
+        Read this brief →
+      </Link>
+    </>
   );
 }
