@@ -1,4 +1,28 @@
-export default function FeedbackPage() {
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+
+export default async function FeedbackPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let sessionCredits = 0;
+  let isPro = false;
+
+  if (user) {
+    const admin = createAdminClient();
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('session_credits, tier')
+      .eq('id', user.id)
+      .single();
+
+    sessionCredits = (profile as any)?.session_credits ?? 0;
+    isPro = (profile as any)?.tier === 'pro' || (user.email?.endsWith('@sonant.ac') ?? false);
+  }
+
+  const canBook = !!user && sessionCredits > 0;
+
   return (
     <div className="pt-20 pb-24 flex-1">
       <div className="max-w-5xl mx-auto px-6 md:px-10">
@@ -44,16 +68,58 @@ export default function FeedbackPage() {
             <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               Pick a time
             </div>
-            <div
-              className="border border-[var(--border-card)] bg-[var(--bg-card)] overflow-hidden"
-              style={{ borderRadius: '2px' }}
-            >
-              <iframe
-                src="https://cal.com/sonant/feedback?embed=true&theme=light"
-                style={{ width: '100%', height: '660px', border: 'none' }}
-                title="Book a 1:1 feedback session"
-              />
-            </div>
+
+            {canBook ? (
+              <div
+                className="border border-[var(--border-card)] bg-[var(--bg-card)] overflow-hidden"
+                style={{ borderRadius: '2px' }}
+              >
+                <iframe
+                  src="https://cal.com/sonant/feedback?embed=true&theme=light"
+                  style={{ width: '100%', height: '660px', border: 'none' }}
+                  title="Book a 1:1 feedback session"
+                />
+              </div>
+            ) : (
+              <div
+                className="border border-[var(--border-card)] bg-[var(--bg-card)] p-8 flex flex-col justify-center"
+                style={{ borderRadius: '2px', minHeight: '300px' }}
+              >
+                {!user ? (
+                  <>
+                    <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      Sign in to book
+                    </div>
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      You need an account to book a session. Sessions are available to purchase from your dashboard.
+                    </p>
+                    <Link
+                      href="/login?redirect=/feedback"
+                      className="inline-block px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors w-fit"
+                      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                    >
+                      ◆ Sign In
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      No sessions available
+                    </div>
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      You don&apos;t have any session credits. {isPro ? 'Purchase a session from your dashboard.' : 'Go Pro to get a free welcome session, or purchase one directly.'}
+                    </p>
+                    <Link
+                      href="/account"
+                      className="inline-block px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors w-fit"
+                      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                    >
+                      ◆ Go to Dashboard
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
