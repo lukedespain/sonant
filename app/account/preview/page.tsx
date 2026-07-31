@@ -12,7 +12,7 @@ export default function AccountPreviewPage() {
 
   return (
     <div className="pt-16 pb-24 flex-1">
-      <div className="max-w-3xl mx-auto px-6 md:px-10 space-y-24">
+      <div className="max-w-5xl mx-auto px-6 md:px-10 space-y-24">
 
         {/* Free user — 0 credits */}
         <section>

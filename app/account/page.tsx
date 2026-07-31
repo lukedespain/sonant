@@ -73,13 +73,7 @@ export default async function AccountPage() {
 
   return (
     <div className="pt-20 pb-16 flex-1">
-      <div className="max-w-3xl mx-auto px-6 md:px-10">
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Account
-        </div>
-        <h1 className="text-5xl md:text-6xl tracking-tight leading-tight mb-12" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          Your <span className="italic">dashboard.</span>
-        </h1>
+      <div className="max-w-5xl mx-auto px-6 md:px-10">
 
         <AccountClient
           userId={user.id}

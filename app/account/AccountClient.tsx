@@ -73,7 +73,6 @@ export default function AccountClient({
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   async function startCheckout(type: 'pro' | 'submission' | 'session') {
     setCheckoutLoading(type);
@@ -139,55 +138,107 @@ export default function AccountClient({
   return (
     <div className="space-y-12">
 
-      {/* ── Dashboard header ── */}
+      {/* ── Page header ── */}
       <div>
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div>
-            <div
-              className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              ◆ Dashboard
-            </div>
-            <h1
-              className="text-5xl md:text-6xl tracking-tight leading-tight"
-              style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-            >
-              Your <span className="italic">dashboard.</span>
-            </h1>
-          </div>
-          <button
-            onClick={() => setSettingsOpen(o => !o)}
-            className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors shrink-0 mt-2"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            Settings
-          </button>
+        <div
+          className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        >
+          ◆ Dashboard
         </div>
+        <h1
+          className="text-5xl md:text-6xl tracking-tight leading-tight"
+          style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+        >
+          Your <span className="italic">dashboard.</span>
+        </h1>
+      </div>
 
-        {/* Compact profile strip */}
-        <div className="flex items-center gap-3">
-          <div
-            className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px] font-semibold shrink-0 overflow-hidden"
+      {/* ── Profile ── */}
+      <div className="flex items-start gap-5">
+        <div className="shrink-0">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={avatarUploading}
+            className="group relative w-14 h-14 rounded-full overflow-hidden flex items-center justify-center text-white text-base font-semibold focus:outline-none"
             style={{ background: avatarUrl ? undefined : color, fontFamily: "'DM Sans', sans-serif" }}
+            title="Upload photo"
           >
             {avatarUrl
               ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
               : getInitials(name)
             }
+            <div aria-hidden="true" className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span className="text-[8px] tracking-[0.2em] uppercase text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                {avatarUploading ? '…' : 'Edit'}
+              </span>
+            </div>
+          </button>
+          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatarChange} className="hidden" />
+        </div>
+
+        <div className="flex-1 pt-0.5">
+          {nameEditing ? (
+            <div className="flex items-center gap-3 mb-1">
+              <input
+                type="text"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNameSave();
+                  if (e.key === 'Escape') { setNameEditing(false); setNameInput(name); }
+                }}
+                autoFocus
+                className="text-2xl bg-transparent border-b border-[#E85D2F] focus:outline-none text-[var(--text-primary)] w-full max-w-xs"
+                style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+              />
+              <button
+                onClick={handleNameSave}
+                disabled={nameSaving}
+                className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity disabled:opacity-40"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                {nameSaving ? '…' : 'Save'}
+              </button>
+              <button
+                onClick={() => { setNameEditing(false); setNameInput(name); }}
+                className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:opacity-70 transition-opacity"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 mb-1">
+              <span
+                className="text-2xl text-[var(--text-primary)]"
+                style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+              >
+                {name}
+              </span>
+              <button
+                onClick={() => { setNameEditing(true); setNameInput(name); }}
+                className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Edit
+              </button>
+            </div>
+          )}
+          {nameError && <p className="text-[10px] text-[#FF8B6B] mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>× {nameError}</p>}
+          {avatarError && <p className="text-[10px] text-[#FF8B6B] mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>× {avatarError}</p>}
+          <p className="text-sm text-[var(--text-muted)] mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>{email}</p>
+          <div className="flex items-center gap-3 flex-wrap">
+            <span
+              className={`text-[9px] tracking-[0.25em] uppercase px-2 py-1 ${isPro ? 'bg-[#E85D2F] text-[var(--bg-base)]' : 'border border-[var(--border-subtle)] text-[var(--text-muted)]'}`}
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+            >
+              {isPro ? '◆ Pro' : 'Free'}
+            </span>
+            <span className="text-[10px] text-[var(--text-dimmer)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              Member since {memberSince}
+            </span>
           </div>
-          <span
-            className="text-sm text-[var(--text-secondary)]"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            {name}
-          </span>
-          <span
-            className={`text-[8px] tracking-[0.2em] uppercase px-1.5 py-0.5 ${isPro ? 'bg-[#E85D2F] text-[var(--bg-base)]' : 'border border-[var(--border-subtle)] text-[var(--text-muted)]'}`}
-            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-          >
-            {isPro ? '◆ Pro' : 'Free'}
-          </span>
         </div>
       </div>
 
@@ -366,18 +417,18 @@ export default function AccountClient({
             No practice briefs yet.
           </p>
         )}
-        <div className="flex gap-6 flex-wrap">
+        <div className="flex gap-3 flex-wrap">
           <Link
             href="/library"
-            className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            className="px-5 py-2.5 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
           >
             My Library →
           </Link>
           <Link
             href="/generator"
-            className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            className="px-5 py-2.5 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
           >
             Generator →
           </Link>
@@ -413,111 +464,18 @@ export default function AccountClient({
         </div>
       )}
 
-      {/* ── Account settings (toggled from header) ── */}
-      {settingsOpen && (
-        <div className="border-t border-[var(--border-base)] pt-8 space-y-7">
-          <div className="flex items-start gap-5">
-            <div className="shrink-0">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={avatarUploading}
-                className="group relative w-14 h-14 rounded-full overflow-hidden flex items-center justify-center text-white text-sm font-semibold focus:outline-none"
-                style={{ background: avatarUrl ? undefined : color, fontFamily: "'DM Sans', sans-serif" }}
-                title="Upload photo"
-              >
-                {avatarUrl
-                  ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-                  : getInitials(name)
-                }
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-[8px] tracking-[0.2em] uppercase text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                    {avatarUploading ? '…' : 'Edit'}
-                  </span>
-                </div>
-              </button>
-              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatarChange} className="hidden" />
-            </div>
-            <div className="flex-1 pt-1">
-              {nameEditing ? (
-                <div className="flex items-center gap-3 mb-2">
-                  <input
-                    type="text"
-                    value={nameInput}
-                    onChange={(e) => setNameInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleNameSave();
-                      if (e.key === 'Escape') { setNameEditing(false); setNameInput(name); }
-                    }}
-                    autoFocus
-                    className="text-xl bg-transparent border-b border-[#E85D2F] focus:outline-none text-[var(--text-primary)] max-w-xs"
-                    style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-                  />
-                  <button
-                    onClick={handleNameSave}
-                    disabled={nameSaving}
-                    className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity disabled:opacity-40"
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                  >
-                    {nameSaving ? '…' : 'Save'}
-                  </button>
-                  <button
-                    onClick={() => { setNameEditing(false); setNameInput(name); }}
-                    className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:opacity-70 transition-opacity"
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 mb-2">
-                  <span
-                    className="text-xl text-[var(--text-primary)]"
-                    style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-                  >
-                    {name}
-                  </span>
-                  <button
-                    onClick={() => { setNameEditing(true); setNameInput(name); }}
-                    className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                  >
-                    Edit
-                  </button>
-                </div>
-              )}
-              {nameError && (
-                <p className="text-[10px] text-[#FF8B6B] mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>× {nameError}</p>
-              )}
-              {avatarError && (
-                <p className="text-[10px] text-[#FF8B6B] mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>× {avatarError}</p>
-              )}
-              <p
-                className="text-xs text-[var(--text-muted)]"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
-                {email}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-5 flex-wrap">
-            <span
-              className="text-[10px] text-[var(--text-dimmer)]"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              Member since {memberSince}
-            </span>
-            <form action={signOutAction}>
-              <button
-                type="submit"
-                className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                Sign Out
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* ── Sign out ── */}
+      <div className="border-t border-[var(--border-base)] pt-6">
+        <form action={signOutAction}>
+          <button
+            type="submit"
+            className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Sign Out
+          </button>
+        </form>
+      </div>
 
     </div>
   );
