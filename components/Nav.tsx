@@ -27,8 +27,8 @@ export default function Nav({ user }: NavProps) {
   const closeMenu = () => setMenuOpen(false)
 
   const navLinks = [
-    { href: '/browse', label: 'Briefs' },
     { href: '/generator', label: 'Generator' },
+    { href: '/browse', label: 'Briefs' },
     { href: '/catalog', label: 'Catalog' },
   ]
 
