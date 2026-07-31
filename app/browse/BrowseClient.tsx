@@ -321,10 +321,10 @@ export default function BrowseClient({
         {activeTab === 'featured' && (
           <>
             <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-              Each month, a new <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>competition.</span>
+              Active <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Sonant briefs.</span>
             </h1>
             <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              One Brand brief, one Film brief, one Game brief, written to real industry spec. Submit your track. The strongest placement goes into the catalog and gets pitched to real buyers.
+              Tracks we need in the Sonant catalog, written to real industry spec. Submit to any active brief. Every submission gets written feedback. Accepted tracks get placed and pitched to real buyers.
             </p>
           </>
         )}

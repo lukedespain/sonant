@@ -18,7 +18,7 @@ export default function CatalogPage() {
           </h1>
 
           <p className="text-base text-[var(--text-tertiary)] mb-3 max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Accepted tracks from Sonant brief competitions join the Sonant catalog on Disco, a platform built for music supervisors and sync licensing. Your music, in front of real buyers.
+            Tracks accepted from active Sonant briefs join the Sonant catalog on Disco, a platform built for music supervisors and sync licensing. Your music, in front of real buyers.
           </p>
           <p className="text-sm text-[var(--text-muted)] mb-10 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Every submission is individually reviewed. The bar is the point.
@@ -54,7 +54,7 @@ export default function CatalogPage() {
               {
                 n: '01',
                 title: 'Write to a Sonant brief',
-                body: 'Each month, three competition briefs go live: one Brand, one Film, one Game. Read the brief like a client sent it. Write your track to spec.',
+                body: 'Sonant publishes active briefs for tracks we need in the catalog. Brand, Film, Game. Read the brief like a client sent it. Write your track to spec.',
               },
               {
                 n: '02',

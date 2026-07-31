@@ -70,7 +70,7 @@ export default async function LandingPage() {
           className="text-base md:text-lg text-[var(--text-tertiary)] mb-10 max-w-md leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Write to a curated brief, submit your track, and compete for a spot in the Sonant catalog. Pitched to brands, supervisors, and studios.
+          Write to an active Sonant brief, submit your track, and earn a spot in the catalog. Pitched to brands, supervisors, and studios.
         </p>
         <div className="flex items-center gap-6 flex-wrap">
           <Link
@@ -200,8 +200,8 @@ export default async function LandingPage() {
               },
               {
                 n: '03',
-                title: 'Submit and compete',
-                body: 'Upload directly to the brief. The strongest track gets placed in the catalog and pitched to real buyers.',
+                title: 'Submit your track',
+                body: 'Upload directly to the brief. Every submission gets written feedback. Tracks that fit the catalog get placed and pitched to real buyers.',
               },
             ].map(({ n, title, body }) => (
               <div key={n}>
@@ -327,7 +327,7 @@ export default async function LandingPage() {
             {[
               {
                 q: 'What is Sonant?',
-                a: 'A platform for composers who write custom music. Every month there\'s a new competition: one Brand brief, one Film brief, one Game brief. Submit your track. The strongest placement goes into the Sonant catalog and gets pitched to real buyers.',
+                a: 'A platform for composers who write custom music. Sonant publishes active briefs for tracks we need in our catalog. Write to the brief, submit your track, and if it fits, it gets placed and pitched to real buyers.',
               },
               {
                 q: 'What\'s the difference between a Sonant brief and a community brief?',

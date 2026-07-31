@@ -40,11 +40,11 @@ function SignUpForm() {
         </div>
 
         <h1 className="text-4xl md:text-5xl tracking-tight leading-tight mb-3" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          Join the <span className="italic">competition</span>.
+          Join the <span className="italic">catalog.</span>
         </h1>
 
         <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Free during beta. Submit to competitive briefs and compete for placement in the Sonant catalog.
+          Free during beta. Write to active Sonant briefs and earn a spot in the catalog.
         </p>
 
         {success ? (
