@@ -51,7 +51,7 @@ export default async function LandingPage() {
           className="text-[10px] tracking-[0.5em] uppercase text-[#E85D2F] mb-8"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
-          ◆ Brand · Film · Game
+          ◆ Built for composers, by composers.
         </div>
         <h1
           className="tracking-tight leading-[0.95] mb-8"
