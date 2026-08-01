@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 
 const ROLES = [
   'Music Supervisor',
@@ -63,12 +62,6 @@ export default function CatalogRequestForm() {
           >
             ◆ Request Catalog Access (for music buyers)
           </button>
-          <p className="mt-3 text-xs text-[var(--text-dimmer)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Submitted music to Sonant?{' '}
-            <Link href="/account" className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
-              Check your dashboard.
-            </Link>
-          </p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5 max-w-md">
@@ -153,12 +146,6 @@ export default function CatalogRequestForm() {
             </button>
           </div>
 
-          <p className="text-xs text-[var(--text-dimmer)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Submitted music to Sonant?{' '}
-            <Link href="/account" className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
-              Check your dashboard.
-            </Link>
-          </p>
         </form>
       )}
     </div>
