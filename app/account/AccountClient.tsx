@@ -365,7 +365,7 @@ export default function AccountClient({
           </div>
           {sessionCredits > 0 ? (
             <a
-              href="https://cal.com/lukedespain"
+              href="https://cal.com/sonant/feedback"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity shrink-0"

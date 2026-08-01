@@ -187,13 +187,13 @@ function NextSteps({ briefId }: { briefId: string | null }) {
             Upload to <span className="italic">This Brief</span>
           </h3>
           <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Drop your finished track directly to this brief. Every upload is reviewed. Selected work enters the Sonant Catalog and gets pitched to music supervisors.
+            Share your take publicly on this brief. See what other composers wrote to the same direction, compare approaches, and get ears on your work.
           </p>
           <ul className="space-y-2 mb-8 flex-1">
             {[
-              'Attached directly to this brief',
-              'Reviewed by working composers and supervisors',
-              '70/30 split in composer favor on placements',
+              'Attached publicly to this brief',
+              'Compare approaches with other composers',
+              'No submission credits required',
               'Non-exclusive: submit elsewhere too',
             ].map((b, i) => (
               <li key={i} className="flex gap-3 items-baseline text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -227,31 +227,31 @@ function NextSteps({ briefId }: { briefId: string | null }) {
               </p>
             )}
             <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Free during Beta · MP3 or AAC · Max 50 MB
+              MP3 or AAC · Max 50 MB
             </div>
           </div>
         </div>
 
-        {/* Path 02 — Live Review */}
+        {/* Path 02 — Feedback Session */}
         <div className="relative p-8 border border-[#E85D2F]/30 bg-[var(--bg-card)] hover:border-[#E85D2F]/60 transition-colors flex flex-col" style={{ borderRadius: '2px' }}>
           <div className="flex items-start justify-between mb-6">
             <span className="text-2xl text-[#E85D2F]">▷</span>
             <span className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Live Review · Path 02
+              Feedback · Path 02
             </span>
           </div>
           <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-            Book a <span className="italic">1:1 Live Review</span>
+            Book a <span className="italic">Feedback Session</span>
           </h3>
           <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            A real-time Zoom session with a working sync composer. We listen to your track in full, give feedback on whether you hit the brief, and tell you what would push it from good to placed.
+            A 45-minute session with a working sync composer. We listen to your track in full, compare it against the brief, and tell you exactly what it would take to place it.
           </p>
           <ul className="space-y-2 mb-8 flex-1">
             {[
-              'Real-time playback and timestamped notes',
-              'Honest assessment vs. brief intent',
-              "Catalog-ready feedback (or what's missing)",
-              'Recording of session sent after',
+              '45-minute Zoom with recorded notes',
+              'Direct comparison against your brief',
+              'Honest catalog-readiness assessment',
+              'Session recording sent after',
             ].map((b, i) => (
               <li key={i} className="flex gap-3 items-baseline text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 <span className="text-[#E85D2F]">—</span>
@@ -261,14 +261,14 @@ function NextSteps({ briefId }: { briefId: string | null }) {
           </ul>
           <div className="space-y-3">
             <Link
-              href="/reviews"
+              href="/feedback"
               className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
             >
-              ▷ Book a Live Review
+              ▷ Book a Feedback Session
             </Link>
             <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Free during Beta · 15 minute sessions
+              $50 · $25 for Pro members
             </div>
           </div>
         </div>

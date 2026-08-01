@@ -217,7 +217,7 @@ export default function SubmitTrackModal({ briefId, projectName, alreadySubmitte
                       </div>
                     </div>
                     <span className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      I understand this uses one of my submissions for this round. Free accounts get 1 submission per round. Pro accounts get 3.
+                      I understand this uses 1 submission credit. Credits are issued monthly and carry over unused.
                     </span>
                   </label>
                 </div>
