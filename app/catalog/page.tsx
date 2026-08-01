@@ -7,17 +7,13 @@ export default function CatalogPage() {
       <div className="max-w-5xl mx-auto px-6 md:px-10">
 
         <div className="mb-20">
-          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            ◆ The Catalog
-          </div>
-
           <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-6 max-w-2xl" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-            This is where your track{' '}
-            <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>ends up.</span>
+            The Sonant{' '}
+            <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Catalog.</span>
           </h1>
 
           <p className="text-base text-[var(--text-tertiary)] mb-3 max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Tracks accepted from active Sonant briefs join the Sonant catalog, actively pitched to music supervisors, agencies, studios, and sync buyers.
+            Music accepted from Sonant brief submissions, actively pitched to music supervisors, agencies, studios, and sync buyers.
           </p>
           <p className="text-sm text-[var(--text-muted)] mb-10 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Every submission is individually reviewed. The bar is the point.
@@ -62,9 +58,6 @@ export default function CatalogPage() {
 
         {/* How it works */}
         <div className="border-t border-[var(--border-base)] pt-16">
-          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-10" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            ◆ How tracks get in
-          </div>
           <div className="space-y-0 border-t border-[var(--border-base)]">
             {[
               {

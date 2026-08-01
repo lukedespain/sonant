@@ -29,10 +29,6 @@ export default async function FeedbackPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-16">
           <div>
-            <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              ◆ 1:1 Feedback
-            </div>
-
             <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-6" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
               Get notes on<br />
               <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>your track.</span>

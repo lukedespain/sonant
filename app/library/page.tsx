@@ -79,10 +79,6 @@ export default async function LibraryPage() {
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <BriefImporter />
 
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Submissions
-        </div>
-
         <div className="flex items-end justify-between gap-6 mb-3 flex-wrap">
           <h1 className="text-5xl md:text-6xl tracking-tight leading-tight" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
             My <span className="italic">submissions</span>.

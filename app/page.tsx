@@ -48,12 +48,6 @@ export default async function LandingPage() {
 
       {/* ── Hero ── */}
       <section className="min-h-[88vh] flex flex-col justify-center max-w-6xl mx-auto px-6 md:px-10 pt-24 pb-16">
-        <div
-          className="text-[10px] tracking-[0.5em] uppercase text-[#E85D2F] mb-8"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          ◆ Built for music composers.
-        </div>
         <h1
           className="tracking-tight leading-[0.92] mb-8"
           style={{
@@ -145,13 +139,6 @@ export default async function LandingPage() {
       {featured && gc && (
         <section className="border-t border-[var(--border-base)]">
           <div className="max-w-6xl mx-auto px-6 md:px-10 py-16">
-            <div
-              className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-12"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              ◆ Active Sonant Brief
-            </div>
-
             {gc.imageUrl ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
                 <div className="overflow-hidden" style={{ borderRadius: '2px' }}>
@@ -216,12 +203,6 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-16">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <div
-                className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-3"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                ◆ FAQ
-              </div>
               <h2
                 className="text-3xl tracking-tight"
                 style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}

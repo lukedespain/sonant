@@ -140,12 +140,6 @@ export default function AccountClient({
 
       {/* ── Page header ── */}
       <div>
-        <div
-          className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          ◆ Dashboard
-        </div>
         <h1
           className="text-5xl md:text-6xl tracking-tight leading-tight"
           style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
@@ -242,21 +236,33 @@ export default function AccountClient({
         </div>
       </div>
 
-      {/* ── Sonant Submissions ── */}
+      {/* ── Submissions ── */}
       <div>
-        <div
-          className="text-[10px] tracking-[0.4em] uppercase text-[var(--text-muted)] mb-4"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        <h2
+          className="text-3xl tracking-tight mb-5"
+          style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
         >
-          ◆ Sonant Submissions
-        </div>
+          Submissions<span className="italic">.</span>
+        </h2>
         {submissions.length === 0 ? (
-          <p
-            className="text-sm text-[var(--text-muted)] leading-relaxed"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
+          <div
+            className="border border-[var(--border-card)] bg-[var(--bg-card)] p-6 flex items-center justify-between gap-4 flex-wrap"
+            style={{ borderRadius: '2px' }}
           >
-            No submissions yet. Browse active briefs below to find one worth writing to.
-          </p>
+            <p
+              className="text-sm text-[var(--text-muted)]"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              No submissions yet.
+            </p>
+            <Link
+              href="/browse"
+              className="px-5 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors shrink-0"
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+            >
+              ◆ Browse Sonant Briefs
+            </Link>
+          </div>
         ) : (
           <div className="border-t border-[var(--border-base)]">
             {submissions.map((s) => {
@@ -305,27 +311,7 @@ export default function AccountClient({
       </div>
 
       {/* ── Credits + Browse action ── */}
-      <div className="flex items-center justify-between gap-4 flex-wrap border-t border-[var(--border-base)] pt-8">
-        <div>
-          <div
-            className="text-sm text-[var(--text-primary)] mb-1"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            {submissionCredits === 0
-              ? 'No submission credits remaining.'
-              : `${submissionCredits} submission credit${submissionCredits === 1 ? '' : 's'} available.`}
-          </div>
-          {submissionCredits === 0 && (
-            <button
-              onClick={() => startCheckout('submission')}
-              disabled={checkoutLoading === 'submission'}
-              className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors disabled:opacity-40"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              {checkoutLoading === 'submission' ? '…' : `Buy a credit — $${isPro ? '5' : '10'} →`}
-            </button>
-          )}
-        </div>
+      <div className="flex items-center gap-4 flex-wrap border-t border-[var(--border-base)] pt-8">
         <Link
           href="/browse"
           className="px-5 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors shrink-0"
@@ -333,67 +319,87 @@ export default function AccountClient({
         >
           ◆ Browse Sonant Briefs
         </Link>
+        <span
+          className="text-sm text-[var(--text-secondary)]"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {submissionCredits === 0
+            ? 'No submission credits.'
+            : `${submissionCredits} credit${submissionCredits === 1 ? '' : 's'} available.`}
+        </span>
+        <button
+          onClick={() => startCheckout('submission')}
+          disabled={checkoutLoading === 'submission'}
+          className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors disabled:opacity-40 ml-auto"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        >
+          {checkoutLoading === 'submission' ? '…' : `Buy a credit — $${isPro ? '5' : '10'} →`}
+        </button>
       </div>
 
-      {/* ── Feedback session module ── */}
+      {/* ── Feedback Appointments ── */}
       <div
         className="border border-[var(--border-card)] bg-[var(--bg-card)] p-6"
         style={{ borderRadius: '2px' }}
       >
-        <div
-          className="text-[9px] tracking-[0.35em] uppercase text-[#E85D2F] mb-3"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        <h3
+          className="text-lg mb-1"
+          style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
         >
-          Need feedback on a track?
-        </div>
+          Feedback Appointments
+        </h3>
         <p
-          className="text-sm text-[var(--text-secondary)] leading-relaxed mb-5"
+          className="text-xs text-[var(--text-muted)] mb-5"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Bring a work-in-progress. We&apos;ll compare it against your brief and give you clear next steps.
+          45 min · {isPro ? '$25 for Pro members' : '$50 per session'}
         </p>
         <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div
+          <span
             className="text-xs text-[var(--text-muted)]"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
             {sessionCredits > 0
-              ? `45 min · ${sessionCredits} session credit${sessionCredits === 1 ? '' : 's'} available`
-              : isPro
-                ? '45 min · $25 for Pro members'
-                : '45 min · $50'}
+              ? `${sessionCredits} session credit${sessionCredits === 1 ? '' : 's'} available`
+              : 'No session credits.'}
+          </span>
+          <div className="flex items-center gap-4 flex-wrap shrink-0">
+            {sessionCredits > 0 ? (
+              <a
+                href="https://cal.com/sonant/feedback"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Schedule a session →
+              </a>
+            ) : (
+              <button
+                onClick={() => startCheckout('session')}
+                disabled={checkoutLoading === 'session'}
+                className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity disabled:opacity-40"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                {checkoutLoading === 'session' ? '…' : `Book a session — $${isPro ? '25' : '50'} →`}
+              </button>
+            )}
+            {sessionCredits > 0 && (
+              <button
+                onClick={() => startCheckout('session')}
+                disabled={checkoutLoading === 'session'}
+                className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors disabled:opacity-40"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                {checkoutLoading === 'session' ? '…' : `Buy another — $${isPro ? '25' : '50'} →`}
+              </button>
+            )}
           </div>
-          {sessionCredits > 0 ? (
-            <a
-              href="https://cal.com/sonant/feedback"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity shrink-0"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              Book a feedback session →
-            </a>
-          ) : (
-            <button
-              onClick={() => startCheckout('session')}
-              disabled={checkoutLoading === 'session'}
-              className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity disabled:opacity-40 shrink-0"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              {checkoutLoading === 'session' ? '…' : `Book a session — $${isPro ? '25' : '50'} →`}
-            </button>
-          )}
         </div>
       </div>
 
       {/* ── Your Practice ── */}
       <div>
-        <div
-          className="text-[10px] tracking-[0.4em] uppercase text-[var(--text-muted)] mb-4"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          ◆ Your Practice
-        </div>
         {hasActivity ? (
           <div
             className="text-sm text-[var(--text-secondary)] flex flex-wrap gap-x-6 gap-y-1 mb-5"
@@ -441,12 +447,12 @@ export default function AccountClient({
           className="border border-[#E85D2F]/30 bg-[#E85D2F]/5 p-6"
           style={{ borderRadius: '2px' }}
         >
-          <div
-            className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-2"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          <p
+            className="text-sm text-[#E85D2F] mb-2"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}
           >
-            ◆ Go Pro — $12/month
-          </div>
+            Go Pro · $12/month
+          </p>
           <p
             className="text-sm text-[var(--text-secondary)] mb-5"
             style={{ fontFamily: "'DM Sans', sans-serif" }}

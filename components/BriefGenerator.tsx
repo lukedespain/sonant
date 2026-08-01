@@ -164,9 +164,6 @@ function NextSteps({ briefId }: { briefId: string | null }) {
 
   return (
     <section className="max-w-5xl mx-auto px-6 md:px-10 py-20">
-      <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-        ◆ Next Steps
-      </div>
       <h2 className="text-4xl md:text-5xl mb-3 tracking-tight leading-tight" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
         Once your track is <span className="italic">ready</span>.
       </h2>
@@ -506,12 +503,6 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
 
       {/* ── Hero ── */}
       <section className="max-w-5xl mx-auto px-6 md:px-10 pt-20 pb-10">
-        <div
-          className="text-[10px] tracking-[0.45em] uppercase text-[#E85D2F] mb-5"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          ◆ Generator
-        </div>
         <h1
           className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-3 max-w-2xl"
           style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
@@ -524,13 +515,6 @@ export default function BriefGenerator({ user, isAdmin = false }: { user: { emai
         >
           Build a practice brief to write to. Pick a type, category, mood, and genre. We&apos;ll generate a full creative direction.
         </p>
-        <Link
-          href="/browse"
-          className="text-xs tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          ◆ View this round&apos;s competitive briefs →
-        </Link>
       </section>
 
       <div className="border-t border-[var(--border-base)]" />
