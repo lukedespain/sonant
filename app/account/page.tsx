@@ -9,88 +9,91 @@ const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
 export default async function AccountPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) redirect('/login');
 
   const admin = createAdminClient();
 
-  const { data: profile } = await admin
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  // Activity stats + recent submissions
   const [
-    { count: submissionsCount },
-    { count: uploadsCount },
-    { data: generatedBriefs },
-    { data: featuredBriefs },
-    { data: userTracks },
-    { data: recentSubmissions },
+    { data: profile },
+    { data: rawBriefs },
+    { data: rawTracks },
+    { data: rawSubmissions },
   ] = await Promise.all([
-    admin.from('submissions').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-    admin.from('community_tracks').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-    admin.from('briefs').select('id').eq('user_id', user.id).neq('user_id', ADMIN_USER_ID),
-    admin.from('briefs').select('featured_track_id').not('featured_track_id', 'is', null),
-    admin.from('community_tracks').select('id').eq('user_id', user.id),
-    admin.from('submissions')
-      .select('id, status, created_at, brief_id')
+    admin.from('profiles').select('*').eq('id', user.id).single(),
+    admin
+      .from('briefs')
+      .select('id, mode, target, genres, moods, generated_content, created_at')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(10),
+      .neq('user_id', ADMIN_USER_ID)
+      .order('created_at', { ascending: false }),
+    admin
+      .from('community_tracks')
+      .select('id, brief_id, file_name, file_url, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
+    admin
+      .from('submissions')
+      .select('id, brief_id, status, feedback, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
   ]);
 
-  // Fetch brief codenames for submissions
-  const briefIds = [...new Set((recentSubmissions ?? []).map((s) => s.brief_id as string))];
-  const { data: submissionBriefs } = briefIds.length
-    ? await admin.from('briefs').select('id, generated_content').in('id', briefIds)
+  // Brief codenames for tracks
+  const trackBriefIds = [...new Set((rawTracks ?? []).map((t) => t.brief_id as string))];
+  const { data: trackBriefs } = trackBriefIds.length
+    ? await admin.from('briefs').select('id, generated_content').in('id', trackBriefIds)
     : { data: [] };
-  const briefCodenames = Object.fromEntries(
-    (submissionBriefs ?? []).map((b) => [
+  const trackBriefMap = Object.fromEntries(
+    (trackBriefs ?? []).map((b) => [
       b.id,
       (b.generated_content as { codename?: string })?.codename ?? 'Untitled',
     ])
   );
 
-  const submissionsForDashboard = (recentSubmissions ?? []).map((s) => ({
-    id: s.id as string,
-    briefId: s.brief_id as string,
-    codename: briefCodenames[s.brief_id as string] ?? 'Untitled',
-    status: s.status as string,
-    createdAt: s.created_at as string,
-  }));
-
-  const featuredTrackIds = new Set((featuredBriefs ?? []).map((b) => b.featured_track_id as string));
-  const userTrackIds = new Set((userTracks ?? []).map((t) => t.id));
-  const featuredCount = [...featuredTrackIds].filter((id) => userTrackIds.has(id)).length;
+  // Brief codenames for submissions
+  const subBriefIds = [...new Set((rawSubmissions ?? []).map((s) => s.brief_id as string))];
+  const { data: subBriefs } = subBriefIds.length
+    ? await admin.from('briefs').select('id, generated_content').in('id', subBriefIds)
+    : { data: [] };
+  const subBriefMap = Object.fromEntries(
+    (subBriefs ?? []).map((b) => [
+      b.id,
+      (b.generated_content as { codename?: string })?.codename ?? 'Untitled',
+    ])
+  );
 
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : '';
 
-  const isPro = profile?.tier === 'pro' || (user.email?.endsWith('@sonant.ac') ?? false);
-
   return (
     <div className="pt-20 pb-16 flex-1">
       <div className="max-w-5xl mx-auto px-6 md:px-10">
-
         <AccountClient
           userId={user.id}
           initialName={profile?.full_name ?? ''}
           initialAvatarUrl={(profile as any)?.avatar_url ?? null}
           email={user.email ?? ''}
-          isPro={isPro}
           memberSince={memberSince}
           submissionCredits={(profile as any)?.submission_credits ?? 0}
           sessionCredits={(profile as any)?.session_credits ?? 0}
-          stats={{
-            submissions: submissionsCount ?? 0,
-            featured: featuredCount,
-            uploads: uploadsCount ?? 0,
-            generations: generatedBriefs?.length ?? 0,
-          }}
-          submissions={submissionsForDashboard}
+          generatedBriefs={(rawBriefs ?? []) as any[]}
+          uploadedTracks={(rawTracks ?? []).map((t) => ({
+            id: t.id as string,
+            briefId: t.brief_id as string,
+            briefCodename: trackBriefMap[t.brief_id as string] ?? 'Untitled',
+            fileName: t.file_name as string,
+            fileUrl: t.file_url as string,
+            createdAt: t.created_at as string,
+          }))}
+          catalogSubmissions={(rawSubmissions ?? []).map((s) => ({
+            id: s.id as string,
+            briefId: s.brief_id as string,
+            briefCodename: subBriefMap[s.brief_id as string] ?? 'Untitled',
+            status: s.status as string,
+            feedback: s.feedback as string | null,
+            createdAt: s.created_at as string,
+          }))}
           signOutAction={signOut}
         />
       </div>

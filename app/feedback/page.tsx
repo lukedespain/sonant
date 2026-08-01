@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import BuySessionButton from '@/components/BuySessionButton';
 
 export default async function FeedbackPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   let sessionCredits = 0;
-  let isPro = false;
 
   if (user) {
     const admin = createAdminClient();
@@ -18,10 +18,10 @@ export default async function FeedbackPage() {
       .single();
 
     sessionCredits = (profile as any)?.session_credits ?? 0;
-    isPro = (profile as any)?.tier === 'pro' || (user.email?.endsWith('@sonant.ac') ?? false);
   }
 
   const canBook = !!user && sessionCredits > 0;
+  const hasNoCredits = !!user && sessionCredits === 0;
 
   return (
     <div className="pt-20 pb-24 flex-1">
@@ -45,8 +45,7 @@ export default async function FeedbackPage() {
             <div className="space-y-4 border-t border-[var(--border-base)] pt-8">
               {[
                 { label: 'Session length', value: '45 minutes' },
-                { label: 'Standard rate', value: '$50 / session' },
-                { label: 'Pro member rate', value: '$25 / session' },
+                { label: 'Rate', value: '$50 / session' },
               ].map(({ label, value }) => (
                 <div key={label} className="flex items-center justify-between">
                   <span className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
@@ -76,44 +75,54 @@ export default async function FeedbackPage() {
                   title="Book a 1:1 feedback session"
                 />
               </div>
+            ) : hasNoCredits ? (
+              <div className="relative" style={{ borderRadius: '2px' }}>
+                {/* Blurred calendar */}
+                <div
+                  className="border border-[var(--border-card)] bg-[var(--bg-card)] overflow-hidden pointer-events-none select-none"
+                  style={{ borderRadius: '2px' }}
+                  aria-hidden="true"
+                >
+                  <iframe
+                    src="https://cal.com/sonant/feedback?embed=true&theme=light"
+                    style={{ width: '100%', height: '500px', border: 'none', filter: 'blur(5px)', opacity: 0.35 }}
+                    tabIndex={-1}
+                  />
+                </div>
+                {/* Overlay CTA */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div
+                    className="border border-[var(--border-card)] bg-[var(--bg-base)] p-8 text-center mx-4 w-full max-w-xs"
+                    style={{ borderRadius: '2px' }}
+                  >
+                    <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      No session credits
+                    </div>
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      Purchase a session credit to unlock booking.
+                    </p>
+                    <BuySessionButton />
+                  </div>
+                </div>
+              </div>
             ) : (
               <div
                 className="border border-[var(--border-card)] bg-[var(--bg-card)] p-8 flex flex-col justify-center"
                 style={{ borderRadius: '2px', minHeight: '300px' }}
               >
-                {!user ? (
-                  <>
-                    <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      Sign in to book
-                    </div>
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      You need an account to book a session. Sessions are available to purchase from your dashboard.
-                    </p>
-                    <Link
-                      href="/login?redirect=/feedback"
-                      className="inline-block px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors w-fit"
-                      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-                    >
-                      ◆ Sign In
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      No sessions available
-                    </div>
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      You don&apos;t have any session credits. {isPro ? 'Purchase a session from your dashboard.' : 'Go Pro to get a free welcome session, or purchase one directly.'}
-                    </p>
-                    <Link
-                      href="/account"
-                      className="inline-block px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors w-fit"
-                      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-                    >
-                      ◆ Go to Dashboard
-                    </Link>
-                  </>
-                )}
+                <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  Sign in to book
+                </div>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  You need an account to book a session.
+                </p>
+                <Link
+                  href="/login?redirect=/feedback"
+                  className="inline-block px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors w-fit"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                >
+                  ◆ Sign In
+                </Link>
               </div>
             )}
           </div>
