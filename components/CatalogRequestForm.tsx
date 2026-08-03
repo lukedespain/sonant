@@ -60,7 +60,7 @@ export default function CatalogRequestForm() {
             className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
-            ◆ Request Catalog Access (for music buyers)
+            ◆ Request Catalog Access
           </button>
         </div>
       ) : (

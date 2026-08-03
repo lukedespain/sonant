@@ -21,37 +21,50 @@ export default function CatalogPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
             <div>
-              <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                For composers
-              </div>
+              <h2 className="text-2xl tracking-tight mb-4" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+                For <span className="italic">composers.</span>
+              </h2>
               <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 Submit your track to an active Sonant brief. Every submission gets written feedback. Accepted tracks are added here.
               </p>
               <Link
                 href="/browse"
-                className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
               >
                 ◆ View Active Briefs
               </Link>
               <div className="mt-4">
                 <Link
                   href="/account"
-                  className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
+                  className="text-[10px] tracking-[0.2em] uppercase hover:opacity-75 transition-opacity"
                   style={{ fontFamily: "'JetBrains Mono', monospace" }}
                 >
-                  Submitted music to Sonant? Check your dashboard →
+                  <span className="text-[var(--text-dimmer)]">Submitted music to Sonant? </span>
+                  <span className="text-[#E85D2F]">Check your dashboard →</span>
                 </Link>
               </div>
             </div>
             <div>
-              <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                For music buyers
-              </div>
+              <h2 className="text-2xl tracking-tight mb-4" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+                For music <span className="italic">buyers.</span>
+              </h2>
               <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 The catalog is curated and access is by request. We&apos;ll be in touch within 1–2 business days.
               </p>
               <CatalogRequestForm />
+              <div className="mt-4">
+                <a
+                  href="https://sonant.ac"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] tracking-[0.2em] uppercase hover:opacity-75 transition-opacity"
+                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                >
+                  <span className="text-[var(--text-dimmer)]">Already have access? </span>
+                  <span className="text-[#E85D2F]">Browse the catalog →</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
