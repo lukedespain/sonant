@@ -132,9 +132,9 @@ export default async function BrowseBriefPage({ params }: PageProps) {
         </div>
 
         {/* Featured track player hidden. Keep FeaturedTrackPlayer.tsx to restore later. */}
-        {false && featuredTrackUrl && (
+        {featuredTrackUrl && false && (
           <FeaturedTrackPlayer
-            url={featuredTrackUrl}
+            url={featuredTrackUrl ?? ''}
             fileName={featuredTrack?.file_name}
             briefId={briefRow.id}
             briefName={briefName}

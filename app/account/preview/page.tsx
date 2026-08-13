@@ -13,15 +13,6 @@ export default function AccountPreviewPage() {
     { id: '2', briefId: 'b2', briefCodename: 'Project Veil', status: 'received', feedback: null, createdAt: '2026-06-01T00:00:00Z' },
   ];
 
-  const mockBriefs = [
-    { id: 'b1', mode: 'brand', target: 'Automotive', genres: ['Electronic', 'Ambient'], moods: ['Cinematic', 'Tense'], generated_content: { codename: 'Ember', project: 'A high-energy brand campaign for a premium automotive launch' }, created_at: '2026-04-20T00:00:00Z' },
-    { id: 'b2', mode: 'film', target: 'Drama', genres: ['Orchestral'], moods: ['Melancholic'], generated_content: { codename: 'Veil', project: 'Score for an indie drama short' }, created_at: '2026-05-02T00:00:00Z' },
-  ];
-
-  const mockTracks = [
-    { id: 't1', briefId: 'b1', briefCodename: 'Ember', fileName: 'ember_v2_final.wav', fileUrl: '', createdAt: '2026-04-25T00:00:00Z' },
-  ];
-
   return (
     <div className="pt-16 pb-24 flex-1">
       <div className="max-w-5xl mx-auto px-6 md:px-10 space-y-24">
@@ -39,8 +30,6 @@ export default function AccountPreviewPage() {
             memberSince="May 6, 2026"
             submissionCredits={0}
             sessionCredits={0}
-            generatedBriefs={[]}
-            uploadedTracks={[]}
             catalogSubmissions={[]}
             signOutAction={noopSignOut}
           />
@@ -59,8 +48,6 @@ export default function AccountPreviewPage() {
             memberSince="April 20, 2026"
             submissionCredits={1}
             sessionCredits={1}
-            generatedBriefs={mockBriefs as any[]}
-            uploadedTracks={mockTracks}
             catalogSubmissions={mockSubmissions}
             signOutAction={noopSignOut}
           />
