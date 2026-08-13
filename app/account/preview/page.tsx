@@ -9,7 +9,7 @@ export default function AccountPreviewPage() {
   }
 
   const mockSubmissions = [
-    { id: '1', briefId: 'b1', briefCodename: 'Project Ember', status: 'feedback_ready', feedback: 'Great work on the low end. The mids need some clarity around 2kHz. Overall, the brief match is strong — cinematic arc tracks well.', createdAt: '2026-05-10T00:00:00Z' },
+    { id: '1', briefId: 'b1', briefCodename: 'Project Ember', status: 'feedback_ready', feedback: 'Great work on the low end. The mids need some clarity around 2kHz. Overall, the brief match is strong. Cinematic arc tracks well.', createdAt: '2026-05-10T00:00:00Z' },
     { id: '2', briefId: 'b2', briefCodename: 'Project Veil', status: 'received', feedback: null, createdAt: '2026-06-01T00:00:00Z' },
   ];
 

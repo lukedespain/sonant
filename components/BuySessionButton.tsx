@@ -26,7 +26,7 @@ export default function BuySessionButton() {
       className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50"
       style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
     >
-      {loading ? '…' : 'Buy Session — $50'}
+      {loading ? '…' : 'Buy Session · $50'}
     </button>
   );
 }

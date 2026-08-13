@@ -7,9 +7,10 @@ type Props = {
   briefId: string;
   projectName: string;
   alreadySubmitted: boolean;
+  triggerClassName?: string;
 };
 
-export default function SubmitTrackModal({ briefId, projectName, alreadySubmitted }: Props) {
+export default function SubmitTrackModal({ briefId, projectName, alreadySubmitted, triggerClassName }: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,8 +76,8 @@ export default function SubmitTrackModal({ briefId, projectName, alreadySubmitte
     <>
       <button
         onClick={handleOpen}
-        className="text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+        className={triggerClassName ?? "text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"}
+        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
       >
         ↑ Submit Track
       </button>

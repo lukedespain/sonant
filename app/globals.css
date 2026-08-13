@@ -108,7 +108,26 @@ body {
   color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
-  padding-bottom: 130px;
+  padding-bottom: 48px;
+}
+
+#generator {
+  scroll-margin-top: 72px;
+}
+
+.sonant-h-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.sonant-h-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.sonant-h-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 2px;
 }
 
 /* AudioPlayerBar seekbar */

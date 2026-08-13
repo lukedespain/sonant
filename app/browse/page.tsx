@@ -23,27 +23,23 @@ interface BriefRow {
 export default async function BrowsePage() {
   const admin = createAdminClient();
 
-  const [
-    { data: featuredBriefs },
-    { data: communityBriefs },
-  ] = await Promise.all([
-    admin
-      .from('briefs')
-      .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
-      .eq('user_id', ADMIN_USER_ID)
-      .order('created_at', { ascending: false })
-      .returns<BriefRow[]>(),
-    admin
-      .from('briefs')
-      .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
-      .neq('user_id', ADMIN_USER_ID)
-      .order('created_at', { ascending: false })
-      .limit(200)
-      .returns<BriefRow[]>(),
-  ]);
+  const { data: featuredBriefs } = await admin
+    .from('briefs')
+    .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
+    .eq('user_id', ADMIN_USER_ID)
+    .order('created_at', { ascending: false })
+    .returns<BriefRow[]>();
+
+  const { data: communityBriefs } = await admin
+    .from('briefs')
+    .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
+    .neq('user_id', ADMIN_USER_ID)
+    .order('created_at', { ascending: false })
+    .limit(80)
+    .returns<BriefRow[]>();
 
   return (
-    <div className="pt-20 pb-12 flex-1">
+    <div className="pt-16 md:pt-20 pb-12 flex-1">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <BrowseClient
           featuredBriefs={featuredBriefs ?? []}

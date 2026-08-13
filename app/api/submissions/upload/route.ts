@@ -5,7 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { sendSubmissionReceivedEmail } from '@/lib/email';
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
-const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -29,7 +28,7 @@ export async function POST(req: Request) {
 
   const admin = createAdminClient();
 
-  // Verify brief exists and is a Sonant brief
+  // Verify brief exists. Submissions accepted on Sonant briefs and composer-generated briefs.
   const { data: brief } = await admin
     .from('briefs')
     .select('id, user_id, generated_content')
@@ -37,9 +36,7 @@ export async function POST(req: Request) {
     .single();
 
   if (!brief) return NextResponse.json({ error: 'Brief not found' }, { status: 404 });
-  if (brief.user_id !== ADMIN_USER_ID) {
-    return NextResponse.json({ error: 'Only Sonant briefs accept track submissions' }, { status: 400 });
-  }
+  // Submissions accepted on Sonant (featured) briefs and composer-generated briefs.
 
   const ext = file.name.split('.').pop() ?? 'mp3';
   const storagePath = `${briefId}/${user.id}/${Date.now()}.${ext}`;

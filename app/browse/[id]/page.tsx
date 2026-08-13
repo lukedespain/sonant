@@ -42,7 +42,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
   const isFeatured = briefRow.user_id === ADMIN_USER_ID;
   const isAdmin = !!user && user.id === ADMIN_USER_ID;
 
-  const submission = isFeatured ? await getSubmissionStatus(briefRow.id) : null;
+  const submission = await getSubmissionStatus(briefRow.id);
   const alreadySubmitted = submission !== null;
 
   // Fetch community tracks for all briefs
@@ -109,14 +109,14 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             {isAdmin && <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />}
             {isPro && <SunoPromptModal brief={brief} />}
             <ExportPdfButton />
-            {isFeatured && user && (
+            {user && (
               <SubmitTrackModal
                 briefId={briefRow.id}
                 projectName={brief.codename}
                 alreadySubmitted={alreadySubmitted}
               />
             )}
-            {isFeatured && !user && (
+            {!user && (
               <Link
                 href={`/login?redirect=/browse/${briefRow.id}`}
                 className="px-5 py-2 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
@@ -131,8 +131,8 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Featured track — slim play trigger above the brief document */}
-        {featuredTrackUrl && (
+        {/* Featured track player hidden. Keep FeaturedTrackPlayer.tsx to restore later. */}
+        {false && featuredTrackUrl && (
           <FeaturedTrackPlayer
             url={featuredTrackUrl}
             fileName={featuredTrack?.file_name}
@@ -143,21 +143,22 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
         <BriefDocument brief={brief} isFeatured={isFeatured} />
 
-        {isFeatured ? (
-          /* Competitive briefs — submissions are private, handled by Sonant team */
-          <div className="mt-10 no-print border border-[var(--border-card)] bg-[var(--bg-card)] p-8" style={{ borderRadius: '2px' }}>
-            <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              ◆ Submissions
-            </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Competitive brief submissions are sent privately to the Sonant team. Your track won&apos;t be publicly listed. We review all submissions and accepted tracks are added to the catalog and pitched to real buyers.
-            </p>
-            <p className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Use the &ldquo;Submit Track&rdquo; button above to send your entry.
-            </p>
+        <div className="mt-10 no-print border border-[var(--border-card)] bg-[var(--bg-card)] p-8" style={{ borderRadius: '2px' }}>
+          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-3" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            ◆ Submissions
           </div>
-        ) : (
-          /* Practice/community briefs — public upload list */
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            {isFeatured
+              ? 'This is a featured Sonant brief. Submissions go privately to the Sonant team. Every submission gets written feedback. Accepted tracks are added to the catalog and pitched to buyers.'
+              : 'This is a community brief. You can still submit a track for written feedback and catalog consideration. One submission credit. Featured Sonant briefs are more likely to be placed in the catalog.'}
+          </p>
+          <p className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            Use the Submit Track button above to send your entry.
+          </p>
+        </div>
+
+        {/* Public community uploads hidden. Keep CommunityTracksSection.tsx to restore later. */}
+        {false && (
           <CommunityTracksSection
             briefId={briefRow.id}
             briefName={briefName}

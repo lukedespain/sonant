@@ -29,17 +29,23 @@ export default async function FeedbackPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-16">
           <div>
+            <div
+              className="text-[9px] tracking-[0.35em] uppercase text-[var(--text-dimmer)] mb-4"
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              04  Live notes
+            </div>
             <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-6" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
               Get notes on<br />
               <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>your track.</span>
             </h1>
 
             <p className="text-base text-[var(--text-tertiary)] mb-6 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              A focused one-on-one session where we listen to your track together, compare it against the brief you wrote to, and give you specific notes in real time.
+              A 45-minute session. We listen together, compare the track against the brief you wrote to, and leave you with specific notes, not vague praise.
             </p>
 
             <p className="text-sm text-[var(--text-muted)] mb-10 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Good for checking a track before submission, understanding why something isn&apos;t working, or getting a second ear on a mix you&apos;ve been staring at too long.
+              Use it before a catalog submission, after written feedback, or when a mix has been open too long. The point is to get better at writing to spec.
             </p>
 
             <div className="space-y-4 border-t border-[var(--border-base)] pt-8">

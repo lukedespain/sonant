@@ -1,13 +1,11 @@
 'use client';
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
-type DashTab = 'briefs' | 'tracks' | 'submissions' | 'sessions';
-
-const MODE_LABELS: Record<string, string> = { brand: 'Brand', film: 'Film', games: 'Game' };
+type DashTab = 'submissions' | 'sessions';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   received:       { label: 'Received',       color: 'var(--text-muted)' },
@@ -30,29 +28,11 @@ function getInitials(name: string) {
   return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
-interface BriefRow {
-  id: string;
-  mode: string;
-  target: string;
-  genres: string[];
-  moods: string[];
-  generated_content: { codename?: string; project?: string; [key: string]: unknown };
-  created_at: string;
-}
-
-interface TrackRow {
-  id: string;
-  briefId: string;
-  briefCodename: string;
-  fileName: string;
-  fileUrl: string;
-  createdAt: string;
-}
-
 interface SubmissionRow {
   id: string;
   briefId: string;
   briefCodename: string;
+  briefType?: string;
   status: string;
   feedback: string | null;
   createdAt: string;
@@ -66,34 +46,15 @@ interface Props {
   memberSince: string;
   submissionCredits: number;
   sessionCredits: number;
-  generatedBriefs: BriefRow[];
-  uploadedTracks: TrackRow[];
   catalogSubmissions: SubmissionRow[];
+  initialTab?: string;
   signOutAction: () => Promise<void>;
-}
-
-function TrackPlayButton({ url, fileName, briefId, briefCodename }: {
-  url: string; fileName: string; briefId: string; briefCodename: string;
-}) {
-  const { track, isPlaying, play, pause } = useAudioPlayer();
-  const isActive = track?.url === url;
-  const isCurrentlyPlaying = isActive && isPlaying;
-  return (
-    <button
-      onClick={() => isCurrentlyPlaying ? pause() : play({ url, fileName, briefId, briefName: briefCodename })}
-      className="flex items-center justify-center w-7 h-7 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors shrink-0 text-[10px]"
-      style={{ borderRadius: '50%' }}
-      title={isCurrentlyPlaying ? 'Pause' : 'Play'}
-    >
-      {isCurrentlyPlaying ? '■' : '▶'}
-    </button>
-  );
 }
 
 export default function AccountClient({
   userId, initialName, initialAvatarUrl, email, memberSince,
-  submissionCredits, sessionCredits, generatedBriefs, uploadedTracks,
-  catalogSubmissions, signOutAction,
+  submissionCredits, sessionCredits, catalogSubmissions,
+  initialTab, signOutAction,
 }: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -107,8 +68,9 @@ export default function AccountClient({
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<DashTab>('briefs');
-  const [briefSearch, setBriefSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<DashTab>(
+    initialTab === 'sessions' ? 'sessions' : 'submissions'
+  );
   const [expandedFeedback, setExpandedFeedback] = useState<Set<string>>(new Set());
 
   async function startCheckout(type: 'submission' | 'session') {
@@ -179,22 +141,14 @@ export default function AccountClient({
   }
 
   const color = avatarColor(userId);
-
-  const filteredBriefs = useMemo(() => {
-    if (!briefSearch.trim()) return generatedBriefs;
-    const q = briefSearch.toLowerCase();
-    return generatedBriefs.filter((b) => {
-      const codename = b.generated_content?.codename?.toLowerCase() ?? '';
-      const project = b.generated_content?.project?.toLowerCase() ?? '';
-      return codename.includes(q) || project.includes(q) || b.target.toLowerCase().includes(q);
-    });
-  }, [generatedBriefs, briefSearch]);
+  const acceptedCount = catalogSubmissions.filter(
+    (s) => s.status === 'accepted' && s.briefType !== 'client'
+  ).length;
+  const hasBadge = acceptedCount >= 3;
 
   const tabs: { key: DashTab; label: string; count: number }[] = [
-    { key: 'briefs',       label: 'Generated Briefs',    count: generatedBriefs.length },
-    { key: 'tracks',       label: 'Uploaded Tracks',      count: uploadedTracks.length },
-    { key: 'submissions',  label: 'Catalog Submissions',  count: catalogSubmissions.length },
-    { key: 'sessions',     label: 'Feedback Sessions',    count: 0 },
+    { key: 'submissions', label: 'Submissions', count: catalogSubmissions.length },
+    { key: 'sessions',    label: 'Sessions',    count: 0 },
   ];
 
   const mono = { fontFamily: "'JetBrains Mono', monospace" };
@@ -269,16 +223,30 @@ export default function AccountClient({
           {avatarError && <p className="text-[10px] text-[#FF8B6B] mb-1" style={mono}>× {avatarError}</p>}
           <p className="text-sm text-[var(--text-muted)] mb-2" style={sans}>{email}</p>
           <div className="flex items-center gap-3 flex-wrap">
-            <span
-              className="text-[9px] tracking-[0.25em] uppercase px-2 py-1 border border-[var(--border-subtle)] text-[var(--text-muted)]"
-              style={{ ...mono, borderRadius: '2px' }}
-            >
-              Beta
-            </span>
+            {hasBadge ? (
+              <span
+                className="text-[9px] tracking-[0.25em] uppercase px-2 py-1 border border-[#E85D2F]/40 text-[#E85D2F]"
+                style={{ ...mono, borderRadius: '2px' }}
+              >
+                ◆ Sonant Composer
+              </span>
+            ) : (
+              <span
+                className="text-[9px] tracking-[0.25em] uppercase px-2 py-1 border border-[var(--border-subtle)] text-[var(--text-muted)]"
+                style={{ ...mono, borderRadius: '2px' }}
+                title="Three accepted catalog submissions earns the badge"
+              >
+                Badge {acceptedCount}/3
+              </span>
+            )}
             <span className="text-[10px] text-[var(--text-dimmer)]" style={mono}>
               1 submission credit / month
             </span>
           </div>
+        </div>
+
+        <div className="shrink-0 mt-1">
+          <ThemeToggle />
         </div>
       </div>
 
@@ -286,7 +254,7 @@ export default function AccountClient({
       <div className="grid grid-cols-2 gap-4">
         <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-5" style={{ borderRadius: '2px' }}>
           <div className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={mono}>
-            Submission Credits
+            Catalog Submission Credits
           </div>
           <div className="flex items-end justify-between gap-2">
             <span className="text-3xl text-[var(--text-primary)]" style={{ ...serif, fontWeight: 300 }}>
@@ -304,7 +272,7 @@ export default function AccountClient({
         </div>
         <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-5" style={{ borderRadius: '2px' }}>
           <div className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={mono}>
-            Session Credits
+            Feedback Session Credits
           </div>
           <div className="flex items-end justify-between gap-2">
             <span className="text-3xl text-[var(--text-primary)]" style={{ ...serif, fontWeight: 300 }}>
@@ -343,190 +311,24 @@ export default function AccountClient({
 
         <div className="mt-8">
 
-          {/* ── Generated Briefs ── */}
-          {activeTab === 'briefs' && (
-            <div>
-              <div className="flex items-end justify-between gap-4 mb-6">
-                <h2 className="text-2xl tracking-tight" style={{ ...serif, fontWeight: 300 }}>
-                  Your generated <span className="italic">briefs.</span>
-                </h2>
-                <Link
-                  href="/generator"
-                  className="px-4 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors shrink-0"
-                  style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
-                >
-                  Generate Brief
-                </Link>
-              </div>
-
-              {generatedBriefs.length > 0 && (
-                <div className="mb-5">
-                  <input
-                    type="text"
-                    value={briefSearch}
-                    onChange={(e) => setBriefSearch(e.target.value)}
-                    placeholder="Search briefs…"
-                    className="w-full max-w-sm px-4 py-2 text-sm bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] placeholder:text-[var(--text-dimmer)] focus:border-[#E85D2F] focus:outline-none"
-                    style={{ ...sans, borderRadius: '2px' }}
-                  />
-                </div>
-              )}
-
-              {generatedBriefs.length === 0 ? (
-                <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-10 text-center" style={{ borderRadius: '2px' }}>
-                  <p className="text-sm text-[var(--text-muted)] mb-5" style={sans}>
-                    No briefs generated yet.
-                  </p>
-                  <Link
-                    href="/generator"
-                    className="inline-block px-5 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                    style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
-                  >
-                    ◆ Try the Generator
-                  </Link>
-                </div>
-              ) : filteredBriefs.length === 0 ? (
-                <p className="text-sm text-[var(--text-muted)]" style={sans}>No briefs match your search.</p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredBriefs.map((brief) => {
-                    const codename = brief.generated_content?.codename ?? 'Untitled';
-                    const project = brief.generated_content?.project;
-                    const modeLabel = MODE_LABELS[brief.mode] ?? brief.mode;
-                    return (
-                      <Link
-                        key={brief.id}
-                        href={`/browse/${brief.id}`}
-                        className="block border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[#E85D2F] hover:bg-[var(--bg-card-hover)] transition-colors p-5 group"
-                        style={{ borderRadius: '2px' }}
-                      >
-                        <div className="flex items-start justify-between gap-3 mb-2">
-                          <h3
-                            className="text-lg leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors"
-                            style={{ ...serif, fontWeight: 400 }}
-                          >
-                            <span className="italic">{codename}</span>
-                            <span
-                              className="not-italic mx-1.5 text-[10px] align-middle"
-                              style={{ ...mono, color: 'var(--text-dimmer)' }}
-                            >/</span>
-                            <span
-                              className="text-[10px] tracking-[0.2em] uppercase not-italic align-middle"
-                              style={{ ...mono, color: 'var(--text-muted)', fontWeight: 400 }}
-                            >{modeLabel}</span>
-                          </h3>
-                          <span className="text-[10px] text-[var(--text-dimmer)] shrink-0 mt-1" style={mono}>
-                            {new Date(brief.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                          </span>
-                        </div>
-                        {project && (
-                          <p className="text-xs text-[var(--text-muted)] mb-3 line-clamp-2" style={sans}>{project}</p>
-                        )}
-                        <div className="flex flex-wrap gap-1.5">
-                          <span
-                            className="text-[10px] tracking-wider px-2 py-0.5 text-[#E85D2F] border border-[#E85D2F]/30 bg-[#E85D2F]/5"
-                            style={{ ...mono, borderRadius: '2px' }}
-                          >{brief.target}</span>
-                          {[...brief.genres.slice(0, 2), ...brief.moods.slice(0, 1)].map((tag, i) => (
-                            <span
-                              key={`${tag}-${i}`}
-                              className="text-[10px] tracking-wider px-2 py-0.5 bg-[var(--bg-base)] text-[var(--text-tertiary)] border border-[var(--border-card)]"
-                              style={{ ...mono, borderRadius: '2px' }}
-                            >{tag}</span>
-                          ))}
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ── Uploaded Tracks ── */}
-          {activeTab === 'tracks' && (
-            <div>
-              <div className="flex items-end justify-between gap-4 mb-6">
-                <h2 className="text-2xl tracking-tight" style={{ ...serif, fontWeight: 300 }}>
-                  Your uploaded <span className="italic">tracks.</span>
-                </h2>
-                <Link
-                  href="/browse?tab=community"
-                  className="px-4 py-2.5 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors shrink-0"
-                  style={{ ...mono, borderRadius: '2px' }}
-                >
-                  Browse Briefs
-                </Link>
-              </div>
-
-              {uploadedTracks.length === 0 ? (
-                <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-10 text-center" style={{ borderRadius: '2px' }}>
-                  <p className="text-sm text-[var(--text-muted)] mb-5" style={sans}>No tracks uploaded yet.</p>
-                  <Link
-                    href="/browse?tab=community"
-                    className="inline-block px-5 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                    style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
-                  >
-                    ◆ Browse Community Briefs
-                  </Link>
-                </div>
-              ) : (
-                <div className="border-t border-[var(--border-base)]">
-                  {uploadedTracks.map((track) => (
-                    <div key={track.id} className="border-b border-[var(--border-base)] py-4 flex items-center gap-4">
-                      <TrackPlayButton
-                        url={track.fileUrl}
-                        fileName={track.fileName}
-                        briefId={track.briefId}
-                        briefCodename={track.briefCodename}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-[var(--text-primary)] truncate" style={sans}>
-                          {track.fileName}
-                        </div>
-                        <Link
-                          href={`/browse/${track.briefId}`}
-                          className="text-[10px] text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
-                          style={mono}
-                        >
-                          {track.briefCodename}
-                        </Link>
-                      </div>
-                      <span className="text-[10px] text-[var(--text-dimmer)] shrink-0" style={mono}>
-                        {new Date(track.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ── Catalog Submissions ── */}
+          {/* ── Submissions ── */}
           {activeTab === 'submissions' && (
             <div>
-              <div className="flex items-end justify-between gap-4 mb-6">
+              <div className="mb-6">
                 <h2 className="text-2xl tracking-tight" style={{ ...serif, fontWeight: 300 }}>
-                  Your catalog <span className="italic">submissions.</span>
+                  Your <span className="italic">submissions.</span>
                 </h2>
-                <Link
-                  href="/browse"
-                  className="px-4 py-2.5 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors shrink-0"
-                  style={{ ...mono, borderRadius: '2px' }}
-                >
-                  Browse Briefs
-                </Link>
               </div>
 
               {catalogSubmissions.length === 0 ? (
                 <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-10 text-center" style={{ borderRadius: '2px' }}>
-                  <p className="text-sm text-[var(--text-muted)] mb-5" style={sans}>No catalog submissions yet.</p>
+                  <p className="text-sm text-[var(--text-muted)] mb-5" style={sans}>No submissions yet.</p>
                   <Link
                     href="/browse"
                     className="inline-block px-5 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
                     style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
                   >
-                    ◆ Browse Sonant Briefs
+                    ◆ Browse Briefs
                   </Link>
                 </div>
               ) : (
@@ -535,14 +337,29 @@ export default function AccountClient({
                     const statusConfig = STATUS_CONFIG[sub.status] ?? { label: sub.status, color: 'var(--text-muted)' };
                     const hasFeedback = !!sub.feedback;
                     const isExpanded = expandedFeedback.has(sub.id);
+                    const isClient = sub.briefType === 'client';
                     return (
                       <div key={sub.id} className="border-b border-[var(--border-base)] py-4">
                         <div className="flex items-center justify-between gap-4">
                           <div>
-                            <div className="text-base text-[var(--text-primary)]" style={{ ...serif, fontWeight: 400 }}>
-                              {sub.briefCodename}
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <div className="text-base text-[var(--text-primary)]" style={{ ...serif, fontWeight: 400 }}>
+                                {sub.briefCodename}
+                              </div>
+                              <span
+                                className="text-[9px] tracking-[0.15em] uppercase px-1.5 py-0.5"
+                                style={{
+                                  ...mono,
+                                  borderRadius: '2px',
+                                  color: isClient ? '#92A8D1' : '#E85D2F',
+                                  background: isClient ? '#92A8D1' + '15' : '#E85D2F15',
+                                  border: `1px solid ${isClient ? '#92A8D130' : '#E85D2F30'}`,
+                                }}
+                              >
+                                {isClient ? 'Client' : 'Catalog'}
+                              </span>
                             </div>
-                            <div className="text-[10px] text-[var(--text-dimmer)] mt-0.5" style={mono}>
+                            <div className="text-[10px] text-[var(--text-dimmer)]" style={mono}>
                               {new Date(sub.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                             </div>
                           </div>
@@ -585,7 +402,7 @@ export default function AccountClient({
             </div>
           )}
 
-          {/* ── Feedback Sessions ── */}
+          {/* ── Sessions ── */}
           {activeTab === 'sessions' && (
             <div>
               <div className="flex items-end justify-between gap-4 mb-6">
@@ -609,7 +426,7 @@ export default function AccountClient({
                     className="px-4 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50 shrink-0"
                     style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
                   >
-                    {checkoutLoading === 'session' ? '…' : 'Buy Session — $50'}
+                    {checkoutLoading === 'session' ? '…' : 'Buy Session · $50'}
                   </button>
                 )}
               </div>

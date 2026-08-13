@@ -45,7 +45,7 @@ export default function CatalogRequestForm() {
           ◆ Request received
         </div>
         <p className="text-sm text-[var(--text-secondary)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Thanks — we&apos;ll be in touch within 1–2 business days.
+          Thanks. We&apos;ll be in touch within 1–2 business days.
         </p>
       </div>
     );
@@ -57,7 +57,7 @@ export default function CatalogRequestForm() {
         <div>
           <button
             onClick={() => setOpen(true)}
-            className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+            className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
             ◆ Request Catalog Access

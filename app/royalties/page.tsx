@@ -55,7 +55,7 @@ export default function RoyaltiesPage() {
       <div className="px-4 md:px-[15%] mb-12">
         <Image
           src="/royalties-thumbnail.png"
-          alt="Every Royalty You're Owed, and How to Collect It — Sonant guide cover"
+          alt="Every Royalty You're Owed, and How to Collect It. Sonant guide cover"
           width={2400}
           height={2400}
           className="w-full md:hidden"
@@ -63,7 +63,7 @@ export default function RoyaltiesPage() {
         />
         <Image
           src="/royalties-cover.png"
-          alt="Every Royalty You're Owed, and How to Collect It — Sonant guide cover"
+          alt="Every Royalty You're Owed, and How to Collect It. Sonant guide cover"
           width={3840}
           height={2160}
           className="w-full hidden md:block"

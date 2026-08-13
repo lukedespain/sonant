@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import BriefGenerator from '@/components/BriefGenerator';
 
 const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
@@ -9,12 +10,12 @@ export default async function GeneratorPage() {
 
   let userInfo = null;
   if (user) {
-    const { data: profile } = await supabase
+    const admin = createAdminClient();
+    const { data: profile } = await admin
       .from('profiles')
       .select('full_name')
       .eq('id', user.id)
       .single();
-
     userInfo = {
       email: user.email || '',
       fullName: profile?.full_name || '',
@@ -23,5 +24,9 @@ export default async function GeneratorPage() {
 
   const isAdmin = user?.id === ADMIN_USER_ID;
 
-  return <BriefGenerator user={userInfo} isAdmin={isAdmin} />;
+  return (
+    <div className="flex-1">
+      <BriefGenerator user={userInfo} isAdmin={isAdmin} />
+    </div>
+  );
 }

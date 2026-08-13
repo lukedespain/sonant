@@ -35,7 +35,7 @@ export default function DiscoAdminInput({
         className="text-[9px] tracking-[0.3em] uppercase text-[#E85D2F] mb-3"
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
       >
-        ◆ Admin — Disco Playlist ID
+        ◆ Admin · Disco Playlist ID
       </div>
       <div className="flex gap-2 items-center">
         <input
