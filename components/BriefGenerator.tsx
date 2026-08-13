@@ -314,7 +314,7 @@ function NextSteps({ briefId, loggedIn }: { briefId: string | null; loggedIn: bo
           </ul>
           <div className="space-y-3">
             <Link
-              href="/feedback"
+              href="/sessions"
               className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors text-center"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
             >

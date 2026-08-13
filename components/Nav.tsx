@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import ThemeToggle from './ThemeToggle'
+import { signOut } from '@/app/auth/actions'
 
 type NavProps = {
   user: User | null
@@ -14,16 +15,15 @@ type NavProps = {
 }
 
 const LINKS = [
-  { href: '/generator', label: 'Generator', note: 'Write to a brief' },
-  { href: '/browse', label: 'Briefs', note: 'Catalog and practice' },
-  { href: '/catalog', label: 'Catalog', note: 'Music we pitch' },
-  { href: '/feedback', label: 'Feedback', note: '45-minute sessions' },
+  { href: '/generator', label: 'Generator', note: 'Create a brief' },
+  { href: '/browse', label: 'Briefs', note: 'Compose to spec' },
+  { href: '/submissions', label: 'Submissions', note: 'Submit to catalog' },
+  { href: '/sessions', label: 'Sessions', note: '1:1 music feedback' },
 ] as const;
 
-export default function Nav({ user, accountType, submissionCredits = 0 }: NavProps) {
+export default function Nav({ user }: NavProps) {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [checkoutLoading, setCheckoutLoading] = useState(false)
 
   const isAuthPage =
     pathname === '/login' ||
@@ -39,8 +39,9 @@ export default function Nav({ user, accountType, submissionCredits = 0 }: NavPro
       : pathname === href || pathname?.startsWith(href + '/')
 
   const closeMenu = () => setMenuOpen(false)
-  const showDashboard = !!user && !isAuthPage
-  const showComposerActions = !!user && accountType === 'composer' && !isAuthPage
+  const loggedIn = !!user && !isAuthPage
+  const profileHref = user ? `/profile/${user.id}` : '/login?redirect=/profile'
+  const profileActive = pathname === '/profile' || pathname?.startsWith('/profile/')
 
   const mono = { fontFamily: "'JetBrains Mono', monospace" }
   const serif = { fontFamily: "'Fraunces', serif" }
@@ -61,22 +62,6 @@ export default function Nav({ user, accountType, submissionCredits = 0 }: NavPro
       document.body.style.overflow = ''
     }
   }, [menuOpen])
-
-  async function buySubmissionCredit(e: React.MouseEvent) {
-    e.preventDefault()
-    e.stopPropagation()
-    setCheckoutLoading(true)
-    const res = await fetch('/api/stripe/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'submission' }),
-    })
-    setCheckoutLoading(false)
-    if (res.ok) {
-      const { url } = await res.json()
-      window.location.href = url
-    }
-  }
 
   return (
     <>
@@ -105,14 +90,18 @@ export default function Nav({ user, accountType, submissionCredits = 0 }: NavPro
           </Link>
 
           <div className="flex items-center gap-2.5">
-            {showDashboard && (
+            {!isAuthPage && (
               <Link
-                href="/account"
+                href={profileHref}
                 onClick={closeMenu}
-                className="h-10 px-4 flex items-center border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+                className={`h-10 px-4 flex items-center border transition-colors ${
+                  profileActive
+                    ? 'border-[#E85D2F] text-[#E85D2F]'
+                    : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                }`}
                 style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
               >
-                Dashboard
+                {loggedIn ? 'Profile' : 'Sign In'}
               </Link>
             )}
 
@@ -190,69 +179,36 @@ export default function Nav({ user, accountType, submissionCredits = 0 }: NavPro
               </nav>
             </div>
 
-            <div className="px-8 md:px-10 py-8 border-t border-[var(--border-base)] flex flex-col gap-3">
-              {showComposerActions ? (
-                <>
-                  <div
-                    className="flex items-stretch border border-[var(--border-subtle)]"
-                    style={{ borderRadius: '2px' }}
+            <div className="px-8 md:px-10 py-8 border-t border-[var(--border-base)] flex flex-col gap-4">
+              <ThemeToggle label="Change Theme" />
+              {loggedIn ? (
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    className="w-full flex items-center gap-3 text-left text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                    style={mono}
                   >
-                    <div
-                      className="flex-1 px-4 py-3.5 text-[10px] tracking-[0.18em] uppercase text-[var(--text-secondary)]"
-                      style={mono}
-                    >
-                      Submission Credits: {submissionCredits}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={buySubmissionCredit}
-                      disabled={checkoutLoading}
-                      className="px-4 border-l border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[#E85D2F] hover:border-[#E85D2F] transition-colors disabled:opacity-40"
-                      style={{ ...mono, fontSize: '16px', lineHeight: 1 }}
-                      aria-label="Buy more submission credits"
-                      title="Buy more"
-                    >
-                      {checkoutLoading ? '…' : '+'}
-                    </button>
-                  </div>
-                  <Link
-                    href="/feedback"
-                    onClick={closeMenu}
-                    className="block w-full px-4 py-3.5 text-center text-[10px] tracking-[0.18em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                    style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
-                  >
-                    Schedule a 1:1 Session
-                  </Link>
-                </>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path
+                        d="M6 2H3.5A1.5 1.5 0 002 3.5v9A1.5 1.5 0 003.5 14H6M7 8h7m0 0l-2.5-2.5M14 8l-2.5 2.5"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Sign Out
+                  </button>
+                </form>
               ) : (
-                <>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)]" style={mono}>
-                      Theme
-                    </span>
-                    <ThemeToggle />
-                  </div>
-                  {user ? null : (
-                    <div className="flex items-center gap-6">
-                      <Link
-                        href="/login"
-                        onClick={closeMenu}
-                        className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-                        style={mono}
-                      >
-                        Sign In
-                      </Link>
-                      <Link
-                        href="/signup"
-                        onClick={closeMenu}
-                        className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity"
-                        style={mono}
-                      >
-                        Create Account →
-                      </Link>
-                    </div>
-                  )}
-                </>
+                <Link
+                  href="/signup"
+                  onClick={closeMenu}
+                  className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity"
+                  style={mono}
+                >
+                  Create Account →
+                </Link>
               )}
             </div>
           </div>

@@ -133,9 +133,13 @@ function BriefCard({
 export default function BrowseClient({
   featuredBriefs,
   communityBriefs,
+  currentUserId = null,
+  mineOnlyDefault = false,
 }: {
   featuredBriefs: BriefRow[];
   communityBriefs: BriefRow[];
+  currentUserId?: string | null;
+  mineOnlyDefault?: boolean;
 }) {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>(() =>
@@ -146,9 +150,11 @@ export default function BrowseClient({
   const [filterCategory, setFilterCategory] = useState('');
   const [filterMood, setFilterMood] = useState('');
   const [filterGenre, setFilterGenre] = useState('');
+  const [mineOnly, setMineOnly] = useState(mineOnlyDefault);
 
   useEffect(() => {
     setActiveTab(searchParams.get('tab') === 'client' ? 'client' : 'catalog');
+    setMineOnly(searchParams.get('mine') === '1');
   }, [searchParams]);
 
   useEffect(() => {
@@ -188,9 +194,10 @@ export default function BrowseClient({
       const matchCategory = !filterCategory || b.target === filterCategory;
       const matchMood = !filterMood || b.moods.includes(filterMood);
       const matchGenre = !filterGenre || b.genres.includes(filterGenre);
-      return matchSearch && matchMode && matchCategory && matchMood && matchGenre;
+      const matchMine = !mineOnly || b.user_id === currentUserId;
+      return matchSearch && matchMode && matchCategory && matchMood && matchGenre && matchMine;
     });
-  }, [communityBriefs, search, filterMode, filterCategory, filterMood, filterGenre]);
+  }, [communityBriefs, search, filterMode, filterCategory, filterMood, filterGenre, mineOnly, currentUserId]);
 
   const clearFilters = () => {
     setSearch('');
@@ -333,6 +340,19 @@ export default function BrowseClient({
               <button onClick={clearFilters} className="text-xs tracking-[0.15em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 Clear
               </button>
+            )}
+            {currentUserId && (
+              <label className="flex items-center gap-2 cursor-pointer ml-auto">
+                <input
+                  type="checkbox"
+                  checked={mineOnly}
+                  onChange={(e) => setMineOnly(e.target.checked)}
+                  className="accent-[#E85D2F]"
+                />
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  Show only my briefs
+                </span>
+              </label>
             )}
           </div>
 

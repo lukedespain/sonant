@@ -44,8 +44,8 @@ export default async function RootLayout({
       .select('submission_credits, session_credits')
       .eq('id', user.id)
       .single();
-    submissionCredits = (profile as any)?.submission_credits ?? 0;
-    sessionCredits = (profile as any)?.session_credits ?? 0;
+    submissionCredits = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
+    sessionCredits = (profile as { session_credits?: number } | null)?.session_credits ?? 0;
   }
 
   return (

@@ -97,13 +97,24 @@ export default async function BrowseBriefPage({ params }: PageProps) {
     <div className="pt-20 pb-12 flex-1 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <div className="no-print mb-6 flex items-center justify-between gap-3 flex-wrap">
-          <Link
-            href="/browse"
-            className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            ← Browse Briefs
-          </Link>
+          <div className="flex items-center gap-4 flex-wrap">
+            <Link
+              href="/browse"
+              className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              ← Browse Briefs
+            </Link>
+            {!isFeatured && (
+              <Link
+                href={`/profile/${briefRow.user_id}`}
+                className="text-xs tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Composer profile →
+              </Link>
+            )}
+          </div>
           <div className="flex items-center gap-3 flex-wrap">
             {isAdmin && <RegenerateImageButton briefId={briefRow.id} />}
             {isAdmin && <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />}

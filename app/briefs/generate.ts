@@ -1,6 +1,7 @@
 'use server';
 
 import Anthropic from '@anthropic-ai/sdk';
+import { createAdminClient } from '@/lib/supabase/admin';
 import {
   BRAND_CATEGORIES,
   FILM_CATEGORIES,
@@ -89,10 +90,141 @@ function lengthForMode(mode: 'brand' | 'film' | 'games'): string {
 }
 
 // ============================================================
+// IDENTITY SEEDS — force variance in client/scene layer
+// ============================================================
+
+const BRAND_SEEDS = {
+  vertical: [
+    'outdoor & adventure gear', 'B2B SaaS', 'plant-based food', 'fintech & payments',
+    'direct-to-consumer skincare', 'electric mobility', 'craft spirits', 'sustainable fashion',
+    'wellness & fitness apps', 'home goods & interiors', 'pet care', 'travel & hospitality',
+    'children\'s education', 'luxury real estate', 'functional beverages', 'independent bookshops',
+  ],
+  campaign: [
+    'product launch', 'brand anthem', 'seasonal campaign', 'social impact story',
+    'founder origin story', 'customer testimonial spot', 'irreverent humor campaign',
+    'heritage & legacy relaunch', 'challenger brand positioning', 'community-first campaign',
+    'global expansion launch', 'limited edition drop',
+  ],
+  scale: [
+    'bootstrapped startup finding its voice', 'venture-backed scale-up going mainstream',
+    'heritage brand repositioning for a new generation', 'global CPG with regional focus',
+    'niche specialist crossing into mass market', 'challenger brand taking on a category leader',
+    'values-led cooperative', 'celebrity-founded direct-to-consumer brand',
+  ],
+};
+
+const FILM_SEEDS = {
+  context: [
+    'Sundance-track indie feature', 'prestige streaming limited series', 'festival short film',
+    'prestige drama theatrical release', 'slow-burn psychological thriller', 'documentary feature',
+    'debut feature from an emerging director', 'art house co-production',
+    'adapted literary novel', 'social realist drama',
+  ],
+  visual: [
+    'handheld verité with natural light', 'wide anamorphic cinematography', 'intimate close-up driven',
+    'archival footage mixed with present-day', 'sparse long unbroken takes', 'dense kinetic editing',
+    'static locked-off frames', 'shallow depth of field throughout',
+  ],
+  register: [
+    'quiet and deeply interior', 'slow-burn tension that never fully releases', 'social realism with no score relief',
+    'dreamlike and temporally fractured', 'restrained character study', 'genre film with arthouse ambition',
+    'unsentimental emotional restraint', 'elliptical non-linear storytelling',
+  ],
+};
+
+const GAMES_SEEDS = {
+  genre: [
+    'action-RPG', 'survival horror', 'narrative adventure', 'open-world exploration',
+    'roguelike dungeon crawler', 'puzzle-platformer', 'atmospheric horror', 'tactical RPG',
+    'city builder', 'metroidvania', 'cozy life sim', 'souls-like',
+  ],
+  art: [
+    'stylized 3D', 'pixel art with modern lighting', 'hand-drawn painterly', 'photorealistic',
+    'low-poly minimalist', 'retro-CRT inspired', 'watercolor and ink', 'voxel-based',
+  ],
+  moment: [
+    'the opening minutes before the player knows the rules', 'mid-game turning point where stakes shift',
+    'final confrontation before the credits', 'ambient open-world exploration loop',
+    'narrative cutscene revealing a key truth', 'post-death respawn screen',
+    'quiet downtime between missions', 'title screen and main menu',
+    'tutorial section before the first threat', 'victory and resolution sequence',
+  ],
+};
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function pickIdentitySeed(mode: 'brand' | 'film' | 'games'): string {
+  if (mode === 'brand') {
+    return [
+      '**Creative Seed — use this to shape the client identity and campaign angle. Do not echo these words verbatim; translate them into a specific fictional brand and project:**',
+      `- Industry: ${pick(BRAND_SEEDS.vertical)}`,
+      `- Campaign type: ${pick(BRAND_SEEDS.campaign)}`,
+      `- Company profile: ${pick(BRAND_SEEDS.scale)}`,
+    ].join('\n');
+  }
+  if (mode === 'film') {
+    return [
+      '**Creative Seed — use this to shape the production context and visual register. Do not echo these words verbatim; translate them into a specific fictional project and scene:**',
+      `- Production context: ${pick(FILM_SEEDS.context)}`,
+      `- Visual language: ${pick(FILM_SEEDS.visual)}`,
+      `- Narrative register: ${pick(FILM_SEEDS.register)}`,
+    ].join('\n');
+  }
+  return [
+    '**Creative Seed — use this to shape the game world and in-game moment. Do not echo these words verbatim; translate them into a specific fictional game and context:**',
+    `- Game genre: ${pick(GAMES_SEEDS.genre)}`,
+    `- Art direction: ${pick(GAMES_SEEDS.art)}`,
+    `- In-game moment: ${pick(GAMES_SEEDS.moment)}`,
+  ].join('\n');
+}
+
+// ============================================================
+// FEW-SHOT CORPUS — inject approved real-world examples
+// ============================================================
+
+async function getFewShotExamples(mode: 'brand' | 'film' | 'games'): Promise<string> {
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from('brief_corpus')
+      .select('extracted_fields')
+      .eq('approved', true)
+      .eq('mode', mode)
+      .gte('quality_score', 3)
+      .limit(4);
+
+    if (!data || data.length === 0) return '';
+
+    const examples = data
+      .map((row, i) => {
+        const f = row.extracted_fields as Record<string, string | null> | null;
+        if (!f) return null;
+        const parts = [
+          f.scene_context && `Scene: ${f.scene_context}`,
+          f.music_ask && `Music ask: ${f.music_ask}`,
+          f.instrumentation_notes && `Instrumentation notes: ${f.instrumentation_notes}`,
+        ].filter(Boolean).join('\n');
+        return parts ? `Example ${i + 1}:\n${parts}` : null;
+      })
+      .filter(Boolean)
+      .join('\n\n');
+
+    if (!examples) return '';
+
+    return `\n\n# REFERENCE BRIEF LANGUAGE\nThese are excerpts from real-world briefs. Study the vocabulary, specificity, and register — write at this level of concreteness.\n\n${examples}`;
+  } catch {
+    return '';
+  }
+}
+
+// ============================================================
 // PROMPT BUILDER
 // ============================================================
 
-function buildSystemPrompt(mode: 'brand' | 'film' | 'games'): string {
+function buildSystemPrompt(mode: 'brand' | 'film' | 'games', fewShotBlock = ''): string {
   const activePatterns = getActivePatterns();
 
   const patternDescriptions = activePatterns
@@ -160,7 +292,7 @@ ${patternDescriptions}
 10. Every choice must fit the established genre and mood. Coherence over novelty.
 ${modeRule}
 
-${scrubInstructions}`;
+${scrubInstructions}${fewShotBlock}`;
 }
 
 function buildUserPrompt(input: GenerateBriefInput): string {
@@ -226,9 +358,13 @@ function buildUserPrompt(input: GenerateBriefInput): string {
       ? '<4-5 sentences about what this track needs to do emotionally and sonically, including one sentence on why seamless looping matters here and what makes it hard to execute>'
       : '<4-5 sentences about what this track needs to do emotionally, sonically, and what makes it hard to execute>';
 
+  const identitySeed = pickIdentitySeed(input.mode);
+
   return `Generate a music brief with the following parameters.
 
 ${categoryBlock}
+
+${identitySeed}
 
 **Genre Palette:** ${input.genres.join(', ')}
 **Emotional Arc:** ${input.moods.join(', ')}
@@ -389,7 +525,8 @@ export async function generateBrief(
   }
 
   const client = new Anthropic({ apiKey });
-  const systemPrompt = buildSystemPrompt(input.mode);
+  const fewShotBlock = await getFewShotExamples(input.mode);
+  const systemPrompt = buildSystemPrompt(input.mode, fewShotBlock);
   const baseUserPrompt = buildUserPrompt(input);
 
   async function attemptGeneration(
