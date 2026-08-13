@@ -33,7 +33,7 @@ export default function ThemeToggle({ label }: { label?: string }) {
     if (!mounted) {
       return (
         <div
-          className="w-full flex items-center gap-3 h-8 text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)]"
+          className="flex items-center gap-3 h-8 text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)]"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
           <span className="w-4 h-4" />
@@ -46,7 +46,7 @@ export default function ThemeToggle({ label }: { label?: string }) {
         type="button"
         onClick={toggle}
         aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
-        className="w-full flex items-center gap-3 text-left text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+        className="flex items-center gap-3 text-left text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
       >
         {icon}

@@ -36,16 +36,31 @@ export default async function RootLayout({
 
   let submissionCredits = 0;
   let sessionCredits = 0;
+  let displayName = '';
+  let avatarUrl: string | null = null;
+  let acceptedCount = 0;
 
-  if (user && accountType === 'composer') {
+  if (user) {
     const admin = createAdminClient();
-    const { data: profile } = await admin
-      .from('profiles')
-      .select('submission_credits, session_credits')
-      .eq('id', user.id)
-      .single();
-    submissionCredits = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
-    sessionCredits = (profile as { session_credits?: number } | null)?.session_credits ?? 0;
+    const [{ data: profile }, { count }] = await Promise.all([
+      admin
+        .from('profiles')
+        .select('full_name, avatar_url, submission_credits, session_credits')
+        .eq('id', user.id)
+        .single(),
+      admin
+        .from('submissions')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'accepted'),
+    ]);
+    displayName = (profile as { full_name?: string } | null)?.full_name ?? '';
+    avatarUrl = (profile as { avatar_url?: string | null } | null)?.avatar_url ?? null;
+    if (accountType === 'composer') {
+      submissionCredits = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
+      sessionCredits = (profile as { session_credits?: number } | null)?.session_credits ?? 0;
+    }
+    acceptedCount = count ?? 0;
   }
 
   return (
@@ -67,6 +82,9 @@ export default async function RootLayout({
           <Nav
             user={user}
             accountType={user ? accountType : null}
+            displayName={displayName}
+            avatarUrl={avatarUrl}
+            acceptedCount={acceptedCount}
             submissionCredits={submissionCredits}
             sessionCredits={sessionCredits}
           />
