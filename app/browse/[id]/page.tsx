@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { ADMIN_USER_ID, isSiteAdmin } from '@/lib/admin';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
 import ExportPdfButton from '@/components/ExportPdfButton';
+import ShareBriefButton from '@/components/ShareBriefButton';
 import SunoPromptModal from '@/components/SunoPromptModal';
 import DeleteBriefButton from '@/components/DeleteBriefButton';
 import CommunityTracksSection from '@/components/CommunityTracksSection';
@@ -157,12 +158,39 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             {isAdmin && <RegenerateImageButton briefId={briefRow.id} />}
             {isAdmin && <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />}
             {isPro && <SunoPromptModal brief={brief} />}
+            {!isClientBrief && (
+              <ShareBriefButton
+                briefId={briefRow.id}
+                briefName={brief.projectTitle || brief.codename}
+                loggedIn={!!user}
+              />
+            )}
             <ExportPdfButton />
             {!!user && (isAdmin || user.id === briefRow.user_id) && (
               <DeleteBriefButton briefId={briefRow.id} redirectPath="/browse" />
             )}
           </div>
         </div>
+
+        {isClientBrief && (
+          <div
+            className="no-print mb-6 border border-[#E85D2F]/40 bg-[#E85D2F]/5 px-5 py-4"
+            style={{ borderRadius: '2px' }}
+          >
+            <div
+              className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] mb-2"
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              ◆ Do not share this brief
+            </div>
+            <p
+              className="text-sm text-[var(--text-secondary)] leading-relaxed max-w-2xl"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              Paid client work stays inside Sonant. Do not forward this page, the PDF, or the references. If this reached the wrong person, tell the Sonant team.
+            </p>
+          </div>
+        )}
 
         <BriefDocument brief={brief} isFeatured={isFeatured} />
 

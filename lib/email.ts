@@ -110,3 +110,102 @@ export async function sendCatalogAccessRequestEmail(params: {
     return { error: 'Email failed to send.' };
   }
 }
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+export async function sendBriefShareEmail(params: {
+  to: string;
+  briefName: string;
+  briefUrl: string;
+  signupUrl: string;
+  loginUrl: string;
+  senderName: string;
+}) {
+  const briefName = escapeHtml(params.briefName);
+  const senderName = escapeHtml(params.senderName);
+  const briefUrl = escapeHtml(params.briefUrl);
+  const signupUrl = escapeHtml(params.signupUrl);
+  const loginUrl = escapeHtml(params.loginUrl);
+
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: params.to,
+      subject: `${params.senderName} shared a Sonant brief with you`,
+      html: `
+        <div style="margin:0;padding:0;background:#0A0908;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0A0908;">
+            <tr>
+              <td align="center" style="padding:40px 16px;">
+                <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="width:520px;max-width:520px;">
+                  <tr>
+                    <td style="padding:0 8px 24px;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#E85D2F;">
+                      ◆ Sonant · Brief invite
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 8px 16px;font-family:Georgia,'Times New Roman',serif;font-size:32px;line-height:1.15;color:#F5F1E8;">
+                      You have a brief to write to.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 8px 28px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.7;color:#C4BFB5;">
+                      ${senderName} shared <em style="color:#F5F1E8;font-style:italic;">${briefName}</em> with you on Sonant. It is a real sync-style brief: scene, direction, references. Write to it like a job.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 0 24px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#141312;border:1px solid #2A2826;border-radius:2px;">
+                        <tr>
+                          <td style="padding:24px;">
+                            <div style="font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#E85D2F;margin-bottom:10px;">The brief</div>
+                            <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.3;color:#F5F1E8;margin-bottom:18px;">${briefName}</div>
+                            <a href="${briefUrl}" style="display:inline-block;background:#E85D2F;color:#0A0908;text-decoration:none;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;padding:12px 18px;border-radius:2px;font-weight:500;">
+                              View the brief →
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 8px 28px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.7;color:#C4BFB5;">
+                      New here? Create a free account from the invite and you can save briefs, upload takes, and submit to the catalog. Already on Sonant? Sign in and it opens this brief.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 8px 36px;">
+                      <a href="${signupUrl}" style="display:inline-block;border:1px solid #E85D2F;color:#E85D2F;text-decoration:none;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;padding:12px 18px;border-radius:2px;margin-right:12px;">
+                        Create a free account
+                      </a>
+                      <a href="${loginUrl}" style="display:inline-block;color:#8A8680;text-decoration:none;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;padding:12px 0;">
+                        Sign in →
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:24px 8px 0;border-top:1px solid #2A2826;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#5A5650;">
+                      <a href="https://sonant.ac" style="color:#8A8680;text-decoration:none;">sonant.ac</a>
+                      &nbsp;·&nbsp;
+                      A practice room for sync composers.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      `,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('sendBriefShareEmail failed:', error);
+    return { error: 'Email failed to send.' };
+  }
+}

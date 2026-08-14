@@ -156,6 +156,17 @@ export default function SubmitTrackModal({
                     </p>
                   </div>
 
+                  <div>
+                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      Credits
+                    </label>
+                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      {isAdmin
+                        ? 'Sonant team · no credit used'
+                        : `${submissionCredits} ${submissionCredits === 1 ? 'credit' : 'credits'} remaining · this uses 1`}
+                    </p>
+                  </div>
+
                   {/* File picker */}
                   <div>
                     <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
@@ -191,7 +202,7 @@ export default function SubmitTrackModal({
                       </button>
                     )}
                     <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      MP3 or WAV · max 100 MB · 1 credit
+                      MP3 or WAV · max 100 MB
                     </p>
                   </div>
 

@@ -1,10 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { signUp } from '@/app/auth/actions';
 
 export default function SignUpPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignUpForm />
+    </Suspense>
+  );
+}
+
+function SignUpForm() {
+  const searchParams = useSearchParams();
+  const referredBy = searchParams.get('ref') ?? '';
+  const signupNext = searchParams.get('redirect') ?? '';
+  const invited = referredBy.length > 0;
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -13,6 +27,8 @@ export default function SignUpPage() {
     setError(null);
     setSubmitting(true);
     formData.set('accountType', 'composer');
+    if (referredBy) formData.set('referredBy', referredBy);
+    if (signupNext) formData.set('signupNext', signupNext);
     const result = await signUp(formData);
     setSubmitting(false);
     if (result.error) {
@@ -54,10 +70,14 @@ export default function SignUpPage() {
         </h1>
 
         <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Generate briefs, save your work, submit to the catalog, and get written feedback. Free to create. One submission credit each month.
+          {invited
+            ? 'A composer shared a brief with you. Create a free account to view it, save work, and submit to the catalog. One submission credit each month.'
+            : 'Generate briefs, save your work, submit to the catalog, and get written feedback. Free to create. One submission credit each month.'}
         </p>
 
         <form action={handleSubmit} className="space-y-5">
+          {referredBy && <input type="hidden" name="referredBy" value={referredBy} />}
+          {signupNext && <input type="hidden" name="signupNext" value={signupNext} />}
           <Field label="Full Name" name="fullName" type="text" required />
           <Field label="Email" name="email" type="email" required />
           <Field label="Password" name="password" type="password" required minLength={8} />

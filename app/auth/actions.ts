@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { isUserId, safeInternalPath } from '@/lib/referrals';
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
@@ -11,13 +12,20 @@ export async function signUp(formData: FormData) {
   const password = formData.get('password') as string;
   const fullName = formData.get('fullName') as string;
   const accountType = (formData.get('accountType') as string) || 'composer';
+  const referredBy = formData.get('referredBy');
+  const signupNext = safeInternalPath(formData.get('signupNext'));
 
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { full_name: fullName, account_type: accountType },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/auth/confirm?next=/onboarding`,
+      data: {
+        full_name: fullName,
+        account_type: accountType,
+        ...(isUserId(referredBy) ? { referred_by: referredBy } : {}),
+        ...(signupNext ? { signup_next: signupNext } : {}),
+      },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/auth/confirm?next=/browse`,
     },
   });
 
