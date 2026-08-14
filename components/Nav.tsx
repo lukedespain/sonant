@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import ThemeToggle from './ThemeToggle'
 import { signOut } from '@/app/auth/actions'
@@ -60,8 +60,17 @@ export default function Nav({
   sessionCredits = 0,
 }: NavProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState<'submission' | 'session' | null>(null)
+  const [photo, setPhoto] = useState(avatarUrl)
+  const [localName, setLocalName] = useState(displayName || 'Composer')
+  const [nameInput, setNameInput] = useState(displayName || '')
+  const [editingName, setEditingName] = useState(false)
+  const [savingName, setSavingName] = useState(false)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [badgeInfoOpen, setBadgeInfoOpen] = useState(false)
 
   const isAuthPage =
     pathname === '/login' ||
@@ -78,22 +87,41 @@ export default function Nav({
 
   const closeMenu = () => setMenuOpen(false)
   const loggedIn = !!user && !isAuthPage
-  const name = displayName || 'Composer'
   const verified = acceptedCount >= 3
   const placed = Math.min(acceptedCount, 3)
-  const profileHref = user ? `/profile/${user.id}` : '/login?redirect=/profile'
 
   const mono = { fontFamily: "'JetBrains Mono', monospace" }
   const serif = { fontFamily: "'Fraunces', serif" }
+
+  useEffect(() => {
+    setPhoto(avatarUrl)
+    setLocalName(displayName || 'Composer')
+    setNameInput(displayName || '')
+  }, [avatarUrl, displayName])
 
   useEffect(() => {
     closeMenu()
   }, [pathname])
 
   useEffect(() => {
-    if (!menuOpen) return
+    if (!menuOpen) {
+      setEditingName(false)
+      setBadgeInfoOpen(false)
+      setNameInput(localName === 'Composer' ? displayName || '' : localName)
+      return
+    }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeMenu()
+      if (e.key !== 'Escape') return
+      if (editingName) {
+        setEditingName(false)
+        setNameInput(localName)
+        return
+      }
+      if (badgeInfoOpen) {
+        setBadgeInfoOpen(false)
+        return
+      }
+      closeMenu()
     }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
@@ -101,7 +129,44 @@ export default function Nav({
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
     }
-  }, [menuOpen])
+  }, [menuOpen, editingName, badgeInfoOpen, localName, displayName])
+
+  async function saveName() {
+    const next = nameInput.trim()
+    if (!next || next === localName) {
+      setEditingName(false)
+      setNameInput(localName)
+      return
+    }
+    setSavingName(true)
+    const res = await fetch('/api/profile/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ full_name: next }),
+    })
+    setSavingName(false)
+    if (res.ok) {
+      setLocalName(next)
+      setEditingName(false)
+      router.refresh()
+    }
+  }
+
+  async function handleAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    setAvatarUploading(true)
+    const body = new FormData()
+    body.append('file', file)
+    const res = await fetch('/api/profile/avatar', { method: 'POST', body })
+    setAvatarUploading(false)
+    if (res.ok) {
+      const { avatar_url } = await res.json()
+      setPhoto(avatar_url)
+      router.refresh()
+    }
+  }
 
   async function startCheckout(type: 'submission' | 'session') {
     setCheckoutLoading(type)
@@ -187,69 +252,6 @@ export default function Nav({
 
           <div className="fixed top-[73px] right-0 bottom-0 z-40 w-full max-w-md border-l border-[var(--border-base)] bg-[var(--bg-base)] flex flex-col">
             <div className="px-8 md:px-10 pt-8 flex-1 overflow-y-auto">
-              {loggedIn && user ? (
-                <Link
-                  href={profileHref}
-                  onClick={closeMenu}
-                  className="flex items-start gap-4 mb-8 group"
-                >
-                  <div className="relative shrink-0">
-                    <div
-                      className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-white text-sm"
-                      style={{
-                        background: avatarUrl ? undefined : avatarColor(user.id),
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {avatarUrl
-                        ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                        : getInitials(name)}
-                    </div>
-                    {verified && <VerifiedCheck />}
-                  </div>
-                  <div className="min-w-0 flex-1 pt-0.5">
-                    <div
-                      className="text-xl tracking-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors truncate"
-                      style={{ ...serif, fontWeight: 300 }}
-                    >
-                      {name}
-                    </div>
-                    {verified ? (
-                      <div
-                        className="mt-1 text-[9px] tracking-[0.2em] uppercase text-[#E85D2F]"
-                        style={mono}
-                      >
-                        Sonant Composer
-                      </div>
-                    ) : (
-                      <>
-                        <div
-                          className="mt-1 text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]"
-                          style={mono}
-                          title="Three catalog placements to verify"
-                        >
-                          {placed} / 3 catalog placements
-                        </div>
-                        <div className="mt-2 h-[2px] w-full bg-[var(--border-base)] overflow-hidden" style={{ borderRadius: '2px' }}>
-                          <div
-                            className="h-full bg-[#E85D2F]"
-                            style={{ width: `${(placed / 3) * 100}%` }}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </Link>
-              ) : (
-                <div
-                  className="text-[9px] tracking-[0.35em] uppercase text-[var(--text-dimmer)] mb-6 leading-none"
-                  style={mono}
-                >
-                  Menu
-                </div>
-              )}
-
               <nav className="flex flex-col">
                 {LINKS.map(({ href, label, note }) => {
                   const active = isActive(href)
@@ -286,6 +288,136 @@ export default function Nav({
             </div>
 
             <div className="px-8 md:px-10 py-8 border-t border-[var(--border-base)] flex flex-col gap-5">
+              {loggedIn && user && (
+                <div className="pb-5 border-b border-[var(--border-base)]">
+                  <div className="flex items-start gap-4">
+                    <div className="relative shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={avatarUploading}
+                        className="relative w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-white text-sm group"
+                        style={{
+                          background: photo ? undefined : avatarColor(user.id),
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontWeight: 500,
+                        }}
+                        title="Change photo"
+                      >
+                        {photo
+                          ? <img src={photo} alt="" className="w-full h-full object-cover" />
+                          : getInitials(localName)}
+                        <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[8px] tracking-[0.2em] uppercase" style={mono}>
+                          {avatarUploading ? '…' : 'Edit'}
+                        </span>
+                      </button>
+                      {verified && <VerifiedCheck />}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleAvatar}
+                        className="hidden"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <div className="flex items-start justify-between gap-3">
+                        {editingName ? (
+                          <input
+                            value={nameInput}
+                            onChange={(e) => setNameInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveName()
+                              if (e.key === 'Escape') {
+                                e.stopPropagation()
+                                setEditingName(false)
+                                setNameInput(localName)
+                              }
+                            }}
+                            autoFocus
+                            className="min-w-0 flex-1 text-xl bg-transparent border-b border-[#E85D2F] focus:outline-none text-[var(--text-primary)] pb-0.5"
+                            style={{ ...serif, fontWeight: 300 }}
+                          />
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setEditingName(true)}
+                            className="min-w-0 flex-1 text-left text-xl tracking-tight text-[var(--text-primary)] hover:text-[#E85D2F] transition-colors truncate"
+                            style={{ ...serif, fontWeight: 300 }}
+                          >
+                            {localName}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => (editingName ? saveName() : setEditingName(true))}
+                          disabled={savingName}
+                          className="shrink-0 text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40 mt-1"
+                          style={mono}
+                        >
+                          {editingName ? (savingName ? '…' : 'Save') : 'Edit'}
+                        </button>
+                      </div>
+                      {verified ? (
+                        <div
+                          className="mt-1 text-[9px] tracking-[0.2em] uppercase text-[#E85D2F]"
+                          style={mono}
+                        >
+                          Verified composer
+                        </div>
+                      ) : (
+                        <>
+                          <div className="relative mt-1 flex items-center gap-1.5 group/badge">
+                            <div
+                              className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]"
+                              style={mono}
+                            >
+                              Verified composer badge
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setBadgeInfoOpen((o) => !o)}
+                              aria-expanded={badgeInfoOpen}
+                              aria-label="About the verified composer badge"
+                              className="relative shrink-0 w-3.5 h-3.5 flex items-center justify-center text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                                <circle cx="6" cy="6" r="5.25" stroke="currentColor" strokeWidth="1" />
+                                <path d="M6 5.25v3.1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                                <circle cx="6" cy="3.7" r="0.6" fill="currentColor" />
+                              </svg>
+                            </button>
+                            <div
+                              className={`absolute left-0 bottom-full mb-2 w-56 p-3 border border-[var(--border-card)] bg-[var(--bg-card)] text-[11px] leading-relaxed tracking-normal normal-case text-[var(--text-muted)] z-10 ${
+                                badgeInfoOpen ? 'opacity-100' : 'opacity-0 pointer-events-none group-hover/badge:opacity-100'
+                              }`}
+                              style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+                              role="tooltip"
+                            >
+                              Place three tracks in the catalog to earn this badge. Verified composers get access to paid briefs.
+                            </div>
+                          </div>
+                          <div className="mt-1 flex items-center gap-3">
+                            <div className="h-[2px] flex-1 bg-[var(--border-base)] overflow-hidden" style={{ borderRadius: '2px' }}>
+                              <div
+                                className="h-full bg-[#E85D2F]"
+                                style={{ width: `${(placed / 3) * 100}%` }}
+                              />
+                            </div>
+                            <div
+                              className="shrink-0 text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]"
+                              style={mono}
+                            >
+                              {placed} / 3
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {loggedIn && (
                 <div className="flex flex-col gap-4 pb-5 border-b border-[var(--border-base)]">
                   <div className="flex items-end justify-between gap-3">
