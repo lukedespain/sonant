@@ -5,6 +5,12 @@ export interface Reference {
   like?: string;
   avoid?: string;
   why?: string;
+  url?: string;
+}
+
+export interface BriefLink {
+  label: string;
+  url: string;
 }
 
 export interface Brief {
@@ -27,6 +33,12 @@ export interface Brief {
   length: string;
   vocals: string;
   imageUrl?: string;
+  kind?: 'client' | 'catalog';
+  projectTitle?: string;
+  brandName?: string;
+  winFee?: string;
+  demoFee?: string;
+  links?: BriefLink[];
   // Legacy fields — old saved briefs may have these; ignored in new layout
   greeting?: string;
   considerations?: { label: string; body: string }[];
@@ -119,14 +131,18 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           >
             Project{' '}
             <span className="italic" style={{ fontWeight: 400 }}>
-              {brief.codename}
+              {brief.projectTitle || brief.codename}
             </span>
           </h1>
           <div
             className="text-xs tracking-wide"
             style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
           >
-            {brief.briefId} · {brief.client} · {brief.project} · Issued {brief.issued}
+            {brief.briefId} · {brief.client}
+            {brief.kind === 'client' ? '' : brief.brandName && brief.brandName !== brief.client ? ` · ${brief.brandName}` : ''}
+            {brief.kind === 'client' ? '' : ` · ${brief.project}`}
+            {' · '}Issued {brief.issued}
+            {brief.deadline ? ` · Due ${brief.deadline}` : ''}
           </div>
         </div>
 
@@ -168,18 +184,30 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           </ul>
         </div>
 
-        {/* References */}
+        {brief.references.length > 0 && (
         <div className="mb-8">
           <Label>References</Label>
           <div className="space-y-5">
             {brief.references.map((r, i) => (
               <div key={i} className="pl-4" style={{ borderLeft: '2px solid var(--brief-ref-border)' }}>
-                <div
-                  className="text-base font-medium mb-1.5"
-                  style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}
-                >
-                  {r.track}
-                </div>
+                {r.url ? (
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-base font-medium mb-1.5 inline-block hover:text-[#E85D2F] transition-colors"
+                    style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}
+                  >
+                    {r.track} ↗
+                  </a>
+                ) : (
+                  <div
+                    className="text-base font-medium mb-1.5"
+                    style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}
+                  >
+                    {r.track}
+                  </div>
+                )}
                 {(r.like || r.why) && (
                   <div
                     className="text-sm mb-1"
@@ -199,6 +227,39 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
             ))}
           </div>
         </div>
+        )}
+
+        {brief.links && brief.links.length > 0 && (
+          <div className="mb-8">
+            <Label>Files and links</Label>
+            <ul className="space-y-3">
+              {brief.links.map((link) => (
+                <li key={link.url} className="flex gap-3 items-baseline">
+                  <span
+                    style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-arrow)', flexShrink: 0 }}
+                  >
+                    →
+                  </span>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-base leading-snug hover:text-[#E85D2F] transition-colors break-all"
+                    style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}
+                  >
+                    {link.label}
+                    <span
+                      className="ml-2 text-[10px] tracking-[0.15em] uppercase"
+                      style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+                    >
+                      Open ↗
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Sonic DNA */}
         <div className="mb-6">
@@ -213,19 +274,46 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           </div>
         </div>
 
+        {brief.kind === 'client' && (
+          <div className="mb-6 p-6" style={{ border: '1px solid var(--brief-divider)', borderRadius: '2px' }}>
+            <Label>The opportunity</Label>
+            {(brief.demoFee || brief.winFee || brief.deadline) && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+                {brief.deadline && <SonicItem label="Due" value={brief.deadline} />}
+                {brief.demoFee && <SonicItem label="Demo fee" value={brief.demoFee} />}
+                {brief.winFee && <SonicItem label="Win" value={brief.winFee} />}
+              </div>
+            )}
+            <div className="space-y-3 text-sm leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
+              <p>Verified composers only. These are paying clients. Treat it like the job, not practice.</p>
+              <p>
+                Sonant is the intermediary. You write to this brief. We review what you submit. If it is strong enough to send to the client, we secure you a demo fee. If they like it and want you on the back and forth to get it closer, that work is covered by the demo fee too.
+              </p>
+              <p>If the track wins the job, we split 70/30 in your favor.</p>
+              <p>
+                These jobs move fast. Do not submit unless you can stay available and on call for edits if yours is chosen to go to the client.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Footer */}
         <div className="mt-8 pt-6 flex items-center justify-between" style={{ borderTop: '1px solid var(--brief-divider)' }}>
           <div
             className="text-[10px] tracking-[0.2em] uppercase"
             style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
           >
-            {brief.briefId} · {isFeatured ? 'Sonant Brief' : 'Community Brief'}
+            {brief.briefId} · {brief.kind === 'client' ? 'Client Brief' : isFeatured ? 'Sonant Brief' : 'Community Brief'}
           </div>
-          {isFeatured && (
+          {brief.kind === 'client' ? (
+            <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
+              Be available. Move fast.
+            </div>
+          ) : isFeatured ? (
             <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
               Write it. Submit it. Get placed.
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

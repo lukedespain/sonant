@@ -1,7 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { setTrackVisibility } from '@/app/briefs/actions';
+import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 
 const AVATAR_COLORS = [
   '#E85D2F', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
@@ -20,30 +23,52 @@ const serif = { fontFamily: "'Fraunces', serif" } as const;
 const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
 const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
 
+type TrackItem = {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  briefId: string;
+  briefName: string;
+  isPublic: boolean;
+};
+
 export default function ProfileView({
   profileId,
   isOwner,
   name: initialName,
   avatarUrl: initialAvatar,
   accepted,
+  bio: initialBio,
+  website: initialWebsite,
+  tracks,
 }: {
   profileId: string;
   isOwner: boolean;
   name: string;
   avatarUrl: string | null;
   accepted: number;
+  bio: string;
+  website: string;
+  tracks: TrackItem[];
 }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(initialName);
+  const [bio, setBio] = useState(initialBio);
+  const [website, setWebsite] = useState(initialWebsite);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatar);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const { track: activeTrack, isPlaying, play, pause } = useAudioPlayer();
 
   const verified = accepted >= 3;
   const displayName = name || 'Composer';
+  const siteHref = website
+    ? /^https?:\/\//i.test(website) ? website : `https://${website}`
+    : '';
 
   async function saveProfile() {
     setSaving(true);
@@ -51,7 +76,11 @@ export default function ProfileView({
     const res = await fetch('/api/profile/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ full_name: name.trim() || displayName }),
+      body: JSON.stringify({
+        full_name: name.trim() || displayName,
+        bio,
+        website,
+      }),
     });
     setSaving(false);
     if (!res.ok) {
@@ -79,10 +108,16 @@ export default function ProfileView({
     }
   }
 
+  function handlePlay(track: TrackItem) {
+    const isActive = activeTrack?.url === track.fileUrl;
+    if (isActive && isPlaying) pause();
+    else play({ url: track.fileUrl, fileName: track.fileName, briefId: track.briefId, briefName: track.briefName });
+  }
+
   return (
     <div className="flex-1">
       <section className="max-w-6xl mx-auto px-6 md:px-10 pt-20 md:pt-24 pb-16">
-        <div className="flex flex-col md:flex-row md:items-start gap-8 md:gap-12">
+        <div className="flex flex-col md:flex-row md:items-start gap-8 md:gap-12 mb-16">
           <div className="shrink-0">
             <div className="relative w-24 h-24">
               {isOwner ? (
@@ -115,7 +150,7 @@ export default function ProfileView({
                 <span
                   className="absolute right-0 bottom-0 w-7 h-7 flex items-center justify-center bg-[#E85D2F] text-[var(--bg-base)] border-2 border-[var(--bg-base)]"
                   style={{ borderRadius: '999px' }}
-                  title="Sonant Composer. Three catalog placements."
+                  title="Verified composer. Three catalog placements."
                 >
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                     <path d="M2 6.2l2.6 2.6L10 3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -138,6 +173,21 @@ export default function ProfileView({
                   style={{ ...serif, fontWeight: 300 }}
                   placeholder="Name"
                 />
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={4}
+                  placeholder="A short bio"
+                  className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none"
+                  style={{ ...sans, borderRadius: '2px' }}
+                />
+                <input
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="Portfolio link"
+                  className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none"
+                  style={{ ...sans, borderRadius: '2px' }}
+                />
                 {error && <p className="text-[10px] text-[#FF8B6B]" style={mono}>× {error}</p>}
                 <div className="flex items-center gap-4">
                   <button
@@ -154,6 +204,8 @@ export default function ProfileView({
                     onClick={() => {
                       setEditing(false);
                       setName(initialName);
+                      setBio(initialBio);
+                      setWebsite(initialWebsite);
                       setError(null);
                     }}
                     className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)]"
@@ -173,22 +225,108 @@ export default function ProfileView({
                 </h1>
                 {verified && (
                   <div className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F] mb-4" style={mono}>
-                    Sonant Composer
+                    Verified composer
                   </div>
                 )}
-                {isOwner && (
-                  <button
-                    type="button"
-                    onClick={() => setEditing(true)}
-                    className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+                {bio && (
+                  <p className="text-base text-[var(--text-muted)] leading-relaxed max-w-xl mb-4" style={sans}>
+                    {bio}
+                  </p>
+                )}
+                {siteHref && (
+                  <a
+                    href={siteHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 mb-4"
                     style={mono}
                   >
-                    Edit name
-                  </button>
+                    Portfolio →
+                  </a>
+                )}
+                {isOwner && (
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(true)}
+                      className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+                      style={mono}
+                    >
+                      Edit profile
+                    </button>
+                  </div>
                 )}
               </>
             )}
           </div>
+        </div>
+
+        <div>
+          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5" style={mono}>
+            ◆ Tracks
+          </div>
+          {tracks.length === 0 ? (
+            <p className="text-sm text-[var(--text-muted)]" style={sans}>
+              {isOwner ? 'Upload an MP3 to a brief to see it here.' : 'No public tracks yet.'}
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {tracks.map((track) => {
+                const isActive = activeTrack?.url === track.fileUrl;
+                const isCurrentlyPlaying = isActive && isPlaying;
+                return (
+                  <div
+                    key={track.id}
+                    className="border border-[var(--border-card)] bg-[var(--bg-card)] px-4 py-3 flex items-center gap-3"
+                    style={{ borderRadius: '2px' }}
+                  >
+                    <button
+                      onClick={() => handlePlay(track)}
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${
+                        isCurrentlyPlaying
+                          ? 'bg-[#E85D2F] text-[var(--bg-base)]'
+                          : 'bg-[#E85D2F]/15 text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)]'
+                      }`}
+                      aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
+                    >
+                      {isCurrentlyPlaying ? '■' : '▶'}
+                    </button>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs text-[var(--text-secondary)] truncate block" style={sans}>
+                        {track.fileName}
+                        {isOwner && !track.isPublic && (
+                          <span className="text-[var(--text-dimmer)]"> · private</span>
+                        )}
+                      </span>
+                      <Link
+                        href={`/browse/${track.briefId}`}
+                        className="text-[10px] text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors truncate block"
+                        style={mono}
+                      >
+                        {track.briefName}
+                      </Link>
+                    </div>
+                    {isOwner && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          startTransition(async () => {
+                            await setTrackVisibility(track.id, !track.isPublic);
+                            router.refresh();
+                          });
+                        }}
+                        disabled={isPending}
+                        className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors disabled:opacity-40"
+                        style={mono}
+                      >
+                        {track.isPublic ? 'Public' : 'Private'}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
     </div>

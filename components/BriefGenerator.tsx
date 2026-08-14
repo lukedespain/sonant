@@ -8,6 +8,7 @@ import { BRAND_CATEGORIES, FILM_CATEGORIES, GAMES_CATEGORIES } from '@/lib/brief
 import SunoPromptModal from './SunoPromptModal';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
 import SubmitTrackModal from '@/components/SubmitTrackModal';
+import UploadTrackModal from '@/components/UploadTrackModal';
 
 // ---------- TYPES ----------
 
@@ -134,37 +135,6 @@ function DomainCard({
 
 
 function NextSteps({ briefId, loggedIn }: { briefId: string | null; loggedIn: boolean }) {
-  // Public community uploads are hidden. Keep this flag and the upload UI below to restore later.
-  const SHOW_PUBLIC_UPLOAD = false;
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = React.useState(false);
-  const [uploaded, setUploaded] = React.useState(false);
-  const [uploadError, setUploadError] = React.useState<string | null>(null);
-
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !briefId) return;
-    setUploading(true);
-    setUploadError(null);
-
-    const body = new FormData();
-    body.set('file', file);
-    body.set('briefId', briefId);
-
-    const res = await fetch('/api/community-tracks/upload', { method: 'POST', body });
-    setUploading(false);
-
-    if (!res.ok) {
-      let msg = `Upload failed (${res.status})`;
-      try { msg = (await res.json()).error ?? msg; } catch { /* ignore */ }
-      if (res.status === 413) msg = 'File too large. Convert to MP3 and try again.';
-      setUploadError(msg);
-    } else {
-      setUploaded(true);
-    }
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  }
-
   const submitHref = loggedIn
     ? (briefId ? `/browse/${briefId}` : '/signup')
     : '/signup';
@@ -175,30 +145,29 @@ function NextSteps({ briefId, loggedIn }: { briefId: string | null; loggedIn: bo
         Once your track is <span className="italic">ready</span>.
       </h2>
       <p className="text-base text-[var(--text-tertiary)] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-        You&apos;ve written to the brief. Submit it to the catalog (one credit) or book a session for live notes.
+        Upload a take to this brief for free, submit it to the catalog for one credit, or book a session for live notes.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {SHOW_PUBLIC_UPLOAD && (
         <div className="relative p-8 border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[var(--border-hover)] transition-colors flex flex-col" style={{ borderRadius: '2px' }}>
           <div className="flex items-start justify-between mb-6">
             <span className="text-2xl text-[#E85D2F]">↑</span>
             <span className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-dim)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Upload · Path 01
+              Upload · Playlist
             </span>
           </div>
           <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
             Upload to <span className="italic">This Brief</span>
           </h3>
           <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Share your take publicly on this brief. See what other composers wrote to the same direction, compare approaches, and get ears on your work.
+            Attach an MP3 to the playlist. Keep it public so other composers can hear it, or private on your profile.
           </p>
           <ul className="space-y-2 mb-8 flex-1">
             {[
-              'Attached publicly to this brief',
-              'Compare approaches with other composers',
-              'No submission credits required',
-              'Non-exclusive: submit elsewhere too',
+              'Free. No credit used',
+              'Public or private, you choose',
+              'Lives on this brief and your profile',
+              'Does not go to the catalog',
             ].map((b, i) => (
               <li key={i} className="flex gap-3 items-baseline text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 <span className="text-[#E85D2F]">·</span>
@@ -207,41 +176,33 @@ function NextSteps({ briefId, loggedIn }: { briefId: string | null; loggedIn: bo
             ))}
           </ul>
           <div className="space-y-3">
-            <input ref={fileInputRef} type="file" accept="audio/mp3,audio/mpeg,audio/aac,audio/mp4" onChange={handleFileChange} className="hidden" />
-            {uploaded ? (
-              <div
-                className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center text-[#7A9A6E] border border-[#7A9A6E]/40 bg-[#7A9A6E]/5"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-              >
-                ◆ Track Uploaded
-              </div>
+            {loggedIn && briefId ? (
+              <UploadTrackModal
+                briefId={briefId}
+                briefName="This brief"
+                triggerLabel="↑ Upload MP3"
+                triggerClassName="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#F5EFE0] text-[#1A1815] hover:bg-[#FFFFFF] transition-colors text-center"
+              />
             ) : (
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading || !briefId}
-                className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#F5EFE0] text-[#1A1815] hover:bg-[#FFFFFF] transition-colors text-center disabled:opacity-50"
+              <Link
+                href={loggedIn ? submitHref : '/signup'}
+                className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#F5EFE0] text-[#1A1815] hover:bg-[#FFFFFF] transition-colors text-center"
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
               >
-                {uploading ? '◆ Uploading…' : '↑ Upload Your Track'}
-              </button>
-            )}
-            {uploadError && (
-              <p className="text-[10px] text-[#FF8B6B]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                × {uploadError}
-              </p>
+                {loggedIn ? '↗ Open Brief to Upload' : '◆ Create Account to Upload'}
+              </Link>
             )}
             <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              MP3 or AAC · Max 50 MB
+              MP3 · max 50 MB
             </div>
           </div>
         </div>
-        )}
 
         <div className="relative p-8 border border-[#E85D2F]/30 bg-[var(--bg-card)] hover:border-[#E85D2F]/60 transition-colors flex flex-col" style={{ borderRadius: '2px' }}>
           <div className="flex items-start justify-between mb-6">
             <span className="text-2xl text-[#E85D2F]">↗</span>
             <span className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Submit · Path 01
+              Submit · Catalog
             </span>
           </div>
           <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
@@ -269,6 +230,7 @@ function NextSteps({ briefId, loggedIn }: { briefId: string | null; loggedIn: bo
                 briefId={briefId}
                 projectName="This brief"
                 alreadySubmitted={false}
+                triggerLabel="↗ Submit to Catalog"
                 triggerClassName="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
               />
             ) : (

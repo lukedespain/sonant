@@ -29,6 +29,87 @@ const MODE_LABELS: Record<string, string> = {
   games: 'Game',
 };
 
+function ClientBriefCard({
+  brief,
+}: {
+  brief: BriefRow;
+}) {
+  const content = brief.generated_content ?? {};
+  const imageUrl = content.imageUrl as string | undefined;
+  const title = (content.projectTitle as string) || (content.codename as string) || 'Untitled';
+  const client = (content.client as string) || '';
+  const project = (content.project as string) || '';
+  const demoFee = content.demoFee as string | undefined;
+  const winFee = content.winFee as string | undefined;
+  const deadline = content.deadline as string | undefined;
+  const modeLabel = MODE_LABELS[brief.mode] ?? brief.mode;
+  const tags = [demoFee, winFee, deadline, brief.target].filter(Boolean) as string[];
+
+  return (
+    <Link
+      href={`/browse/${brief.id}`}
+      className="relative overflow-hidden border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[#E85D2F] transition-colors block"
+      style={{ borderRadius: '2px' }}
+    >
+      <div className="flex flex-col md:flex-row min-h-[240px] md:min-h-[280px]">
+        <div
+          className="relative w-full md:w-[42%] min-h-[180px] md:min-h-0 overflow-hidden"
+          style={{ background: imageUrl ? undefined : 'linear-gradient(145deg, #E85D2F 0%, #8B3A1F 100%)' }}
+        >
+          {imageUrl && (
+            <img src={imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          )}
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to right, transparent 40%, var(--bg-card) 100%)' }}
+          />
+        </div>
+        <div className="flex-1 p-6 md:p-10 flex flex-col justify-center">
+          <div
+            className="text-[9px] tracking-[0.25em] uppercase text-[#E85D2F] mb-3"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            ◆ Client brief
+          </div>
+          <h3
+            className="text-3xl md:text-4xl italic tracking-tight text-[var(--text-primary)] mb-2"
+            style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
+          >
+            {title}
+          </h3>
+          <p
+            className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-4"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            {[client, modeLabel].filter(Boolean).join(' · ')}
+          </p>
+          {project && (
+            <p
+              className="text-sm text-[var(--text-muted)] leading-relaxed max-w-lg mb-6"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              {project}
+            </p>
+          )}
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[10px] tracking-wider px-2 py-1 border text-[#E85D2F] border-[#E85D2F]/30 bg-[#E85D2F]/5"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 function BriefCard({
   brief,
   featured,
@@ -132,14 +213,20 @@ function BriefCard({
 
 export default function BrowseClient({
   featuredBriefs,
+  clientBriefs = [],
   communityBriefs,
   currentUserId = null,
   mineOnlyDefault = false,
+  isVerified = false,
+  isBriefAdmin = false,
 }: {
   featuredBriefs: BriefRow[];
+  clientBriefs?: BriefRow[];
   communityBriefs: BriefRow[];
   currentUserId?: string | null;
   mineOnlyDefault?: boolean;
+  isVerified?: boolean;
+  isBriefAdmin?: boolean;
 }) {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>(() =>
@@ -238,24 +325,66 @@ export default function BrowseClient({
 
       {activeTab === 'client' && (
         <>
-          <div className="mb-8">
-            <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-              Active <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>client briefs.</span>
-            </h1>
-            <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Real briefs from brands, studios, and supervisors. Not live yet. When they are, composers with the Sonant badge get first access.
-            </p>
-          </div>
-          <div className="py-20 text-center border border-dashed border-[var(--border-base)]" style={{ borderRadius: '2px' }}>
-            <div className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              ◆ Coming soon
+          <div className="flex items-start justify-between gap-6 mb-8">
+            <div>
+              <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+                Active <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>client briefs.</span>
+              </h1>
+              <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                {isBriefAdmin
+                  ? 'Live jobs from brands, studios, and supervisors. Add a client brief to turn their document into a Sonant brief.'
+                  : 'Real briefs from brands, studios, and supervisors. Verified composers get first access.'}
+              </p>
             </div>
-            <p className="text-base text-[var(--text-secondary)] mb-2 max-w-sm mx-auto" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-              Client briefs are on their way.
-            </p>
-            <p className="text-sm text-[var(--text-muted)] max-w-sm mx-auto leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Earn the badge with three accepted catalog submissions. Badge holders get first access when real client briefs go live.
-            </p>
+            {isBriefAdmin && (
+              <Link
+                href="/admin?tab=briefs"
+                className="shrink-0 mt-2 px-4 py-2.5 text-[10px] tracking-[0.2em] uppercase border border-[#E85D2F] text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+              >
+                + Add client brief
+              </Link>
+            )}
+          </div>
+          <div className="relative">
+            <div
+              className={`flex flex-col gap-4 ${!isVerified ? 'select-none pointer-events-none' : ''}`}
+              style={!isVerified ? { filter: 'blur(10px)', transform: 'scale(1.01)' } : undefined}
+              aria-hidden={!isVerified}
+            >
+              {clientBriefs.length === 0 ? (
+                <p className="text-sm text-[var(--text-muted)] py-8" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  No active client briefs yet.
+                </p>
+              ) : (
+                clientBriefs.map((brief) => <ClientBriefCard key={brief.id} brief={brief} />)
+              )}
+            </div>
+            {!isVerified && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-[var(--bg-base)]/35">
+                <div
+                  className="w-12 h-12 flex items-center justify-center border border-[#E85D2F]/40 text-[#E85D2F] mb-5"
+                  style={{ borderRadius: '2px' }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <rect x="4.5" y="9" width="11" height="8" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+                    <path d="M7 9V6.5a3 3 0 016 0V9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div
+                  className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] mb-3"
+                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                >
+                  Verified composers only
+                </div>
+                <p
+                  className="text-sm text-[var(--text-muted)] max-w-sm leading-relaxed"
+                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  Place three tracks in the catalog to earn the badge and unlock access to paid client briefs.
+                </p>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -291,7 +420,7 @@ export default function BrowseClient({
               Community <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>briefs.</span>
             </h2>
             <p className="text-sm text-[var(--text-tertiary)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Practice briefs written by composers in the community. Submit to these as well. Every submission receives written feedback.
+              Practice briefs written by composers in the community. Upload a take to the playlist for free, or spend a credit to submit for written feedback.
             </p>
           </div>
 

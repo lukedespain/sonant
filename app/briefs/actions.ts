@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { isSiteAdmin } from '@/lib/admin';
 import { sendDecisionEmail, sendSubmissionReceivedEmail } from '@/lib/email';
 
 type Mode = 'brand' | 'film' | 'games';
@@ -200,7 +201,6 @@ export async function deleteCommunityTrack(trackId: string): Promise<{ error?: s
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Not authenticated' };
 
-  const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
   const admin = createAdminClient();
 
   const { data: track } = await admin
@@ -210,7 +210,7 @@ export async function deleteCommunityTrack(trackId: string): Promise<{ error?: s
     .single();
 
   if (!track) return { error: 'Track not found' };
-  if (track.user_id !== user.id && user.id !== ADMIN_USER_ID) return { error: 'Not authorized' };
+  if (track.user_id !== user.id && !isSiteAdmin(user)) return { error: 'Not authorized' };
 
   // If this track was set as the brief's featured track, clear the denormalized URL
   // (featured_track_id will be nulled automatically by ON DELETE SET NULL)
@@ -229,6 +229,7 @@ export async function deleteCommunityTrack(trackId: string): Promise<{ error?: s
   if (error) return { error: error.message };
 
   revalidatePath(`/browse/${track.brief_id}`);
+  revalidatePath(`/profile/${track.user_id}`);
   revalidatePath('/browse');
   return {};
 }
@@ -237,8 +238,7 @@ export async function setFeaturedTrack(briefId: string, trackId: string | null):
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
-  if (!user || user.id !== ADMIN_USER_ID) return { error: 'Not authorized.' };
+  if (!isSiteAdmin(user)) return { error: 'Not authorized.' };
 
   const admin = createAdminClient();
 
@@ -276,9 +276,7 @@ export async function recordDecision(params: {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
-
-  if (!user || user.id !== ADMIN_USER_ID) {
+  if (!isSiteAdmin(user)) {
     return { error: 'Not authorized.' };
   }
 
@@ -329,5 +327,33 @@ export async function recordDecision(params: {
   }
 
   revalidatePath('/admin');
+  revalidatePath('/submissions-admin');
   return { success: true };
+}
+
+export async function setTrackVisibility(trackId: string, isPublic: boolean): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Not authenticated' };
+
+  const admin = createAdminClient();
+  const { data: track } = await admin
+    .from('community_tracks')
+    .select('id, user_id, brief_id')
+    .eq('id', trackId)
+    .single();
+
+  if (!track) return { error: 'Track not found' };
+  if (track.user_id !== user.id && !isSiteAdmin(user)) return { error: 'Not authorized' };
+
+  const { setTrackPublic } = await import('@/lib/track-privacy');
+  try {
+    await setTrackPublic(trackId, isPublic);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Could not update visibility' };
+  }
+
+  revalidatePath(`/browse/${track.brief_id}`);
+  revalidatePath(`/profile/${track.user_id}`);
+  return {};
 }

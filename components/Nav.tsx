@@ -15,6 +15,7 @@ type NavProps = {
   acceptedCount?: number
   submissionCredits?: number
   sessionCredits?: number
+  isSiteAdmin?: boolean
 }
 
 const LINKS = [
@@ -22,7 +23,7 @@ const LINKS = [
   { href: '/browse', label: 'Briefs', note: 'Compose to spec' },
   { href: '/submissions', label: 'Submissions', note: 'Submit to catalog' },
   { href: '/sessions', label: 'Sessions', note: '1:1 music feedback' },
-] as const;
+] as const
 
 const AVATAR_COLORS = [
   '#E85D2F', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
@@ -58,6 +59,7 @@ export default function Nav({
   acceptedCount = 0,
   submissionCredits = 0,
   sessionCredits = 0,
+  isSiteAdmin = false,
 }: NavProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -87,8 +89,9 @@ export default function Nav({
 
   const closeMenu = () => setMenuOpen(false)
   const loggedIn = !!user && !isAuthPage
-  const verified = acceptedCount >= 3
-  const placed = Math.min(acceptedCount, 3)
+  const verified = isSiteAdmin || acceptedCount >= 3
+  const placed = isSiteAdmin ? 3 : Math.min(acceptedCount, 3)
+  const links = LINKS
 
   const mono = { fontFamily: "'JetBrains Mono', monospace" }
   const serif = { fontFamily: "'Fraunces', serif" }
@@ -220,6 +223,22 @@ export default function Nav({
               </Link>
             )}
 
+            {loggedIn && user && (
+              <Link
+                href={isSiteAdmin ? '/admin' : `/profile/${user.id}`}
+                onClick={closeMenu}
+                className={`h-10 px-4 flex items-center border transition-colors ${
+                  (isSiteAdmin && pathname?.startsWith('/admin')) ||
+                  (!isSiteAdmin && pathname?.startsWith('/profile'))
+                    ? 'border-[#E85D2F] text-[#E85D2F]'
+                    : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                }`}
+                style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
+              >
+                {isSiteAdmin ? 'Dashboard' : 'Profile'}
+              </Link>
+            )}
+
             {!isAuthPage && (
               <button
                 onClick={() => setMenuOpen((o) => !o)}
@@ -253,7 +272,7 @@ export default function Nav({
           <div className="fixed top-[73px] right-0 bottom-0 z-40 w-full max-w-md border-l border-[var(--border-base)] bg-[var(--bg-base)] flex flex-col">
             <div className="px-8 md:px-10 pt-8 flex-1 overflow-y-auto">
               <nav className="flex flex-col">
-                {LINKS.map(({ href, label, note }) => {
+                {links.map(({ href, label, note }) => {
                   const active = isActive(href)
                   return (
                     <Link
@@ -363,7 +382,7 @@ export default function Nav({
                           className="mt-1 text-[9px] tracking-[0.2em] uppercase text-[#E85D2F]"
                           style={mono}
                         >
-                          Verified composer
+                          {isSiteAdmin ? 'Sonant team' : 'Verified composer'}
                         </div>
                       ) : (
                         <>
@@ -423,50 +442,54 @@ export default function Nav({
                   <div className="flex items-end justify-between gap-3">
                     <div>
                       <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-1" style={mono}>
-                        Submission credits
+                        {isSiteAdmin ? 'Catalog reviews' : 'Submission credits'}
                       </div>
                       <div className="text-2xl text-[var(--text-primary)] leading-none" style={{ ...serif, fontWeight: 300 }}>
-                        {submissionCredits}
+                        {isSiteAdmin ? '∞' : submissionCredits}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => startCheckout('submission')}
-                      disabled={checkoutLoading === 'submission'}
-                      className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40 mb-0.5"
-                      style={mono}
-                    >
-                      {checkoutLoading === 'submission' ? '…' : '+ Add'}
-                    </button>
+                    {!isSiteAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => startCheckout('submission')}
+                        disabled={checkoutLoading === 'submission'}
+                        className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40 mb-0.5"
+                        style={mono}
+                      >
+                        {checkoutLoading === 'submission' ? '…' : '+ Add'}
+                      </button>
+                    )}
                   </div>
                   <div className="flex items-end justify-between gap-3">
                     <div>
                       <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-1" style={mono}>
-                        Session credits
+                        {isSiteAdmin ? 'Upcoming sessions' : 'Session credits'}
                       </div>
                       <div className="text-2xl text-[var(--text-primary)] leading-none" style={{ ...serif, fontWeight: 300 }}>
-                        {sessionCredits}
+                        {isSiteAdmin ? '∞' : sessionCredits}
                       </div>
                     </div>
-                    {sessionCredits > 0 ? (
-                      <Link
-                        href="/sessions"
-                        onClick={closeMenu}
-                        className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 mb-0.5"
-                        style={mono}
-                      >
-                        Book
-                      </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => startCheckout('session')}
-                        disabled={checkoutLoading === 'session'}
-                        className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40 mb-0.5"
-                        style={mono}
-                      >
-                        {checkoutLoading === 'session' ? '…' : 'Buy'}
-                      </button>
+                    {!isSiteAdmin && (
+                      sessionCredits > 0 ? (
+                        <Link
+                          href="/sessions"
+                          onClick={closeMenu}
+                          className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 mb-0.5"
+                          style={mono}
+                        >
+                          Book
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => startCheckout('session')}
+                          disabled={checkoutLoading === 'session'}
+                          className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40 mb-0.5"
+                          style={mono}
+                        >
+                          {checkoutLoading === 'session' ? '…' : 'Buy'}
+                        </button>
+                      )
                     )}
                   </div>
                 </div>

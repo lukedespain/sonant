@@ -22,7 +22,9 @@ export default function AudioPlayerBar() {
   const pct = duration > 0 ? (displayTime / duration) * 100 : 0;
 
   return (
-    <div
+    <>
+      <div className="h-24 shrink-0" aria-hidden="true" />
+      <div
       className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border-card)] bg-[var(--bg-card)]"
       style={{ fontFamily: "'JetBrains Mono', monospace" }}
     >
@@ -110,5 +112,6 @@ export default function AudioPlayerBar() {
         </div>
       </div>
     </div>
+    </>
   );
 }

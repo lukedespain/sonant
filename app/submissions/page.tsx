@@ -18,7 +18,7 @@ export default async function SubmissionsPage() {
     const admin = createAdminClient();
     const { data: rawSubmissions } = await admin
       .from('submissions')
-      .select('id, brief_id, status, feedback, created_at, file_name')
+      .select('id, brief_id, status, feedback, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
@@ -71,8 +71,8 @@ export default async function SubmissionsPage() {
       </section>
 
       <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 py-10 md:py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
             {[
               {
                 n: '01',
@@ -90,15 +90,15 @@ export default async function SubmissionsPage() {
                 body: 'Every submission gets written feedback. If it is strong enough, it goes in the catalog and we pitch it.',
               },
             ].map((step) => (
-              <div key={step.n} className="border-t border-[var(--border-base)] pt-6">
+              <div key={step.n} className="border-t border-[var(--border-base)] pt-4">
                 <div
-                  className="text-3xl leading-none text-[var(--text-dimmer)] mb-4"
+                  className="text-lg leading-none text-[var(--text-dimmer)] mb-2"
                   style={{ ...serif, fontWeight: 300 }}
                 >
                   {step.n}
                 </div>
                 <h2
-                  className="text-xl mb-3 text-[var(--text-primary)]"
+                  className="text-base mb-2 text-[var(--text-primary)]"
                   style={{ ...serif, fontWeight: 400 }}
                 >
                   {step.title}

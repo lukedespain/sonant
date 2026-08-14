@@ -5,32 +5,30 @@ import { useRouter } from 'next/navigation';
 
 type Props = {
   briefId: string;
-  projectName: string;
-  alreadySubmitted: boolean;
+  briefName: string;
+  currentUserName?: string;
   triggerClassName?: string;
   triggerLabel?: string;
-  submissionCredits?: number;
-  isAdmin?: boolean;
-  variant?: 'client' | 'catalog';
 };
 
-export default function SubmitTrackModal({
+function isMp3File(file: File) {
+  const name = file.name.toLowerCase();
+  return name.endsWith('.mp3') || file.type === 'audio/mpeg' || file.type === 'audio/mp3';
+}
+
+export default function UploadTrackModal({
   briefId,
-  projectName,
-  alreadySubmitted,
+  briefName,
+  currentUserName = '',
   triggerClassName,
-  triggerLabel = '↑ Submit Track',
-  submissionCredits = 0,
-  isAdmin = false,
-  variant = 'catalog',
+  triggerLabel = '↑ Upload MP3',
 }: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [open, setOpen] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [trackName, setTrackName] = useState('');
-  const [confirmed, setConfirmed] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -39,29 +37,9 @@ export default function SubmitTrackModal({
     setOpen(true);
     setPendingFile(null);
     setTrackName('');
-    setConfirmed(false);
+    setIsPublic(true);
     setError(null);
     setDone(false);
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const name = file.name.toLowerCase();
-    const type = file.type.toLowerCase();
-    const ok =
-      name.endsWith('.mp3') || name.endsWith('.wav') ||
-      type === 'audio/mpeg' || type === 'audio/mp3' ||
-      type === 'audio/wav' || type === 'audio/wave' || type === 'audio/x-wav';
-    if (!ok) {
-      setError('Submissions need to be MP3 or WAV.');
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
-    setError(null);
-    setPendingFile(file);
-    setTrackName(file.name.replace(/\.[^.]+$/, ''));
-    if (fileInputRef.current) fileInputRef.current.value = '';
   }
 
   function handleClose() {
@@ -69,8 +47,21 @@ export default function SubmitTrackModal({
     setOpen(false);
   }
 
-  async function handleSubmit() {
-    if (!pendingFile || !confirmed) return;
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (!file) return;
+    if (!isMp3File(file)) {
+      setError('Uploads need to be MP3.');
+      return;
+    }
+    setError(null);
+    setPendingFile(file);
+    setTrackName(file.name.replace(/\.[^.]+$/, ''));
+  }
+
+  async function handleUpload() {
+    if (!pendingFile || !trackName.trim()) return;
     setUploading(true);
     setError(null);
 
@@ -78,31 +69,32 @@ export default function SubmitTrackModal({
     body.set('file', pendingFile);
     body.set('briefId', briefId);
     body.set('trackName', trackName.trim() || pendingFile.name);
+    body.set('isPublic', isPublic ? 'true' : 'false');
 
-    const res = await fetch('/api/submissions/upload', { method: 'POST', body });
+    const res = await fetch('/api/community-tracks/upload', { method: 'POST', body });
     setUploading(false);
 
     if (!res.ok) {
       let msg = `Upload failed (${res.status})`;
       try {
-        const json = await res.json();
-        msg = json.error ?? msg;
-      } catch { /* empty */ }
+        msg = (await res.json()).error ?? msg;
+      } catch {
+        if (res.status === 413) msg = 'File too large. Convert to MP3 and try again.';
+      }
       setError(msg);
-    } else {
-      setDone(true);
-      router.refresh();
+      return;
     }
-  }
 
-  const hasCredit = isAdmin || submissionCredits > 0;
-  const canSubmit = !!pendingFile && confirmed && trackName.trim().length > 0 && hasCredit;
+    setDone(true);
+    router.refresh();
+  }
 
   return (
     <>
       <button
+        type="button"
         onClick={handleOpen}
-        className={triggerClassName ?? "text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"}
+        className={triggerClassName}
         style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
       >
         {triggerLabel}
@@ -120,18 +112,18 @@ export default function SubmitTrackModal({
             onClick={(e) => e.stopPropagation()}
           >
             {done ? (
-              /* Success state */
               <div className="text-center py-4">
                 <div className="text-3xl text-[#E85D2F] mb-4">◆</div>
                 <h2 className="text-2xl mb-3" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-                  Track submitted.
+                  Track uploaded.
                 </h2>
                 <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  {variant === 'client'
-                    ? 'The Sonant team has your track. We will review it and be in touch if it is going to the client.'
-                    : 'Your track is in. You\'ll receive written feedback regardless of outcome.'}
+                  {isPublic
+                    ? 'It is on this brief\'s playlist and on your profile.'
+                    : 'It is private. Only you can see it on this brief and on your profile.'}
                 </p>
                 <button
+                  type="button"
                   onClick={() => setOpen(false)}
                   className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
                   style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
@@ -142,21 +134,19 @@ export default function SubmitTrackModal({
             ) : (
               <>
                 <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                  ◆ Submit Track
+                  ◆ Upload Track
                 </div>
 
                 <div className="space-y-5">
-                  {/* Brief name (read-only) */}
                   <div>
                     <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                       Brief
                     </label>
                     <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      {projectName}
+                      {briefName}
                     </p>
                   </div>
 
-                  {/* File picker */}
                   <div>
                     <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                       Track File
@@ -164,7 +154,7 @@ export default function SubmitTrackModal({
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="audio/mp3,audio/mpeg,audio/wav,audio/wave,audio/x-wav,.mp3,.wav"
+                      accept="audio/mp3,audio/mpeg,.mp3"
                       onChange={handleFileChange}
                       className="hidden"
                     />
@@ -174,6 +164,7 @@ export default function SubmitTrackModal({
                           {pendingFile.name}
                         </span>
                         <button
+                          type="button"
                           onClick={() => fileInputRef.current?.click()}
                           className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors shrink-0"
                           style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -183,30 +174,30 @@ export default function SubmitTrackModal({
                       </div>
                     ) : (
                       <button
+                        type="button"
                         onClick={() => fileInputRef.current?.click()}
                         className="w-full px-4 py-3 border border-dashed border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors text-xs tracking-[0.2em] uppercase text-center"
                         style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
                       >
-                        Choose file
+                        Choose MP3
                       </button>
                     )}
                     <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      MP3 or WAV · max 100 MB · 1 credit
+                      Free · MP3 · max 50 MB
                     </p>
                   </div>
 
-                  {/* Track name (editable) */}
                   {pendingFile && (
                     <div>
                       <label
-                        htmlFor="submission-track-name"
+                        htmlFor="upload-track-name"
                         className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
                         style={{ fontFamily: "'JetBrains Mono', monospace" }}
                       >
                         Track Name
                       </label>
                       <input
-                        id="submission-track-name"
+                        id="upload-track-name"
                         type="text"
                         value={trackName}
                         onChange={(e) => setTrackName(e.target.value)}
@@ -216,66 +207,31 @@ export default function SubmitTrackModal({
                     </div>
                   )}
 
-                  {/* Already submitted notice */}
-                  {alreadySubmitted && (
-                    <div className="text-xs text-[var(--text-muted)] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 leading-relaxed" style={{ borderRadius: '2px', fontFamily: "'DM Sans', sans-serif" }}>
-                      You&apos;ve already submitted to this brief. This will be reviewed as a separate entry.
+                  {currentUserName && (
+                    <div>
+                      <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                        Uploaded By
+                      </label>
+                      <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        {currentUserName}
+                      </p>
                     </div>
                   )}
 
-                  {/* Confirmation checkbox */}
-                  <label className="flex items-start gap-3 cursor-pointer group">
-                    <div className="relative mt-0.5 shrink-0">
-                      <input
-                        type="checkbox"
-                        checked={confirmed}
-                        onChange={(e) => setConfirmed(e.target.checked)}
-                        className="sr-only"
-                      />
-                      <div
-                        className={`w-4 h-4 border flex items-center justify-center transition-colors ${
-                          confirmed ? 'bg-[#E85D2F] border-[#E85D2F]' : 'border-[var(--border-subtle)] group-hover:border-[#E85D2F]'
-                        }`}
-                        style={{ borderRadius: '2px' }}
-                      >
-                        {confirmed && (
-                          <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-                            <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      {variant === 'client'
-                        ? 'I understand this uses 1 submission credit and goes privately to the Sonant team.'
-                        : 'I understand this uses 1 submission credit. This goes privately to the Sonant team, not onto the playlist.'}
-                    </span>
-                  </label>
-                </div>
-
-                {!hasCredit && (
-                  <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                    You need a submission credit to send this in.{' '}
+                  <div>
+                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      Visibility
+                    </label>
                     <button
                       type="button"
-                      onClick={async () => {
-                        const res = await fetch('/api/stripe/checkout', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ type: 'submission' }),
-                        });
-                        if (res.ok) {
-                          const { url } = await res.json();
-                          window.location.href = url;
-                        }
-                      }}
-                      className="text-[#E85D2F] hover:opacity-70"
+                      onClick={() => setIsPublic((v) => !v)}
+                      className="text-xs tracking-[0.15em] uppercase text-[var(--text-secondary)] hover:text-[#E85D2F] transition-colors"
+                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
                     >
-                      Buy a credit
+                      {isPublic ? 'Public · on the playlist and your profile' : 'Private · only you can see this'}
                     </button>
-                    .
-                  </p>
-                )}
+                  </div>
+                </div>
 
                 {error && (
                   <p className="text-[10px] text-[#FF8B6B] mt-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
@@ -285,14 +241,16 @@ export default function SubmitTrackModal({
 
                 <div className="flex gap-3 mt-8">
                   <button
-                    onClick={handleSubmit}
-                    disabled={!canSubmit || uploading}
-                    className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    type="button"
+                    onClick={handleUpload}
+                    disabled={uploading || !pendingFile || !trackName.trim()}
+                    className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
                   >
-                    {uploading ? '◆ Uploading…' : '◆ Submit Track'}
+                    {uploading ? '◆ Uploading…' : '◆ Upload'}
                   </button>
                   <button
+                    type="button"
                     onClick={handleClose}
                     disabled={uploading}
                     className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"

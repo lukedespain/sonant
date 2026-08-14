@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
-// import AudioPlayerBar from "@/components/AudioPlayerBar";
+import AudioPlayerBar from "@/components/AudioPlayerBar";
 import { Providers } from "./providers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSiteAdmin } from "@/lib/admin";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -87,10 +88,10 @@ export default async function RootLayout({
             acceptedCount={acceptedCount}
             submissionCredits={submissionCredits}
             sessionCredits={sessionCredits}
+            isSiteAdmin={isSiteAdmin(user)}
           />
           {children}
-          {/* Audio player hidden. Keep AudioPlayerBar.tsx and AudioPlayerContext to restore later. */}
-          {/* <AudioPlayerBar /> */}
+          <AudioPlayerBar />
         </Providers>
       </body>
     </html>

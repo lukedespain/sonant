@@ -1,8 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
+import { ADMIN_USER_ID, isSiteAdmin } from '@/lib/admin';
 import BrowseClient from './BrowseClient';
-
-const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
 
 interface BriefRow {
   id: string;
@@ -31,10 +30,30 @@ export default async function BrowsePage({
   const { data: { user } } = await supabase.auth.getUser();
   const params = await searchParams;
 
+  const isBriefAdmin = isSiteAdmin(user);
+
+  let isVerified = isBriefAdmin;
+  if (user && !isVerified) {
+    const { count } = await admin
+      .from('submissions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'accepted');
+    isVerified = (count ?? 0) >= 3;
+  }
+
   const { data: featuredBriefs } = await admin
     .from('briefs')
     .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
     .eq('user_id', ADMIN_USER_ID)
+    .eq('brief_type', 'catalog')
+    .order('created_at', { ascending: false })
+    .returns<BriefRow[]>();
+
+  const { data: clientBriefs } = await admin
+    .from('briefs')
+    .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
+    .eq('brief_type', 'client')
     .order('created_at', { ascending: false })
     .returns<BriefRow[]>();
 
@@ -51,9 +70,12 @@ export default async function BrowsePage({
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <BrowseClient
           featuredBriefs={featuredBriefs ?? []}
+          clientBriefs={clientBriefs ?? []}
           communityBriefs={communityBriefs ?? []}
           currentUserId={user?.id ?? null}
           mineOnlyDefault={params.mine === '1'}
+          isVerified={isVerified}
+          isBriefAdmin={isBriefAdmin}
         />
       </div>
     </div>
