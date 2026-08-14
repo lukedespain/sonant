@@ -211,7 +211,7 @@ Return ONLY a JSON object:
 }
 ${sourceNotes ? `\n${sourceNotes}` : ''}`;
 
-  const content: Anthropic.MessageCreateParams['messages'][0]['content'] = [];
+  const content: Anthropic.ContentBlockParam[] = [];
 
   for (const file of input.files) {
     if (file.kind === 'image') {
