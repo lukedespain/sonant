@@ -11,19 +11,19 @@ const STEPS = [
     n: '02',
     title: 'Practice',
     body: 'Treat it like a real brief. Write as close as you can, at the best quality you can, because you\'re building a catalog worth pitching.',
-    href: '/browse?tab=catalog',
+    href: '/browse',
   },
   {
     n: '03',
     title: 'Submit',
-    body: 'Submit the track you wrote to that brief. The team reviews it, sends written feedback, and if it\'s good enough, adds it to the catalog and pitches it.',
+    body: 'Send the track in. Every submission gets written feedback, and strong ones go in the catalog. Three placements unlock access to paid client briefs.',
     href: '/submissions',
   },
   {
     n: '04',
-    title: 'Work',
-    body: 'Paid client briefs stay in a closed network. Three catalog placements earn you access, so we know what you\'re good at and which jobs to send you.',
-    href: '/browse?tab=client',
+    title: 'Feedback',
+    body: 'Book a session for live one-on-one notes. We listen against the brief, talk through tracks you\'ve submitted, and tell you what it would take to place.',
+    href: '/sessions',
   },
 ] as const;
 

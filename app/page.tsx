@@ -31,7 +31,7 @@ export default function HomePage() {
           className="text-base text-[var(--text-muted)] leading-relaxed max-w-xl"
           style={sans}
         >
-          Generate briefs to practice writing to spec. Get written and live feedback to hone your craft. Place tracks in the catalog, and after enough practice, earn access to real paid briefs.
+          Generate briefs to practice writing to spec. Submit to the catalog. Three placements unlock paid client work. Book a session when you want live notes on how well you matched the brief.
         </p>
       </section>
 
