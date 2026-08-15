@@ -209,3 +209,36 @@ export async function sendBriefShareEmail(params: {
     return { error: 'Email failed to send.' };
   }
 }
+
+// Adds a confirmed signup to the Resend General list used for product emails.
+// Best-effort: never block account confirmation if Resend is down or the key is send-only.
+export async function addSignupToResendList(params: {
+  email: string;
+  firstName?: string;
+}) {
+  const email = params.email.trim();
+  if (!email) return;
+
+  const audienceId = process.env.RESEND_AUDIENCE_ID;
+  const firstName = params.firstName?.trim() || undefined;
+
+  try {
+    if (audienceId) {
+      await resend.contacts.create({
+        email,
+        firstName,
+        unsubscribed: false,
+        audienceId,
+      });
+      return;
+    }
+
+    await resend.contacts.create({
+      email,
+      firstName,
+      unsubscribed: false,
+    });
+  } catch (error) {
+    console.error('addSignupToResendList failed:', error);
+  }
+}
