@@ -12,6 +12,7 @@ type AdminSubmissionCardProps = {
   status: string;
   existingFeedback: string | null;
   submittedAt: string;
+  briefType?: 'client' | 'catalog';
 };
 
 export default function AdminSubmissionCard({
@@ -22,6 +23,7 @@ export default function AdminSubmissionCard({
   status,
   existingFeedback,
   submittedAt,
+  briefType = 'catalog',
 }: AdminSubmissionCardProps) {
   const router = useRouter();
   const isDecided = status === 'accepted' || status === 'not_accepted';
@@ -78,7 +80,7 @@ export default function AdminSubmissionCard({
             className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)]"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            {composerEmail} · {submittedAt}
+            {briefType === 'client' ? 'Client' : 'Catalog'} · {composerEmail} · {submittedAt}
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">

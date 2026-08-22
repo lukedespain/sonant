@@ -9,11 +9,12 @@ import UsageMeters from './UsageMeters';
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; queue?: string }>;
 }) {
   await requireSiteAdmin();
-  const { tab } = await searchParams;
+  const { tab, queue } = await searchParams;
   const active = tab === 'sessions' || tab === 'briefs' ? tab : 'submissions';
+  const submissionQueue = queue === 'client' ? 'client' : 'catalog';
 
   return (
     <div className="pt-20 pb-12 flex-1">
@@ -50,7 +51,7 @@ export default async function AdminPage({
         ) : active === 'briefs' ? (
           <BriefsTab />
         ) : (
-          <SubmissionsTab />
+          <SubmissionsTab queue={submissionQueue} />
         )}
       </div>
     </div>
