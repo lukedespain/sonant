@@ -77,7 +77,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             className="text-xs tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            ← Browse Sonant briefs
+            ← Browse catalog briefs
           </Link>
         </div>
       </div>

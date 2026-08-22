@@ -66,7 +66,7 @@ export default async function SubmissionsPage() {
           className="text-base text-[var(--text-muted)] leading-relaxed max-w-xl"
           style={sans}
         >
-          We don&apos;t take random tracks. Every submission is tied to a Sonant brief, so the notes you get are precise, not subjective, and so the catalog gets what it&apos;s actually looking for.
+          We don&apos;t take random tracks. Every submission is tied to a catalog brief, so the notes you get are precise, not subjective, and so the catalog gets what it&apos;s actually looking for.
         </p>
       </section>
 
@@ -77,7 +77,7 @@ export default async function SubmissionsPage() {
               {
                 n: '01',
                 title: 'Pick a brief',
-                body: 'Browse featured and community Sonant briefs, or generate one that fits a track you already have.',
+                body: 'Browse Sonant briefs and community briefs, or generate one that fits a track you already have.',
               },
               {
                 n: '02',

@@ -150,7 +150,7 @@ function BriefCard({
             className="text-[9px] tracking-[0.25em] uppercase text-[#E85D2F] mb-2"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            ◆ Featured
+            ◆ Sonant
           </div>
         )}
         {!featured && (
@@ -298,7 +298,7 @@ export default function BrowseClient({
   const selectClass = `text-xs tracking-[0.15em] uppercase bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-secondary)] px-3 py-2 focus:border-[#E85D2F] focus:outline-none appearance-none pr-6`;
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'catalog', label: 'Sonant Briefs' },
+    { key: 'catalog', label: 'Catalog Briefs' },
     { key: 'client', label: 'Client Briefs' },
   ];
 
@@ -332,7 +332,7 @@ export default function BrowseClient({
               </h1>
               <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 {isBriefAdmin
-                  ? 'Live jobs from brands, studios, and supervisors. Add a client brief to turn their document into a Sonant brief.'
+                  ? 'Live jobs from brands, studios, and supervisors. Add a client brief to turn their document into a published job for verified composers.'
                   : 'Real briefs from brands, studios, and supervisors. Verified composers get first access.'}
               </p>
             </div>
@@ -393,10 +393,10 @@ export default function BrowseClient({
         <>
           <div className="mb-6">
             <h1 className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-              Featured <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>briefs.</span>
+              Sonant <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>briefs.</span>
             </h1>
             <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Curated briefs for tracks the Sonant catalog is looking for. Every submission receives written feedback. Accepted tracks are placed and pitched to buyers.
+              Curated by the Sonant team around tracks the catalog is looking for. Every submission receives written feedback. Accepted tracks are placed and pitched to buyers.
             </p>
           </div>
 
@@ -409,7 +409,7 @@ export default function BrowseClient({
               ))}
               {featuredBriefs.length === 0 && (
                 <p className="text-sm text-[var(--text-muted)] py-8" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  No featured briefs yet.
+                  No Sonant briefs yet.
                 </p>
               )}
             </div>

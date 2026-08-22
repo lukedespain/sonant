@@ -9,15 +9,15 @@ const QUESTIONS = [
   },
   {
     q: 'Do I need an account?',
-    a: 'Anyone can generate briefs without signing up. An account is required to save briefs, submit to Sonant briefs, or book a feedback session. Creating one is free, and every account includes one submission credit each month.',
+    a: 'Anyone can generate briefs without signing up. An account is required to save briefs, submit to catalog briefs, or book a feedback session. Creating one is free, and every account includes one submission credit each month.',
   },
   {
-    q: 'What are Sonant briefs?',
-    a: 'Sonant briefs are the briefs composers submit tracks to, to try to get into the catalog. Featured briefs are curated around what the catalog needs. Community briefs are written by composers. Submit to either. Every submission gets written feedback, and if the track is good enough, it goes in the catalog and we pitch it.',
+    q: 'What are catalog briefs?',
+    a: 'Catalog briefs are the briefs composers submit tracks to, to try to get into the catalog. There are two kinds. Sonant briefs are curated by the team around what the catalog needs. Community briefs are written by composers. Submit to either. Every submission gets written feedback, and if the track is good enough, it goes in the catalog and we pitch it.',
   },
   {
     q: 'How do submission credits work?',
-    a: 'Each submission to a Sonant brief costs one credit. Free accounts include one credit per month. Additional credits can be purchased from your dashboard.',
+    a: 'Each submission to a catalog brief costs one credit. Free accounts include one credit per month. Additional credits can be purchased from your dashboard.',
   },
   {
     q: 'What are client briefs?',

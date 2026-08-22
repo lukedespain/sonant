@@ -137,7 +137,7 @@ export async function sendBriefShareEmail(params: {
     await resend.emails.send({
       from: FROM,
       to: params.to,
-      subject: `${params.senderName} shared a Sonant brief with you`,
+      subject: `${params.senderName} shared a catalog brief with you`,
       html: `
         <div style="margin:0;padding:0;background:#0A0908;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0A0908;">

@@ -9,7 +9,7 @@ const faqs = [
   },
   {
     q: 'What\'s the difference between a catalog brief and a practice brief?',
-    a: 'Catalog briefs are written by the Sonant team around what the catalog actually needs. Submit a track, get written feedback, and if accepted, your music is placed and pitched. Practice briefs are ones you generate yourself, private, just yours, so you can get reps writing to spec before you submit.',
+    a: 'Catalog briefs are the ones you submit to, to try to get into the catalog. There are two kinds: Sonant briefs, curated by the team around what the catalog needs, and community briefs, written by composers. Practice briefs are ones you generate yourself, private, just yours, so you can get reps writing to spec before you submit.',
   },
   {
     q: 'How do I submit music to a catalog brief?',
@@ -29,7 +29,7 @@ const faqs = [
   },
   {
     q: 'What are client briefs?',
-    a: 'A future feature. Brands, studios, and music supervisors will post briefs for a cue, spot, or backing track and send them to this community. They are not live yet.',
+    a: 'Client briefs are real paid jobs from brands, studios, and supervisors in the Sonant network. They stay in a closed network, they pay, and they come with a quick deadline. Three catalog placements earn you access.',
   },
   {
     q: 'What is the Brief Generator?',

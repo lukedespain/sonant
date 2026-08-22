@@ -42,7 +42,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
           You haven&apos;t made any submissions yet.
         </h3>
         <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-md" style={sans}>
-          Browse Sonant briefs and pick one to write to. Submissions only count when they&apos;re tied to a brief.
+          Browse catalog briefs and pick one to write to. Submissions only count when they&apos;re tied to a brief.
         </p>
         <Link
           href="/browse"
@@ -84,7 +84,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
                       border: `1px solid ${isClient ? '#92A8D130' : '#E85D2F30'}`,
                     }}
                   >
-                    {isClient ? 'Client' : 'Sonant'}
+                    {isClient ? 'Client' : 'Catalog'}
                   </span>
                 </div>
                 {sub.trackName && (
