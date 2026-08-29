@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { setTrackVisibility } from '@/app/briefs/actions';
+import { isVerifiedComposer, type VerifiedOverride } from '@/lib/verification';
+import AdminVerificationControls from '@/components/AdminVerificationControls';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 
 const AVATAR_COLORS = [
@@ -35,18 +37,22 @@ type TrackItem = {
 export default function ProfileView({
   profileId,
   isOwner,
+  isAdmin = false,
   name: initialName,
   avatarUrl: initialAvatar,
   accepted,
+  verifiedOverride = null,
   bio: initialBio,
   website: initialWebsite,
   tracks,
 }: {
   profileId: string;
   isOwner: boolean;
+  isAdmin?: boolean;
   name: string;
   avatarUrl: string | null;
   accepted: number;
+  verifiedOverride?: VerifiedOverride;
   bio: string;
   website: string;
   tracks: TrackItem[];
@@ -64,7 +70,7 @@ export default function ProfileView({
   const [isPending, startTransition] = useTransition();
   const { track: activeTrack, isPlaying, play, pause } = useAudioPlayer();
 
-  const verified = accepted >= 3;
+  const verified = isVerifiedComposer(accepted, verifiedOverride);
   const displayName = name || 'Composer';
   const siteHref = website
     ? /^https?:\/\//i.test(website) ? website : `https://${website}`
@@ -243,6 +249,13 @@ export default function ProfileView({
                   >
                     Portfolio →
                   </a>
+                )}
+                {isAdmin && (
+                  <AdminVerificationControls
+                    userId={profileId}
+                    override={verifiedOverride}
+                    accepted={accepted}
+                  />
                 )}
                 {isOwner && (
                   <div>

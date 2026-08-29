@@ -17,6 +17,7 @@ export type SubmissionItem = {
   briefCodename: string;
   trackName?: string | null;
   briefType?: string;
+  delivery?: 'upload' | 'disco';
   status: string;
   feedback: string | null;
   createdAt: string;
@@ -90,6 +91,11 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
                 {sub.trackName && (
                   <div className="text-sm text-[var(--text-secondary)] mb-1" style={sans}>
                     {sub.trackName}
+                  </div>
+                )}
+                {sub.delivery === 'disco' && (
+                  <div className="text-sm text-[var(--text-secondary)] mb-1" style={sans}>
+                    Delivered via Disco
                   </div>
                 )}
                 <div className="text-[10px] text-[var(--text-dimmer)]" style={mono}>

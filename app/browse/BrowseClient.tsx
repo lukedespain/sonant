@@ -110,6 +110,53 @@ function ClientBriefCard({
   );
 }
 
+/**
+ * Silhouette of a client brief for viewers who are not allowed to receive the
+ * real rows. Carries no data — it exists so the locked state has a card-sized
+ * body to sit behind the overlay.
+ */
+function ClientBriefPlaceholder() {
+  const bar = (width: string, color: string) => (
+    <div style={{ width, height: '10px', background: color, borderRadius: '2px' }} />
+  );
+
+  return (
+    <div
+      className="overflow-hidden border border-[var(--border-card)] bg-[var(--bg-card)]"
+      style={{ borderRadius: '2px' }}
+    >
+      <div className="flex flex-col md:flex-row min-h-[240px] md:min-h-[280px]">
+        <div
+          className="relative w-full md:w-[42%] min-h-[180px] md:min-h-0"
+          style={{ background: 'linear-gradient(145deg, #E85D2F 0%, #8B3A1F 100%)' }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to right, transparent 40%, var(--bg-card) 100%)' }}
+          />
+        </div>
+        <div className="flex-1 p-6 md:p-10 flex flex-col justify-center gap-4">
+          {bar('90px', 'rgba(232, 93, 47, 0.35)')}
+          <div style={{ width: '70%', maxWidth: '360px', height: '30px', background: 'var(--border-subtle)', borderRadius: '2px' }} />
+          {bar('150px', 'var(--border-card)')}
+          <div className="flex flex-col gap-2">
+            {bar('100%', 'var(--border-card)')}
+            {bar('75%', 'var(--border-card)')}
+          </div>
+          <div className="flex gap-1.5">
+            {['70px', '58px', '96px'].map((w) => (
+              <div
+                key={w}
+                style={{ width: w, height: '24px', border: '1px solid rgba(232, 93, 47, 0.3)', background: 'rgba(232, 93, 47, 0.05)', borderRadius: '2px' }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BriefCard({
   brief,
   featured,
@@ -347,43 +394,49 @@ export default function BrowseClient({
             )}
           </div>
           <div className="relative">
-            <div
-              className={`flex flex-col gap-4 ${!isVerified ? 'select-none pointer-events-none' : ''}`}
-              style={!isVerified ? { filter: 'blur(10px)', transform: 'scale(1.01)' } : undefined}
-              aria-hidden={!isVerified}
-            >
-              {clientBriefs.length === 0 ? (
-                <p className="text-sm text-[var(--text-muted)] py-8" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  No active client briefs yet.
-                </p>
-              ) : (
-                clientBriefs.map((brief) => <ClientBriefCard key={brief.id} brief={brief} />)
-              )}
-            </div>
-            {!isVerified && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-[var(--bg-base)]/35">
-                <div
-                  className="w-12 h-12 flex items-center justify-center border border-[#E85D2F]/40 text-[#E85D2F] mb-5"
-                  style={{ borderRadius: '2px' }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                    <rect x="4.5" y="9" width="11" height="8" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
-                    <path d="M7 9V6.5a3 3 0 016 0V9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <div
-                  className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] mb-3"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                >
-                  Verified composers only
-                </div>
-                <p
-                  className="text-sm text-[var(--text-muted)] max-w-sm leading-relaxed"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}
-                >
-                  Place three tracks in the catalog to earn the badge and unlock access to paid client briefs.
-                </p>
+            {isVerified ? (
+              <div className="flex flex-col gap-4">
+                {clientBriefs.length === 0 ? (
+                  <p className="text-sm text-[var(--text-muted)] py-8" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    No active client briefs yet.
+                  </p>
+                ) : (
+                  clientBriefs.map((brief) => <ClientBriefCard key={brief.id} brief={brief} />)
+                )}
               </div>
+            ) : (
+              <>
+                <div
+                  className="select-none pointer-events-none"
+                  style={{ filter: 'blur(10px)', transform: 'scale(1.01)' }}
+                  aria-hidden="true"
+                >
+                  <ClientBriefPlaceholder />
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-[var(--bg-base)]/35">
+                  <div
+                    className="w-12 h-12 flex items-center justify-center border border-[#E85D2F]/40 text-[#E85D2F] mb-5"
+                    style={{ borderRadius: '2px' }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <rect x="4.5" y="9" width="11" height="8" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+                      <path d="M7 9V6.5a3 3 0 016 0V9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <div
+                    className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] mb-3"
+                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                  >
+                    Verified composers only
+                  </div>
+                  <p
+                    className="text-sm text-[var(--text-muted)] max-w-sm leading-relaxed"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  >
+                    Place three tracks in the catalog to earn the badge and unlock access to paid client briefs.
+                  </p>
+                </div>
+              </>
             )}
           </div>
         </>

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import SubmitTrackModal from '@/components/SubmitTrackModal';
 import UploadTrackModal from '@/components/UploadTrackModal';
+import ClientBriefSubmitModal from '@/components/ClientBriefSubmitModal';
 
 type Props = {
   briefId: string;
@@ -13,6 +14,7 @@ type Props = {
   submissionCredits: number;
   isAdmin: boolean;
   currentUserName?: string;
+  discoUrl?: string | null;
 };
 
 const cardClass =
@@ -40,86 +42,69 @@ export default function BriefNextSteps({
   submissionCredits,
   isAdmin,
   currentUserName = '',
+  discoUrl = null,
 }: Props) {
   const isClient = variant === 'client';
   const signInHref = `/login?redirect=/browse/${briefId}`;
   const signUpHref = `/signup?redirect=/browse/${briefId}`;
 
-  const submitCard = (
-    <div
-      className={`${cardClass} border-[#E85D2F]/30 hover:border-[#E85D2F]/60`}
-      style={{ borderRadius: '2px' }}
-    >
-      <div className="flex items-start justify-between mb-6">
-        <span className="text-2xl text-[#E85D2F]">↗</span>
-        <span className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          {isClient ? 'Submit · Client' : 'Submit · Catalog'}
-        </span>
-      </div>
-      <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-        {isClient ? (
-          <>Send it to <span className="italic">Sonant</span></>
-        ) : (
-          <>Submit to the <span className="italic">catalog</span></>
-        )}
-      </h3>
-      <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-        {isClient
-          ? 'This goes privately to the Sonant team, not onto a playlist. If it is strong enough to send to the client, we secure you a demo fee.'
-          : 'Send the track in for written feedback and catalog consideration. One credit. This goes privately to the team, not onto the playlist.'}
-      </p>
-      <ul className="space-y-2 mb-8 flex-1">
-        {(isClient
-          ? [
-              'Uses 1 submission credit',
-              'Private to the Sonant team',
-              'Demo fee if we send it to the client',
-              'Stay available for edits if yours is chosen',
-            ]
-          : [
-              'Uses 1 submission credit',
-              'Written feedback on every submission',
-              'Accepted tracks are placed and pitched',
-              'Non-exclusive: the music stays yours',
-            ]
-        ).map((item) => (
-          <Bullet key={item}>{item}</Bullet>
-        ))}
-      </ul>
-      <div className="space-y-3">
-        {loggedIn ? (
-          <SubmitTrackModal
-            briefId={briefId}
-            projectName={briefName}
-            alreadySubmitted={alreadySubmitted}
-            submissionCredits={submissionCredits}
-            isAdmin={isAdmin}
-            variant={isClient ? 'client' : 'catalog'}
-            triggerLabel={isClient ? '↗ Submit to Sonant' : '↗ Submit to Catalog'}
-            triggerClassName={orangeBtn}
-          />
-        ) : (
-          <Link href={signUpHref} className={orangeBtn} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}>
-            ◆ Create Account to Submit
-          </Link>
-        )}
-        <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          {loggedIn ? '1 credit · MP3 or WAV' : 'Free account · 1 credit / month'}
-        </div>
-      </div>
-    </div>
-  );
-
   if (isClient) {
     return (
       <section className="mt-10 no-print">
         <h2 className="text-3xl md:text-4xl mb-3 tracking-tight leading-tight" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-          Ready to <span className="italic">submit</span>.
+          Ready to <span className="italic">deliver</span>.
         </h2>
         <p className="text-base text-[var(--text-tertiary)] mb-8 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Paid client work comes straight to us. There is no public playlist on these briefs.
+          Paid client work goes to Disco as a WAV. There is no public playlist on these briefs, and no credit is used.
         </p>
-        <div className="max-w-xl">{submitCard}</div>
+        <div className="max-w-xl">
+          <div
+            className={`${cardClass} border-[#E85D2F]/30 hover:border-[#E85D2F]/60`}
+            style={{ borderRadius: '2px' }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <span className="text-2xl text-[#E85D2F]">↗</span>
+              <span className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                Submit · Client
+              </span>
+            </div>
+            <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+              Send it on <span className="italic">Disco</span>
+            </h3>
+            <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              This opens the Sonant Disco inbox. Deliver the WAV there. Send as many takes as you like — we want to hear the good ones.
+            </p>
+            <ul className="space-y-2 mb-8 flex-1">
+              {[
+                'No credit used',
+                'WAV, as many takes as you want',
+                'Private to the Sonant team',
+                'Demo fee if we send it to the client',
+              ].map((item) => (
+                <Bullet key={item}>{item}</Bullet>
+              ))}
+            </ul>
+            <div className="space-y-3">
+              {loggedIn ? (
+                <ClientBriefSubmitModal
+                  briefId={briefId}
+                  briefName={briefName}
+                  composerName={currentUserName}
+                  discoUrl={discoUrl}
+                  triggerLabel="↗ Deliver on Disco"
+                  triggerClassName={orangeBtn}
+                />
+              ) : (
+                <Link href={signUpHref} className={orangeBtn} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}>
+                  ◆ Create Account to Deliver
+                </Link>
+              )}
+              <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                {loggedIn ? 'WAV · no credit' : 'Verified composers only'}
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     );
   }
@@ -185,7 +170,53 @@ export default function BriefNextSteps({
           </div>
         </div>
 
-        {submitCard}
+        <div
+          className={`${cardClass} border-[#E85D2F]/30 hover:border-[#E85D2F]/60`}
+          style={{ borderRadius: '2px' }}
+        >
+          <div className="flex items-start justify-between mb-6">
+            <span className="text-2xl text-[#E85D2F]">↗</span>
+            <span className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              Submit · Catalog
+            </span>
+          </div>
+          <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+            Submit to the <span className="italic">catalog</span>
+          </h3>
+          <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            Send the track in for written feedback and catalog consideration. One credit. This goes privately to the team, not onto the playlist.
+          </p>
+          <ul className="space-y-2 mb-8 flex-1">
+            {[
+              'Uses 1 submission credit',
+              'Written feedback on every submission',
+              'Accepted tracks are placed and pitched',
+              'Non-exclusive: the music stays yours',
+            ].map((item) => (
+              <Bullet key={item}>{item}</Bullet>
+            ))}
+          </ul>
+          <div className="space-y-3">
+            {loggedIn ? (
+              <SubmitTrackModal
+                briefId={briefId}
+                projectName={briefName}
+                alreadySubmitted={alreadySubmitted}
+                submissionCredits={submissionCredits}
+                isAdmin={isAdmin}
+                triggerLabel="↗ Submit to Catalog"
+                triggerClassName={orangeBtn}
+              />
+            ) : (
+              <Link href={signUpHref} className={orangeBtn} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}>
+                ◆ Create Account to Submit
+              </Link>
+            )}
+            <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              {loggedIn ? '1 credit · MP3 or WAV' : 'Free account · 1 credit / month'}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

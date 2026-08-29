@@ -16,11 +16,19 @@ export default async function SubmissionsPage() {
 
   if (user) {
     const admin = createAdminClient();
-    const { data: rawSubmissions } = await admin
+    const full = await admin
       .from('submissions')
-      .select('id, brief_id, status, feedback, created_at')
+      .select('id, brief_id, status, feedback, created_at, delivery')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
+    const fallback = full.error
+      ? await admin
+          .from('submissions')
+          .select('id, brief_id, status, feedback, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+      : null;
+    const rawSubmissions = (full.error ? fallback?.data : full.data) ?? [];
 
     const briefIds = [...new Set((rawSubmissions ?? []).map((s) => s.brief_id as string))];
     const { data: briefs } = briefIds.length
@@ -43,6 +51,7 @@ export default async function SubmissionsPage() {
       briefCodename: briefMap[s.brief_id as string]?.codename ?? 'Untitled',
       trackName: (s as { file_name?: string | null }).file_name ?? null,
       briefType: briefMap[s.brief_id as string]?.briefType ?? 'catalog',
+      delivery: (s as { delivery?: string }).delivery === 'disco' ? 'disco' : 'upload',
       status: s.status as string,
       feedback: s.feedback as string | null,
       createdAt: s.created_at as string,

@@ -2,6 +2,22 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { MAX_AUDIO_BYTES, MAX_AUDIO_LABEL, isMp3, tooLargeMessage } from '@/lib/audio-upload';
+import { UploadRequestError, postJson, putToSignedUrl } from '@/lib/upload-client';
+
+/**
+ * What one attempt at an upload is holding. Reusing the ticket on a retry means
+ * a lost response is confirmed against the same object rather than uploading a
+ * second copy and leaving two rows pointing at one brief's playlist.
+ */
+type Ticket = {
+  storagePath: string;
+  signedUrl: string;
+  contentType: string;
+  /** Identifies the file this ticket was issued for. */
+  fileKey: string;
+  uploaded: boolean;
+};
 
 type Props = {
   briefId: string;
@@ -10,11 +26,6 @@ type Props = {
   triggerClassName?: string;
   triggerLabel?: string;
 };
-
-function isMp3File(file: File) {
-  const name = file.name.toLowerCase();
-  return name.endsWith('.mp3') || file.type === 'audio/mpeg' || file.type === 'audio/mp3';
-}
 
 export default function UploadTrackModal({
   briefId,
@@ -25,11 +36,13 @@ export default function UploadTrackModal({
 }: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const ticketRef = useRef<Ticket | null>(null);
   const [open, setOpen] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [trackName, setTrackName] = useState('');
   const [isPublic, setIsPublic] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
@@ -39,7 +52,9 @@ export default function UploadTrackModal({
     setTrackName('');
     setIsPublic(true);
     setError(null);
+    setProgress(0);
     setDone(false);
+    ticketRef.current = null;
   }
 
   function handleClose() {
@@ -51,8 +66,12 @@ export default function UploadTrackModal({
     const file = e.target.files?.[0];
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (!file) return;
-    if (!isMp3File(file)) {
+    if (!isMp3(file.name, file.type)) {
       setError('Uploads need to be MP3.');
+      return;
+    }
+    if (file.size > MAX_AUDIO_BYTES) {
+      setError(tooLargeMessage(file.size, 'MP3'));
       return;
     }
     setError(null);
@@ -64,29 +83,61 @@ export default function UploadTrackModal({
     if (!pendingFile || !trackName.trim()) return;
     setUploading(true);
     setError(null);
+    setProgress(0);
 
-    const body = new FormData();
-    body.set('file', pendingFile);
-    body.set('briefId', briefId);
-    body.set('trackName', trackName.trim() || pendingFile.name);
-    body.set('isPublic', isPublic ? 'true' : 'false');
+    const name = trackName.trim() || pendingFile.name;
+    const fileKey = `${pendingFile.name}:${pendingFile.size}:${pendingFile.lastModified}`;
 
-    const res = await fetch('/api/community-tracks/upload', { method: 'POST', body });
-    setUploading(false);
+    if (ticketRef.current && ticketRef.current.fileKey !== fileKey) ticketRef.current = null;
 
-    if (!res.ok) {
-      let msg = `Upload failed (${res.status})`;
-      try {
-        msg = (await res.json()).error ?? msg;
-      } catch {
-        if (res.status === 413) msg = 'File too large. Convert to MP3 and try again.';
+    try {
+      // The audio goes straight to storage; only these small JSON calls hit the
+      // server, which is what keeps large files from being rejected in transit.
+      if (!ticketRef.current) {
+        const minted = await postJson<{
+          storagePath: string;
+          signedUrl: string;
+          contentType: string;
+        }>('/api/community-tracks/upload-url', {
+          briefId,
+          fileName: pendingFile.name,
+          fileSize: pendingFile.size,
+          contentType: pendingFile.type,
+        });
+        ticketRef.current = { ...minted, fileKey, uploaded: false };
       }
-      setError(msg);
-      return;
-    }
+      const ticket = ticketRef.current;
 
-    setDone(true);
-    router.refresh();
+      if (ticket.uploaded) {
+        setProgress(100);
+      } else {
+        try {
+          await putToSignedUrl(ticket.signedUrl, pendingFile, ticket.contentType, setProgress);
+        } catch (uploadError) {
+          // The signed URL is single use and we cannot tell from here whether
+          // it was consumed, so start the next attempt from a fresh one.
+          ticketRef.current = null;
+          throw uploadError;
+        }
+        ticket.uploaded = true;
+      }
+
+      await postJson('/api/community-tracks/upload', {
+        briefId,
+        storagePath: ticket.storagePath,
+        trackName: name,
+        isPublic,
+      });
+
+      ticketRef.current = null;
+      setDone(true);
+      router.refresh();
+    } catch (err) {
+      if (err instanceof UploadRequestError && err.uploadGone) ticketRef.current = null;
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setUploading(false);
+    }
   }
 
   return (
@@ -183,7 +234,7 @@ export default function UploadTrackModal({
                       </button>
                     )}
                     <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      Free · MP3 · max 50 MB
+                      Free · MP3 · max {MAX_AUDIO_LABEL}
                     </p>
                   </div>
 
@@ -234,9 +285,23 @@ export default function UploadTrackModal({
                 </div>
 
                 {error && (
-                  <p className="text-[10px] text-[#FF8B6B] mt-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  <p className="text-[10px] text-[#FF8B6B] mt-4 leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                     × {error}
                   </p>
+                )}
+
+                {uploading && (
+                  <div className="mt-5">
+                    <div className="h-[3px] w-full bg-[var(--bg-card)]" style={{ borderRadius: '2px' }}>
+                      <div
+                        className="h-full bg-[#E85D2F] transition-[width] duration-200"
+                        style={{ width: `${progress}%`, borderRadius: '2px' }}
+                      />
+                    </div>
+                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      {progress < 100 ? `Uploading ${progress}%` : 'Finishing up…'}
+                    </p>
+                  </div>
                 )}
 
                 <div className="flex gap-3 mt-8">
@@ -247,7 +312,11 @@ export default function UploadTrackModal({
                     className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
                   >
-                    {uploading ? '◆ Uploading…' : '◆ Upload'}
+                    {uploading
+                      ? progress < 100
+                        ? `◆ Uploading ${progress}%`
+                        : '◆ Finishing…'
+                      : '◆ Upload'}
                   </button>
                   <button
                     type="button"

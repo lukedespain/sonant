@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
+import { VERIFICATION_THRESHOLD, isVerifiedComposer } from '@/lib/verification';
 
 type DashTab = 'submissions' | 'sessions';
 
@@ -144,7 +145,7 @@ export default function AccountClient({
   const acceptedCount = catalogSubmissions.filter(
     (s) => s.status === 'accepted' && s.briefType !== 'client'
   ).length;
-  const hasBadge = acceptedCount >= 3;
+  const hasBadge = isVerifiedComposer(acceptedCount);
 
   const tabs: { key: DashTab; label: string; count: number }[] = [
     { key: 'submissions', label: 'Submissions', count: catalogSubmissions.length },
@@ -236,7 +237,7 @@ export default function AccountClient({
                 style={{ ...mono, borderRadius: '2px' }}
                 title="Three accepted catalog submissions earns the badge"
               >
-                Badge {acceptedCount}/3
+                Badge {acceptedCount}/{VERIFICATION_THRESHOLD}
               </span>
             )}
             <span className="text-[10px] text-[var(--text-dimmer)]" style={mono}>

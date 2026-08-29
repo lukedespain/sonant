@@ -13,6 +13,7 @@ export default function BriefsTab() {
   const [winFee, setWinFee] = useState('');
   const [demoFee, setDemoFee] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [discoInboxUrl, setDiscoInboxUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +43,7 @@ export default function BriefsTab() {
     body.set('dueDate', dueDate);
     body.set('winFee', winFee);
     body.set('demoFee', demoFee);
+    body.set('discoInboxUrl', discoInboxUrl);
     files.forEach((file) => body.append('files', file));
 
     const res = await fetch('/api/admin/client-briefs', { method: 'POST', body });
@@ -115,6 +117,17 @@ export default function BriefsTab() {
             value={winFee}
             onChange={(e) => setWinFee(e.target.value)}
             placeholder="e.g. $5,000 · 70/30 composer"
+            className={fieldClass}
+            style={{ ...sans, borderRadius: '2px' }}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="disco-inbox" className={labelClass} style={mono}>Disco inbox (optional)</label>
+          <input
+            id="disco-inbox"
+            value={discoInboxUrl}
+            onChange={(e) => setDiscoInboxUrl(e.target.value)}
+            placeholder="https://s.disco.ac/… · blank uses the default inbox"
             className={fieldClass}
             style={{ ...sans, borderRadius: '2px' }}
           />

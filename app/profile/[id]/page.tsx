@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getTrackPrivacyMap, isTrackPublic } from '@/lib/track-privacy';
+import { countAcceptedCatalogSubmissions, readVerifiedOverride } from '@/lib/verification';
+import { isSiteAdmin } from '@/lib/admin';
 import ProfileView from './ProfileView';
 
 export default async function ProfilePage({
@@ -23,12 +25,9 @@ export default async function ProfilePage({
 
   if (!profile) notFound();
 
-  const [{ count: acceptedCount }, { data: authUser }, { data: tracks }, privacyMap] = await Promise.all([
-    admin
-      .from('submissions')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', id)
-      .eq('status', 'accepted'),
+  const [acceptedCount, verifiedOverride, { data: authUser }, { data: tracks }, privacyMap] = await Promise.all([
+    countAcceptedCatalogSubmissions(admin, id),
+    readVerifiedOverride(admin, id),
     admin.auth.admin.getUserById(id),
     admin
       .from('community_tracks')
@@ -56,9 +55,11 @@ export default async function ProfilePage({
     <ProfileView
       profileId={id}
       isOwner={isOwner}
+      isAdmin={isSiteAdmin(user)}
       name={(profile as { full_name?: string }).full_name ?? ''}
       avatarUrl={(profile as { avatar_url?: string | null }).avatar_url ?? null}
-      accepted={acceptedCount ?? 0}
+      accepted={acceptedCount}
+      verifiedOverride={verifiedOverride}
       bio={typeof meta?.bio === 'string' ? meta.bio : ''}
       website={typeof meta?.website === 'string' ? meta.website : ''}
       tracks={visibleTracks.map((t) => ({

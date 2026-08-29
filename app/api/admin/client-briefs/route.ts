@@ -35,6 +35,7 @@ export async function POST(req: Request) {
   const dueDate = String(formData.get('dueDate') ?? '');
   const winFee = String(formData.get('winFee') ?? '');
   const demoFee = String(formData.get('demoFee') ?? '');
+  const discoInboxUrl = String(formData.get('discoInboxUrl') ?? '').trim() || null;
   const uploads = formData.getAll('files').filter((item): item is File => item instanceof File && item.size > 0);
 
   const files: {
@@ -104,20 +105,30 @@ export async function POST(req: Request) {
 
   const admin = createAdminClient();
   const brief = result.brief;
-  const { data: saved, error } = await admin
+  const payload: Record<string, unknown> = {
+    user_id: ADMIN_USER_ID,
+    mode: brief.mode,
+    target: brief.classification || 'Client',
+    genres: result.genres ?? [],
+    moods: result.moods ?? [],
+    generated_content: brief,
+    status: 'saved',
+    brief_type: 'client',
+  };
+  if (discoInboxUrl) payload.disco_inbox_url = discoInboxUrl;
+
+  let { data: saved, error } = await admin
     .from('briefs')
-    .insert({
-      user_id: ADMIN_USER_ID,
-      mode: brief.mode,
-      target: brief.classification || 'Client',
-      genres: result.genres ?? [],
-      moods: result.moods ?? [],
-      generated_content: brief,
-      status: 'saved',
-      brief_type: 'client',
-    })
+    .insert(payload)
     .select('id')
     .single();
+
+  if (error && discoInboxUrl && /disco_inbox_url/i.test(error.message ?? '')) {
+    delete payload.disco_inbox_url;
+    const retry = await admin.from('briefs').insert(payload).select('id').single();
+    saved = retry.data;
+    error = retry.error;
+  }
 
   if (error || !saved) {
     console.error('Save client brief error:', error);

@@ -3,6 +3,9 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { ADMIN_USER_ID, isSiteAdmin } from '@/lib/admin';
+import { composerHasClientAccess } from '@/lib/verification';
+import { resolveDiscoInboxUrl } from '@/lib/disco';
+import DiscoInboxInput from '@/components/DiscoInboxInput';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
 import ExportPdfButton from '@/components/ExportPdfButton';
 import ShareBriefButton from '@/components/ShareBriefButton';
@@ -42,13 +45,12 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
   let canViewClient = isAdmin;
   if (user && isClientBrief && !canViewClient) {
-    const { count } = await admin
-      .from('submissions')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .eq('status', 'accepted');
-    canViewClient = (count ?? 0) >= 3;
+    canViewClient = await composerHasClientAccess(admin, user.id, false);
   }
+
+  const discoUrl = isClientBrief
+    ? resolveDiscoInboxUrl((briefRow as { disco_inbox_url?: string | null }).disco_inbox_url)
+    : null;
 
   if (isClientBrief && !canViewClient) {
     return (
@@ -189,6 +191,12 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             >
               Paid client work stays inside Sonant. Do not forward this page, the PDF, or the references. If this reached the wrong person, tell the Sonant team.
             </p>
+            {isAdmin && (
+              <DiscoInboxInput
+                briefId={briefRow.id}
+                currentUrl={(briefRow as { disco_inbox_url?: string | null }).disco_inbox_url ?? null}
+              />
+            )}
           </div>
         )}
 
@@ -203,6 +211,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           submissionCredits={submissionCredits}
           isAdmin={isAdmin}
           currentUserName={currentUserName}
+          discoUrl={discoUrl}
         />
 
         {!isClientBrief && (

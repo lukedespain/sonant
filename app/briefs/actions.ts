@@ -196,6 +196,40 @@ export async function setDiscoPlaylistId(briefId: string, playlistId: string) {
   return { success: true };
 }
 
+export async function setDiscoInboxUrl(briefId: string, inboxUrl: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!isSiteAdmin(user)) return { error: 'Not authorized.' };
+
+  const trimmed = inboxUrl.trim() || null;
+  if (trimmed) {
+    try {
+      const parsed = new URL(trimmed);
+      if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+        return { error: 'That does not look like a Disco link.' };
+      }
+    } catch {
+      return { error: 'That does not look like a Disco link.' };
+    }
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from('briefs')
+    .update({ disco_inbox_url: trimmed })
+    .eq('id', briefId);
+
+  if (error) {
+    if (/disco_inbox_url/i.test(error.message ?? '')) {
+      return { error: 'Run the Disco delivery SQL in the dashboard first.' };
+    }
+    return { error: error.message };
+  }
+
+  revalidatePath(`/browse/${briefId}`);
+  return { success: true };
+}
+
 export async function deleteCommunityTrack(trackId: string): Promise<{ error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

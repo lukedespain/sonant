@@ -21,14 +21,30 @@ function projectName(content: BriefContent, isClient: boolean) {
 
 export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Queue }) {
   const admin = createAdminClient();
-  const { data: submissions } = await admin
+  type SubmissionRow = {
+    id: string;
+    brief_id: string;
+    user_id: string;
+    status: string;
+    feedback: string | null;
+    created_at: string;
+    delivery?: string | null;
+    disco_inbox_url?: string | null;
+    delivery_confirmed_at?: string | null;
+  };
+  const full = await admin
     .from('submissions')
-    .select('id, brief_id, user_id, status, feedback, created_at')
+    .select('id, brief_id, user_id, status, feedback, created_at, delivery, disco_inbox_url, delivery_confirmed_at')
     .order('created_at', { ascending: false });
-
-  const rows = submissions ?? [];
-  const userIds = [...new Set(rows.map((s) => s.user_id as string))];
-  const briefIds = [...new Set(rows.map((s) => s.brief_id as string))];
+  const fallback = full.error
+    ? await admin
+        .from('submissions')
+        .select('id, brief_id, user_id, status, feedback, created_at')
+        .order('created_at', { ascending: false })
+    : null;
+  const rows = ((full.error ? fallback?.data : full.data) ?? []) as SubmissionRow[];
+  const userIds = [...new Set(rows.map((s) => s.user_id))];
+  const briefIds = [...new Set(rows.map((s) => s.brief_id))];
 
   const [{ data: profiles }, { data: briefs }] = await Promise.all([
     userIds.length
@@ -60,21 +76,25 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   );
 
   const cards = rows.map((sub) => {
-    const brief = briefMap[sub.brief_id as string] ?? { isClient: false, name: 'Untitled' };
+    const brief = briefMap[sub.brief_id] ?? { isClient: false, name: 'Untitled' };
+    const delivery: 'upload' | 'disco' = sub.delivery === 'disco' ? 'disco' : 'upload';
     return {
-      id: sub.id as string,
-      briefId: sub.brief_id as string,
+      id: sub.id,
+      briefId: sub.brief_id,
       projectName: brief.name,
       isClient: brief.isClient,
-      composerEmail: profileMap[sub.user_id as string]?.email ?? 'unknown',
-      composerName: profileMap[sub.user_id as string]?.name ?? '',
-      status: sub.status as string,
-      feedback: (sub.feedback as string | null) ?? null,
-      submittedAt: new Date(sub.created_at as string).toLocaleDateString('en-US', {
+      composerEmail: profileMap[sub.user_id]?.email ?? 'unknown',
+      composerName: profileMap[sub.user_id]?.name ?? '',
+      status: sub.status,
+      feedback: sub.feedback ?? null,
+      submittedAt: new Date(sub.created_at).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
       }),
+      delivery,
+      discoInboxUrl: sub.disco_inbox_url ?? null,
+      deliveryConfirmedAt: sub.delivery_confirmed_at ?? null,
     };
   });
 
@@ -83,15 +103,19 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   const visible = queue === 'client' ? clientCards : catalogCards;
 
   const ordered = [
-    ...visible.filter((row) => row.status !== 'accepted' && row.status !== 'not_accepted'),
-    ...visible.filter((row) => row.status === 'accepted' || row.status === 'not_accepted'),
+    ...visible.filter((row) =>
+      row.delivery === 'disco' ? !row.deliveryConfirmedAt : row.status !== 'accepted' && row.status !== 'not_accepted'
+    ),
+    ...visible.filter((row) =>
+      row.delivery === 'disco' ? !!row.deliveryConfirmedAt : row.status === 'accepted' || row.status === 'not_accepted'
+    ),
   ];
 
   const catalogPending = catalogCards.filter(
     (row) => row.status !== 'accepted' && row.status !== 'not_accepted'
   ).length;
-  const clientPending = clientCards.filter(
-    (row) => row.status !== 'accepted' && row.status !== 'not_accepted'
+  const clientPending = clientCards.filter((row) =>
+    row.delivery === 'disco' ? !row.deliveryConfirmedAt : row.status !== 'accepted' && row.status !== 'not_accepted'
   ).length;
 
   return (
@@ -133,6 +157,9 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
               existingFeedback={row.feedback}
               submittedAt={row.submittedAt}
               briefType={row.isClient ? 'client' : 'catalog'}
+              delivery={row.delivery}
+              discoInboxUrl={row.discoInboxUrl}
+              deliveryConfirmedAt={row.deliveryConfirmedAt}
             />
           ))}
         </div>

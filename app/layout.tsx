@@ -7,6 +7,7 @@ import { Providers } from "./providers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSiteAdmin } from "@/lib/admin";
+import { countAcceptedCatalogSubmissions, readVerifiedOverride } from "@/lib/verification";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,20 +41,18 @@ export default async function RootLayout({
   let displayName = '';
   let avatarUrl: string | null = null;
   let acceptedCount = 0;
+  let verifiedOverride: boolean | null = null;
 
   if (user) {
     const admin = createAdminClient();
-    const [{ data: profile }, { count }] = await Promise.all([
+    const [{ data: profile }, acceptedCatalogCount, override] = await Promise.all([
       admin
         .from('profiles')
         .select('full_name, avatar_url, submission_credits, session_credits')
         .eq('id', user.id)
         .single(),
-      admin
-        .from('submissions')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('status', 'accepted'),
+      countAcceptedCatalogSubmissions(admin, user.id),
+      readVerifiedOverride(admin, user.id),
     ]);
     displayName = (profile as { full_name?: string } | null)?.full_name ?? '';
     avatarUrl = (profile as { avatar_url?: string | null } | null)?.avatar_url ?? null;
@@ -61,7 +60,8 @@ export default async function RootLayout({
       submissionCredits = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
       sessionCredits = (profile as { session_credits?: number } | null)?.session_credits ?? 0;
     }
-    acceptedCount = count ?? 0;
+    acceptedCount = acceptedCatalogCount;
+    verifiedOverride = override;
   }
 
   return (
@@ -86,6 +86,7 @@ export default async function RootLayout({
             displayName={displayName}
             avatarUrl={avatarUrl}
             acceptedCount={acceptedCount}
+            verifiedOverride={verifiedOverride}
             submissionCredits={submissionCredits}
             sessionCredits={sessionCredits}
             isSiteAdmin={isSiteAdmin(user)}

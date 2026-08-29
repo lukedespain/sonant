@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import ThemeToggle from './ThemeToggle'
 import { signOut } from '@/app/auth/actions'
+import { VERIFICATION_THRESHOLD, isVerifiedComposer, type VerifiedOverride } from '@/lib/verification'
 
 type NavProps = {
   user: User | null
@@ -13,6 +14,7 @@ type NavProps = {
   displayName?: string
   avatarUrl?: string | null
   acceptedCount?: number
+  verifiedOverride?: VerifiedOverride
   submissionCredits?: number
   sessionCredits?: number
   isSiteAdmin?: boolean
@@ -57,6 +59,7 @@ export default function Nav({
   displayName = '',
   avatarUrl = null,
   acceptedCount = 0,
+  verifiedOverride = null,
   submissionCredits = 0,
   sessionCredits = 0,
   isSiteAdmin = false,
@@ -89,8 +92,8 @@ export default function Nav({
 
   const closeMenu = () => setMenuOpen(false)
   const loggedIn = !!user && !isAuthPage
-  const verified = isSiteAdmin || acceptedCount >= 3
-  const placed = isSiteAdmin ? 3 : Math.min(acceptedCount, 3)
+  const verified = isSiteAdmin || isVerifiedComposer(acceptedCount, verifiedOverride)
+  const placed = isSiteAdmin ? VERIFICATION_THRESHOLD : Math.min(acceptedCount, VERIFICATION_THRESHOLD)
   const links = LINKS
 
   const mono = { fontFamily: "'JetBrains Mono', monospace" }
@@ -420,14 +423,14 @@ export default function Nav({
                             <div className="h-[2px] flex-1 bg-[var(--border-base)] overflow-hidden" style={{ borderRadius: '2px' }}>
                               <div
                                 className="h-full bg-[#E85D2F]"
-                                style={{ width: `${(placed / 3) * 100}%` }}
+                                style={{ width: `${(placed / VERIFICATION_THRESHOLD) * 100}%` }}
                               />
                             </div>
                             <div
                               className="shrink-0 text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]"
                               style={mono}
                             >
-                              {placed} / 3
+                              {placed} / {VERIFICATION_THRESHOLD}
                             </div>
                           </div>
                         </>
