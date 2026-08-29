@@ -8,10 +8,12 @@ export default function AdminVerificationControls({
   userId,
   override,
   accepted,
+  onChanged,
 }: {
   userId: string;
   override: VerifiedOverride;
   accepted: number;
+  onChanged?: (override: VerifiedOverride) => void;
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -31,6 +33,7 @@ export default function AdminVerificationControls({
       setError((json as { error?: string }).error ?? 'Could not update the badge.');
       return;
     }
+    onChanged?.(next);
     router.refresh();
   }
 

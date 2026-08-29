@@ -7,15 +7,13 @@ const TABS = [
   { id: 'submissions', label: 'Submissions' },
   { id: 'sessions', label: 'Sessions' },
   { id: 'briefs', label: 'Client briefs' },
+  { id: 'people', label: 'People' },
 ] as const;
 
 export default function AdminTabs() {
   const searchParams = useSearchParams();
-  const active = searchParams.get('tab') === 'sessions'
-    ? 'sessions'
-    : searchParams.get('tab') === 'briefs'
-    ? 'briefs'
-    : 'submissions';
+  const tab = searchParams.get('tab');
+  const active = tab === 'sessions' || tab === 'briefs' || tab === 'people' ? tab : 'submissions';
 
   return (
     <div className="flex items-end mb-10 border-b border-[var(--border-base)]">

@@ -25,7 +25,7 @@ export default function AudioPlayerBar() {
     <>
       <div className="h-24 shrink-0" aria-hidden="true" />
       <div
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border-card)] bg-[var(--bg-card)]"
+      className="fixed bottom-0 left-0 right-0 z-30 border-t border-[var(--border-card)] bg-[var(--bg-card)]"
       style={{ fontFamily: "'JetBrains Mono', monospace" }}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-7 flex items-center gap-3 md:gap-4">

@@ -4,6 +4,7 @@ import AdminTabs from './AdminTabs';
 import SubmissionsTab from './SubmissionsTab';
 import SessionsTab from './SessionsTab';
 import BriefsTab from './BriefsTab';
+import PeopleTab from './PeopleTab';
 import UsageMeters from './UsageMeters';
 
 export default async function AdminPage({
@@ -13,7 +14,8 @@ export default async function AdminPage({
 }) {
   await requireSiteAdmin();
   const { tab, queue } = await searchParams;
-  const active = tab === 'sessions' || tab === 'briefs' ? tab : 'submissions';
+  const active =
+    tab === 'sessions' || tab === 'briefs' || tab === 'people' ? tab : 'submissions';
   const submissionQueue = queue === 'client' ? 'client' : 'catalog';
 
   return (
@@ -37,7 +39,7 @@ export default async function AdminPage({
           className="text-base text-[var(--text-tertiary)] mb-8 max-w-xl"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Catalog review, upcoming sessions, and paid client briefs.
+          Catalog review, upcoming sessions, paid client briefs, and composer accounts.
         </p>
 
         <UsageMeters />
@@ -50,6 +52,8 @@ export default async function AdminPage({
           <SessionsTab />
         ) : active === 'briefs' ? (
           <BriefsTab />
+        ) : active === 'people' ? (
+          <PeopleTab />
         ) : (
           <SubmissionsTab queue={submissionQueue} />
         )}

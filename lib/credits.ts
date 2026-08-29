@@ -57,6 +57,62 @@ export async function spendSubmissionCredit(
   };
 }
 
+export type AdjustCreditsResult =
+  | { ok: true; submissionCredits: number; sessionCredits: number }
+  | { ok: false; message: string };
+
+/**
+ * Add or remove credits without going below zero. Same compare-and-swap as
+ * spend, so two admin clicks cannot leave a negative balance.
+ */
+export async function adjustCredits(
+  admin: SupabaseClient,
+  userId: string,
+  submissionDelta: number,
+  sessionDelta: number
+): Promise<AdjustCreditsResult> {
+  if (!Number.isInteger(submissionDelta) || !Number.isInteger(sessionDelta)) {
+    return { ok: false, message: 'Credit changes must be whole numbers.' };
+  }
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 15 + Math.random() * 60));
+
+    const { data: profile, error: readError } = await admin
+      .from('profiles')
+      .select('submission_credits, session_credits')
+      .eq('id', userId)
+      .single();
+
+    if (readError) return { ok: false, message: readError.message };
+
+    const currentSub = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
+    const currentSess = (profile as { session_credits?: number } | null)?.session_credits ?? 0;
+    const nextSub = Math.max(0, currentSub + submissionDelta);
+    const nextSess = Math.max(0, currentSess + sessionDelta);
+
+    if (nextSub === currentSub && nextSess === currentSess) {
+      return { ok: true, submissionCredits: currentSub, sessionCredits: currentSess };
+    }
+
+    const { data: updated, error: updateError } = await admin
+      .from('profiles')
+      .update({ submission_credits: nextSub, session_credits: nextSess })
+      .eq('id', userId)
+      .eq('submission_credits', currentSub)
+      .eq('session_credits', currentSess)
+      .select('submission_credits, session_credits');
+
+    if (updateError) return { ok: false, message: updateError.message };
+    if (updated && updated.length > 0) {
+      const row = updated[0] as { submission_credits: number; session_credits: number };
+      return { ok: true, submissionCredits: row.submission_credits, sessionCredits: row.session_credits };
+    }
+  }
+
+  return { ok: false, message: 'Could not update credits. Please try again.' };
+}
+
 /** Put a credit back after a debit whose submission did not end up recorded. */
 export async function refundSubmissionCredit(admin: SupabaseClient, userId: string) {
   const { error } = await admin.rpc('increment_credits', {
