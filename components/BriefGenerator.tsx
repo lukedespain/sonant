@@ -9,6 +9,7 @@ import SunoPromptModal from './SunoPromptModal';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
 import SubmitTrackModal from '@/components/SubmitTrackModal';
 import UploadTrackModal from '@/components/UploadTrackModal';
+import { buildLoadingMessages } from '@/lib/brief-loading';
 
 // ---------- TYPES ----------
 
@@ -313,19 +314,12 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
   const [generated, setGenerated] = useState<Brief | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [loadingMessages, setLoadingMessages] = useState<string[]>(['Building your custom music brief…']);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedBriefId, setSavedBriefId] = useState<string | null>(null);
   const briefRef = useRef<HTMLElement>(null);
   const optionsRef = useRef<HTMLElement>(null);
-
-  const loadingMessages = [
-    'Drafting brief…',
-    'Pattern selection underway…',
-    'Composing reference architecture…',
-    'Refining direction and considerations…',
-    'Finalizing brief structure…',
-  ];
 
   useEffect(() => {
     if (!loading) {
@@ -334,7 +328,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
     }
     const interval = setInterval(() => {
       setLoadingStep((s) => Math.min(s + 1, loadingMessages.length - 1));
-    }, 8000);
+    }, 6500);
     return () => clearInterval(interval);
   }, [loading, loadingMessages.length]);
 
@@ -376,6 +370,16 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
 
   const handleGenerate = async () => {
     if (!canGenerate || !category) return;
+    setLoadingMessages(
+      buildLoadingMessages({
+        mode: domain,
+        category,
+        genres,
+        moods,
+        withVocals,
+      })
+    );
+    setLoadingStep(0);
     setLoading(true);
     setGenerated(null);
 
@@ -685,7 +689,11 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
           <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4 pulse-soft" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
             ◆ Working · this takes 30-60 seconds
           </div>
-          <div className="text-2xl leading-relaxed text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+          <div
+            key={loadingStep}
+            className="text-2xl leading-relaxed text-[var(--text-primary)] fade-up"
+            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+          >
             {loadingMessages[loadingStep]}
           </div>
           <div className="mt-8 flex gap-1.5">

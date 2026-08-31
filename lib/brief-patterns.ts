@@ -439,7 +439,7 @@ export const PATTERNS: Record<PatternId, Pattern> = {
     name: 'Reference With Delta',
     tier: 1,
     description:
-      'Pair every reference track with a named adjustment that tells the composer where to deviate from the reference. The reference establishes the destination; the delta tells the composer how not to copy it.',
+      'Pair every reference with a delta drawn from that exact recording. Cite a real released track you can recall, name what is actually on it (instruments, vocal treatment, production), then say what to borrow and what not to copy. Never describe an arrangement the recording does not have.',
     whenToDeploy:
       'In nearly every brief that includes references (which should be most briefs). At least one reference per brief should carry a delta.',
     subPatterns: [
@@ -456,9 +456,12 @@ export const PATTERNS: Record<PatternId, Pattern> = {
       'Flat reference list with no annotation',
       'Imitate-exactly directives (legal risk + creative shutdown)',
       'Self-contradictory deltas ("like this, but completely different")',
+      'Describing strings, brass, choir, or a full-ensemble build on a solo piano, guitar, or voice-only recording',
+      'Naming a famous composer and describing their general style instead of the cited track',
+      'Recycling the same short list of film and game composers on every brief',
     ],
     exampleVoice: [
-      '"Think Prodigy \'Breathe\', or the Goldeneye OST but with brighter instrumentation and more dynamic."',
+      '"Sufjan Stevens, Futile Devices: use the close-miked piano and the way the vocal sits almost spoken. Skip any string pad; this record is piano and voice."',
       '"The Pusha T reference is still too slow, but you can hear those real drum samples chopped up with the guitar lick."',
     ],
   },

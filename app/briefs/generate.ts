@@ -10,6 +10,12 @@ import {
   getActivePatterns,
   type CategoryMeta,
 } from '@/lib/brief-patterns';
+import {
+  formatGroundedTrack,
+  groundReferenceCandidates,
+  type GroundedTrack,
+  type ReferenceCandidate,
+} from '@/lib/music-lookup';
 
 function getCategoriesForMode(mode: 'brand' | 'film' | 'games'): Record<string, CategoryMeta> {
   if (mode === 'film') return FILM_CATEGORIES;
@@ -25,6 +31,7 @@ interface Reference {
   track: string;
   like: string;
   avoid: string;
+  url?: string;
 }
 
 export interface Brief {
@@ -156,6 +163,197 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+const OVERUSED_REFERENCE_ARTISTS = [
+  'Nico Muhly', 'Jonny Greenwood', 'Jóhann Jóhannsson', 'Johann Johannsson',
+  'Ryuichi Sakamoto', 'Ennio Morricone', 'Bernard Herrmann', 'Hans Zimmer',
+  'Max Richter', 'Ólafur Arnalds', 'Olafur Arnalds', 'Ludovico Einaudi',
+  'Disasterpeace', 'Darren Korb', 'Austin Wintory', 'Jesper Kyd', 'Yoko Shimomura',
+];
+
+const REFERENCE_LANES = {
+  brand: [
+    'a specific UK electronic, breakbeat, or trip-hop record you can name by title',
+    'a US indie or alternative band track, not a film composer',
+    'a soul, R&B, or hip-hop production record with a named beat or sample treatment',
+    'a singer-songwriter or folk record that is mostly acoustic',
+    'a jazz, library, or production-music cue with a real catalog title',
+    'a Latin, African, or other regional record you actually know',
+    'a Scandinavian or European pop/electronic single, not a film score',
+    'an ambient or experimental record with a sparse, named arrangement',
+    'a vintage 60s-80s pop, funk, or soundtrack-adjacent single',
+    'a contemporary bedroom-pop or DIY electronic track',
+  ],
+  film: [
+    'a chamber or solo cue (piano, guitar, voice, or a small ensemble only)',
+    'a 1960s-80s analog score cue that is not Morricone or Herrmann',
+    'a contemporary indie or pop record used as a picture reference, not a film composer',
+    'a jazz, source, or diegetic-feeling cue',
+    'an electronic or hybrid cue from a composer outside the usual prestige list',
+    'a folk, country, or guitar-led cue',
+    'a choral or vocal-led piece that is actually sung, not orchestral',
+    'a percussion-forward or rhythm-section cue with almost no melody pad',
+    'a small-ensemble modern-classical piece that is not Nico Muhly or Greenwood',
+    'a documentary or verité-adjacent cue that stays close-miked and dry',
+  ],
+  games: [
+    'a chiptune, FM, or limited-hardware cue you can name',
+    'an acoustic, folk, or chamber game cue, not a full orchestra',
+    'an industrial, horror, or drone cue',
+    'a jazz, lounge, or diegetic in-world source track',
+    'a synthwave or analog-synth cue',
+    'a rock or band-arrangement game track',
+    'a vocal-led or choral game cue',
+    'an adaptive ambient underscore that stays sparse',
+    'a world, folk, or regional record used as a game reference',
+    'a puzzle or cozy-game cue that is small and loop-minded',
+  ],
+} as const;
+
+function pickTwo<T>(arr: readonly T[]): [T, T] {
+  const first = pick([...arr]);
+  const rest = arr.filter((item) => item !== first);
+  return [first, pick([...rest])];
+}
+
+function referenceArtist(track: string): string {
+  return track.split(',')[0]?.trim() ?? '';
+}
+
+function pickReferenceLanes(mode: 'brand' | 'film' | 'games'): [string, string] {
+  return pickTwo(REFERENCE_LANES[mode]);
+}
+
+function pickReferenceSteer(lanes: [string, string], locked: GroundedTrack[]): string {
+  if (locked.length > 0) {
+    const facts = locked.map((track, index) => `Reference ${index + 1}\n${formatGroundedTrack(track)}`).join('\n\n');
+    const remaining =
+      locked.length < 2
+        ? `\n\nReference 2 is not locked. Pick a real recording from this lane, different artist: ${lanes[1]}.`
+        : '';
+    return [
+      '**LOCKED REFERENCES — use these exact tracks. Do not substitute.**',
+      'Write "like" and "avoid" from the facts below only. If credits or notes do not mention an instrument, section, or build, it is not on the record.',
+      '',
+      facts,
+      remaining,
+    ].join('\n');
+  }
+  return [
+    '**Reference lanes — one track from each. Both must be real released recordings you can recall in detail:**',
+    `- Reference 1: ${lanes[0]}`,
+    `- Reference 2: ${lanes[1]}`,
+    '- Different artists. Prefer different decades or scenes.',
+    `- Do not reach for these default names unless nothing else fits: ${OVERUSED_REFERENCE_ARTISTS.slice(0, 12).join(', ')}.`,
+  ].join('\n');
+}
+
+async function proposeReferenceCandidates(
+  client: Anthropic,
+  input: GenerateBriefInput,
+  lanes: [string, string],
+  avoidArtists: string[]
+): Promise<ReferenceCandidate[]> {
+  const avoid = [...new Set([...OVERUSED_REFERENCE_ARTISTS, ...avoidArtists])].slice(0, 24).join('; ');
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-5',
+    max_tokens: 700,
+    messages: [
+      {
+        role: 'user',
+        content: `Propose 6 real released recordings a music supervisor might cite. Return ONLY JSON.
+
+Mode: ${input.mode}
+Genres: ${input.genres.join(', ')}
+Moods: ${input.moods.join(', ')}
+Lane 1: ${lanes[0]}
+Lane 2: ${lanes[1]}
+Do not use these artists: ${avoid}
+
+Rules:
+- 3 candidates for lane 1, 3 for lane 2
+- Real artist + real track title, no invented songs
+- Different artists across all 6
+- Prefer specific album tracks over "greatest hits" vagueness
+
+{"candidates":[{"artist":"","title":"","lane":1},{"artist":"","title":"","lane":1},{"artist":"","title":"","lane":1},{"artist":"","title":"","lane":2},{"artist":"","title":"","lane":2},{"artist":"","title":"","lane":2}]}`,
+      },
+    ],
+  });
+  const textBlock = response.content.find((block) => block.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') return [];
+  try {
+    const parsed = JSON.parse(extractJsonObject(textBlock.text)) as {
+      candidates?: { artist?: string; title?: string }[];
+    };
+    return (parsed.candidates ?? [])
+      .map((row) => ({ artist: row.artist?.trim() ?? '', title: row.title?.trim() ?? '' }))
+      .filter((row) => row.artist && row.title);
+  } catch {
+    return [];
+  }
+}
+
+function applyLockedReferences(brief: Brief, locked: GroundedTrack[]): Brief {
+  if (locked.length === 0) return brief;
+  return {
+    ...brief,
+    references: brief.references.map((ref, index) => {
+      const track = locked[index];
+      if (!track) return ref;
+      return {
+        ...ref,
+        track: `${track.artist}, ${track.title}`,
+        url: track.listenUrl ?? ref.url,
+      };
+    }),
+  };
+}
+
+async function getRecentReferenceTracks(
+  mode: 'brand' | 'film' | 'games'
+): Promise<{ block: string; artists: string[] }> {
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from('briefs')
+      .select('mode, generated_content')
+      .order('created_at', { ascending: false })
+      .limit(80);
+
+    if (!data || data.length === 0) return { block: '', artists: [] };
+
+    const artists = new Set<string>();
+    const tracks = new Set<string>();
+    for (const row of data) {
+      const content = row.generated_content as { mode?: string; references?: { track?: string }[] } | null;
+      const rowMode = (row as { mode?: string }).mode ?? content?.mode;
+      if (rowMode && rowMode !== mode) continue;
+      for (const ref of content?.references ?? []) {
+        const track = typeof ref.track === 'string' ? ref.track.trim() : '';
+        if (!track) continue;
+        tracks.add(track);
+        const artist = referenceArtist(track);
+        if (artist) artists.add(artist);
+        if (artists.size >= 18) break;
+      }
+      if (artists.size >= 18) break;
+    }
+
+    const artistList = [...artists].slice(0, 18);
+    if (artistList.length === 0) return { block: '', artists: [] };
+    return {
+      artists: artistList,
+      block: [
+        '**Do not reuse these recently cited artists or tracks. Pick elsewhere.**',
+        `- Artists: ${artistList.join('; ')}`,
+        tracks.size > 0 ? `- Tracks: ${[...tracks].slice(0, 12).join('; ')}` : '',
+      ].filter(Boolean).join('\n'),
+    };
+  } catch {
+    return { block: '', artists: [] };
+  }
+}
+
 function pickIdentitySeed(mode: 'brand' | 'film' | 'games'): string {
   if (mode === 'brand') {
     return [
@@ -281,7 +479,7 @@ ${patternDescriptions}
 
 5. "direction" is 4 to 5 punchy bullets. One specific idea per bullet. Direct and actionable. Avoid starting every bullet with the same word.
 
-6. "references" is exactly 2 entries. "track" format: "Artist Name, Track Title" (comma separator). ${mode === 'film' ? 'Use film score composers and tracks where appropriate (e.g. Jonny Greenwood, Nico Muhly, Johann Johannsson, Ryuichi Sakamoto, Ennio Morricone, Bernard Herrmann, or relevant contemporary artists).' : mode === 'games' ? 'Use game composers and OST tracks where appropriate (e.g. Disasterpeace, Darren Korb, Austin Wintory, Jesper Kyd, Yoko Shimomura, or relevant artists).' : ''} "like": one specific thing to borrow. "avoid": one specific thing NOT to imitate. One sentence each. No em dashes.
+6. "references" is exactly 2 entries. "track" format: "Artist Name, Track Title" (comma separator). When LOCKED REFERENCES are provided, copy those titles exactly and write "like" and "avoid" from the supplied credits, tags, and public notes only. Never add an instrument, section, choir, or build that is not in those facts. When references are not locked, cite only real released recordings you can actually recall. If you cannot remember how THAT specific track is arranged, pick a different track you do know. The two references must be different artists. One sentence each. No em dashes.
 
 7. No em dashes anywhere in the brief. Use commas, periods, or parentheses instead.
 
@@ -295,7 +493,12 @@ ${modeRule}
 ${scrubInstructions}${fewShotBlock}`;
 }
 
-function buildUserPrompt(input: GenerateBriefInput): string {
+function buildUserPrompt(
+  input: GenerateBriefInput,
+  referenceBlock = '',
+  lanes: [string, string] = pickReferenceLanes(input.mode),
+  locked: GroundedTrack[] = []
+): string {
   const categories = getCategoriesForMode(input.mode);
   const category = categories[input.category];
   if (!category) throw new Error(`Unknown category: ${input.category}`);
@@ -372,6 +575,8 @@ ${identitySeed}
 
 ${codenameInstruction}
 
+${pickReferenceSteer(lanes, locked)}
+${referenceBlock ? `\n${referenceBlock}\n` : ''}
 **Pre-generated metadata — use these values exactly:**
 - mode: "${input.mode}"
 - briefId: "${briefId}"
@@ -403,14 +608,14 @@ Return ONLY a valid JSON object. No preamble, no markdown fences, no explanation
   ],
   "references": [
     {
-      "track": "<Artist Name, Track Title>",
-      "like": "<one specific thing to borrow from this reference, 1 sentence>",
-      "avoid": "<one specific thing NOT to imitate, 1 sentence>"
+      "track": "${locked[0] ? `${locked[0].artist}, ${locked[0].title}` : '<Artist Name, Track Title — a real recording from reference lane 1>'}",
+      "like": "<what to borrow from THIS recording, using only the supplied facts or the actual arrangement>",
+      "avoid": "<what not to copy from THIS recording, and only things that are actually on it>"
     },
     {
-      "track": "<Artist Name, Track Title>",
-      "like": "<one specific thing to borrow from this reference, 1 sentence>",
-      "avoid": "<one specific thing NOT to imitate, 1 sentence>"
+      "track": "${locked[1] ? `${locked[1].artist}, ${locked[1].title}` : '<Artist Name, Track Title — a real recording from reference lane 2, different artist>'}",
+      "like": "<what to borrow from THIS recording, using only the supplied facts or the actual arrangement>",
+      "avoid": "<what not to copy from THIS recording, and only things that are actually on it>"
     }
   ],
   "genrePalette": "${input.genres.join(', ')}",
@@ -448,6 +653,7 @@ function scrubBrief(brief: Brief): Brief {
       track: s(r.track),
       like: s(r.like),
       avoid: s(r.avoid),
+      url: r.url,
     })),
     genrePalette: s(brief.genrePalette),
     emotionalArc: s(brief.emotionalArc),
@@ -498,6 +704,12 @@ function validateBrief(obj: unknown): string[] {
         break;
       }
     }
+    const artists = (b.references as { track?: string }[])
+      .map((r) => referenceArtist(r.track ?? '').toLowerCase())
+      .filter(Boolean);
+    if (new Set(artists).size < 2) {
+      problems.push('References must be two different artists.');
+    }
   }
 
   return problems;
@@ -525,9 +737,25 @@ export async function generateBrief(
   }
 
   const client = new Anthropic({ apiKey });
-  const fewShotBlock = await getFewShotExamples(input.mode);
+  const [fewShotBlock, recentRefs] = await Promise.all([
+    getFewShotExamples(input.mode),
+    getRecentReferenceTracks(input.mode),
+  ]);
+  const lanes = pickReferenceLanes(input.mode);
+
+  let locked: GroundedTrack[] = [];
+  try {
+    const candidates = await proposeReferenceCandidates(client, input, lanes, recentRefs.artists);
+    locked = await groundReferenceCandidates(candidates, recentRefs.artists, 2);
+    if (locked.length < 2) {
+      console.warn(`Grounded ${locked.length} of 2 reference tracks; generating with what we have.`);
+    }
+  } catch (lookupError) {
+    console.error('Reference lookup failed; falling back to prompt-only references.', lookupError);
+  }
+
   const systemPrompt = buildSystemPrompt(input.mode, fewShotBlock);
-  const baseUserPrompt = buildUserPrompt(input);
+  const baseUserPrompt = buildUserPrompt(input, recentRefs.block, lanes, locked);
 
   async function attemptGeneration(
     attemptNumber: number
@@ -571,7 +799,7 @@ export async function generateBrief(
       return { failReason: 'schema-invalid' };
     }
 
-    return { brief: scrubBrief(parsed as Brief) };
+    return { brief: applyLockedReferences(scrubBrief(parsed as Brief), locked) };
   }
 
   try {

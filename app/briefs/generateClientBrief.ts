@@ -184,6 +184,8 @@ Use these names exactly:
 
 Pull every URL from the source into "links". Label video-to-score / picture files as "Picture to score". Label YouTube, Spotify, or named tracks as "Reference".
 
+For each named reference, describe only what is on that recording. If the source does not say the track has strings, brass, or a big build, do not invent them. "like" and "avoid" should name actual instruments, vocal treatment, or production.
+
 Write in the Sonant voice: specific, human, concise. No AI filler. No em dashes.
 
 Return ONLY a JSON object:
