@@ -6,7 +6,7 @@ import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 import { VERIFICATION_THRESHOLD, isVerifiedComposer } from '@/lib/verification';
 
-type DashTab = 'submissions' | 'sessions';
+type DashTab = 'submissions';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   received:       { label: 'Received',       color: 'var(--text-muted)' },
@@ -46,16 +46,14 @@ interface Props {
   email: string;
   memberSince: string;
   submissionCredits: number;
-  sessionCredits: number;
   catalogSubmissions: SubmissionRow[];
-  initialTab?: string;
   signOutAction: () => Promise<void>;
 }
 
 export default function AccountClient({
   userId, initialName, initialAvatarUrl, email, memberSince,
-  submissionCredits, sessionCredits, catalogSubmissions,
-  initialTab, signOutAction,
+  submissionCredits, catalogSubmissions,
+  signOutAction,
 }: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,12 +67,10 @@ export default function AccountClient({
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<DashTab>(
-    initialTab === 'sessions' ? 'sessions' : 'submissions'
-  );
+  const [activeTab, setActiveTab] = useState<DashTab>('submissions');
   const [expandedFeedback, setExpandedFeedback] = useState<Set<string>>(new Set());
 
-  async function startCheckout(type: 'submission' | 'session') {
+  async function startCheckout(type: 'submission') {
     setCheckoutLoading(type);
     const res = await fetch('/api/stripe/checkout', {
       method: 'POST',
@@ -148,8 +144,7 @@ export default function AccountClient({
   const hasBadge = isVerifiedComposer(acceptedCount);
 
   const tabs: { key: DashTab; label: string; count: number }[] = [
-    { key: 'submissions', label: 'Submissions', count: catalogSubmissions.length },
-    { key: 'sessions',    label: 'Sessions',    count: 0 },
+    { key: 'submissions', label: 'Catalog', count: catalogSubmissions.length },
   ];
 
   const mono = { fontFamily: "'JetBrains Mono', monospace" };
@@ -252,7 +247,7 @@ export default function AccountClient({
       </div>
 
       {/* ── Credit counters ── */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-5" style={{ borderRadius: '2px' }}>
           <div className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={mono}>
             Catalog Submission Credits
@@ -268,24 +263,6 @@ export default function AccountClient({
               style={mono}
             >
               {checkoutLoading === 'submission' ? '…' : '+ Add More'}
-            </button>
-          </div>
-        </div>
-        <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-5" style={{ borderRadius: '2px' }}>
-          <div className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={mono}>
-            Feedback Session Credits
-          </div>
-          <div className="flex items-end justify-between gap-2">
-            <span className="text-3xl text-[var(--text-primary)]" style={{ ...serif, fontWeight: 300 }}>
-              {sessionCredits}
-            </span>
-            <button
-              onClick={() => startCheckout('session')}
-              disabled={checkoutLoading === 'session'}
-              className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity disabled:opacity-40 mb-0.5"
-              style={mono}
-            >
-              {checkoutLoading === 'session' ? '…' : '+ Add More'}
             </button>
           </div>
         </div>
@@ -329,7 +306,7 @@ export default function AccountClient({
                     className="inline-block px-5 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
                     style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
                   >
-                    ◆ Browse Briefs
+                    ◆ Open the Library
                   </Link>
                 </div>
               ) : (
@@ -400,56 +377,6 @@ export default function AccountClient({
                   })}
                 </div>
               )}
-            </div>
-          )}
-
-          {/* ── Sessions ── */}
-          {activeTab === 'sessions' && (
-            <div>
-              <div className="flex items-end justify-between gap-4 mb-6">
-                <h2 className="text-2xl tracking-tight" style={{ ...serif, fontWeight: 300 }}>
-                  Feedback <span className="italic">sessions.</span>
-                </h2>
-                {sessionCredits > 0 ? (
-                  <a
-                    href="https://cal.com/sonant/feedback"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors shrink-0"
-                    style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
-                  >
-                    Schedule Session →
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => startCheckout('session')}
-                    disabled={checkoutLoading === 'session'}
-                    className="px-4 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50 shrink-0"
-                    style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
-                  >
-                    {checkoutLoading === 'session' ? '…' : 'Buy Session · $50'}
-                  </button>
-                )}
-              </div>
-
-              <div className="space-y-8">
-                <div>
-                  <div className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-3" style={mono}>
-                    Upcoming Sessions
-                  </div>
-                  <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-8 text-center" style={{ borderRadius: '2px' }}>
-                    <p className="text-sm text-[var(--text-muted)]" style={sans}>No upcoming sessions.</p>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-3" style={mono}>
-                    Past Sessions
-                  </div>
-                  <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-8 text-center" style={{ borderRadius: '2px' }}>
-                    <p className="text-sm text-[var(--text-muted)]" style={sans}>No past sessions.</p>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
         </div>

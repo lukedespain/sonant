@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { setTrackVisibility } from '@/app/briefs/actions';
-import { isVerifiedComposer, type VerifiedOverride } from '@/lib/verification';
+import { isVerifiedComposer, VERIFICATION_THRESHOLD, type VerifiedOverride } from '@/lib/verification';
 import AdminVerificationControls from '@/components/AdminVerificationControls';
+import ThemeToggle from '@/components/ThemeToggle';
+import { signOut } from '@/app/auth/actions';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 
 const AVATAR_COLORS = [
@@ -42,6 +44,7 @@ export default function ProfileView({
   avatarUrl: initialAvatar,
   accepted,
   verifiedOverride = null,
+  submissionCredits = 0,
   bio: initialBio,
   website: initialWebsite,
   tracks,
@@ -53,6 +56,7 @@ export default function ProfileView({
   avatarUrl: string | null;
   accepted: number;
   verifiedOverride?: VerifiedOverride;
+  submissionCredits?: number;
   bio: string;
   website: string;
   tracks: TrackItem[];
@@ -67,10 +71,13 @@ export default function ProfileView({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [badgeInfoOpen, setBadgeInfoOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { track: activeTrack, isPlaying, play, pause } = useAudioPlayer();
 
   const verified = isVerifiedComposer(accepted, verifiedOverride);
+  const placed = isAdmin ? VERIFICATION_THRESHOLD : Math.min(accepted, VERIFICATION_THRESHOLD);
   const displayName = name || 'Composer';
   const siteHref = website
     ? /^https?:\/\//i.test(website) ? website : `https://${website}`
@@ -114,6 +121,20 @@ export default function ProfileView({
     }
   }
 
+  async function startCheckout() {
+    setCheckoutLoading(true);
+    const res = await fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'submission' }),
+    });
+    setCheckoutLoading(false);
+    if (res.ok) {
+      const { url } = await res.json();
+      window.location.href = url;
+    }
+  }
+
   function handlePlay(track: TrackItem) {
     const isActive = activeTrack?.url === track.fileUrl;
     if (isActive && isPlaying) pause();
@@ -123,60 +144,22 @@ export default function ProfileView({
   return (
     <div className="flex-1">
       <section className="max-w-6xl mx-auto px-6 md:px-10 pt-20 md:pt-24 pb-16">
-        <div className="flex flex-col md:flex-row md:items-start gap-8 md:gap-12 mb-16">
-          <div className="shrink-0">
-            <div className="relative w-24 h-24">
-              {isOwner ? (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={avatarUploading}
-                  className="relative w-24 h-24 rounded-full overflow-hidden flex items-center justify-center text-white text-2xl group"
-                  style={{ background: avatarUrl ? undefined : avatarColor(profileId), ...sans, fontWeight: 500 }}
-                  title="Change photo"
-                >
-                  {avatarUrl
-                    ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                    : getInitials(displayName)}
-                  <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[9px] tracking-[0.2em] uppercase" style={mono}>
-                    {avatarUploading ? '…' : 'Edit'}
-                  </span>
-                </button>
-              ) : (
-                <div
-                  className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center text-white text-2xl"
-                  style={{ background: avatarUrl ? undefined : avatarColor(profileId), ...sans, fontWeight: 500 }}
-                >
-                  {avatarUrl
-                    ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                    : getInitials(displayName)}
-                </div>
-              )}
-              {verified && (
-                <span
-                  className="absolute right-0 bottom-0 w-7 h-7 flex items-center justify-center bg-[#E85D2F] text-[var(--bg-base)] border-2 border-[var(--bg-base)]"
-                  style={{ borderRadius: '999px' }}
-                  title="Verified composer. Three catalog placements."
-                >
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <path d="M2 6.2l2.6 2.6L10 3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
-              )}
-            </div>
-            {isOwner && (
-              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatar} className="hidden" />
-            )}
-          </div>
+        <div
+          className="text-[9px] tracking-[0.35em] uppercase text-[var(--text-dimmer)] mb-5"
+          style={mono}
+        >
+          {isOwner ? 'Your profile' : 'Composer'}
+        </div>
 
+        <div className="flex flex-col-reverse md:flex-row md:items-start md:justify-between gap-8 md:gap-16">
           <div className="flex-1 min-w-0">
             {editing && isOwner ? (
               <div className="space-y-4 max-w-xl">
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full text-3xl bg-transparent border-b border-[#E85D2F] focus:outline-none text-[var(--text-primary)] pb-1"
-                  style={{ ...serif, fontWeight: 300 }}
+                  className="w-full bg-transparent border-b border-[#E85D2F] focus:outline-none text-[var(--text-primary)] pb-1"
+                  style={{ ...serif, fontWeight: 300, fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}
                   placeholder="Name"
                 />
                 <textarea
@@ -224,41 +207,34 @@ export default function ProfileView({
             ) : (
               <>
                 <h1
-                  className="tracking-tight leading-[1.05] mb-3"
-                  style={{ ...serif, fontWeight: 300, fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}
+                  className="tracking-tight leading-[0.95] mb-4"
+                  style={{ ...serif, fontWeight: 300, fontSize: 'clamp(2.5rem, 6vw, 4.75rem)' }}
                 >
                   {displayName}
                 </h1>
                 {verified && (
-                  <div className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F] mb-4" style={mono}>
+                  <div className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F] mb-5" style={mono}>
                     Verified composer
                   </div>
                 )}
                 {bio && (
-                  <p className="text-base text-[var(--text-muted)] leading-relaxed max-w-xl mb-4" style={sans}>
+                  <p className="text-base text-[var(--text-muted)] leading-relaxed max-w-xl mb-6" style={sans}>
                     {bio}
                   </p>
                 )}
-                {siteHref && (
-                  <a
-                    href={siteHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 mb-4"
-                    style={mono}
-                  >
-                    Portfolio →
-                  </a>
-                )}
-                {isAdmin && (
-                  <AdminVerificationControls
-                    userId={profileId}
-                    override={verifiedOverride}
-                    accepted={accepted}
-                  />
-                )}
-                {isOwner && (
-                  <div>
+                <div className="flex items-center gap-5 flex-wrap">
+                  {siteHref && (
+                    <a
+                      href={siteHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
+                      style={mono}
+                    >
+                      Portfolio →
+                    </a>
+                  )}
+                  {isOwner && (
                     <button
                       type="button"
                       onClick={() => setEditing(true)}
@@ -267,78 +243,280 @@ export default function ProfileView({
                     >
                       Edit profile
                     </button>
-                  </div>
+                  )}
+                </div>
+                {isAdmin && (
+                  <AdminVerificationControls
+                    userId={profileId}
+                    override={verifiedOverride}
+                    accepted={accepted}
+                  />
                 )}
               </>
             )}
           </div>
-        </div>
 
-        <div>
-          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5" style={mono}>
-            ◆ Tracks
-          </div>
-          {tracks.length === 0 ? (
-            <p className="text-sm text-[var(--text-muted)]" style={sans}>
-              {isOwner ? 'Upload an MP3 to a brief to see it here.' : 'No public tracks yet.'}
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {tracks.map((track) => {
-                const isActive = activeTrack?.url === track.fileUrl;
-                const isCurrentlyPlaying = isActive && isPlaying;
-                return (
-                  <div
-                    key={track.id}
-                    className="border border-[var(--border-card)] bg-[var(--bg-card)] px-4 py-3 flex items-center gap-3"
-                    style={{ borderRadius: '2px' }}
+          <div className="shrink-0">
+            <div className="relative w-28 h-28 md:w-36 md:h-36">
+              {isOwner ? (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={avatarUploading}
+                  className="relative w-full h-full overflow-hidden flex items-center justify-center text-white text-2xl md:text-3xl group"
+                  style={{
+                    background: avatarUrl ? undefined : avatarColor(profileId),
+                    ...sans,
+                    fontWeight: 500,
+                    borderRadius: '2px',
+                  }}
+                  title="Change photo"
+                >
+                  {avatarUrl
+                    ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                    : getInitials(displayName)}
+                  <span
+                    className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[9px] tracking-[0.2em] uppercase"
+                    style={mono}
                   >
-                    <button
-                      onClick={() => handlePlay(track)}
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${
-                        isCurrentlyPlaying
-                          ? 'bg-[#E85D2F] text-[var(--bg-base)]'
-                          : 'bg-[#E85D2F]/15 text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)]'
-                      }`}
-                      aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
+                    {avatarUploading ? '…' : 'Edit'}
+                  </span>
+                </button>
+              ) : (
+                <div
+                  className="w-full h-full overflow-hidden flex items-center justify-center text-white text-2xl md:text-3xl"
+                  style={{
+                    background: avatarUrl ? undefined : avatarColor(profileId),
+                    ...sans,
+                    fontWeight: 500,
+                    borderRadius: '2px',
+                  }}
+                >
+                  {avatarUrl
+                    ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                    : getInitials(displayName)}
+                </div>
+              )}
+              {verified && (
+                <span
+                  className="absolute -right-1.5 -bottom-1.5 w-7 h-7 flex items-center justify-center bg-[#E85D2F] text-[var(--bg-base)]"
+                  style={{ borderRadius: '2px' }}
+                  title="Verified composer. Three catalog placements."
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M2 6.2l2.6 2.6L10 3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+              )}
+            </div>
+            {isOwner && (
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatar} className="hidden" />
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-[var(--border-base)]">
+        <div className={`max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20 grid grid-cols-1 gap-16 ${isOwner ? 'lg:grid-cols-[minmax(0,1fr)_240px] lg:gap-20' : ''}`}>
+          <div>
+            <div className="flex items-baseline justify-between gap-4 mb-8">
+              <h2
+                className="text-3xl md:text-4xl tracking-tight"
+                style={{ ...serif, fontWeight: 300 }}
+              >
+                Tracks<span className="italic">.</span>
+              </h2>
+              <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={mono}>
+                {tracks.length} {tracks.length === 1 ? 'track' : 'tracks'}
+              </div>
+            </div>
+
+            {tracks.length === 0 ? (
+              <div
+                className="border border-[var(--border-card)] bg-[var(--bg-card)] p-10 md:p-12"
+                style={{ borderRadius: '2px' }}
+              >
+                <h3 className="text-2xl tracking-tight mb-4" style={{ ...serif, fontWeight: 300 }}>
+                  {isOwner ? 'No tracks yet.' : 'No public tracks yet.'}
+                </h3>
+                {isOwner && (
+                  <>
+                    <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-md" style={sans}>
+                      Write to a brief in the Library and upload a take. It shows up here.
+                    </p>
+                    <Link
+                      href="/browse"
+                      className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+                      style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
                     >
-                      {isCurrentlyPlaying ? '■' : '▶'}
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs text-[var(--text-secondary)] truncate block" style={sans}>
-                        {track.fileName}
-                        {isOwner && !track.isPublic && (
-                          <span className="text-[var(--text-dimmer)]"> · private</span>
-                        )}
-                      </span>
-                      <Link
-                        href={`/browse/${track.briefId}`}
-                        className="text-[10px] text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors truncate block"
-                        style={mono}
+                      ◆ Open the Library
+                    </Link>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="border-t border-[var(--border-base)]">
+                {tracks.map((track) => {
+                  const isActive = activeTrack?.url === track.fileUrl;
+                  const isCurrentlyPlaying = isActive && isPlaying;
+                  return (
+                    <div
+                      key={track.id}
+                      className="border-b border-[var(--border-base)] py-5 flex items-center gap-4"
+                    >
+                      <button
+                        onClick={() => handlePlay(track)}
+                        className={`w-9 h-9 flex items-center justify-center text-[10px] shrink-0 transition-colors ${
+                          isCurrentlyPlaying
+                            ? 'bg-[#E85D2F] text-[var(--bg-base)]'
+                            : 'border border-[var(--border-subtle)] text-[#E85D2F] hover:border-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)]'
+                        }`}
+                        style={{ borderRadius: '2px' }}
+                        aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
                       >
-                        {track.briefName}
-                      </Link>
+                        {isCurrentlyPlaying ? '■' : '▶'}
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <div
+                          className="text-lg text-[var(--text-primary)] truncate"
+                          style={{ ...serif, fontWeight: 400 }}
+                        >
+                          {track.fileName.replace(/\.[^/.]+$/, '')}
+                        </div>
+                        {track.briefName.toLowerCase() !== track.fileName.replace(/\.[^/.]+$/, '').toLowerCase() && (
+                          <Link
+                            href={`/browse/${track.briefId}`}
+                            className="text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors truncate block mt-0.5"
+                            style={mono}
+                          >
+                            {track.briefName}
+                          </Link>
+                        )}
+                      </div>
+                      {isOwner && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            startTransition(async () => {
+                              await setTrackVisibility(track.id, !track.isPublic);
+                              router.refresh();
+                            });
+                          }}
+                          disabled={isPending}
+                          className="shrink-0 text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors disabled:opacity-40"
+                          style={mono}
+                        >
+                          {track.isPublic ? 'Public' : 'Private'}
+                        </button>
+                      )}
                     </div>
-                    {isOwner && (
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {isOwner && (
+            <aside className="lg:sticky lg:top-28 h-fit">
+              <h2
+                className="text-3xl md:text-4xl tracking-tight mb-8"
+                style={{ ...serif, fontWeight: 300 }}
+              >
+                Account<span className="italic">.</span>
+              </h2>
+
+              <div className="border-t border-[var(--border-base)]">
+                <div className="py-5 border-b border-[var(--border-base)]">
+                  <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-2" style={mono}>
+                    {isAdmin ? 'Catalog reviews' : 'Submission credits'}
+                  </div>
+                  <div className="flex items-end justify-between gap-3">
+                    <div className="text-3xl leading-none text-[var(--text-primary)]" style={{ ...serif, fontWeight: 300 }}>
+                      {isAdmin ? '∞' : submissionCredits}
+                    </div>
+                    {!isAdmin && (
                       <button
                         type="button"
-                        onClick={() => {
-                          startTransition(async () => {
-                            await setTrackVisibility(track.id, !track.isPublic);
-                            router.refresh();
-                          });
-                        }}
-                        disabled={isPending}
-                        className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors disabled:opacity-40"
+                        onClick={startCheckout}
+                        disabled={checkoutLoading}
+                        className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40 mb-0.5"
                         style={mono}
                       >
-                        {track.isPublic ? 'Public' : 'Private'}
+                        {checkoutLoading ? '…' : '+ Add'}
                       </button>
                     )}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+
+                <div className="py-5 border-b border-[var(--border-base)]">
+                  <div className="relative flex items-center gap-1.5 group/badge mb-2">
+                    <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={mono}>
+                      Status
+                    </div>
+                    {!verified && (
+                      <button
+                        type="button"
+                        onClick={() => setBadgeInfoOpen((o) => !o)}
+                        aria-expanded={badgeInfoOpen}
+                        aria-label="About the verified composer badge"
+                        className="relative shrink-0 w-3.5 h-3.5 flex items-center justify-center text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                          <circle cx="6" cy="6" r="5.25" stroke="currentColor" strokeWidth="1" />
+                          <path d="M6 5.25v3.1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                          <circle cx="6" cy="3.7" r="0.6" fill="currentColor" />
+                        </svg>
+                      </button>
+                    )}
+                    <div
+                      className={`absolute left-0 bottom-full mb-2 w-56 p-3 border border-[var(--border-card)] bg-[var(--bg-card)] text-[11px] leading-relaxed tracking-normal normal-case text-[var(--text-muted)] z-10 ${
+                        badgeInfoOpen ? 'opacity-100' : 'opacity-0 pointer-events-none group-hover/badge:opacity-100'
+                      }`}
+                      style={{ ...sans, borderRadius: '2px' }}
+                      role="tooltip"
+                    >
+                      Place three tracks in the catalog to earn this badge. Verified composers get access to paid briefs.
+                    </div>
+                  </div>
+                  {verified ? (
+                    <div className="text-lg text-[#E85D2F]" style={{ ...serif, fontWeight: 400 }}>
+                      Verified Composer
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <div className="h-[2px] flex-1 bg-[var(--border-base)] overflow-hidden" style={{ borderRadius: '2px' }}>
+                        <div
+                          className="h-full bg-[#E85D2F]"
+                          style={{ width: `${(placed / VERIFICATION_THRESHOLD) * 100}%` }}
+                        />
+                      </div>
+                      <div className="shrink-0 text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={mono}>
+                        {placed} / {VERIFICATION_THRESHOLD}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="py-5 border-b border-[var(--border-base)]">
+                  <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-3" style={mono}>
+                    Appearance
+                  </div>
+                  <ThemeToggle label="Change Theme" />
+                </div>
+
+                <div className="pt-5">
+                  <form action={signOut}>
+                    <button
+                      type="submit"
+                      className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                      style={mono}
+                    >
+                      Sign Out
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </aside>
           )}
         </div>
       </section>

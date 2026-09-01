@@ -88,7 +88,7 @@ export default async function LibraryPage() {
             className="text-xs tracking-[0.2em] uppercase px-5 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors whitespace-nowrap"
             style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
           >
-            ◆ Browse Briefs
+            ◆ Open the Library
           </Link>
         </div>
 
@@ -103,14 +103,14 @@ export default async function LibraryPage() {
               No submissions yet.
             </h2>
             <p className="text-sm text-[var(--text-muted)] mb-6 max-w-md mx-auto" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Browse the brief catalog, write to one, and submit your track.
+              Browse the Library, write to one, and submit your track.
             </p>
             <Link
               href="/browse"
               className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
             >
-              ◆ Browse Briefs
+              ◆ Open the Library
             </Link>
           </div>
         ) : (

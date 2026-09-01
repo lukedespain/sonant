@@ -130,30 +130,38 @@ body {
   border-radius: 2px;
 }
 
-/* AudioPlayerBar seekbar */
+/* AudioPlayerBar seekbar — 11px hit area so the thumb is a full circle on a 3px track */
 .sonant-seekbar {
   -webkit-appearance: none;
   appearance: none;
-  height: 3px;
+  height: 11px;
   border-radius: 2px;
   outline: none;
   cursor: pointer;
   display: block;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 3px;
+  overflow: visible;
 }
 
 .sonant-seekbar::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 11px;
   height: 11px;
   border-radius: 50%;
   background: #E85D2F;
+  border: none;
   cursor: pointer;
-  margin-top: -4px;
+  margin-top: 0;
 }
 
 .sonant-seekbar::-webkit-slider-runnable-track {
-  height: 3px;
+  height: 11px;
   border-radius: 2px;
+  background: transparent;
 }
 
 .sonant-seekbar::-moz-range-thumb {
@@ -168,7 +176,7 @@ body {
 .sonant-seekbar::-moz-range-track {
   height: 3px;
   border-radius: 2px;
-  background: var(--border-subtle);
+  background: transparent;
 }
 
 @media print {

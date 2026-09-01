@@ -1,29 +1,23 @@
 import Link from 'next/link';
 
-const STEPS = [
+const PILLARS = [
   {
     n: '01',
-    title: 'Generate',
-    body: 'Pick the genres, moods, and tags you actually want to write to. You get an industry-standard brief that feels like it was made for you.',
+    title: 'The Generator',
+    body: 'The brief generator is for practice on demand. You pick type, mood, and genre, and it writes a spec the way a supervisor would.',
     href: '/generator',
   },
   {
     n: '02',
-    title: 'Practice',
-    body: 'Treat it like a real brief. Write as close as you can, at the best quality you can, because you\'re building a catalog worth pitching.',
+    title: 'The Library',
+    body: 'Briefs you write to. Practice briefs anyone can take, and paid opportunities for brands, films and games once you have three placements.',
     href: '/browse',
   },
   {
     n: '03',
-    title: 'Submit',
-    body: 'Send the track in. Every submission gets written feedback, and strong ones go in the catalog. Three placements unlock access to paid client briefs.',
+    title: 'The Catalog',
+    body: 'Your submitted work, with written notes and placements. The goal, over time, is a catalog worth pitching.',
     href: '/submissions',
-  },
-  {
-    n: '04',
-    title: 'Feedback',
-    body: 'Book a session for live one-on-one notes. We listen against the brief, talk through tracks you\'ve submitted, and tell you what it would take to place.',
-    href: '/sessions',
   },
 ] as const;
 
@@ -32,8 +26,8 @@ const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
 
 export default function ComposerPath() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
-      {STEPS.map((step) => (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 lg:gap-8">
+      {PILLARS.map((step) => (
         <Link
           key={step.n}
           href={step.href}

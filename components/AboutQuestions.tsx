@@ -5,31 +5,35 @@ import { useState } from 'react';
 const QUESTIONS = [
   {
     q: 'What is Sonant?',
-    a: 'A platform for composers who want to write music for brands, film, and games. Generate briefs written to real sync spec, practice writing to them, submit your best work, and get written feedback. Tracks that fit the catalog get placed and pitched to buyers.',
+    a: 'A platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, the Library, and the Catalog. The point is to build a catalog worth pitching.',
+  },
+  {
+    q: 'What is the Generator?',
+    a: 'A brief builder for practice on demand. You pick type, category, mood, and genre, and it writes a full creative brief the way a supervisor would: scene, instrumentation, references. No client required. Just reps.',
+  },
+  {
+    q: 'What is the Library?',
+    a: 'The briefs you write to. Practice briefs anyone can take, and paid opportunities for brands, films and games once you have three placements. Anyone can write to practice briefs. Paid jobs stay behind the verified badge.',
+  },
+  {
+    q: 'What is the Catalog?',
+    a: 'Your submitted work over time: tracks, written notes, and placements. Strong tracks get placed and pitched. Three placements unlock paid briefs in the Library. The catalog is the thing you are building.',
   },
   {
     q: 'Do I need an account?',
-    a: 'Anyone can generate briefs without signing up. An account is required to save briefs, submit to catalog briefs, or book a feedback session. Creating one is free, and every account includes one submission credit each month.',
-  },
-  {
-    q: 'What are catalog briefs?',
-    a: 'Catalog briefs are the briefs composers submit tracks to, to try to get into the catalog. There are two kinds. Sonant briefs are curated by the team around what the catalog needs. Community briefs are written by composers. Submit to either. Every submission gets written feedback, and if the track is good enough, it goes in the catalog and we pitch it.',
+    a: 'Anyone can use the Generator without signing up. An account is required to save briefs or submit from the Library. Creating one is free, and every account includes one submission credit each month.',
   },
   {
     q: 'How do submission credits work?',
-    a: 'Each submission to a catalog brief costs one credit. Free accounts include one credit per month. Additional credits can be purchased from your dashboard.',
+    a: 'Each submission from the Library costs one credit. Free accounts include one credit per month. Extra credits are $10 each from your profile.',
   },
   {
-    q: 'What are client briefs?',
-    a: 'Client briefs are real paid jobs from brands, studios, and supervisors in the Sonant network. They stay in a closed network, they pay, and they come with a quick deadline. They don\'t go out to everyone.',
+    q: 'How do I access paid opportunities?',
+    a: 'They live in the Library under Paid. Three catalog placements earn you access, so we know what you are good at and which jobs to send you.',
   },
   {
-    q: 'How do I access paid client briefs?',
-    a: 'Real client briefs stay in a closed network. They don\'t go out to everyone. Three catalog placements earn you access, so we know what you\'re good at and which jobs to send you.',
-  },
-  {
-    q: 'How do feedback sessions work?',
-    a: 'A 45-minute session. We listen to your track together, compare it against the brief, and give you specific notes in real time. Good before you submit, after written feedback, or when a mix has been open too long. Sessions are $50.',
+    q: 'What kind of feedback do I get?',
+    a: 'Every Catalog submission gets written notes, whether the track is accepted or not. The notes are tied to the brief you wrote to, so they stay specific.',
   },
 ] as const;
 

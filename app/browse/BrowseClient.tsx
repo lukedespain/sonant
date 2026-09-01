@@ -345,12 +345,27 @@ export default function BrowseClient({
   const selectClass = `text-xs tracking-[0.15em] uppercase bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-secondary)] px-3 py-2 focus:border-[#E85D2F] focus:outline-none appearance-none pr-6`;
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'catalog', label: 'Catalog Briefs' },
-    { key: 'client', label: 'Client Briefs' },
+    { key: 'catalog', label: 'Practice' },
+    { key: 'client', label: 'Paid' },
   ];
 
   return (
     <>
+      <div className="mb-10 max-w-2xl">
+        <h1
+          className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4"
+          style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+        >
+          Library.
+        </h1>
+        <p
+          className="text-sm text-[var(--text-tertiary)] leading-relaxed"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          Briefs you write to. Practice briefs anyone can take, and paid opportunities once you have three placements.
+        </p>
+      </div>
+
       <div className="flex items-end mb-8 border-b border-[var(--border-base)]">
         <div className="flex gap-1">
           {tabs.map(({ key, label }) => (

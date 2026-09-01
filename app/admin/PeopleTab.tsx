@@ -259,13 +259,6 @@ function PersonCard({
         onChange={(delta) => onCredit('submission', delta)}
       />
       <CreditRow
-        label="Session credits"
-        value={person.sessionCredits}
-        disabled={saving}
-        canRemove={person.sessionCredits > 0}
-        onChange={(delta) => onCredit('session', delta)}
-      />
-      <CreditRow
         label="Catalog placements"
         value={`${person.accepted} / ${VERIFICATION_THRESHOLD}`}
         hint={

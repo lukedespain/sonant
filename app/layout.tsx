@@ -5,9 +5,7 @@ import Nav from "@/components/Nav";
 import AudioPlayerBar from "@/components/AudioPlayerBar";
 import { Providers } from "./providers";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { isSiteAdmin } from "@/lib/admin";
-import { countAcceptedCatalogSubmissions, readVerifiedOverride } from "@/lib/verification";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Sonant",
-  description: "Practice writing to briefs. Get feedback. Build a sync catalog worth pitching.",
+  description: "Build a catalog worth pitching. Practice writing to spec for brands, films and games.",
 };
 
 export default async function RootLayout({
@@ -33,36 +31,6 @@ export default async function RootLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const accountType = (user?.user_metadata?.account_type as 'composer' | 'business') ?? 'composer';
-
-  let submissionCredits = 0;
-  let sessionCredits = 0;
-  let displayName = '';
-  let avatarUrl: string | null = null;
-  let acceptedCount = 0;
-  let verifiedOverride: boolean | null = null;
-
-  if (user) {
-    const admin = createAdminClient();
-    const [{ data: profile }, acceptedCatalogCount, override] = await Promise.all([
-      admin
-        .from('profiles')
-        .select('full_name, avatar_url, submission_credits, session_credits')
-        .eq('id', user.id)
-        .single(),
-      countAcceptedCatalogSubmissions(admin, user.id),
-      readVerifiedOverride(admin, user.id),
-    ]);
-    displayName = (profile as { full_name?: string } | null)?.full_name ?? '';
-    avatarUrl = (profile as { avatar_url?: string | null } | null)?.avatar_url ?? null;
-    if (accountType === 'composer') {
-      submissionCredits = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
-      sessionCredits = (profile as { session_credits?: number } | null)?.session_credits ?? 0;
-    }
-    acceptedCount = acceptedCatalogCount;
-    verifiedOverride = override;
-  }
 
   return (
     <html
@@ -82,13 +50,6 @@ export default async function RootLayout({
         <Providers>
           <Nav
             user={user}
-            accountType={user ? accountType : null}
-            displayName={displayName}
-            avatarUrl={avatarUrl}
-            acceptedCount={acceptedCount}
-            verifiedOverride={verifiedOverride}
-            submissionCredits={submissionCredits}
-            sessionCredits={sessionCredits}
             isSiteAdmin={isSiteAdmin(user)}
           />
           {children}

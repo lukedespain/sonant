@@ -69,13 +69,13 @@ export default async function SubmissionsPage() {
             fontSize: 'clamp(2.5rem, 6vw, 4.75rem)',
           }}
         >
-          Submissions.
+          Catalog.
         </h1>
         <p
           className="text-base text-[var(--text-muted)] leading-relaxed max-w-xl"
           style={sans}
         >
-          We don&apos;t take random tracks. Every submission is tied to a catalog brief, so the notes you get are precise, not subjective, and so the catalog gets what it&apos;s actually looking for.
+          Your submitted work, written notes, and placements. The goal, over time, is a catalog worth pitching.
         </p>
       </section>
 
@@ -85,17 +85,17 @@ export default async function SubmissionsPage() {
             {[
               {
                 n: '01',
-                title: 'Pick a brief',
-                body: 'Browse Sonant briefs and community briefs, or generate one that fits a track you already have.',
+                title: 'Pick a brief in the Library',
+                body: 'Write to a practice brief, or a paid client job if you are verified.',
               },
               {
                 n: '02',
-                title: 'Submit to that brief',
-                body: 'One credit. The track has to be written to the brief. That is the whole point of the catalog.',
+                title: 'Submit it',
+                body: 'One credit. The track has to be written to that brief. That is how the catalog stays pitchable.',
               },
               {
                 n: '03',
-                title: 'Get written feedback.',
+                title: 'Get written feedback',
                 body: 'Every submission gets written feedback. If it is strong enough, it goes in the catalog and we pitch it.',
               },
             ].map((step) => (

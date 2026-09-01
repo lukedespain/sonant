@@ -43,14 +43,14 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
           You haven&apos;t made any submissions yet.
         </h3>
         <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-md" style={sans}>
-          Browse catalog briefs and pick one to write to. Submissions only count when they&apos;re tied to a brief.
+          Open the Library and pick a brief to write to. Submissions only count when they&apos;re tied to a brief.
         </p>
         <Link
           href="/browse"
           className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
           style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
         >
-          ◆ Browse Briefs
+          ◆ Open the Library
         </Link>
       </div>
     );

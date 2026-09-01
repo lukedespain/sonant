@@ -4,6 +4,51 @@ import Link from 'next/link';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import { useState } from 'react';
 
+function VolumeIcon({ level }: { level: 'off' | 'low' | 'high' }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M2.5 6.25h2.1L7.5 4.2v7.6L4.6 9.75H2.5V6.25z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      {level === 'off' && (
+        <path
+          d="M10.2 5.4l4.2 5.2M14.4 5.4l-4.2 5.2"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+      )}
+      {level === 'low' && (
+        <path
+          d="M10.2 6.4c.7.5.7 2.7 0 3.2"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+      )}
+      {level === 'high' && (
+        <>
+          <path
+            d="M10.2 6.4c.7.5.7 2.7 0 3.2"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
+          <path
+            d="M12.1 4.8c1.4 1.1 1.4 5.3 0 6.4"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
+        </>
+      )}
+    </svg>
+  );
+}
+
 function fmt(s: number) {
   if (!isFinite(s) || isNaN(s)) return '0:00';
   const m = Math.floor(s / 60);
@@ -40,9 +85,9 @@ export default function AudioPlayerBar() {
         </button>
 
         {/* Track info + seekbar */}
-        <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="flex-1 min-w-0">
           {/* Top row: filename + brief link + time */}
-          <div className="flex items-baseline justify-between gap-2 mb-1.5">
+          <div className="flex items-baseline justify-between gap-2 mb-1.5 min-w-0">
             <div className="min-w-0 flex items-baseline gap-2 overflow-hidden">
               <span className="text-[11px] text-[var(--text-secondary)] truncate">
                 {track.fileName}
@@ -81,7 +126,7 @@ export default function AudioPlayerBar() {
             }}
             className="sonant-seekbar w-full"
             style={{
-              background: `linear-gradient(to right, #E85D2F ${pct}%, var(--border-subtle) ${pct}%)`,
+              backgroundImage: `linear-gradient(to right, #E85D2F ${pct}%, var(--border-subtle) ${pct}%)`,
             }}
           />
         </div>
@@ -90,10 +135,10 @@ export default function AudioPlayerBar() {
         <div className="hidden sm:flex items-center gap-2 shrink-0">
           <button
             onClick={() => setVolume(volume === 0 ? 1 : 0)}
-            className="text-[var(--text-dimmer)] hover:text-[var(--text-secondary)] transition-colors text-sm leading-none"
+            className="w-8 h-8 flex items-center justify-center text-[var(--text-dimmer)] hover:text-[var(--text-secondary)] transition-colors"
             aria-label={volume === 0 ? 'Unmute' : 'Mute'}
           >
-            {volume === 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}
+            <VolumeIcon level={volume === 0 ? 'off' : volume < 0.5 ? 'low' : 'high'} />
           </button>
           <input
             type="range"
@@ -105,7 +150,7 @@ export default function AudioPlayerBar() {
             className="sonant-seekbar"
             style={{
               width: '72px',
-              background: `linear-gradient(to right, #E85D2F ${volume * 100}%, var(--border-subtle) ${volume * 100}%)`,
+              backgroundImage: `linear-gradient(to right, #E85D2F ${volume * 100}%, var(--border-subtle) ${volume * 100}%)`,
             }}
             aria-label="Volume"
           />

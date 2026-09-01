@@ -5,15 +5,23 @@ const DISCO_CATALOG_URL = 'https://sonant.disco.ac/cat/152887908';
 const faqs = [
   {
     q: 'What is Sonant?',
-    a: 'Sonant is a platform for composers who want to write music for brands, film, and games. Generate briefs written to real sync spec, practice writing to them, submit your best work, and get written feedback. Tracks that fit the catalog get placed and pitched to buyers on a 70/30 split, non-exclusive.',
+    a: 'Sonant is a platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, the Library, and the Catalog. The point is to build a catalog worth pitching. Tracks that get placed are pitched to buyers on a 70/30 split, non-exclusive.',
   },
   {
-    q: 'What\'s the difference between a catalog brief and a practice brief?',
-    a: 'Catalog briefs are the ones you submit to, to try to get into the catalog. There are two kinds: Sonant briefs, curated by the team around what the catalog needs, and community briefs, written by composers. Practice briefs are ones you generate yourself, private, just yours, so you can get reps writing to spec before you submit.',
+    q: 'What is the Generator?',
+    a: 'A brief builder for practice on demand. You pick type, category, mood, and genre, and it writes a full creative brief the way a supervisor would: scene, emotional arc, instrumentation, reference points. No client required. Just reps writing to spec.',
   },
   {
-    q: 'How do I submit music to a catalog brief?',
-    a: 'Open any catalog brief, read it carefully, write your track, and submit from the brief page. Each submission costs one credit. You\'ll get written feedback regardless of outcome.',
+    q: 'What is the Library?',
+    a: 'The briefs you write to. Practice briefs anyone can take — curated by Sonant, or written by other composers — and paid opportunities for brands, films and games once you have three catalog placements. Paid jobs stay behind the verified badge.',
+  },
+  {
+    q: 'What is the Catalog?',
+    a: 'Your submitted work over time: tracks, written notes, and placements. Strong tracks get placed and pitched. Three placements unlock paid briefs in the Library. The catalog is the thing you are building.',
+  },
+  {
+    q: 'How do I submit music?',
+    a: 'Open a brief in the Library, write your track to that spec, and submit from the brief page. Each submission costs one credit and goes into your Catalog. You get written feedback regardless of outcome.',
   },
   {
     q: 'What happens after I submit?',
@@ -25,27 +33,23 @@ const faqs = [
   },
   {
     q: 'How do I earn the Sonant badge?',
-    a: 'The badge is automatic. Once three of your catalog submissions are accepted, you earn it. It marks you as catalog-ready. Badge holders will get first access when client briefs go live.',
+    a: 'The badge is automatic. Once three of your Catalog submissions are accepted, you earn it. It marks you as catalog-ready, and unlocks paid opportunities in the Library.',
   },
   {
-    q: 'What are client briefs?',
-    a: 'Client briefs are real paid jobs from brands, studios, and supervisors in the Sonant network. They stay in a closed network, they pay, and they come with a quick deadline. Three catalog placements earn you access.',
+    q: 'What are paid opportunities?',
+    a: 'Real paid jobs from brands, studios, and supervisors in the Sonant network. They live in the Library under Paid. They stay in a closed network, they pay, and they come with a quick deadline. Three catalog placements earn you access.',
   },
   {
-    q: 'What is the Brief Generator?',
-    a: 'The generator builds a full creative brief from the project type (brand, film, or game), category, mood, and genre you select. It produces the same kind of direction a supervisor would send: scene, emotional arc, instrumentation, reference points. Use it to practice, then submit your best work to a catalog brief.',
-  },
-  {
-    q: 'What is a 1:1 feedback session?',
-    a: 'A focused 45-minute session. We listen to your track together, compare it against the brief you wrote to, and give you specific notes in real time. Good before a catalog submission, after written feedback, or when a mix has been open too long. Sessions are $50.',
+    q: 'What kind of feedback do I get?',
+    a: 'Every Catalog submission gets written notes, whether the track is accepted or not. The notes are tied to the brief you wrote to. There are no live coaching calls on Sonant.',
   },
   {
     q: 'Do I need to create an account?',
-    a: 'You can generate briefs without an account. An account is required to save briefs, submit to the catalog, or book a session. Creating one is free, and every account includes one catalog submission credit each month.',
+    a: 'You can use the Generator without an account. An account is required to save briefs or submit from the Library. Creating one is free, and every account includes one submission credit each month. Extra credits are $10 each from your profile.',
   },
   {
     q: 'Who is Sonant for?',
-    a: 'Composers who want to get better at writing to spec and build a catalog worth pitching, whether you\'re new to sync or already working. The briefs are the practice material. The catalog is the path to getting the music in front of people who need it.',
+    a: 'Composers who want to get better at writing to spec and build a catalog worth pitching, whether you\'re new to sync or already working. The Generator is the practice tool. The Library is the briefs. The Catalog is the body of work you pitch.',
   },
 ];
 
@@ -70,7 +74,7 @@ export default function FAQPage() {
           className="text-base text-[var(--text-tertiary)] mb-16 max-w-xl leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Everything you need to know about how Sonant works, what the briefs are for, and how submissions and feedback sessions work.
+          Everything you need to know about the Generator, the Library, and the Catalog.
         </p>
 
         <div className="space-y-0 border-t border-[var(--border-base)]">
@@ -111,7 +115,7 @@ export default function FAQPage() {
               className="text-base text-[var(--text-secondary)] leading-relaxed max-w-md"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
-              Browse the active catalog briefs, find one that fits, and write your track. Every submission gets written feedback.
+              Browse the Library, find a brief that fits, and write your track. Every submission gets written feedback.
             </p>
           </div>
           <div className="flex gap-3 flex-wrap shrink-0">
@@ -120,7 +124,7 @@ export default function FAQPage() {
               className="px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors whitespace-nowrap"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
             >
-              ◆ Browse Catalog
+              ◆ Open the Library
             </Link>
             <a
               href={DISCO_CATALOG_URL}

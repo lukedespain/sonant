@@ -42,7 +42,7 @@ function LoginForm() {
         </h1>
 
         <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          Briefs, submissions, and sessions. Pick up where you left off.
+          The Generator, the Library, and the Catalog. Pick up where you left off.
         </p>
 
         <form action={handleSubmit} className="space-y-5">

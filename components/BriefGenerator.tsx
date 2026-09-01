@@ -146,7 +146,7 @@ function NextSteps({ briefId, loggedIn }: { briefId: string | null; loggedIn: bo
         Once your track is <span className="italic">ready</span>.
       </h2>
       <p className="text-base text-[var(--text-tertiary)] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-        Upload a take to this brief for free, submit it to the catalog for one credit, or book a session for live notes.
+        Upload a take to this brief for free, or submit it to the catalog for one credit and written feedback.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -245,46 +245,6 @@ function NextSteps({ briefId, loggedIn }: { briefId: string | null; loggedIn: bo
             )}
             <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {loggedIn ? '1 credit · written feedback' : 'Free account · 1 credit / month'}
-            </div>
-          </div>
-        </div>
-
-        <div className="relative p-8 border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[var(--border-hover)] transition-colors flex flex-col" style={{ borderRadius: '2px' }}>
-          <div className="flex items-start justify-between mb-6">
-            <span className="text-2xl text-[#E85D2F]">▷</span>
-            <span className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-dim)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Feedback · Path 02
-            </span>
-          </div>
-          <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-            Book a <span className="italic">Feedback Session</span>
-          </h3>
-          <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            A 45-minute session with a working sync composer. We listen to your track in full, compare it against the brief, and tell you exactly what it would take to place it.
-          </p>
-          <ul className="space-y-2 mb-8 flex-1">
-            {[
-              '45-minute Zoom with recorded notes',
-              'Direct comparison against your brief',
-              'Honest catalog-readiness assessment',
-              'Session recording sent after',
-            ].map((b, i) => (
-              <li key={i} className="flex gap-3 items-baseline text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                <span className="text-[#E85D2F]">·</span>
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="space-y-3">
-            <Link
-              href="/sessions"
-              className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors text-center"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-            >
-              ▷ Book a Feedback Session
-            </Link>
-            <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              $50 · 45 minutes
             </div>
           </div>
         </div>
@@ -519,13 +479,13 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
             className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-3 max-w-2xl"
             style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
           >
-            Generate a brief. <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>Write the music.</span>
+            Generator.
           </h1>
           <p
-            className="text-sm text-[var(--text-muted)] mb-5"
+            className="text-sm text-[var(--text-muted)] mb-5 max-w-xl"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
-            Build a practice brief to write to. Pick a type, category, mood, and genre. We&apos;ll generate a full creative direction.
+            The brief generator is for practice on demand. It writes a spec the way a supervisor would: scene, mood, instrumentation, references. Get the reps, then write to a brief in the Library when you are ready to submit.
           </p>
         </section>
       )}

@@ -15,23 +15,23 @@ export default function HomePage() {
           className="text-[9px] tracking-[0.35em] uppercase text-[var(--text-dimmer)] mb-5"
           style={mono}
         >
-          About Sonant
+          Welcome Composers
         </div>
         <h1
-          className="tracking-tight leading-[0.95] mb-8 max-w-2xl"
+          className="tracking-tight leading-[0.95] mb-8 max-w-3xl"
           style={{
             ...serif,
             fontWeight: 300,
             fontSize: 'clamp(2.5rem, 6vw, 4.75rem)',
           }}
         >
-          A practice room for <span className="italic text-[#E85D2F]">sync composers.</span>
+          Let&apos;s write music <span className="italic text-[#E85D2F]">worth pitching.</span>
         </h1>
         <p
           className="text-base text-[var(--text-muted)] leading-relaxed max-w-xl"
           style={sans}
         >
-          Generate briefs to practice writing to spec. Submit to the catalog. Three placements unlock paid client work. Book a session when you want live notes on how well you matched the brief.
+          Sonant is a platform for sync composers to practice writing to spec for brands, films and games.
         </p>
       </section>
 
@@ -41,7 +41,7 @@ export default function HomePage() {
             className="text-3xl md:text-4xl tracking-tight mb-12 max-w-lg"
             style={{ ...serif, fontWeight: 300 }}
           >
-            How it <span className="italic">works.</span>
+            The 3 <span className="italic">pillars.</span>
           </h2>
           <ComposerPath />
         </div>
@@ -66,7 +66,7 @@ export default function HomePage() {
               className="text-4xl md:text-5xl tracking-tight leading-[1.05] mb-8"
               style={{ ...serif, fontWeight: 300 }}
             >
-              Ready to <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>start?</span>
+              Ready to <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>compose?</span>
             </h2>
             <div className="flex items-center gap-6 flex-wrap">
               <Link
@@ -74,14 +74,14 @@ export default function HomePage() {
                 className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
                 style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
               >
-                ◆ Generate a Brief
+                ◆ Open the Generator
               </Link>
               <Link
                 href="/browse"
                 className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                 style={mono}
               >
-                Browse catalog briefs →
+                Open the Library →
               </Link>
             </div>
           </div>

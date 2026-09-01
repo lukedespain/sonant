@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 
 const TABS = [
   { id: 'submissions', label: 'Submissions' },
-  { id: 'sessions', label: 'Sessions' },
   { id: 'briefs', label: 'Client briefs' },
   { id: 'people', label: 'People' },
 ] as const;
@@ -13,7 +12,7 @@ const TABS = [
 export default function AdminTabs() {
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
-  const active = tab === 'sessions' || tab === 'briefs' || tab === 'people' ? tab : 'submissions';
+  const active = tab === 'briefs' || tab === 'people' ? tab : 'submissions';
 
   return (
     <div className="flex items-end mb-10 border-b border-[var(--border-base)]">

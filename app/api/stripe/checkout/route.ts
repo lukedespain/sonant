@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { type } = await req.json() as { type: 'pro' | 'submission' | 'session' };
+  const { type } = await req.json() as { type: 'pro' | 'submission' };
 
   const admin = createAdminClient();
   const { data: profile } = await admin
@@ -40,9 +40,6 @@ export async function POST(req: Request) {
     mode = 'subscription';
   } else if (type === 'submission') {
     priceId = isPro ? PRICES.submissionPro : PRICES.submissionFree;
-    mode = 'payment';
-  } else if (type === 'session') {
-    priceId = isPro ? PRICES.sessionPro : PRICES.sessionFree;
     mode = 'payment';
   } else {
     return NextResponse.json({ error: 'Invalid type' }, { status: 400 });

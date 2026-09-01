@@ -19,7 +19,7 @@ export default async function ProfilePage({
 
   const { data: profile } = await admin
     .from('profiles')
-    .select('full_name, avatar_url')
+    .select('full_name, avatar_url, submission_credits')
     .eq('id', id)
     .single();
 
@@ -60,6 +60,7 @@ export default async function ProfilePage({
       avatarUrl={(profile as { avatar_url?: string | null }).avatar_url ?? null}
       accepted={acceptedCount}
       verifiedOverride={verifiedOverride}
+      submissionCredits={isOwner ? ((profile as { submission_credits?: number }).submission_credits ?? 0) : 0}
       bio={typeof meta?.bio === 'string' ? meta.bio : ''}
       website={typeof meta?.website === 'string' ? meta.website : ''}
       tracks={visibleTracks.map((t) => ({

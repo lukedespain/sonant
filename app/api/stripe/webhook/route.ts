@@ -35,11 +35,10 @@ export async function POST(req: Request) {
         stripe_customer_id: session.customer as string,
       }).eq('id', userId);
 
-      // Add 3 submission credits + 1 session credit (atomically via rpc or increment)
       await admin.rpc('increment_credits', {
         p_user_id: userId,
         p_submission_delta: 3,
-        p_session_delta: 1,
+        p_session_delta: 0,
       });
 
     } else if (purchaseType === 'submission') {
@@ -49,12 +48,6 @@ export async function POST(req: Request) {
         p_session_delta: 0,
       });
 
-    } else if (purchaseType === 'session') {
-      await admin.rpc('increment_credits', {
-        p_user_id: userId,
-        p_submission_delta: 0,
-        p_session_delta: 1,
-      });
     }
   }
 

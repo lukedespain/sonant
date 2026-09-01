@@ -79,7 +79,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             className="text-xs tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            ← Browse catalog briefs
+            ← Back to the Library
           </Link>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
               className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
-              ← Browse Briefs
+              ← Back to the Library
             </Link>
             {!isFeatured && !isClientBrief && (
               <Link

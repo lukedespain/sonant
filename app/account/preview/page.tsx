@@ -29,7 +29,6 @@ export default function AccountPreviewPage() {
             email="preview@example.com"
             memberSince="May 6, 2026"
             submissionCredits={0}
-            sessionCredits={0}
             catalogSubmissions={[]}
             signOutAction={noopSignOut}
           />
@@ -38,7 +37,7 @@ export default function AccountPreviewPage() {
         {/* Beta user — with data */}
         <section>
           <div className="text-[9px] tracking-[0.3em] uppercase text-[var(--text-dimmer)] mb-8 pb-3 border-b border-[var(--border-base)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            Preview: Beta · 1 submission credit · 1 session · with data
+            Preview: Beta · 1 submission credit · with data
           </div>
           <AccountClient
             userId="preview-beta-data"
@@ -47,7 +46,6 @@ export default function AccountPreviewPage() {
             email="alex@example.com"
             memberSince="April 20, 2026"
             submissionCredits={1}
-            sessionCredits={1}
             catalogSubmissions={mockSubmissions}
             signOutAction={noopSignOut}
           />
