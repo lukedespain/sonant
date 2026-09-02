@@ -24,9 +24,11 @@ export async function GET(request: NextRequest) {
       const accountType = data.user.user_metadata?.account_type;
       const fromMeta = safeInternalPath(data.user.user_metadata?.signup_next);
       const dest =
-        accountType === 'business'
-          ? '/account'
-          : fromMeta ?? '/browse';
+        type === 'recovery'
+          ? '/update-password'
+          : accountType === 'business'
+            ? '/account'
+            : fromMeta ?? '/browse';
       return NextResponse.redirect(`${origin}${dest}`);
     }
   }

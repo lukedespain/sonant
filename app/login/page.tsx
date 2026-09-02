@@ -48,7 +48,18 @@ function LoginForm() {
         <form action={handleSubmit} className="space-y-5">
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <Field label="Email" name="email" type="email" required />
-          <Field label="Password" name="password" type="password" required />
+          <div>
+            <Field label="Password" name="password" type="password" required />
+            <div className="mt-2 text-right">
+              <Link
+                href="/forgot-password"
+                className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-dim)] hover:text-[#E85D2F] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Forgot password
+              </Link>
+            </div>
+          </div>
 
           {error && (
             <div className="text-sm text-[#FF8B6B] border border-[#FF8B6B]/30 bg-[#FF8B6B]/5 p-3" style={{ borderRadius: '2px', fontFamily: "'DM Sans', sans-serif" }}>

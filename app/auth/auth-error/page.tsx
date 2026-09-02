@@ -19,7 +19,7 @@ export default function AuthErrorPage() {
         </h2>
 
         <p className="text-base text-[var(--text-tertiary)] mb-10 leading-relaxed">
-          The email confirmation link expired or was already used. Sign in to your account, or sign up again to receive a fresh link.
+          The email confirmation or password reset link expired or was already used. Sign in, request a new reset, or sign up again.
         </p>
 
         <div className="space-y-3">
@@ -35,6 +35,17 @@ export default function AuthErrorPage() {
             }}
           >
             ◆ Sign In
+          </Link>
+          <Link
+            href="/forgot-password"
+            className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center border border-[var(--border-subtle)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontWeight: 500,
+              borderRadius: '2px',
+            }}
+          >
+            Forgot Password
           </Link>
           <Link
             href="/signup"

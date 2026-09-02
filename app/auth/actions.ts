@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { isUserId, safeInternalPath } from '@/lib/referrals';
+import { siteUrl } from '@/lib/site-url';
 
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
@@ -60,4 +61,40 @@ export async function signOut() {
   await supabase.auth.signOut();
   revalidatePath('/', 'layout');
   redirect('/');
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const supabase = await createClient();
+  const email = (formData.get('email') as string | null)?.trim() ?? '';
+  if (!email) return { error: 'Email is required.' };
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl()}/auth/callback?next=/update-password`,
+  });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: 'This reset link is invalid or expired.' };
+
+  const password = formData.get('password') as string | null;
+  const confirm = formData.get('confirm') as string | null;
+  if (!password || password.length < 8) {
+    return { error: 'Password must be at least 8 characters.' };
+  }
+  if (password !== confirm) {
+    return { error: 'Passwords do not match.' };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: error.message };
+
+  revalidatePath('/', 'layout');
+  redirect('/account');
 }

@@ -6,10 +6,9 @@ import { useRouter } from 'next/navigation';
 import { setTrackVisibility } from '@/app/briefs/actions';
 import { isVerifiedComposer, VERIFICATION_THRESHOLD, type VerifiedOverride } from '@/lib/verification';
 import AdminVerificationControls from '@/components/AdminVerificationControls';
-import ThemeToggle from '@/components/ThemeToggle';
-import { signOut } from '@/app/auth/actions';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
+import AccountSettings from './AccountSettings';
 
 const AVATAR_COLORS = [
   '#E85D2F', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
@@ -48,6 +47,7 @@ export default function ProfileView({
   submissionCredits = 0,
   bio: initialBio,
   website: initialWebsite,
+  email = '',
   tracks,
 }: {
   profileId: string;
@@ -60,6 +60,7 @@ export default function ProfileView({
   submissionCredits?: number;
   bio: string;
   website: string;
+  email?: string;
   tracks: TrackItem[];
 }) {
   const router = useRouter();
@@ -418,106 +419,17 @@ export default function ProfileView({
           </div>
 
           {isOwner && (
-            <aside className="lg:sticky lg:top-28 h-fit">
-              <h2
-                className="text-3xl md:text-4xl tracking-tight mb-8"
-                style={{ ...serif, fontWeight: 300 }}
-              >
-                Account<span className="italic">.</span>
-              </h2>
-
-              <div className="border-t border-[var(--border-base)]">
-                <div className="py-5 border-b border-[var(--border-base)]">
-                  <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-2" style={mono}>
-                    {isAdmin ? 'Catalog reviews' : 'Submission credits'}
-                  </div>
-                  <div className="flex items-end justify-between gap-3">
-                    <div className="text-3xl leading-none text-[var(--text-primary)]" style={{ ...serif, fontWeight: 300 }}>
-                      {isAdmin ? '∞' : submissionCredits}
-                    </div>
-                    {!isAdmin && (
-                      <button
-                        type="button"
-                        onClick={startCheckout}
-                        disabled={checkoutLoading}
-                        className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40 mb-0.5"
-                        style={mono}
-                      >
-                        {checkoutLoading ? '…' : '+ Add'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="py-5 border-b border-[var(--border-base)]">
-                  <div className="relative flex items-center gap-1.5 group/badge mb-2">
-                    <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={mono}>
-                      Status
-                    </div>
-                    {!verified && (
-                      <button
-                        type="button"
-                        onClick={() => setBadgeInfoOpen((o) => !o)}
-                        aria-expanded={badgeInfoOpen}
-                        aria-label="About the verified composer badge"
-                        className="relative shrink-0 w-3.5 h-3.5 flex items-center justify-center text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                          <circle cx="6" cy="6" r="5.25" stroke="currentColor" strokeWidth="1" />
-                          <path d="M6 5.25v3.1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                          <circle cx="6" cy="3.7" r="0.6" fill="currentColor" />
-                        </svg>
-                      </button>
-                    )}
-                    <div
-                      className={`absolute left-0 bottom-full mb-2 w-56 p-3 border border-[var(--border-card)] bg-[var(--bg-card)] text-[11px] leading-relaxed tracking-normal normal-case text-[var(--text-muted)] z-10 ${
-                        badgeInfoOpen ? 'opacity-100' : 'opacity-0 pointer-events-none group-hover/badge:opacity-100'
-                      }`}
-                      style={{ ...sans, borderRadius: '2px' }}
-                      role="tooltip"
-                    >
-                      Place three tracks in the catalog to earn this badge. Verified composers get access to paid briefs.
-                    </div>
-                  </div>
-                  {verified ? (
-                    <div className="text-lg text-[#E85D2F]" style={{ ...serif, fontWeight: 400 }}>
-                      Verified Composer
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      <div className="h-[2px] flex-1 bg-[var(--border-base)] overflow-hidden" style={{ borderRadius: '2px' }}>
-                        <div
-                          className="h-full bg-[#E85D2F]"
-                          style={{ width: `${(placed / VERIFICATION_THRESHOLD) * 100}%` }}
-                        />
-                      </div>
-                      <div className="shrink-0 text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={mono}>
-                        {placed} / {VERIFICATION_THRESHOLD}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="py-5 border-b border-[var(--border-base)]">
-                  <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-3" style={mono}>
-                    Appearance
-                  </div>
-                  <ThemeToggle label="Change Theme" />
-                </div>
-
-                <div className="pt-5">
-                  <form action={signOut}>
-                    <button
-                      type="submit"
-                      className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-                      style={mono}
-                    >
-                      Sign Out
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </aside>
+            <AccountSettings
+              email={email}
+              isAdmin={isAdmin}
+              submissionCredits={submissionCredits}
+              verified={verified}
+              placed={placed}
+              badgeInfoOpen={badgeInfoOpen}
+              onToggleBadgeInfo={() => setBadgeInfoOpen((o) => !o)}
+              checkoutLoading={checkoutLoading}
+              onAddCredits={startCheckout}
+            />
           )}
         </div>
       </section>
