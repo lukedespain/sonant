@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isSiteAdmin } from '@/lib/admin';
 import { isClientBriefRecord } from '@/lib/disco';
+import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
 import {
   MAX_AUDIO_BYTES,
   SUBMISSION_BUCKET,
@@ -57,12 +58,16 @@ export async function POST(req: Request) {
   // Checked again when the submission is recorded; this is just to fail before
   // the composer sits through an upload they cannot spend.
   if (!isSiteAdmin(user)) {
-    const { data: profile } = await admin
-      .from('profiles')
-      .select('submission_credits')
-      .eq('id', user.id)
-      .single();
-    const credits = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
+    const monthly = await ensureMonthlySubmissionCredit(admin, user);
+    let credits = monthly?.credits;
+    if (credits == null) {
+      const { data: profile } = await admin
+        .from('profiles')
+        .select('submission_credits')
+        .eq('id', user.id)
+        .single();
+      credits = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
+    }
     if (credits < 1) {
       return NextResponse.json({ error: 'You need a submission credit.' }, { status: 402 });
     }

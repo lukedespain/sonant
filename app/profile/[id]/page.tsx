@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getTrackPrivacyMap, isTrackPublic } from '@/lib/track-privacy';
 import { countAcceptedCatalogSubmissions, readVerifiedOverride } from '@/lib/verification';
 import { isSiteAdmin } from '@/lib/admin';
+import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
 import ProfileView from './ProfileView';
 
 export default async function ProfilePage({
@@ -24,6 +25,10 @@ export default async function ProfilePage({
     .single();
 
   if (!profile) notFound();
+
+  const monthly = isOwner && user
+    ? await ensureMonthlySubmissionCredit(admin, user)
+    : null;
 
   const [acceptedCount, verifiedOverride, { data: authUser }, { data: tracks }, privacyMap] = await Promise.all([
     countAcceptedCatalogSubmissions(admin, id),
@@ -60,7 +65,12 @@ export default async function ProfilePage({
       avatarUrl={(profile as { avatar_url?: string | null }).avatar_url ?? null}
       accepted={acceptedCount}
       verifiedOverride={verifiedOverride}
-      submissionCredits={isOwner ? ((profile as { submission_credits?: number }).submission_credits ?? 0) : 0}
+      submissionCredits={
+        isOwner
+          ? (monthly?.credits ?? (profile as { submission_credits?: number }).submission_credits ?? 0)
+          : 0
+      }
+      daysUntilNextCredit={isOwner ? monthly?.daysUntilNext ?? null : null}
       bio={typeof meta?.bio === 'string' ? meta.bio : ''}
       website={typeof meta?.website === 'string' ? meta.website : ''}
       email={

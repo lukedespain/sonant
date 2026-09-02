@@ -22,6 +22,7 @@ export default function AccountSettings({
   onToggleBadgeInfo,
   checkoutLoading,
   onAddCredits,
+  daysUntilNextCredit = null,
 }: {
   email: string;
   isAdmin: boolean;
@@ -32,6 +33,7 @@ export default function AccountSettings({
   onToggleBadgeInfo: () => void;
   checkoutLoading: boolean;
   onAddCredits: () => void;
+  daysUntilNextCredit?: number | null;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
@@ -153,6 +155,11 @@ export default function AccountSettings({
               </button>
             )}
           </div>
+          {!isAdmin && daysUntilNextCredit != null && (
+            <p className="mt-2 text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)]" style={mono}>
+              Next free credit in {daysUntilNextCredit} {daysUntilNextCredit === 1 ? 'day' : 'days'}
+            </p>
+          )}
         </div>
 
         <div className="py-5 border-b border-[var(--border-base)]">

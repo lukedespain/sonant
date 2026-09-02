@@ -5,7 +5,9 @@ import Nav from "@/components/Nav";
 import AudioPlayerBar from "@/components/AudioPlayerBar";
 import { Providers } from "./providers";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isSiteAdmin } from "@/lib/admin";
+import { ensureMonthlySubmissionCredit } from "@/lib/monthly-credit";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +38,14 @@ export default async function RootLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (user) {
+    try {
+      await ensureMonthlySubmissionCredit(createAdminClient(), user);
+    } catch (error) {
+      console.error('Monthly credit check failed', error);
+    }
+  }
 
   return (
     <html

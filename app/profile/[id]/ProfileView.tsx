@@ -48,6 +48,7 @@ export default function ProfileView({
   bio: initialBio,
   website: initialWebsite,
   email = '',
+  daysUntilNextCredit = null,
   tracks,
 }: {
   profileId: string;
@@ -61,6 +62,7 @@ export default function ProfileView({
   bio: string;
   website: string;
   email?: string;
+  daysUntilNextCredit?: number | null;
   tracks: TrackItem[];
 }) {
   const router = useRouter();
@@ -429,6 +431,7 @@ export default function ProfileView({
               onToggleBadgeInfo={() => setBadgeInfoOpen((o) => !o)}
               checkoutLoading={checkoutLoading}
               onAddCredits={startCheckout}
+              daysUntilNextCredit={daysUntilNextCredit}
             />
           )}
         </div>
