@@ -5,6 +5,7 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteCommunityTrack, setFeaturedTrack, setTrackVisibility } from '@/app/briefs/actions';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
+import PlayPauseIcon from './PlayPauseIcon';
 
 interface Track {
   id: string;
@@ -104,14 +105,15 @@ export default function CommunityTracksSection({
               >
                 <button
                   onClick={() => handlePlay(track)}
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${
+                  className={`w-7 h-7 flex items-center justify-center shrink-0 transition-colors ${
                     isCurrentlyPlaying
-                      ? 'bg-[#E85D2F] text-[var(--bg-base)]'
-                      : 'bg-[#E85D2F]/15 text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)]'
+                      ? 'bg-[#E85D2F] text-[#0A0908]'
+                      : 'bg-[#0A0908] text-[#E85D2F]'
                   }`}
+                  style={{ borderRadius: '2px' }}
                   aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
                 >
-                  {isCurrentlyPlaying ? '■' : '▶'}
+                  <PlayPauseIcon playing={isCurrentlyPlaying} size={10} />
                 </button>
 
                 <div className="flex-1 min-w-0">

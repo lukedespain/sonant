@@ -9,6 +9,7 @@ import AdminVerificationControls from '@/components/AdminVerificationControls';
 import ThemeToggle from '@/components/ThemeToggle';
 import { signOut } from '@/app/auth/actions';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
+import PlayPauseIcon from '@/components/PlayPauseIcon';
 
 const AVATAR_COLORS = [
   '#E85D2F', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
@@ -366,15 +367,15 @@ export default function ProfileView({
                     >
                       <button
                         onClick={() => handlePlay(track)}
-                        className={`w-9 h-9 flex items-center justify-center text-[10px] shrink-0 transition-colors ${
+                        className={`w-9 h-9 flex items-center justify-center shrink-0 transition-colors ${
                           isCurrentlyPlaying
-                            ? 'bg-[#E85D2F] text-[var(--bg-base)]'
-                            : 'border border-[var(--border-subtle)] text-[#E85D2F] hover:border-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)]'
+                            ? 'bg-[#E85D2F] text-[#0A0908]'
+                            : 'bg-[#0A0908] text-[#E85D2F]'
                         }`}
                         style={{ borderRadius: '2px' }}
                         aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
                       >
-                        {isCurrentlyPlaying ? '■' : '▶'}
+                        <PlayPauseIcon playing={isCurrentlyPlaying} size={11} />
                       </button>
                       <div className="flex-1 min-w-0">
                         <div

@@ -103,12 +103,19 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
 body {
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
   padding-bottom: 48px;
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 #generator {
@@ -117,6 +124,8 @@ body {
 
 .sonant-h-scroll {
   overflow-x: auto;
+  max-width: 100%;
+  overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
 }

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
+import PlayPauseIcon from './PlayPauseIcon';
 import { useState } from 'react';
 
 function VolumeIcon({ level }: { level: 'off' | 'low' | 'high' }) {
@@ -78,10 +79,9 @@ export default function AudioPlayerBar() {
         <button
           onClick={toggle}
           className="w-9 h-9 rounded-full bg-[#E85D2F] hover:bg-[#FF6E3D] text-[var(--bg-base)] flex items-center justify-center shrink-0 transition-colors"
-          style={{ fontSize: '11px' }}
           aria-label={isPlaying ? 'Pause' : 'Play'}
         >
-          {isPlaying ? '■' : '▶'}
+          <PlayPauseIcon playing={isPlaying} size={11} />
         </button>
 
         {/* Track info + seekbar */}

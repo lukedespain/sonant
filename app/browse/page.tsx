@@ -66,7 +66,7 @@ export default async function BrowsePage({
     .returns<BriefRow[]>();
 
   return (
-    <div className="pt-16 md:pt-20 pb-12 flex-1">
+    <div className="pt-16 md:pt-20 pb-12 flex-1 min-w-0 overflow-x-clip">
       <div className="max-w-7xl mx-auto px-6 md:px-10">
         <BrowseClient
           featuredBriefs={featuredBriefs ?? []}
