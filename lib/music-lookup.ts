@@ -19,6 +19,79 @@ export type GroundedTrack = {
   source: 'itunes' | 'musicbrainz' | 'both';
 };
 
+const YOUTUBE_ID = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|music\.youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/i;
+
+export function parseReferenceTrack(track: string): ReferenceCandidate | null {
+  const comma = track.indexOf(',');
+  if (comma === -1) return null;
+  const artist = track.slice(0, comma).trim();
+  const title = track.slice(comma + 1).trim();
+  if (!artist || !title) return null;
+  return { artist, title };
+}
+
+export function isYouTubeUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  return /youtube\.com|youtu\.be|music\.youtube\.com/i.test(url);
+}
+
+function youtubeWatchUrl(id: string) {
+  return `https://www.youtube.com/watch?v=${id}`;
+}
+
+function youtubeSearchUrl(artist: string, title: string) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${artist} ${title} official audio`)}`;
+}
+
+function youtubeFromText(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const match = value.match(YOUTUBE_ID);
+  return match ? youtubeWatchUrl(match[1]) : null;
+}
+
+function youtubeFromRelations(recording?: MbRecording | null): string | null {
+  for (const rel of recording?.relations ?? []) {
+    const found = youtubeFromText(rel.url?.resource);
+    if (found) return found;
+  }
+  return null;
+}
+
+async function searchYouTubeHtml(query: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, {
+      headers: {
+        'User-Agent': USER_AGENT,
+        'Accept-Language': 'en-US,en;q=0.9',
+        Accept: 'text/html',
+      },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const ids = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)].map((row) => row[1]);
+    const first = ids.find((id, index) => ids.indexOf(id) === index);
+    return first ? youtubeWatchUrl(first) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Prefer a watch URL; fall back to a YouTube search so the link is never Apple Music. */
+export async function resolveYouTubeListenUrl(
+  artist: string,
+  title: string,
+  recording?: MbRecording | null
+): Promise<string> {
+  const fromMb = youtubeFromRelations(recording);
+  if (fromMb) return fromMb;
+  const official = await searchYouTubeHtml(`${artist} ${title} official audio`);
+  if (official) return official;
+  const plain = await searchYouTubeHtml(`${artist} ${title}`);
+  if (plain) return plain;
+  return youtubeSearchUrl(artist, title);
+}
+
 type ITunesSong = {
   artistName?: string;
   trackName?: string;
@@ -89,6 +162,7 @@ async function getJson<T>(url: string, extraHeaders: Record<string, string> = {}
   try {
     const res = await fetch(url, {
       headers: { 'User-Agent': USER_AGENT, Accept: 'application/json', ...extraHeaders },
+      signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -235,6 +309,7 @@ export async function groundReferenceCandidate(
 
   const summary = await wikipediaSummary(resolvedArtist, resolvedTitle, recording);
   const year = itunes?.releaseDate?.slice(0, 4) ?? recording?.['first-release-date']?.slice(0, 4) ?? null;
+  const listenUrl = await resolveYouTubeListenUrl(resolvedArtist, resolvedTitle, recording);
 
   return {
     artist: resolvedArtist,
@@ -245,7 +320,7 @@ export async function groundReferenceCandidate(
     credits: recording ? creditsFromRecording(recording) : [],
     tags: recording ? tagsFromRecording(recording) : [],
     summary,
-    listenUrl: itunes?.trackViewUrl ?? (recording?.id ? `https://musicbrainz.org/recording/${recording.id}` : null),
+    listenUrl,
     source: itunes && recording ? 'both' : itunes ? 'itunes' : 'musicbrainz',
   };
 }
@@ -271,4 +346,12 @@ export async function groundReferenceCandidates(
   }
 
   return picked;
+}
+
+export async function youtubeUrlForReferenceTrack(track: string): Promise<string | null> {
+  const parsed = parseReferenceTrack(track);
+  if (parsed) return resolveYouTubeListenUrl(parsed.artist, parsed.title);
+  const trimmed = track.trim();
+  if (!trimmed) return null;
+  return resolveYouTubeListenUrl(trimmed, '');
 }
