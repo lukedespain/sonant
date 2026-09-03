@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { setTrackPublic } from '@/lib/track-privacy';
+import { ADMIN_USER_ID } from '@/lib/admin';
+import { addNotification } from '@/lib/notifications';
 import {
   COMMUNITY_BUCKET,
   MAX_AUDIO_BYTES,
@@ -133,5 +135,32 @@ export async function POST(req: Request) {
 
   revalidatePath(`/browse/${briefId}`);
   revalidatePath(`/profile/${user.id}`);
+
+  try {
+    const { data: brief } = await admin
+      .from('briefs')
+      .select('user_id, generated_content')
+      .eq('id', briefId)
+      .maybeSingle();
+    const ownerId = brief?.user_id as string | undefined;
+    if (ownerId && ownerId !== user.id && ownerId !== ADMIN_USER_ID) {
+      const content = (brief?.generated_content ?? {}) as { codename?: string; projectTitle?: string };
+      const briefName = content.projectTitle || content.codename || 'your brief';
+      const uploaderName =
+        typeof user.user_metadata?.full_name === 'string'
+          ? user.user_metadata.full_name.trim().split(/\s+/)[0]
+          : 'A composer';
+      await addNotification(admin, ownerId, {
+        type: 'brief_upload',
+        title: 'New take on your brief',
+        body: `${uploaderName || 'A composer'} uploaded a song to ${briefName}.`,
+        href: `/browse/${briefId}`,
+      });
+      revalidatePath(`/profile/${ownerId}`);
+    }
+  } catch (error) {
+    console.error('Brief upload notification failed:', error);
+  }
+
   return NextResponse.json({ success: true });
 }

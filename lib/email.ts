@@ -242,3 +242,31 @@ export async function addSignupToResendList(params: {
     console.error('addSignupToResendList failed:', error);
   }
 }
+
+export async function sendReferralCreditEmail(params: {
+  to: string;
+  joinerName: string;
+  profileUrl: string;
+}) {
+  const name = escapeHtml(params.joinerName);
+  const profileUrl = escapeHtml(params.profileUrl);
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: params.to,
+      subject: 'You earned a Sonant submission credit',
+      html: `
+        <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
+          <h2 style="font-weight: 500;">A composer joined from your invite</h2>
+          <p>${name} created a Sonant account from your brief share. You earned one submission credit.</p>
+          <p><a href="${profileUrl}" style="color: #E85D2F;">See it on your profile →</a></p>
+          <p style="color: #8A8680; font-size: 13px; margin-top: 32px;">Sonant</p>
+        </div>
+      `,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('sendReferralCreditEmail failed:', error);
+    return { error: 'Email failed to send.' };
+  }
+}

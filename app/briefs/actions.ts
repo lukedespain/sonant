@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isSiteAdmin } from '@/lib/admin';
 import { sendDecisionEmail, sendSubmissionReceivedEmail } from '@/lib/email';
+import { addNotification } from '@/lib/notifications';
 
 type Mode = 'brand' | 'film' | 'games';
 
@@ -360,8 +361,23 @@ export async function recordDecision(params: {
     });
   }
 
+  try {
+    await addNotification(admin, submission.user_id, {
+      type: accepted ? 'catalog_accepted' : 'catalog_reviewed',
+      title: accepted ? 'Accepted to the catalog' : 'Catalog review',
+      body: accepted
+        ? `${projectName} was accepted to the catalog.`
+        : `Written feedback is ready for ${projectName}.`,
+      href: '/submissions',
+    });
+  } catch (error) {
+    console.error('Catalog notification failed:', error);
+  }
+
   revalidatePath('/admin');
   revalidatePath('/submissions-admin');
+  revalidatePath('/submissions');
+  revalidatePath(`/profile/${submission.user_id}`);
   return { success: true };
 }
 

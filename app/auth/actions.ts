@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { isUserId, safeInternalPath } from '@/lib/referrals';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { resolveReferrerId } from '@/lib/referral-codes';
 import { siteUrl } from '@/lib/site-url';
 
 export async function signUp(formData: FormData) {
@@ -13,8 +15,11 @@ export async function signUp(formData: FormData) {
   const password = formData.get('password') as string;
   const fullName = formData.get('fullName') as string;
   const accountType = (formData.get('accountType') as string) || 'composer';
-  const referredBy = formData.get('referredBy');
+  const referredByRaw = formData.get('referredBy');
   const signupNext = safeInternalPath(formData.get('signupNext'));
+  const referredBy = isUserId(referredByRaw)
+    ? referredByRaw
+    : await resolveReferrerId(createAdminClient(), referredByRaw);
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -23,7 +28,7 @@ export async function signUp(formData: FormData) {
       data: {
         full_name: fullName,
         account_type: accountType,
-        ...(isUserId(referredBy) ? { referred_by: referredBy } : {}),
+        ...(referredBy ? { referred_by: referredBy } : {}),
         ...(signupNext ? { signup_next: signupNext } : {}),
       },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/auth/confirm?next=/browse`,

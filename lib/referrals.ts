@@ -1,5 +1,9 @@
 import type { User } from '@supabase/supabase-js';
+import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { addNotification } from '@/lib/notifications';
+import { sendReferralCreditEmail } from '@/lib/email';
+import { siteUrl } from '@/lib/site-url';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -52,5 +56,32 @@ export async function applyReferralCredit(newUser: User | null | undefined) {
     console.error('Could not mark referral as credited:', metaError);
   }
 
+  const joinerName =
+    typeof newUser.user_metadata?.full_name === 'string'
+      ? newUser.user_metadata.full_name.trim().split(/\s+/)[0]
+      : 'A composer';
+
+  try {
+    await addNotification(admin, referredBy, {
+      type: 'referral_credit',
+      title: 'You earned a submission credit',
+      body: `${joinerName || 'A composer'} joined Sonant from your invite.`,
+      href: `/profile/${referredBy}#alerts`,
+    });
+  } catch (error) {
+    console.error('Referral notification failed:', error);
+  }
+
+  const { data: referrerUser } = await admin.auth.admin.getUserById(referredBy);
+  const referrerEmail = referrerUser.user?.email;
+  if (referrerEmail) {
+    await sendReferralCreditEmail({
+      to: referrerEmail,
+      joinerName: joinerName || 'A composer',
+      profileUrl: `${siteUrl()}/profile/${referredBy}#alerts`,
+    });
+  }
+
+  revalidatePath(`/profile/${referredBy}`);
   return { credited: true as const, referredBy };
 }

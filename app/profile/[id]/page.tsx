@@ -5,6 +5,7 @@ import { getTrackPrivacyMap, isTrackPublic } from '@/lib/track-privacy';
 import { countAcceptedCatalogSubmissions, readVerifiedOverride } from '@/lib/verification';
 import { isSiteAdmin } from '@/lib/admin';
 import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
+import { listNotifications } from '@/lib/notifications';
 import ProfileView from './ProfileView';
 
 export default async function ProfilePage({
@@ -30,7 +31,7 @@ export default async function ProfilePage({
     ? await ensureMonthlySubmissionCredit(admin, user)
     : null;
 
-  const [acceptedCount, verifiedOverride, { data: authUser }, { data: tracks }, privacyMap] = await Promise.all([
+  const [acceptedCount, verifiedOverride, { data: authUser }, { data: tracks }, privacyMap, notifications] = await Promise.all([
     countAcceptedCatalogSubmissions(admin, id),
     readVerifiedOverride(admin, id),
     admin.auth.admin.getUserById(id),
@@ -40,6 +41,7 @@ export default async function ProfilePage({
       .eq('user_id', id)
       .order('created_at', { ascending: false }),
     getTrackPrivacyMap(admin),
+    isOwner ? listNotifications(admin, id) : Promise.resolve([]),
   ]);
 
   const meta = authUser?.user?.user_metadata as { bio?: string; website?: string } | undefined;
@@ -71,6 +73,7 @@ export default async function ProfilePage({
           : 0
       }
       daysUntilNextCredit={isOwner ? monthly?.daysUntilNext ?? null : null}
+      notifications={isOwner ? notifications : []}
       bio={typeof meta?.bio === 'string' ? meta.bio : ''}
       website={typeof meta?.website === 'string' ? meta.website : ''}
       email={

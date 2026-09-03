@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import { signOut } from '@/app/auth/actions'
+import NotificationBell from '@/components/NotificationBell'
 
 type NavProps = {
   user: User | null
@@ -137,25 +138,32 @@ export default function Nav({
             )}
 
             {loggedIn && user && (
-              <Link
-                href={`/profile/${user.id}`}
-                className={`h-10 px-4 flex items-center border transition-colors ${
-                  pathname?.startsWith('/profile')
-                    ? 'border-[#E85D2F] text-[#E85D2F]'
-                    : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
-                }`}
-                style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
-              >
-                Profile
-              </Link>
+              <>
+                <NotificationBell profileHref={`/profile/${user.id}`} />
+                <Link
+                  href={`/profile/${user.id}`}
+                  className={`h-10 px-4 flex items-center border transition-colors ${
+                    pathname?.startsWith('/profile')
+                      ? 'border-[#E85D2F] text-[#E85D2F]'
+                      : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                  }`}
+                  style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
+                >
+                  Profile
+                </Link>
+              </>
             )}
           </div>
 
           {!isAuthPage && (
+            <div className="flex md:hidden items-center gap-2 shrink-0">
+            {loggedIn && user && (
+              <NotificationBell profileHref={`/profile/${user.id}`} />
+            )}
             <button
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
-              className="md:hidden flex items-center justify-center w-10 h-10 border border-[var(--border-subtle)] hover:border-[var(--text-dim)] transition-colors shrink-0"
+              className="flex items-center justify-center w-10 h-10 border border-[var(--border-subtle)] hover:border-[var(--text-dim)] transition-colors"
               style={{ borderRadius: '2px' }}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
@@ -170,6 +178,7 @@ export default function Nav({
                 </svg>
               )}
             </button>
+            </div>
           )}
         </div>
       </nav>
@@ -205,6 +214,14 @@ export default function Nav({
           <div className="px-6 py-8 border-t border-[var(--border-base)] flex flex-col gap-5">
             {loggedIn && user && (
               <>
+                <Link
+                  href={`/profile/${user.id}#alerts`}
+                  onClick={closeMenu}
+                  className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-secondary)]"
+                  style={mono}
+                >
+                  Alerts
+                </Link>
                 <Link
                   href={`/profile/${user.id}`}
                   onClick={closeMenu}

@@ -9,6 +9,8 @@ import AdminVerificationControls from '@/components/AdminVerificationControls';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
 import AccountSettings from './AccountSettings';
+import AlertsPanel from './AlertsPanel';
+import type { AppNotification } from '@/lib/notifications';
 
 const AVATAR_COLORS = [
   '#E85D2F', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
@@ -49,6 +51,7 @@ export default function ProfileView({
   website: initialWebsite,
   email = '',
   daysUntilNextCredit = null,
+  notifications = [],
   tracks,
 }: {
   profileId: string;
@@ -63,6 +66,7 @@ export default function ProfileView({
   website: string;
   email?: string;
   daysUntilNextCredit?: number | null;
+  notifications?: AppNotification[];
   tracks: TrackItem[];
 }) {
   const router = useRouter();
@@ -320,7 +324,15 @@ export default function ProfileView({
         </div>
       </section>
 
-      <section className="border-t border-[var(--border-base)]">
+      {isOwner && (
+        <section className="border-t border-[var(--border-base)]">
+          <div className="max-w-6xl mx-auto px-6 md:px-10 pt-16 md:pt-20">
+            <AlertsPanel initialItems={notifications} />
+          </div>
+        </section>
+      )}
+
+      <section className={isOwner ? '' : 'border-t border-[var(--border-base)]'}>
         <div className={`max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20 grid grid-cols-1 gap-16 ${isOwner ? 'lg:grid-cols-[minmax(0,1fr)_240px] lg:gap-20' : ''}`}>
           <div>
             <div className="flex items-baseline justify-between gap-4 mb-8">
