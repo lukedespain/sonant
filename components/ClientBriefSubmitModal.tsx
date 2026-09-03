@@ -42,30 +42,24 @@ export default function ClientBriefSubmitModal({
     setOpen(false);
   }
 
-  async function handleDeliver(event: React.MouseEvent<HTMLAnchorElement>) {
-    event.preventDefault();
+  async function handleDeliver() {
     if (!discoUrl || logging) return;
-
-    const tab = window.open('about:blank', '_blank', 'noopener,noreferrer');
     setLogging(true);
     setError(null);
 
     try {
-      const json = await postJson<{ url: string }>('/api/submissions/client-intent', { briefId });
-      const url = json.url || discoUrl;
-      if (tab) tab.location.replace(url);
-      else window.open(url, '_blank', 'noopener,noreferrer');
+      await postJson<{ url: string }>('/api/submissions/client-intent', { briefId });
       setDone(true);
       router.refresh();
     } catch (err) {
-      if (tab) tab.close();
       const message =
         err instanceof UploadRequestError
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Could not open Disco.';
+            : 'Could not record the delivery.';
       setError(message);
+      setDone(true);
     } finally {
       setLogging(false);
     }
@@ -111,14 +105,27 @@ export default function ClientBriefSubmitModal({
                   Deliver the WAV there. Name the file{' '}
                   <span className="text-[var(--text-secondary)]">{filename}</span> so we can match it to you.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-                >
-                  ◆ Done
-                </button>
+                <div className="flex flex-col gap-3">
+                  {discoUrl && (
+                    <a
+                      href={discoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
+                      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                    >
+                      ↗ Open inbox
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="text-xs tracking-[0.2em] uppercase px-6 py-3 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
             ) : (
               <>
