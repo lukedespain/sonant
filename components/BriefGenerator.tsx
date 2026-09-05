@@ -278,6 +278,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedBriefId, setSavedBriefId] = useState<string | null>(null);
+  const [announceFeatured, setAnnounceFeatured] = useState(true);
   const briefRef = useRef<HTMLElement>(null);
   const optionsRef = useRef<HTMLElement>(null);
 
@@ -417,6 +418,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
             genres,
             moods,
             generatedContent: result.brief as unknown as Record<string, unknown>,
+            announce: isAdmin && announceFeatured,
           });
           if (saveResult.error) {
             setSaveStatus('error');
@@ -613,6 +615,19 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
 
         {/* Generate */}
         <div>
+          {isAdmin && (
+            <label className="flex items-start gap-3 mb-4 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={announceFeatured}
+                onChange={(e) => setAnnounceFeatured(e.target.checked)}
+                className="mt-0.5 accent-[#E85D2F]"
+              />
+              <span className="text-[11px] leading-relaxed text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                Email everyone that this Sonant brief is in the Library. Uncheck if you are just iterating.
+              </span>
+            </label>
+          )}
           <div className="flex items-center gap-4 mb-3 flex-wrap">
             <button
               onClick={handleGenerate}

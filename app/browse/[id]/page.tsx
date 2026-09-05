@@ -15,6 +15,7 @@ import CommunityTracksSection from '@/components/CommunityTracksSection';
 import BriefNextSteps from '@/components/BriefNextSteps';
 import BriefImageUpload from '@/components/BriefImageUpload';
 import RegenerateImageButton from '@/components/RegenerateImageButton';
+import AnnounceBriefButton from '@/components/AnnounceBriefButton';
 import { getSubmissionStatus } from '@/app/briefs/actions';
 import { getTrackPrivacyMap, isTrackPublic } from '@/lib/track-privacy';
 
@@ -157,6 +158,12 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             )}
           </div>
           <div className="flex items-center gap-3 flex-wrap">
+            {isAdmin && (isClientBrief || isFeatured) && (
+              <AnnounceBriefButton
+                briefId={briefRow.id}
+                kind={isClientBrief ? 'client' : 'featured'}
+              />
+            )}
             {isAdmin && <RegenerateImageButton briefId={briefRow.id} />}
             {isAdmin && <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />}
             {isPro && <SunoPromptModal brief={brief} />}

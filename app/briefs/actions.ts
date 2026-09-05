@@ -7,6 +7,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { isSiteAdmin } from '@/lib/admin';
 import { sendDecisionEmail, sendSubmissionReceivedEmail } from '@/lib/email';
 import { addNotification } from '@/lib/notifications';
+import { ADMIN_USER_ID } from '@/lib/admin';
+import { announceNewBrief, briefDisplayName } from '@/lib/brief-announcements';
 
 type Mode = 'brand' | 'film' | 'games';
 
@@ -16,6 +18,7 @@ interface SaveBriefInput {
   genres: string[];
   moods: string[];
   generatedContent: Record<string, unknown>;
+  announce?: boolean;
 }
 
 export async function saveBrief(input: SaveBriefInput) {
@@ -75,6 +78,22 @@ export async function saveBrief(input: SaveBriefInput) {
   }
 
   revalidatePath('/account');
+  revalidatePath('/browse');
+
+  if (input.announce === true && user.id === ADMIN_USER_ID) {
+    try {
+      const admin = createAdminClient();
+      await announceNewBrief({
+        admin,
+        kind: 'featured',
+        briefId: data.id,
+        briefName: briefDisplayName(input.generatedContent as { codename?: string }),
+      });
+    } catch (error) {
+      console.error('Featured brief announcement failed:', error);
+    }
+  }
+
   return { success: true, briefId: data.id };
 }
 export async function deleteBrief(formData: FormData) {
