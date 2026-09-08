@@ -9,15 +9,15 @@ const PILLARS = [
   },
   {
     n: '02',
-    title: 'The Library',
-    body: 'Briefs you write to. Practice briefs anyone can take, and paid opportunities for brands, films and games once you have three placements.',
-    href: '/browse',
+    title: 'The Briefs',
+    body: 'Community briefs are open for any composer to practice writing to, catalog briefs are currently in-demand from music houses, and client briefs are paid opportunities for verified composers.',
+    href: '/briefs',
   },
   {
     n: '03',
     title: 'The Catalog',
-    body: 'Your submitted work, with written notes and placements. The goal, over time, is a catalog worth pitching.',
-    href: '/submissions',
+    body: 'This is where you can view your music uploads and the status of your catalog submissions. Thought Collective is our official partner for pitching accepted tracks for sync licensing opportunities.',
+    href: '/catalog',
   },
 ] as const;
 

@@ -78,7 +78,7 @@ export async function saveBrief(input: SaveBriefInput) {
   }
 
   revalidatePath('/account');
-  revalidatePath('/browse');
+  revalidatePath('/briefs');
 
   if (input.announce === true && user.id === ADMIN_USER_ID) {
     try {
@@ -125,7 +125,7 @@ export async function deleteBrief(formData: FormData) {
   }
 
   revalidatePath('/library');
-  revalidatePath('/browse');
+  revalidatePath('/briefs');
   redirect(redirectTo);
 }
 export async function submitTrack(briefId: string) {
@@ -176,7 +176,7 @@ export async function submitTrack(briefId: string) {
 
   revalidatePath('/library');
   revalidatePath(`/library/${briefId}`);
-  revalidatePath(`/browse/${briefId}`);
+  revalidatePath(`/briefs/${briefId}`);
   return { success: true };
 }
 
@@ -212,7 +212,7 @@ export async function setDiscoPlaylistId(briefId: string, playlistId: string) {
 
   if (error) return { error: error.message };
 
-  revalidatePath(`/browse/${briefId}`);
+  revalidatePath(`/briefs/${briefId}`);
   return { success: true };
 }
 
@@ -246,7 +246,7 @@ export async function setDiscoInboxUrl(briefId: string, inboxUrl: string) {
     return { error: error.message };
   }
 
-  revalidatePath(`/browse/${briefId}`);
+  revalidatePath(`/briefs/${briefId}`);
   return { success: true };
 }
 
@@ -282,9 +282,9 @@ export async function deleteCommunityTrack(trackId: string): Promise<{ error?: s
   const { error } = await admin.from('community_tracks').delete().eq('id', trackId);
   if (error) return { error: error.message };
 
-  revalidatePath(`/browse/${track.brief_id}`);
+  revalidatePath(`/briefs/${track.brief_id}`);
   revalidatePath(`/profile/${track.user_id}`);
-  revalidatePath('/browse');
+  revalidatePath('/briefs');
   return {};
 }
 
@@ -314,8 +314,8 @@ export async function setFeaturedTrack(briefId: string, trackId: string | null):
 
   if (error) return { error: error.message };
 
-  revalidatePath(`/browse/${briefId}`);
-  revalidatePath('/browse');
+  revalidatePath(`/briefs/${briefId}`);
+  revalidatePath('/briefs');
   return {};
 }
 
@@ -387,7 +387,7 @@ export async function recordDecision(params: {
       body: accepted
         ? `${projectName} was accepted to the catalog.`
         : `Written feedback is ready for ${projectName}.`,
-      href: '/submissions',
+      href: '/catalog',
     });
   } catch (error) {
     console.error('Catalog notification failed:', error);
@@ -396,6 +396,8 @@ export async function recordDecision(params: {
   revalidatePath('/admin');
   revalidatePath('/submissions-admin');
   revalidatePath('/submissions');
+  revalidatePath('/catalog');
+  revalidatePath('/music');
   revalidatePath(`/profile/${submission.user_id}`);
   return { success: true };
 }
@@ -422,7 +424,7 @@ export async function setTrackVisibility(trackId: string, isPublic: boolean): Pr
     return { error: err instanceof Error ? err.message : 'Could not update visibility' };
   }
 
-  revalidatePath(`/browse/${track.brief_id}`);
+  revalidatePath(`/briefs/${track.brief_id}`);
   revalidatePath(`/profile/${track.user_id}`);
   return {};
 }

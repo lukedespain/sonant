@@ -93,7 +93,7 @@ export default function AudioPlayerBar() {
                 {track.fileName}
               </span>
               <Link
-                href={`/browse/${track.briefId}`}
+                href={`/briefs/${track.briefId}`}
                 className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F] hover:underline shrink-0 whitespace-nowrap"
                 onClick={(e) => e.stopPropagation()}
               >

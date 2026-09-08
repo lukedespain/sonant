@@ -92,7 +92,7 @@ function SessionCard({
           </div>
           {booking.brief_id ? (
             <Link
-              href={`/browse/${booking.brief_id}`}
+              href={`/briefs/${booking.brief_id}`}
               className="text-base text-[var(--text-primary)] hover:text-[#E85D2F] transition-colors"
               style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
             >

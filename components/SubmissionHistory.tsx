@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { BRIEF_KIND_LABEL, type BriefKind } from '@/lib/brief-kind';
 
 export const SUBMISSION_STATUS: Record<string, { label: string; color: string }> = {
   received:       { label: 'Received',       color: 'var(--text-muted)' },
@@ -43,14 +44,14 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
           You haven&apos;t made any submissions yet.
         </h3>
         <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-md" style={sans}>
-          Open the Library and pick a brief to write to. Submissions only count when they&apos;re tied to a brief.
+          Open Briefs and pick a brief to write to. Submissions only count when they&apos;re tied to a brief.
         </p>
         <Link
-          href="/browse"
+          href="/briefs"
           className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
           style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
         >
-          ◆ Open the Library
+          ◆ Open Briefs
         </Link>
       </div>
     );
@@ -61,7 +62,16 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
       {items.map((sub) => {
         const status = SUBMISSION_STATUS[sub.status] ?? { label: sub.status, color: 'var(--text-muted)' };
         const open = expanded.has(sub.id);
-        const isClient = sub.briefType === 'client';
+        const kind: BriefKind =
+          sub.briefType === 'client' || sub.briefType === 'community'
+            ? sub.briefType
+            : 'catalog';
+        const tag =
+          kind === 'client'
+            ? { color: '#92A8D1', bg: '#92A8D115', border: '#92A8D130' }
+            : kind === 'community'
+              ? { color: 'var(--text-muted)', bg: 'transparent', border: 'var(--border-card)' }
+              : { color: '#E85D2F', bg: '#E85D2F15', border: '#E85D2F30' };
 
         return (
           <div key={sub.id} className="border-b border-[var(--border-base)] py-6">
@@ -69,7 +79,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
               <div>
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <Link
-                    href={`/browse/${sub.briefId}`}
+                    href={`/briefs/${sub.briefId}`}
                     className="text-lg text-[var(--text-primary)] hover:text-[#E85D2F] transition-colors"
                     style={{ ...serif, fontWeight: 400 }}
                   >
@@ -80,12 +90,12 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
                     style={{
                       ...mono,
                       borderRadius: '2px',
-                      color: isClient ? '#92A8D1' : '#E85D2F',
-                      background: isClient ? '#92A8D115' : '#E85D2F15',
-                      border: `1px solid ${isClient ? '#92A8D130' : '#E85D2F30'}`,
+                      color: tag.color,
+                      background: tag.bg,
+                      border: `1px solid ${tag.border}`,
                     }}
                   >
-                    {isClient ? 'Client' : 'Catalog'}
+                    {BRIEF_KIND_LABEL[kind]}
                   </span>
                 </div>
                 {sub.trackName && (

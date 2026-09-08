@@ -72,6 +72,6 @@ export async function POST(req: Request) {
   }
 
   revalidatePath(`/profile/${userId}`);
-  revalidatePath('/browse');
+  revalidatePath('/briefs');
   return NextResponse.json({ success: true, manualPlacements: next });
 }

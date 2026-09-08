@@ -14,7 +14,7 @@ export default function OnboardingClient() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ account_type: type }),
     });
-    router.push(type === 'composer' ? '/browse' : '/account');
+    router.push(type === 'composer' ? '/briefs' : '/account');
   }
 
   return (

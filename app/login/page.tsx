@@ -18,7 +18,7 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect') ?? '/browse';
+  const redirectTo = searchParams.get('redirect') ?? '/briefs';
 
   async function handleSubmit(formData: FormData) {
     setError(null);
@@ -42,7 +42,7 @@ function LoginForm() {
         </h1>
 
         <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          The Generator, the Library, and the Catalog. Pick up where you left off.
+          The Generator, Briefs, and the Catalog. Pick up where you left off.
         </p>
 
         <form action={handleSubmit} className="space-y-5">
@@ -71,7 +71,7 @@ function LoginForm() {
 
           <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Don&apos;t have an account?{' '}
-            <Link href={`/signup${redirectTo !== '/browse' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`} className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
+            <Link href={`/signup${redirectTo !== '/briefs' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`} className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
               Sign up
             </Link>
           </p>

@@ -161,7 +161,9 @@ export async function POST(req: Request) {
     }
   }
 
-  revalidatePath(`/browse/${briefId}`);
+  revalidatePath(`/briefs/${briefId}`);
+  revalidatePath('/catalog');
+  revalidatePath('/music');
   revalidatePath('/submissions');
   revalidatePath('/admin');
   return NextResponse.json({ success: true });

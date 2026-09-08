@@ -283,7 +283,7 @@ export async function sendFeaturedBriefAnnouncementEmail(params: {
     await resend.emails.send({
       from: FROM,
       to: params.to,
-      subject: 'A new Sonant brief is in the Library',
+      subject: 'A new Sonant brief is up',
       html: briefAnnouncementHtml({
         kicker: '◆ Sonant · Catalog brief',
         heading: 'The catalog is looking for this.',

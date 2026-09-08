@@ -166,7 +166,7 @@ export async function announceNewBrief(params: {
 
   const emails = await recipientEmails(params.admin, params.kind);
   const briefName = params.briefName.trim() || 'Untitled brief';
-  const briefUrl = `${siteUrl()}/browse/${params.briefId}`;
+  const briefUrl = `${siteUrl()}/briefs/${params.briefId}`;
   const sendOne =
     params.kind === 'client'
       ? (to: string) => sendPaidBriefAnnouncementEmail({ to, briefName, briefUrl })

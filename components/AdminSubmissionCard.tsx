@@ -165,7 +165,7 @@ export default function AdminSubmissionCard({
         <div className="mt-4">
           <div className="flex flex-wrap gap-2 mb-4">
             <a
-              href={`/browse/${briefId}`}
+              href={`/briefs/${briefId}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"

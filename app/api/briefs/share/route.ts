@@ -100,7 +100,7 @@ export async function POST(req: Request) {
     || 'A composer on Sonant';
   const briefName = content.projectTitle || content.codename || 'Untitled brief';
   const origin = siteUrl();
-  const briefPath = `/browse/${briefId}`;
+  const briefPath = `/briefs/${briefId}`;
   const code = await getOrCreateReferralCode(admin, user.id, user.user_metadata?.referral_code);
   if (user.user_metadata?.referral_code !== code) {
     await admin.auth.admin.updateUserById(user.id, {

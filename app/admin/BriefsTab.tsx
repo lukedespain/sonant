@@ -55,7 +55,7 @@ export default function BriefsTab() {
       return;
     }
     const json = await res.json();
-    router.push(`/browse/${json.briefId}`);
+    router.push(`/briefs/${json.briefId}`);
     router.refresh();
   }
 

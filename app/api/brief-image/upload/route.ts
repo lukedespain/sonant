@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  revalidatePath(`/browse/${briefId}`);
-  revalidatePath('/browse');
+  revalidatePath(`/briefs/${briefId}`);
+  revalidatePath('/briefs');
   return NextResponse.json({ success: true, imageUrl: publicUrl });
 }

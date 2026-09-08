@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function CommunityPage() {
-  redirect('/browse');
+  redirect('/briefs');
 }

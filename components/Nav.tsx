@@ -14,8 +14,8 @@ type NavProps = {
 
 const LINKS = [
   { href: '/generator', label: 'Generator' },
-  { href: '/browse', label: 'Library' },
-  { href: '/submissions', label: 'Catalog' },
+  { href: '/briefs', label: 'Briefs' },
+  { href: '/catalog', label: 'Catalog' },
 ] as const
 
 export default function Nav({
@@ -32,8 +32,8 @@ export default function Nav({
     pathname?.startsWith('/auth')
 
   const isActive = (href: string) =>
-    href === '/browse'
-      ? pathname === '/browse' || pathname?.startsWith('/browse/')
+    href === '/briefs'
+      ? pathname === '/briefs' || pathname?.startsWith('/briefs/')
       : pathname === href || pathname?.startsWith(href + '/')
 
   const loggedIn = !!user && !isAuthPage

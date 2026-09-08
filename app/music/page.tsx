@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
-export default function SubmissionsPage() {
+export default function MusicPage() {
   redirect('/catalog');
 }

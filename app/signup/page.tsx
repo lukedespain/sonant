@@ -71,8 +71,8 @@ function SignUpForm() {
 
         <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           {invited
-            ? 'A composer shared a brief with you. Create a free account to view it, save work, and submit from the Library. One submission credit each month.'
-            : 'The Generator, the Library, and the Catalog. Practice writing to spec, submit your best work, and build a catalog worth pitching. Free to create. One submission credit each month.'}
+            ? 'A composer shared a brief with you. Create a free account to view it, save work, and submit from Briefs. One submission credit each month.'
+            : 'The Generator, Briefs, and the Catalog. Practice writing to spec, submit your best work, and build a catalog worth pitching. Free to create. One submission credit each month.'}
         </p>
 
         <form action={handleSubmit} className="space-y-5">

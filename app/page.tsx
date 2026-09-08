@@ -25,7 +25,7 @@ export default function HomePage() {
             fontSize: 'clamp(2.5rem, 6vw, 4.75rem)',
           }}
         >
-          Let&apos;s write music <span className="italic text-[#E85D2F]">worth pitching.</span>
+          Learn to compose music <span className="italic text-[#E85D2F]">worth pitching.</span>
         </h1>
         <p
           className="text-base text-[var(--text-muted)] leading-relaxed max-w-xl"
@@ -77,11 +77,11 @@ export default function HomePage() {
                 ◆ Open the Generator
               </Link>
               <Link
-                href="/browse"
+                href="/briefs"
                 className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                 style={mono}
               >
-                Open the Library →
+                Open Briefs →
               </Link>
             </div>
           </div>

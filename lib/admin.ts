@@ -1,9 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { ADMIN_EMAILS, ADMIN_USER_ID } from '@/lib/admin-ids';
 
-export const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
-
-export const ADMIN_EMAILS = ['luke@sonant.ac', 'hello@sonant.ac'] as const;
+export { ADMIN_EMAILS, ADMIN_USER_ID };
 
 export function isSiteAdmin(user: { id: string; email?: string | null } | null | undefined): boolean {
   if (!user) return false;

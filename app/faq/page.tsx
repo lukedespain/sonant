@@ -1,27 +1,42 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
+import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 
 const DISCO_CATALOG_URL = 'https://sonant.disco.ac/cat/152887908';
 
-const faqs = [
+const faqs: { q: string; a: ReactNode }[] = [
   {
     q: 'What is Sonant?',
-    a: 'Sonant is a platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, the Library, and the Catalog. The point is to build a catalog worth pitching. Tracks that get placed are pitched to buyers on a 70/30 split, non-exclusive.',
+    a: 'Sonant is a platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, Briefs, and the Catalog. The point is to build a catalog worth pitching. Tracks that get placed are pitched to buyers on a 70/30 split, non-exclusive.',
   },
   {
     q: 'What is the Generator?',
     a: 'A brief builder for practice on demand. You pick type, category, mood, and genre, and it writes a full creative brief the way a supervisor would: scene, emotional arc, instrumentation, reference points. No client required. Just reps writing to spec.',
   },
   {
-    q: 'What is the Library?',
-    a: 'The briefs you write to. Practice briefs anyone can take — curated by Sonant, or written by other composers — and paid opportunities for brands, films and games once you have three catalog placements. Paid jobs stay behind the verified badge.',
+    q: 'What are Briefs?',
+    a: 'The briefs you write to. Community briefs anyone can take, catalog briefs from Sonant and partner houses, and paid client jobs once you have three catalog placements. Client jobs stay behind the verified badge.',
   },
   {
     q: 'What is the Catalog?',
-    a: 'Your submitted work over time: tracks, written notes, and placements. Strong tracks get placed and pitched. Three placements unlock paid briefs in the Library. The catalog is the thing you are building.',
+    a: (
+      <>
+        Your uploads and submissions. Thought Collective is our partner for pitching accepted tracks for sync licensing opportunities. Three placements unlock paid client briefs. You can learn more about Thought Collective{' '}
+        <a
+          href={THOUGHT_COLLECTIVE_SITE}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#E85D2F] hover:opacity-70"
+        >
+          here
+        </a>
+        .
+      </>
+    ),
   },
   {
     q: 'How do I submit music?',
-    a: 'Open a brief in the Library, write your track to that spec, and submit from the brief page. Each submission costs one credit and goes into your Catalog. You get written feedback regardless of outcome.',
+    a: 'Open a brief in Briefs, write your track to that spec, and upload it. From Catalog, catalog-brief uploads can be submitted with one credit. You can also submit from the brief page. You get written feedback regardless of outcome.',
   },
   {
     q: 'What happens after I submit?',
@@ -33,11 +48,11 @@ const faqs = [
   },
   {
     q: 'How do I earn the Sonant badge?',
-    a: 'The badge is automatic. Once three of your Catalog submissions are accepted, you earn it. It marks you as catalog-ready, and unlocks paid opportunities in the Library.',
+    a: 'The badge is automatic. Once three of your Catalog submissions are accepted, you earn it. It marks you as catalog-ready, and unlocks paid client briefs.',
   },
   {
     q: 'What are paid opportunities?',
-    a: 'Real paid jobs from brands, studios, and supervisors in the Sonant network. They live in the Library under Paid. They stay in a closed network, they pay, and they come with a quick deadline. Three catalog placements earn you access.',
+    a: 'Real paid jobs from brands, studios, and supervisors in the Sonant network. They live in Briefs under Client. They stay in a closed network, they pay, and they come with a quick deadline. Three catalog placements earn you access.',
   },
   {
     q: 'What kind of feedback do I get?',
@@ -45,11 +60,11 @@ const faqs = [
   },
   {
     q: 'Do I need to create an account?',
-    a: 'You can use the Generator without an account. An account is required to save briefs or submit from the Library. Creating one is free, and every account includes one submission credit each month. Extra credits are $10 each from your profile.',
+    a: 'You can use the Generator without an account. An account is required to save briefs or submit from Briefs. Creating one is free, and every account includes one submission credit each month. Extra credits are $10 each from your profile.',
   },
   {
     q: 'Who is Sonant for?',
-    a: 'Composers who want to get better at writing to spec and build a catalog worth pitching, whether you\'re new to sync or already working. The Generator is the practice tool. The Library is the briefs. The Catalog is the body of work you pitch.',
+    a: 'Composers who want to get better at writing to spec and build a catalog worth pitching, whether you\'re new to sync or already working. The Generator is the practice tool. Briefs is where you write to spec. Catalog is where your uploads and submissions live.',
   },
 ];
 
@@ -74,7 +89,7 @@ export default function FAQPage() {
           className="text-base text-[var(--text-tertiary)] mb-16 max-w-xl leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Everything you need to know about the Generator, the Library, and the Catalog.
+          Everything you need to know about the Generator, Briefs, and the Catalog.
         </p>
 
         <div className="space-y-0 border-t border-[var(--border-base)]">
@@ -115,16 +130,16 @@ export default function FAQPage() {
               className="text-base text-[var(--text-secondary)] leading-relaxed max-w-md"
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
-              Browse the Library, find a brief that fits, and write your track. Every submission gets written feedback.
+              Open Briefs, find a brief that fits, and write your track. Every submission gets written feedback.
             </p>
           </div>
           <div className="flex gap-3 flex-wrap shrink-0">
             <Link
-              href="/browse"
+              href="/briefs"
               className="px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors whitespace-nowrap"
               style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
             >
-              ◆ Open the Library
+              ◆ Open Briefs
             </Link>
             <a
               href={DISCO_CATALOG_URL}

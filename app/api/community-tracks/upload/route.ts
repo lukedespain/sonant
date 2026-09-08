@@ -133,8 +133,10 @@ export async function POST(req: Request) {
     }
   }
 
-  revalidatePath(`/browse/${briefId}`);
+  revalidatePath(`/briefs/${briefId}`);
   revalidatePath(`/profile/${user.id}`);
+  revalidatePath('/catalog');
+  revalidatePath('/music');
 
   try {
     const { data: brief } = await admin
@@ -154,7 +156,7 @@ export async function POST(req: Request) {
         type: 'brief_upload',
         title: 'New take on your brief',
         body: `${uploaderName || 'A composer'} uploaded a song to ${briefName}.`,
-        href: `/browse/${briefId}`,
+        href: `/briefs/${briefId}`,
       });
       revalidatePath(`/profile/${ownerId}`);
     }

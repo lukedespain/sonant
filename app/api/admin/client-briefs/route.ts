@@ -142,8 +142,8 @@ export async function POST(req: Request) {
     await admin.from('briefs').update({ generated_content: brief }).eq('id', saved.id);
   }
 
-  revalidatePath('/browse');
-  revalidatePath(`/browse/${saved.id}`);
+  revalidatePath('/briefs');
+  revalidatePath(`/briefs/${saved.id}`);
   revalidatePath('/admin');
 
   try {

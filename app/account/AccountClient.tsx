@@ -302,11 +302,11 @@ export default function AccountClient({
                 <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-10 text-center" style={{ borderRadius: '2px' }}>
                   <p className="text-sm text-[var(--text-muted)] mb-5" style={sans}>No submissions yet.</p>
                   <Link
-                    href="/browse"
+                    href="/briefs"
                     className="inline-block px-5 py-2.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
                     style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
                   >
-                    ◆ Open the Library
+                    ◆ Open Briefs
                   </Link>
                 </div>
               ) : (

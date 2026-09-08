@@ -31,7 +31,7 @@ export async function signUp(formData: FormData) {
         ...(referredBy ? { referred_by: referredBy } : {}),
         ...(signupNext ? { signup_next: signupNext } : {}),
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/auth/confirm?next=/browse`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/auth/confirm?next=/briefs`,
     },
   });
 
@@ -57,7 +57,7 @@ export async function signIn(formData: FormData) {
 
   revalidatePath('/', 'layout');
   // Only follow relative paths to prevent open redirect
-  const safePath = redirectTo?.startsWith('/') ? redirectTo : '/browse';
+  const safePath = redirectTo?.startsWith('/') ? redirectTo : '/briefs';
   redirect(safePath);
 }
 

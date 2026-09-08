@@ -32,7 +32,7 @@ export default function ShareBriefButton({
       const nextCode = typeof json.code === 'string' ? json.code : null;
       setCode(nextCode);
       if (nextCode) {
-        const path = `/browse/${briefId}`;
+        const path = `/briefs/${briefId}`;
         setShareUrl(`${json.shareBase}&redirect=${encodeURIComponent(path)}`);
       }
     } finally {
@@ -136,7 +136,7 @@ export default function ShareBriefButton({
                 </p>
                 <div className="flex gap-3">
                   <Link
-                    href={`/login?redirect=/browse/${briefId}`}
+                    href={`/login?redirect=/briefs/${briefId}`}
                     className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
                     style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
                   >

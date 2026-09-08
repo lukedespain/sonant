@@ -137,7 +137,7 @@ function DomainCard({
 
 function NextSteps({ briefId, loggedIn }: { briefId: string | null; loggedIn: boolean }) {
   const submitHref = loggedIn
-    ? (briefId ? `/browse/${briefId}` : '/signup')
+    ? (briefId ? `/briefs/${briefId}` : '/signup')
     : '/signup';
 
   return (
@@ -487,7 +487,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
             className="text-sm text-[var(--text-muted)] mb-5 max-w-xl"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
-            The brief generator is for practice on demand. It writes a spec the way a supervisor would: scene, mood, instrumentation, references. Get the reps, then write to a brief in the Library when you are ready to submit.
+            The brief generator is for practice on demand. It writes a spec the way a supervisor would: scene, mood, instrumentation, references. Get the reps, then write to a brief in Briefs when you are ready to submit.
           </p>
         </section>
       )}
@@ -624,7 +624,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
                 className="mt-0.5 accent-[#E85D2F]"
               />
               <span className="text-[11px] leading-relaxed text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                Email everyone that this Sonant brief is in the Library. Uncheck if you are just iterating.
+                Email everyone that this Sonant brief is up. Uncheck if you are just iterating.
               </span>
             </label>
           )}

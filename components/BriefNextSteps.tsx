@@ -45,8 +45,8 @@ export default function BriefNextSteps({
   discoUrl = null,
 }: Props) {
   const isClient = variant === 'client';
-  const signInHref = `/login?redirect=/browse/${briefId}`;
-  const signUpHref = `/signup?redirect=/browse/${briefId}`;
+  const signInHref = `/login?redirect=/briefs/${briefId}`;
+  const signUpHref = `/signup?redirect=/briefs/${briefId}`;
 
   if (isClient) {
     return (

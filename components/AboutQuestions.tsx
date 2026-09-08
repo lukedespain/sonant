@@ -1,41 +1,55 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 
-const QUESTIONS = [
+const QUESTIONS: { q: string; a: ReactNode }[] = [
   {
     q: 'What is Sonant?',
-    a: 'A platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, the Library, and the Catalog. The point is to build a catalog worth pitching.',
+    a: 'A platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, Briefs, and the Catalog. The point is to build a catalog worth pitching.',
   },
   {
     q: 'What is the Generator?',
     a: 'A brief builder for practice on demand. You pick type, category, mood, and genre, and it writes a full creative brief the way a supervisor would: scene, instrumentation, references. No client required. Just reps.',
   },
   {
-    q: 'What is the Library?',
-    a: 'The briefs you write to. Practice briefs anyone can take, and paid opportunities for brands, films and games once you have three placements. Anyone can write to practice briefs. Paid jobs stay behind the verified badge.',
+    q: 'What are Briefs?',
+    a: 'The briefs you write to. Community briefs anyone can take, catalog briefs from Sonant and partner houses, and paid client jobs once you have three placements. Anyone can write to community and catalog briefs. Client jobs stay behind the verified badge.',
   },
   {
     q: 'What is the Catalog?',
-    a: 'Your submitted work over time: tracks, written notes, and placements. Strong tracks get placed and pitched. Three placements unlock paid briefs in the Library. The catalog is the thing you are building.',
+    a: (
+      <>
+        Your uploads and submissions. Thought Collective is our partner for pitching accepted tracks for sync licensing opportunities. You can learn more about Thought Collective{' '}
+        <a
+          href={THOUGHT_COLLECTIVE_SITE}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#E85D2F] hover:opacity-70"
+        >
+          here
+        </a>
+        .
+      </>
+    ),
   },
   {
     q: 'Do I need an account?',
-    a: 'Anyone can use the Generator without signing up. An account is required to save briefs or submit from the Library. Creating one is free, and every account includes one submission credit each month.',
+    a: 'Anyone can use the Generator without signing up. An account is required to save briefs or submit from Briefs. Creating one is free, and every account includes one submission credit each month.',
   },
   {
     q: 'How do submission credits work?',
-    a: 'Each submission from the Library costs one credit. Free accounts include one credit per month. Extra credits are $10 each from your profile.',
+    a: 'Each submission from a brief costs one credit. Free accounts include one credit per month. Extra credits are $10 each from your profile.',
   },
   {
     q: 'How do I access paid opportunities?',
-    a: 'They live in the Library under Paid. Three catalog placements earn you access, so we know what you are good at and which jobs to send you.',
+    a: 'They live in Briefs under Client. Three catalog placements earn you access, so we know what you are good at and which jobs to send you.',
   },
   {
     q: 'What kind of feedback do I get?',
-    a: 'Every Catalog submission gets written notes, whether the track is accepted or not. The notes are tied to the brief you wrote to, so they stay specific.',
+    a: 'Every catalog submission gets written notes, whether the track is accepted or not. The notes are tied to the brief you wrote to, so they stay specific.',
   },
-] as const;
+];
 
 const serif = { fontFamily: "'Fraunces', serif" } as const;
 const sans = { fontFamily: "'DM Sans', sans-serif" } as const;

@@ -358,14 +358,14 @@ export default function ProfileView({
                 {isOwner && (
                   <>
                     <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-md" style={sans}>
-                      Write to a brief in the Library and upload a take. It shows up here.
+                      Write to a brief and upload a take. It shows up here.
                     </p>
                     <Link
-                      href="/browse"
+                      href="/briefs"
                       className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
                       style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
                     >
-                      ◆ Open the Library
+                      ◆ Open Briefs
                     </Link>
                   </>
                 )}
@@ -401,7 +401,7 @@ export default function ProfileView({
                         </div>
                         {track.briefName.toLowerCase() !== track.fileName.replace(/\.[^/.]+$/, '').toLowerCase() && (
                           <Link
-                            href={`/browse/${track.briefId}`}
+                            href={`/briefs/${track.briefId}`}
                             className="text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors truncate block mt-0.5"
                             style={mono}
                           >

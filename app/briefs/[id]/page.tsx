@@ -76,11 +76,11 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             Place three tracks in the catalog to earn the badge and unlock access to paying clients.
           </p>
           <Link
-            href="/browse?tab=catalog"
+            href="/briefs?tab=catalog"
             className="text-xs tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            ← Back to the Library
+            ← Back to Briefs
           </Link>
         </div>
       </div>
@@ -141,11 +141,11 @@ export default async function BrowseBriefPage({ params }: PageProps) {
         <div className="no-print mb-6 flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-4 flex-wrap">
             <Link
-              href="/browse"
+              href="/briefs"
               className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
-              ← Back to the Library
+              ← Back to Briefs
             </Link>
             {!isFeatured && !isClientBrief && (
               <Link
@@ -176,7 +176,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             )}
             <ExportPdfButton />
             {!!user && (isAdmin || user.id === briefRow.user_id) && (
-              <DeleteBriefButton briefId={briefRow.id} redirectPath="/browse" />
+              <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" />
             )}
           </div>
         </div>
