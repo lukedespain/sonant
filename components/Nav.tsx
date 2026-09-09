@@ -38,6 +38,9 @@ export default function Nav({
 
   const loggedIn = !!user && !isAuthPage
   const showPages = !isAuthPage
+  const navLinks = isSiteAdmin
+    ? [...LINKS, { href: '/admin', label: 'Dashboard' }]
+    : [...LINKS]
 
   const mono = { fontFamily: "'JetBrains Mono', monospace" }
   const serif = { fontFamily: "'Fraunces', serif" }
@@ -89,7 +92,7 @@ export default function Nav({
 
           {showPages ? (
             <div className="hidden md:flex items-center justify-center gap-8">
-              {LINKS.map(({ href, label }) => {
+              {navLinks.map(({ href, label }) => {
                 const active = isActive(href)
                 return (
                   <Link
@@ -120,20 +123,6 @@ export default function Nav({
                 style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
               >
                 Sign In
-              </Link>
-            )}
-
-            {loggedIn && user && isSiteAdmin && (
-              <Link
-                href="/admin"
-                className={`h-10 px-4 flex items-center border transition-colors ${
-                  pathname?.startsWith('/admin')
-                    ? 'border-[#E85D2F] text-[#E85D2F]'
-                    : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
-                }`}
-                style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
-              >
-                Dashboard
               </Link>
             )}
 
@@ -187,7 +176,7 @@ export default function Nav({
         <div className="md:hidden fixed inset-x-0 top-[65px] bottom-0 z-40 bg-[var(--bg-base)] flex flex-col overflow-y-auto">
           <div className="px-6 pt-4 flex-1">
             <nav className="flex flex-col">
-              {LINKS.map(({ href, label }) => {
+              {navLinks.map(({ href, label }) => {
                 const active = isActive(href)
                 return (
                   <Link
@@ -232,18 +221,6 @@ export default function Nav({
                 >
                   Profile
                 </Link>
-                {isSiteAdmin && (
-                  <Link
-                    href="/admin"
-                    onClick={closeMenu}
-                    className={`text-[10px] tracking-[0.2em] uppercase ${
-                      pathname?.startsWith('/admin') ? 'text-[#E85D2F]' : 'text-[var(--text-secondary)]'
-                    }`}
-                    style={mono}
-                  >
-                    Dashboard
-                  </Link>
-                )}
                 <form action={signOut}>
                   <button
                     type="submit"
