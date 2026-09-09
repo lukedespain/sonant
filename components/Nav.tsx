@@ -39,7 +39,7 @@ export default function Nav({
   const loggedIn = !!user && !isAuthPage
   const showPages = !isAuthPage
   const navLinks = isSiteAdmin
-    ? [...LINKS, { href: '/admin', label: 'Dashboard' }]
+    ? [...LINKS, { href: '/admin', label: 'Admin' }]
     : [...LINKS]
 
   const mono = { fontFamily: "'JetBrains Mono', monospace" }
