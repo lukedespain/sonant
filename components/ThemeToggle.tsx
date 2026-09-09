@@ -19,7 +19,13 @@ function MoonIcon() {
   );
 }
 
-export default function ThemeToggle({ label }: { label?: string }) {
+export default function ThemeToggle({
+  label,
+  boxed = false,
+}: {
+  label?: string;
+  boxed?: boolean;
+}) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -28,6 +34,30 @@ export default function ThemeToggle({ label }: { label?: string }) {
   const isLight = theme === 'light';
   const toggle = () => setTheme(isLight ? 'dark' : 'light');
   const icon = isLight ? <MoonIcon /> : <SunIcon />;
+  const aria = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+
+  if (boxed) {
+    if (!mounted) {
+      return (
+        <div
+          className="h-10 w-10 border border-[var(--border-subtle)]"
+          style={{ borderRadius: '2px' }}
+          aria-hidden
+        />
+      );
+    }
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={aria}
+        className="h-10 w-10 flex items-center justify-center border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+        style={{ borderRadius: '2px' }}
+      >
+        {icon}
+      </button>
+    );
+  }
 
   if (label) {
     if (!mounted) {
@@ -45,7 +75,7 @@ export default function ThemeToggle({ label }: { label?: string }) {
       <button
         type="button"
         onClick={toggle}
-        aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
+        aria-label={aria}
         className="flex items-center gap-3 text-left text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
       >
@@ -61,7 +91,7 @@ export default function ThemeToggle({ label }: { label?: string }) {
     <button
       type="button"
       onClick={toggle}
-      aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
+      aria-label={aria}
       className="w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
     >
       {icon}

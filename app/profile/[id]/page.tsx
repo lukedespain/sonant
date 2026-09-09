@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getTrackPrivacyMap, isTrackPublic } from '@/lib/track-privacy';
@@ -18,6 +18,10 @@ export default async function ProfilePage({
   const { data: { user } } = await supabase.auth.getUser();
   const admin = createAdminClient();
   const isOwner = user?.id === id;
+  const viewerIsAdmin = isSiteAdmin(user);
+
+  if (isOwner) redirect('/account');
+  if (!viewerIsAdmin) redirect('/');
 
   const { data: profile } = await admin
     .from('profiles')
@@ -62,7 +66,7 @@ export default async function ProfilePage({
     <ProfileView
       profileId={id}
       isOwner={isOwner}
-      isAdmin={isSiteAdmin(user)}
+      isAdmin={viewerIsAdmin}
       name={(profile as { full_name?: string }).full_name ?? ''}
       avatarUrl={(profile as { avatar_url?: string | null }).avatar_url ?? null}
       accepted={acceptedCount}

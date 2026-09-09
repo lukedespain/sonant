@@ -37,12 +37,6 @@ export default function HomePage() {
 
       <section className="border-t border-[var(--border-base)]">
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20">
-          <h2
-            className="text-3xl md:text-4xl tracking-tight mb-12 max-w-lg"
-            style={{ ...serif, fontWeight: 300 }}
-          >
-            The 3 <span className="italic">pillars.</span>
-          </h2>
           <ComposerPath />
         </div>
       </section>

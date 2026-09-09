@@ -35,13 +35,14 @@ export async function POST(req: Request) {
 
   const { error } = await supabase.auth.updateUser(
     { email: nextEmail },
-    { emailRedirectTo: `${siteUrl()}/auth/callback?next=/profile/${user.id}` }
+    { emailRedirectTo: `${siteUrl()}/auth/callback?next=/account` }
   );
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
   const admin = createAdminClient();
   await admin.from('profiles').update({ email: nextEmail }).eq('id', user.id);
 
+  revalidatePath('/account');
   revalidatePath(`/profile/${user.id}`);
   return NextResponse.json({ ok: true, email: nextEmail });
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   MAX_AUDIO_BYTES,
@@ -9,6 +9,7 @@ import {
   tooLargeMessage,
 } from '@/lib/audio-upload';
 import { UploadRequestError, postJson, putToSignedUrl } from '@/lib/upload-client';
+import { useWindowFileDrop } from '@/lib/use-window-file-drop';
 
 /**
  * What one attempt at a submission is holding. The submission id doubles as the
@@ -69,10 +70,7 @@ export default function SubmitTrackModal({
     ticketRef.current = null;
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    if (!file) return;
+  const acceptFile = useCallback((file: File) => {
     if (!detectAudioKind(file.name, file.type)) {
       setError('Submissions need to be MP3 or WAV.');
       return;
@@ -84,6 +82,14 @@ export default function SubmitTrackModal({
     setError(null);
     setPendingFile(file);
     setTrackName(file.name.replace(/\.[^.]+$/, ''));
+  }, []);
+
+  const dragging = useWindowFileDrop(open && !done && !uploading, acceptFile);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (file) acceptFile(file);
   }
 
   function handleClose() {
@@ -178,11 +184,18 @@ export default function SubmitTrackModal({
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-6"
-          style={{ background: 'rgba(10, 9, 8, 0.85)' }}
+          style={{ background: dragging ? 'rgba(10, 9, 8, 0.92)' : 'rgba(10, 9, 8, 0.85)' }}
           onClick={handleClose}
         >
+          {dragging && (
+            <div
+              className="pointer-events-none absolute inset-4 border-2 border-dashed border-[#E85D2F]"
+              style={{ borderRadius: '2px' }}
+              aria-hidden
+            />
+          )}
           <div
-            className="w-full max-w-md bg-[var(--bg-base)] border border-[var(--border-card)] p-8"
+            className="relative w-full max-w-md bg-[var(--bg-base)] border border-[var(--border-card)] p-8"
             style={{ borderRadius: '2px' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -259,11 +272,16 @@ export default function SubmitTrackModal({
                       </div>
                     ) : (
                       <button
+                        type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-full px-4 py-3 border border-dashed border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors text-xs tracking-[0.2em] uppercase text-center"
+                        className={`w-full px-4 py-3 border border-dashed transition-colors text-xs tracking-[0.2em] uppercase text-center ${
+                          dragging
+                            ? 'border-[#E85D2F] text-[#E85D2F]'
+                            : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                        }`}
                         style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
                       >
-                        Choose file
+                        {dragging ? 'Drop MP3 or WAV' : 'Drop or choose file'}
                       </button>
                     )}
                     <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>

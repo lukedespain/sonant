@@ -147,15 +147,6 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             >
               ← Back to Briefs
             </Link>
-            {!isFeatured && !isClientBrief && (
-              <Link
-                href={`/profile/${briefRow.user_id}`}
-                className="text-xs tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                Composer profile →
-              </Link>
-            )}
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             {isAdmin && (isClientBrief || isFeatured) && (

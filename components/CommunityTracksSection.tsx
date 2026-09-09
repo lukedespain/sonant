@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteCommunityTrack, setFeaturedTrack, setTrackVisibility } from '@/app/briefs/actions';
@@ -126,16 +125,15 @@ export default function CommunityTracksSection({
                       <span className="text-[var(--text-dimmer)]"> · private</span>
                     )}
                   </span>
-                  <Link
-                    href={`/profile/${track.uploader_id}`}
-                    className="text-[10px] text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors truncate block"
+                  <span
+                    className="text-[10px] text-[var(--text-dimmer)] truncate block"
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
                     {track.uploader_name}
                     {isFeatured && (
                       <span className="text-[#E85D2F] ml-2">· featured</span>
                     )}
-                  </Link>
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">

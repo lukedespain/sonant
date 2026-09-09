@@ -377,7 +377,7 @@ export async function sendReferralCreditEmail(params: {
         <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
           <h2 style="font-weight: 500;">A composer joined from your invite</h2>
           <p>${name} created a Sonant account from your brief share. You earned one submission credit.</p>
-          <p><a href="${profileUrl}" style="color: #E85D2F;">See it on your profile →</a></p>
+          <p><a href="${profileUrl}" style="color: #E85D2F;">See it in your account →</a></p>
           <p style="color: #8A8680; font-size: 13px; margin-top: 32px;">Sonant</p>
         </div>
       `,

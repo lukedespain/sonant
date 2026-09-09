@@ -66,7 +66,7 @@ export async function applyReferralCredit(newUser: User | null | undefined) {
       type: 'referral_credit',
       title: 'You earned a submission credit',
       body: `${joinerName || 'A composer'} joined Sonant from your invite.`,
-      href: `/profile/${referredBy}#alerts`,
+      href: '/account#alerts',
     });
   } catch (error) {
     console.error('Referral notification failed:', error);
@@ -78,10 +78,11 @@ export async function applyReferralCredit(newUser: User | null | undefined) {
     await sendReferralCreditEmail({
       to: referrerEmail,
       joinerName: joinerName || 'A composer',
-      profileUrl: `${siteUrl()}/profile/${referredBy}#alerts`,
+      profileUrl: `${siteUrl()}/account#alerts`,
     });
   }
 
+  revalidatePath('/account');
   revalidatePath(`/profile/${referredBy}`);
   return { credited: true as const, referredBy };
 }

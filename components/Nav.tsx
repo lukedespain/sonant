@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import { signOut } from '@/app/auth/actions'
-import NotificationBell from '@/components/NotificationBell'
+import ThemeToggle from '@/components/ThemeToggle'
 
 type NavProps = {
   user: User | null
@@ -116,6 +116,8 @@ export default function Nav({
           )}
 
           <div className="hidden md:flex items-center gap-2.5 justify-self-end">
+            {!isAuthPage && <ThemeToggle boxed />}
+
             {!isAuthPage && !loggedIn && (
               <Link
                 href="/login"
@@ -127,28 +129,23 @@ export default function Nav({
             )}
 
             {loggedIn && user && (
-              <>
-                <NotificationBell profileHref={`/profile/${user.id}`} />
-                <Link
-                  href={`/profile/${user.id}`}
-                  className={`h-10 px-4 flex items-center border transition-colors ${
-                    pathname?.startsWith('/profile')
-                      ? 'border-[#E85D2F] text-[#E85D2F]'
-                      : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
-                  }`}
-                  style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
-                >
-                  Profile
-                </Link>
-              </>
+              <Link
+                href="/account"
+                className={`h-10 px-4 flex items-center border transition-colors ${
+                  pathname === '/account' || pathname?.startsWith('/account/')
+                    ? 'border-[#E85D2F] text-[#E85D2F]'
+                    : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                }`}
+                style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
+              >
+                My Account
+              </Link>
             )}
           </div>
 
           {!isAuthPage && (
             <div className="flex md:hidden items-center gap-2 shrink-0">
-            {loggedIn && user && (
-              <NotificationBell profileHref={`/profile/${user.id}`} />
-            )}
+            <ThemeToggle boxed />
             <button
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
@@ -204,22 +201,16 @@ export default function Nav({
             {loggedIn && user && (
               <>
                 <Link
-                  href={`/profile/${user.id}#alerts`}
-                  onClick={closeMenu}
-                  className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-secondary)]"
-                  style={mono}
-                >
-                  Alerts
-                </Link>
-                <Link
-                  href={`/profile/${user.id}`}
+                  href="/account"
                   onClick={closeMenu}
                   className={`text-[10px] tracking-[0.2em] uppercase ${
-                    pathname?.startsWith('/profile') ? 'text-[#E85D2F]' : 'text-[var(--text-secondary)]'
+                    pathname === '/account' || pathname?.startsWith('/account/')
+                      ? 'text-[#E85D2F]'
+                      : 'text-[var(--text-secondary)]'
                   }`}
                   style={mono}
                 >
-                  Profile
+                  My Account
                 </Link>
                 <form action={signOut}>
                   <button
