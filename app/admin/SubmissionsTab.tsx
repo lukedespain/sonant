@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createAdminClient } from '@/lib/supabase/admin';
 import AdminSubmissionCard from '@/components/AdminSubmissionCard';
+import { SUBMISSION_BUCKET } from '@/lib/audio-upload';
 
 type Queue = 'catalog' | 'client';
 
@@ -17,6 +18,26 @@ function isClientBrief(briefType: string | null | undefined, content: BriefConte
 function projectName(content: BriefContent, isClient: boolean) {
   if (isClient && content?.projectTitle) return content.projectTitle;
   return content?.codename ?? 'Untitled';
+}
+
+function namesMatch(a: string | null | undefined, b: string | null | undefined) {
+  if (!a || !b) return false;
+  const strip = (value: string) => value.replace(/\.[^/.]+$/, '').trim().toLowerCase();
+  return strip(a) === strip(b);
+}
+
+async function signedSubmissionAudio(
+  admin: ReturnType<typeof createAdminClient>,
+  submissionId: string,
+) {
+  const { data: objects } = await admin.storage.from(SUBMISSION_BUCKET).list(submissionId, { limit: 20 });
+  const file = (objects ?? []).find((entry) => entry.name && !entry.name.endsWith('/'));
+  if (!file) return null;
+  const { data } = await admin.storage
+    .from(SUBMISSION_BUCKET)
+    .createSignedUrl(`${submissionId}/${file.name}`, 60 * 60 * 6);
+  if (!data?.signedUrl) return null;
+  return { url: data.signedUrl, name: file.name };
 }
 
 export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Queue }) {
@@ -46,12 +67,18 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   const userIds = [...new Set(rows.map((s) => s.user_id))];
   const briefIds = [...new Set(rows.map((s) => s.brief_id))];
 
-  const [{ data: profiles }, { data: briefs }] = await Promise.all([
+  const [{ data: profiles }, { data: briefs }, { data: playlistTracks }] = await Promise.all([
     userIds.length
       ? admin.from('profiles').select('id, full_name, email').in('id', userIds)
       : Promise.resolve({ data: [] }),
     briefIds.length
       ? admin.from('briefs').select('id, brief_type, generated_content').in('id', briefIds)
+      : Promise.resolve({ data: [] }),
+    userIds.length
+      ? admin
+          .from('community_tracks')
+          .select('id, user_id, brief_id, file_name, file_url')
+          .in('user_id', userIds)
       : Promise.resolve({ data: [] }),
   ]);
 
@@ -75,9 +102,37 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
     })
   );
 
+  type PlaylistTrack = {
+    id: string;
+    user_id: string;
+    brief_id: string;
+    file_name: string | null;
+    file_url: string | null;
+  };
+  const playlist = (playlistTracks ?? []) as PlaylistTrack[];
+
+  function matchPlaylist(userId: string, briefId: string, fileName?: string | null) {
+    const same = playlist.filter((track) => track.user_id === userId && track.brief_id === briefId);
+    if (fileName) {
+      const named = same.find((track) => namesMatch(track.file_name, fileName));
+      if (named) return named;
+    }
+    return same[0] ?? null;
+  }
+
+  const audioBySubmission = Object.fromEntries(
+    await Promise.all(
+      rows
+        .filter((sub) => sub.delivery !== 'disco')
+        .map(async (sub) => [sub.id, await signedSubmissionAudio(admin, sub.id)] as const)
+    )
+  );
+
   const cards = rows.map((sub) => {
     const brief = briefMap[sub.brief_id] ?? { isClient: false, name: 'Untitled' };
     const delivery: 'upload' | 'disco' = sub.delivery === 'disco' ? 'disco' : 'upload';
+    const signed = audioBySubmission[sub.id] ?? null;
+    const playlistHit = matchPlaylist(sub.user_id, sub.brief_id, signed?.name);
     return {
       id: sub.id,
       briefId: sub.brief_id,
@@ -95,6 +150,9 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
       delivery,
       discoInboxUrl: sub.disco_inbox_url ?? null,
       deliveryConfirmedAt: sub.delivery_confirmed_at ?? null,
+      audioUrl: signed?.url ?? playlistHit?.file_url ?? null,
+      audioName: signed?.name || playlistHit?.file_name || null,
+      playlistHref: playlistHit ? `/briefs/${sub.brief_id}#playlist` : null,
     };
   });
 
@@ -160,6 +218,9 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
               delivery={row.delivery}
               discoInboxUrl={row.discoInboxUrl}
               deliveryConfirmedAt={row.deliveryConfirmedAt}
+              audioUrl={row.audioUrl}
+              audioName={row.audioName}
+              playlistHref={row.playlistHref}
             />
           ))}
         </div>

@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { recordDecision } from '@/app/briefs/actions';
+import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
+import PlayPauseIcon from '@/components/PlayPauseIcon';
 
 type AdminSubmissionCardProps = {
   submissionId: string;
@@ -16,6 +18,9 @@ type AdminSubmissionCardProps = {
   delivery?: 'upload' | 'disco';
   discoInboxUrl?: string | null;
   deliveryConfirmedAt?: string | null;
+  audioUrl?: string | null;
+  audioName?: string | null;
+  playlistHref?: string | null;
 };
 
 export default function AdminSubmissionCard({
@@ -30,8 +35,12 @@ export default function AdminSubmissionCard({
   delivery = 'upload',
   discoInboxUrl = null,
   deliveryConfirmedAt = null,
+  audioUrl = null,
+  audioName = null,
+  playlistHref = null,
 }: AdminSubmissionCardProps) {
   const router = useRouter();
+  const { track: activeTrack, isPlaying, play, pause } = useAudioPlayer();
   const isDisco = delivery === 'disco';
   const isDecided = status === 'accepted' || status === 'not_accepted';
   const [open, setOpen] = useState(isDisco ? !deliveryConfirmedAt : !isDecided);
@@ -79,6 +88,15 @@ export default function AdminSubmissionCard({
     router.refresh();
   }
 
+  const isCurrentlyPlaying = !!audioUrl && activeTrack?.url === audioUrl && isPlaying;
+
+  function handlePlay(event?: React.MouseEvent) {
+    event?.stopPropagation();
+    if (!audioUrl) return;
+    if (isCurrentlyPlaying) pause();
+    else play({ url: audioUrl, fileName: audioName || 'Submission', briefId, briefName: projectName });
+  }
+
   const statusLabel = isDisco
     ? deliveryConfirmedAt
       ? 'Delivered'
@@ -104,62 +122,79 @@ export default function AdminSubmissionCard({
       className="border border-[var(--border-card)] bg-[var(--bg-card)] p-6"
       style={{ borderRadius: '2px' }}
     >
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-start justify-between gap-4 text-left"
-        aria-expanded={open}
-      >
-        <div className="min-w-0">
-          <h3
-            className="text-xl mb-1 text-[var(--text-primary)]"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
+      <div className="flex items-start justify-between gap-4">
+        {audioUrl && (
+          <button
+            type="button"
+            onClick={handlePlay}
+            className={`mt-0.5 w-9 h-9 flex items-center justify-center shrink-0 transition-colors ${
+              isCurrentlyPlaying
+                ? 'bg-[#E85D2F] text-[#0A0908]'
+                : 'bg-[#0A0908] text-[#E85D2F]'
+            }`}
+            style={{ borderRadius: '2px' }}
+            aria-label={isCurrentlyPlaying ? 'Pause' : 'Play submission'}
           >
-            Project <span className="italic">{projectName}</span>
-          </h3>
-          <div
-            className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)]"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            {briefType === 'client' ? 'Client' : 'Catalog'}
-            {isDisco ? ' · Disco' : ''} · {composerEmail} · {submittedAt}
+            <PlayPauseIcon playing={isCurrentlyPlaying} size={11} />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="min-w-0 flex-1 flex items-start justify-between gap-4 text-left"
+          aria-expanded={open}
+        >
+          <div className="min-w-0">
+            <h3
+              className="text-xl mb-1 text-[var(--text-primary)]"
+              style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
+            >
+              Project <span className="italic">{projectName}</span>
+            </h3>
+            <div
+              className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)]"
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            >
+              {briefType === 'client' ? 'Client' : 'Catalog'}
+              {isDisco ? ' · Disco' : ''} · {composerEmail} · {submittedAt}
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3 shrink-0">
-          <span
-            className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5"
-            style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              borderRadius: '2px',
-              background:
-                statusTone === 'accepted'
-                  ? 'rgba(122, 154, 110, 0.15)'
-                  : statusTone === 'reviewed'
-                  ? 'rgba(138, 134, 128, 0.15)'
-                  : 'rgba(232, 163, 61, 0.15)',
-              color:
-                statusTone === 'accepted'
-                  ? '#7A9A6E'
-                  : statusTone === 'reviewed'
-                  ? 'var(--text-muted)'
-                  : '#E8A33D',
-            }}
-          >
-            {statusLabel}
-          </span>
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            aria-hidden="true"
-            className="text-[var(--text-dimmer)] mt-0.5 transition-transform"
-            style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
-          >
-            <path d="M2 4.5L6 8.5L10 4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-      </button>
+          <div className="flex items-center gap-3 shrink-0">
+            <span
+              className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                borderRadius: '2px',
+                background:
+                  statusTone === 'accepted'
+                    ? 'rgba(122, 154, 110, 0.15)'
+                    : statusTone === 'reviewed'
+                    ? 'rgba(138, 134, 128, 0.15)'
+                    : 'rgba(232, 163, 61, 0.15)',
+                color:
+                  statusTone === 'accepted'
+                    ? '#7A9A6E'
+                    : statusTone === 'reviewed'
+                    ? 'var(--text-muted)'
+                    : '#E8A33D',
+              }}
+            >
+              {statusLabel}
+            </span>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              aria-hidden="true"
+              className="text-[var(--text-dimmer)] mt-0.5 transition-transform"
+              style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            >
+              <path d="M2 4.5L6 8.5L10 4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </button>
+      </div>
 
       {open && (
         <div className="mt-4">
@@ -184,7 +219,59 @@ export default function AdminSubmissionCard({
                 ↗ Open Disco inbox
               </a>
             )}
+            {playlistHref && (
+              <a
+                href={playlistHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                ↗ Brief playlist
+              </a>
+            )}
           </div>
+
+          {!isDisco && audioUrl && (
+            <div className="flex items-center gap-3 mb-4">
+              <button
+                type="button"
+                onClick={handlePlay}
+                className={`w-9 h-9 flex items-center justify-center shrink-0 transition-colors ${
+                  isCurrentlyPlaying
+                    ? 'bg-[#E85D2F] text-[#0A0908]'
+                    : 'bg-[#0A0908] text-[#E85D2F]'
+                }`}
+                style={{ borderRadius: '2px' }}
+                aria-label={isCurrentlyPlaying ? 'Pause' : 'Play submission'}
+              >
+                <PlayPauseIcon playing={isCurrentlyPlaying} size={11} />
+              </button>
+              <div className="min-w-0">
+                <div
+                  className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-1"
+                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                >
+                  Submission
+                </div>
+                <div
+                  className="text-sm text-[var(--text-primary)] truncate"
+                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  {audioName?.replace(/\.[^/.]+$/, '') || 'Submitted track'}
+                </div>
+              </div>
+            </div>
+          )}
+          {!isDisco && !audioUrl && (
+            <p
+              className="text-sm text-[var(--text-muted)] mb-4"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              No audio on this submission.
+              {playlistHref ? ' Open the brief playlist to hear their upload.' : ''}
+            </p>
+          )}
 
           {isDisco ? (
             <>

@@ -70,7 +70,7 @@ export default function CommunityTracksSection({
   }
 
   return (
-    <div className="mt-10 no-print">
+    <div id="playlist" className="mt-10 no-print scroll-mt-28">
       <div
         className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-2"
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
