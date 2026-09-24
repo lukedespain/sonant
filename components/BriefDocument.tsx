@@ -1,6 +1,7 @@
 import React from 'react';
 import { catalogPartnerFromBrief } from '@/lib/partners';
 import ThoughtCollectiveMark from '@/components/ThoughtCollectiveMark';
+import { youtubeSearchUrlForTrack } from '@/lib/youtube-search';
 
 export interface Reference {
   track: string;
@@ -225,11 +226,15 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
         <div className="mb-8">
           <Label>References</Label>
           <div className="space-y-5">
-            {brief.references.map((r, i) => (
+            {brief.references.map((r, i) => {
+              const href = partner
+                ? youtubeSearchUrlForTrack(r.track)
+                : r.url;
+              return (
               <div key={i} className="pl-4" style={{ borderLeft: '2px solid var(--brief-ref-border)' }}>
-                {r.url ? (
+                {href ? (
                   <a
-                    href={r.url}
+                    href={href}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-base font-medium mb-1.5 inline-block hover:text-[#E85D2F] transition-colors"
@@ -261,12 +266,13 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
         )}
 
-        {brief.links && brief.links.length > 0 && (
+        {!partner && brief.links && brief.links.length > 0 && (
           <div className="mb-8">
             <Label>Files and links</Label>
             <ul className="space-y-3">

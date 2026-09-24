@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { Brief, BriefLink, Reference } from '@/components/BriefDocument';
+import type { Brief, Reference } from '@/components/BriefDocument';
 import { DEFAULT_CATALOG_PARTNER_ID, catalogPartnerById } from '@/lib/partners';
+import { youtubeSearchUrlForTrack } from '@/lib/youtube-search';
 
 export type CatalogBriefInput = {
   sourceText: string;
@@ -43,27 +44,6 @@ function extractJsonObject(text: string): string {
   return text.slice(firstBrace, lastBrace + 1).trim();
 }
 
-function extractUrls(text: string): BriefLink[] {
-  const matches = text.match(/https?:\/\/[^\s)\]>'"]+/gi) ?? [];
-  const seen = new Set<string>();
-  const links: BriefLink[] = [];
-  for (const raw of matches) {
-    const url = raw.replace(/[.,;:]+$/, '');
-    if (seen.has(url) || url.includes('...')) continue;
-    seen.add(url);
-    const lower = url.toLowerCase();
-    let label = 'Link';
-    if (lower.includes('youtu')) label = 'Reference video';
-    else if (lower.includes('disco.ac') || lower.includes('dropbox') || lower.includes('frame.io') || lower.includes('vimeo')) {
-      label = 'Picture to score';
-    } else if (lower.includes('spotify') || lower.includes('soundcloud') || lower.includes('bandcamp')) {
-      label = 'Reference audio';
-    }
-    links.push({ label, url });
-  }
-  return links;
-}
-
 function asString(value: unknown, fallback: string): string {
   return typeof value === 'string' && value.trim() ? scrubDashes(value) : fallback;
 }
@@ -74,69 +54,21 @@ function asStringArray(value: unknown, fallback: string[]): string[] {
   return items.length > 0 ? items : fallback;
 }
 
-function asLinks(value: unknown): BriefLink[] {
-  if (!Array.isArray(value)) return [];
-  const links: BriefLink[] = [];
+function asReferences(value: unknown): Reference[] {
+  const refs: Reference[] = [];
+  if (!Array.isArray(value)) return refs;
   for (const item of value) {
     if (!item || typeof item !== 'object') continue;
     const row = item as Record<string, unknown>;
-    const url = typeof row.url === 'string' ? row.url.trim() : '';
-    if (!/^https?:\/\//i.test(url)) continue;
-    const label = typeof row.label === 'string' && row.label.trim() ? row.label.trim() : 'Link';
-    links.push({ label: scrubDashes(label), url });
-  }
-  return links;
-}
-
-function mergeLinks(primary: BriefLink[], extra: BriefLink[]): BriefLink[] {
-  const seen = new Set(primary.map((l) => l.url));
-  const merged = [...primary];
-  for (const link of extra) {
-    if (seen.has(link.url)) continue;
-    seen.add(link.url);
-    merged.push(link);
-  }
-  return merged;
-}
-
-function asReferences(value: unknown, fallbackLinks: BriefLink[]): Reference[] {
-  const refs: Reference[] = [];
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      if (!item || typeof item !== 'object') continue;
-      const row = item as Record<string, unknown>;
-      const track = typeof row.track === 'string' ? scrubDashes(row.track) : '';
-      if (!track) continue;
-      const url = typeof row.url === 'string' && /^https?:\/\//i.test(row.url) ? row.url.trim() : undefined;
-      refs.push({
-        track,
-        like: typeof row.like === 'string' ? scrubDashes(row.like) : undefined,
-        avoid: typeof row.avoid === 'string' ? scrubDashes(row.avoid) : undefined,
-        url,
-      });
-    }
-  }
-  if (refs.length === 0) {
-    for (const link of fallbackLinks.filter((l) => l.label.toLowerCase().includes('reference'))) {
-      refs.push({ track: link.label, url: link.url });
-    }
-  }
-  return attachUrlsToReferences(refs, fallbackLinks);
-}
-
-function attachUrlsToReferences(refs: Reference[], links: BriefLink[]): Reference[] {
-  const used = new Set(refs.map((r) => r.url).filter((u): u is string => Boolean(u)));
-  return refs.map((ref) => {
-    if (ref.url) return ref;
-    const match = links.find((l) => {
-      if (used.has(l.url)) return false;
-      const label = l.label.toLowerCase();
-      return label.includes('reference') || label.includes('audio') || label.includes('video');
+    const track = typeof row.track === 'string' ? scrubDashes(row.track) : '';
+    if (!track) continue;
+    refs.push({
+      track,
+      like: typeof row.like === 'string' ? scrubDashes(row.like) : undefined,
+      avoid: typeof row.avoid === 'string' ? scrubDashes(row.avoid) : undefined,
     });
-    if (!match) return ref;
-    used.add(match.url);
-    return { ...ref, url: match.url };
-  });
+  }
+  return refs;
 }
 
 export async function generateCatalogBrief(
@@ -164,9 +96,6 @@ export async function generateCatalogBrief(
   const issued = todayFormatted();
   const prefix = partner.id === 'thought-collective' ? 'TC' : 'CAT';
   const briefId = makeBriefId(prefix);
-  const sourceUrls = extractUrls(
-    [input.sourceText, ...input.files.map((f) => f.text ?? '')].join('\n')
-  );
 
   const textFiles = input.files.filter((f) => f.kind === 'text' && f.text).map((f) => `--- ${f.name} ---\n${f.text}`);
   const sourceNotes = [
@@ -182,9 +111,9 @@ Use these names exactly:
 - Catalog house: ${partner.name}
 - Brief title: ${projectTitle}
 
-Pull every URL from the source into "links". Label YouTube, Spotify, or named tracks as "Reference".
+Do not include a files or links section. Do not use Spotify URLs.
 
-For each named reference, describe only what is on that recording. If the source does not say the track has strings, brass, or a big build, do not invent them. "like" and "avoid" should name actual instruments, vocal treatment, or production.
+For each named reference, describe only what is on that recording. If the source does not say the track has strings, brass, or a big build, do not invent them. "like" and "avoid" should name actual instruments, vocal treatment, or production. Leave reference urls empty. They will be filled with YouTube searches.
 
 Write in the Sonant voice: specific, human, concise. No AI filler. No em dashes.
 
@@ -197,10 +126,7 @@ Return ONLY a JSON object:
   "ask": "<what the music needs to do, 2-4 sentences>",
   "direction": ["<specific direction>", "<specific direction>", "<specific direction>"],
   "references": [
-    { "track": "<Artist, Title>", "like": "<what to borrow>", "avoid": "<what not to imitate>", "url": "<if a link exists>" }
-  ],
-  "links": [
-    { "label": "<Reference | Download>", "url": "<https://...>" }
+    { "track": "<Artist, Title>", "like": "<what to borrow>", "avoid": "<what not to imitate>" }
   ],
   "genrePalette": "<comma-separated genres>",
   "emotionalArc": "<comma-separated moods>",
@@ -245,7 +171,7 @@ ${sourceNotes ? `\n${sourceNotes}` : ''}`;
       model: 'claude-sonnet-4-5',
       max_tokens: 6000,
       system:
-        `You are a music supervisor at Sonant rewriting a real catalog request from ${houseName} into the Sonant brief format. Keep their facts. Output valid JSON only. Always include every URL from the source in links.`,
+        `You are a music supervisor at Sonant rewriting a real catalog request from ${houseName} into the Sonant brief format. Keep their facts. Output valid JSON only. Do not include a links array. Do not use Spotify URLs.`,
       messages: [{ role: 'user', content: parts }],
     });
   }
@@ -255,7 +181,7 @@ ${sourceNotes ? `\n${sourceNotes}` : ''}`;
     let rawText = '';
     for (let attempt = 1; attempt <= 2; attempt++) {
       const response = await runOnce(
-        attempt === 2 ? 'Return ONLY complete valid JSON. Every required field filled. Include all URLs in links.' : undefined
+        attempt === 2 ? 'Return ONLY complete valid JSON. Every required field filled. No links array.' : undefined
       );
       const textBlock = response.content.find((block) => block.type === 'text');
       if (!textBlock || textBlock.type !== 'text') continue;
@@ -270,8 +196,10 @@ ${sourceNotes ? `\n${sourceNotes}` : ''}`;
 
     const p = parsed ?? {};
     const mode = ['brand', 'film', 'games'].includes(p.mode as string) ? (p.mode as Brief['mode']) : 'brand';
-    const links = mergeLinks(asLinks(p.links), mergeLinks(sourceUrls, extractUrls(rawText)));
-    const references = asReferences(p.references, links);
+    const references = asReferences(p.references).map((ref) => ({
+      ...ref,
+      url: youtubeSearchUrlForTrack(ref.track),
+    }));
     const genres = asStringArray(p.genres, asString(p.genrePalette, 'Hip-Hop').split(',').map((g) => g.trim()).filter(Boolean));
     const moods = asStringArray(p.moods, asString(p.emotionalArc, 'Playful').split(',').map((g) => g.trim()).filter(Boolean));
 
@@ -288,7 +216,6 @@ ${sourceNotes ? `\n${sourceNotes}` : ''}`;
       ask: asString(p.ask, 'Write the track they asked for. Stay in their lane. Use the listed references as the world, not a copy.'),
       direction: asStringArray(p.direction, ['Stay close to the requested vibe.', 'Use the listed references as the lane, not a copy.']),
       references,
-      links,
       genrePalette: asString(p.genrePalette, genres.join(', ') || 'Hip-Hop'),
       emotionalArc: asString(p.emotionalArc, moods.join(', ') || 'Playful'),
       tempo: asString(p.tempo, 'Follow the references'),

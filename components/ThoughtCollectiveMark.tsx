@@ -6,18 +6,24 @@ export default function ThoughtCollectiveMark({
   size?: number;
 }) {
   return (
-    <svg
-      viewBox="0 0 100 100"
-      width={size}
-      height={size}
+    <span
       className={className}
       aria-hidden="true"
-    >
-      <path
-        fill="currentColor"
-        fillRule="evenodd"
-        d="M50 4.5 95.5 50 50 95.5 4.5 50 50 4.5Zm0 32.5 20.5 23.5h-41L50 37Z"
-      />
-    </svg>
+      style={{
+        width: size,
+        height: size,
+        display: 'inline-block',
+        flexShrink: 0,
+        backgroundColor: 'currentColor',
+        WebkitMaskImage: 'url(/brand/thought-collective-mark.png)',
+        maskImage: 'url(/brand/thought-collective-mark.png)',
+        WebkitMaskSize: 'contain',
+        maskSize: 'contain',
+        WebkitMaskRepeat: 'no-repeat',
+        maskRepeat: 'no-repeat',
+        WebkitMaskPosition: 'center',
+        maskPosition: 'center',
+      }}
+    />
   );
 }

@@ -18,7 +18,7 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     name: 'Thought Collective',
     site: THOUGHT_COLLECTIVE_SITE,
     catalogUrl: THOUGHT_COLLECTIVE_CATALOG,
-    markSrc: '/brand/thought-collective-mark.svg',
+    markSrc: '/brand/thought-collective-mark.png',
     exclusive: true,
     split: '50/50',
   },
