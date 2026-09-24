@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { ADMIN_USER_ID, isSiteAdmin } from '@/lib/admin';
 import { announceNewBrief, briefDisplayName } from '@/lib/brief-announcements';
 import { isClientBriefRecord } from '@/lib/disco';
+import { catalogPartnerFromBrief } from '@/lib/partners';
 
 export const maxDuration = 60;
 
@@ -35,11 +36,13 @@ export async function POST(req: Request) {
     project?: string;
     client?: string;
     codename?: string;
+    catalogId?: string;
   };
   const isClient = isClientBriefRecord(brief);
   const isFeatured = brief.user_id === ADMIN_USER_ID && !isClient;
+  const partner = catalogPartnerFromBrief(content);
   if (!isClient && !isFeatured) {
-    return NextResponse.json({ error: 'Only paid and Sonant briefs can be announced.' }, { status: 400 });
+    return NextResponse.json({ error: 'Only paid and catalog briefs can be announced.' }, { status: 400 });
   }
 
   try {
@@ -48,6 +51,7 @@ export async function POST(req: Request) {
       kind: isClient ? 'client' : 'featured',
       briefId,
       briefName: briefDisplayName(content),
+      catalogName: partner?.name,
       force: true,
     });
     return NextResponse.json({ success: true, sent: result.sent });

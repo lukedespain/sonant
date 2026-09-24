@@ -7,7 +7,7 @@ const DISCO_CATALOG_URL = 'https://sonant.disco.ac/cat/152887908';
 const faqs: { q: string; a: ReactNode }[] = [
   {
     q: 'What is Sonant?',
-    a: 'Sonant is a platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, Briefs, and the Catalog. The point is to build a catalog worth pitching. Tracks that get placed are pitched to buyers on a 70/30 split, non-exclusive.',
+    a: 'Sonant is a platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, Briefs, and the Catalog. The point is to build a catalog worth pitching. Sonant placements are 70/30, non-exclusive. Thought Collective catalog briefs use that house\'s terms, listed on each brief.',
   },
   {
     q: 'What is the Generator?',
@@ -40,11 +40,17 @@ const faqs: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'What happens after I submit?',
-    a: 'Every submission is reviewed and gets a written response. If your track is accepted, it is added to the catalog and pitched. If not, you\'ll get specific notes on why. You keep full ownership either way.',
+    a: 'Every submission is reviewed and gets a written response. If your track is accepted, it is added to the catalog and pitched. If not, you\'ll get specific notes on why. Terms depend on which catalog the brief belongs to.',
   },
   {
     q: 'What are the terms if my track gets placed?',
-    a: 'You own your music. Sonant is non-exclusive. If Sonant brokers a placement, you keep 70% of the sync fee. You\'re free to pitch the same track anywhere else.',
+    a: (
+      <>
+        Depends on the catalog. Community practice and Sonant catalog placements are non-exclusive. You own the music. If Sonant brokers a placement, you keep 70% of the sync fee, and you can pitch the same track elsewhere.
+        <br /><br />
+        Catalog briefs from Thought Collective are exclusive to that catalog. If Thought Collective pitches the track and it places, the sync fee splits 50/50. The terms for a house catalog are listed at the bottom of that brief.
+      </>
+    ),
   },
   {
     q: 'How do I earn the Sonant badge?',

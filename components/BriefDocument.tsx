@@ -1,4 +1,6 @@
 import React from 'react';
+import { catalogPartnerFromBrief } from '@/lib/partners';
+import ThoughtCollectiveMark from '@/components/ThoughtCollectiveMark';
 
 export interface Reference {
   track: string;
@@ -34,6 +36,7 @@ export interface Brief {
   vocals: string;
   imageUrl?: string;
   kind?: 'client' | 'catalog';
+  catalogId?: string;
   projectTitle?: string;
   brandName?: string;
   winFee?: string;
@@ -86,6 +89,15 @@ function SonicItem({ label, value }: { label: string; value: string }) {
 }
 
 export default function BriefDocument({ brief, isFeatured = false }: { brief: Brief; isFeatured?: boolean }) {
+  const partner = catalogPartnerFromBrief(brief);
+  const houseLabel = partner
+    ? `${partner.name} Catalog Brief`
+    : brief.kind === 'client'
+      ? 'Client Brief'
+      : isFeatured
+        ? 'Sonant Brief'
+        : 'Community Brief';
+
   return (
     <div
       className="relative shadow-2xl brief-document w-full overflow-hidden"
@@ -111,19 +123,44 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
                 'linear-gradient(to bottom, var(--brief-img-fade-from) 82%, var(--brief-img-fade-to) 100%)',
             }}
           />
+          {partner && (
+            <div className="absolute left-5 bottom-5 flex items-center gap-2.5 text-[#F5F1E8]">
+              <ThoughtCollectiveMark size={22} />
+              <span
+                className="text-[10px] tracking-[0.22em] uppercase"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                {partner.name}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
       <div className="p-8 md:p-12">
         {/* Header */}
         <div className="mb-8 pb-6" style={{ borderBottom: '1px solid var(--brief-divider)' }}>
-          <div className="mb-3">
+          <div className="mb-3 flex items-center justify-between gap-4">
             <div
               className="text-[10px] tracking-[0.3em] uppercase"
               style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
             >
               Music Brief
             </div>
+            {partner && (
+              <div
+                className="flex items-center gap-2"
+                style={{ color: 'var(--brief-text-h)' }}
+              >
+                <ThoughtCollectiveMark size={16} />
+                <span
+                  className="text-[10px] tracking-[0.2em] uppercase"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+                >
+                  {partner.name}
+                </span>
+              </div>
+            )}
           </div>
           <h1
             className="text-4xl md:text-5xl tracking-tight leading-none mb-3"
@@ -274,6 +311,42 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           </div>
         </div>
 
+        {partner && (
+          <div className="mb-6 p-6" style={{ border: '1px solid var(--brief-divider)', borderRadius: '2px' }}>
+            <Label>This catalog</Label>
+            <div className="flex items-start gap-4 mb-5">
+              <div className="mt-0.5 text-[var(--brief-text-h)]">
+                <ThoughtCollectiveMark size={28} />
+              </div>
+              <div>
+                <div
+                  className="text-lg mb-1"
+                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 400, color: 'var(--brief-text-h)' }}
+                >
+                  {partner.name}
+                </div>
+                <div
+                  className="text-[10px] tracking-[0.2em] uppercase"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+                >
+                  {partner.exclusive ? 'Exclusive' : 'Non-exclusive'} · {partner.split} split
+                </div>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
+              <p>
+                Writing to this brief means you are writing for the {partner.name} catalog.
+                {partner.exclusive
+                  ? ' If the track is accepted, it is exclusive to that catalog.'
+                  : ' If the track is accepted, it stays non-exclusive.'}
+              </p>
+              <p>
+                If {partner.name} pitches the track and it places, the sync fee splits {partner.split}.
+              </p>
+            </div>
+          </div>
+        )}
+
         {brief.kind === 'client' && (
           <div className="mb-6 p-6" style={{ border: '1px solid var(--brief-divider)', borderRadius: '2px' }}>
             <Label>The opportunity</Label>
@@ -303,11 +376,15 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
             className="text-[10px] tracking-[0.2em] uppercase"
             style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
           >
-            {brief.briefId} · {brief.kind === 'client' ? 'Client Brief' : isFeatured ? 'Sonant Brief' : 'Community Brief'}
+            {brief.briefId} · {houseLabel}
           </div>
           {brief.kind === 'client' ? (
             <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
               Be available. Move fast.
+            </div>
+          ) : partner ? (
+            <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
+              Exclusive · {partner.split}
             </div>
           ) : isFeatured ? (
             <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>

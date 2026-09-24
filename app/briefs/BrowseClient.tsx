@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { catalogPartnerFromBrief } from '@/lib/partners';
 
 interface BriefRow {
   id: string;
@@ -210,9 +211,11 @@ function BriefCard({
   featured: boolean;
   compact?: boolean;
 }) {
-  const codename = brief.generated_content?.codename || 'Untitled';
-  const project = brief.generated_content?.project;
-  const imageUrl = brief.generated_content?.imageUrl;
+  const content = brief.generated_content ?? {};
+  const title = (content.projectTitle as string | undefined) || content.codename || 'Untitled';
+  const project = content.project;
+  const imageUrl = content.imageUrl;
+  const catalogName = catalogPartnerFromBrief(content)?.name ?? (featured ? 'Sonant' : null);
   const modeLabel = MODE_LABELS[brief.mode] ?? brief.mode;
 
   return (
@@ -241,7 +244,7 @@ function BriefCard({
             className="text-[9px] tracking-[0.25em] uppercase text-[#E85D2F] mb-2"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            ◆ Sonant
+            ◆ {catalogName}
           </div>
         )}
         {!featured && (
@@ -258,7 +261,7 @@ function BriefCard({
             className={compact ? 'text-lg italic' : 'text-xl italic'}
             style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
           >
-            {codename}
+            {title}
           </span>
           <span
             className="not-italic mx-1.5 text-[10px] tracking-widest align-middle"
@@ -558,10 +561,21 @@ export default function BrowseClient({
 
       {activeTab === 'catalog' && (
         <>
-          <div className="mb-6 max-w-xl">
-            <p className="text-sm text-[var(--text-tertiary)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Briefs from Sonant, and later from houses like Thought Collective, around tracks the catalogs are looking for. Every submission receives written feedback. Accepted tracks are pitched by Thought Collective.
+          <div className="flex items-start justify-between gap-6 mb-8">
+            <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              {isBriefAdmin
+                ? 'Tracks Thought Collective is looking for. Add a catalog brief from Jack\'s notes and it emails everyone that it is live.'
+                : 'Tracks Thought Collective is looking for right now. Every submission gets written feedback. Accepted tracks are pitched by the house.'}
             </p>
+            {isBriefAdmin && (
+              <Link
+                href="/admin?tab=briefs&kind=catalog"
+                className="shrink-0 px-4 py-2.5 text-[10px] tracking-[0.2em] uppercase border border-[#E85D2F] text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+              >
+                + Add catalog brief
+              </Link>
+            )}
           </div>
 
           {filterBar}

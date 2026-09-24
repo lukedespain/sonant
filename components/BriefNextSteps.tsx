@@ -9,6 +9,9 @@ type Props = {
   briefId: string;
   briefName: string;
   variant: 'client' | 'catalog';
+  catalogExclusive?: boolean;
+  catalogName?: string;
+  catalogSplit?: string;
   loggedIn: boolean;
   alreadySubmitted: boolean;
   submissionCredits: number;
@@ -37,6 +40,9 @@ export default function BriefNextSteps({
   briefId,
   briefName,
   variant,
+  catalogExclusive = false,
+  catalogName,
+  catalogSplit = '50/50',
   loggedIn,
   alreadySubmitted,
   submissionCredits,
@@ -185,13 +191,20 @@ export default function BriefNextSteps({
           </h3>
           <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             Send the track in for written feedback and catalog consideration. One credit. This goes privately to the team, not onto the playlist.
+            {catalogExclusive && catalogName
+              ? ` Accepted tracks go exclusively to the ${catalogName} catalog.`
+              : ''}
           </p>
           <ul className="space-y-2 mb-8 flex-1">
             {[
               'Uses 1 submission credit',
               'Written feedback on every submission',
-              'Accepted tracks are placed and pitched',
-              'Non-exclusive: the music stays yours',
+              catalogExclusive && catalogName
+                ? `Accepted tracks are exclusive to ${catalogName}`
+                : 'Accepted tracks are placed and pitched',
+              catalogExclusive
+                ? `Exclusive · ${catalogSplit} if it places`
+                : 'Non-exclusive: the music stays yours',
             ].map((item) => (
               <Bullet key={item}>{item}</Bullet>
             ))}

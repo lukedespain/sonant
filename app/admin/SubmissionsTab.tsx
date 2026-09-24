@@ -152,6 +152,9 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
       deliveryConfirmedAt: sub.delivery_confirmed_at ?? null,
       audioUrl: signed?.url ?? playlistHit?.file_url ?? null,
       audioName: signed?.name || playlistHit?.file_name || null,
+      downloadHref: signed
+        ? `/api/admin/submissions/${sub.id}/download`
+        : playlistHit?.file_url ?? null,
       playlistHref: playlistHit ? `/briefs/${sub.brief_id}#playlist` : null,
     };
   });
@@ -220,6 +223,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
               deliveryConfirmedAt={row.deliveryConfirmedAt}
               audioUrl={row.audioUrl}
               audioName={row.audioName}
+              downloadHref={row.downloadHref}
               playlistHref={row.playlistHref}
             />
           ))}

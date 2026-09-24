@@ -20,6 +20,7 @@ type AdminSubmissionCardProps = {
   deliveryConfirmedAt?: string | null;
   audioUrl?: string | null;
   audioName?: string | null;
+  downloadHref?: string | null;
   playlistHref?: string | null;
 };
 
@@ -37,6 +38,7 @@ export default function AdminSubmissionCard({
   deliveryConfirmedAt = null,
   audioUrl = null,
   audioName = null,
+  downloadHref = null,
   playlistHref = null,
 }: AdminSubmissionCardProps) {
   const router = useRouter();
@@ -228,6 +230,16 @@ export default function AdminSubmissionCard({
                 style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
               >
                 ↗ Brief playlist
+              </a>
+            )}
+            {downloadHref && (
+              <a
+                href={downloadHref}
+                download={audioName || true}
+                className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              >
+                ↓ Download
               </a>
             )}
           </div>

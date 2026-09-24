@@ -276,18 +276,23 @@ export async function sendFeaturedBriefAnnouncementEmail(params: {
   to: string;
   briefName: string;
   briefUrl: string;
+  catalogName?: string;
 }) {
   const briefName = escapeHtml(params.briefName);
   const briefUrl = escapeHtml(params.briefUrl);
+  const catalogName = params.catalogName?.trim();
+  const house = catalogName ? escapeHtml(catalogName) : '';
   try {
     await resend.emails.send({
       from: FROM,
       to: params.to,
-      subject: 'A new Sonant brief is up',
+      subject: house ? `${catalogName} is looking for a song` : 'A new Sonant brief is up',
       html: briefAnnouncementHtml({
-        kicker: '◆ Sonant · Catalog brief',
-        heading: 'The catalog is looking for this.',
-        body: `<em style="color:#F5F1E8;font-style:italic;">${briefName}</em> is a new Sonant brief. Write to it, upload a take, or submit it for review.`,
+        kicker: house ? `◆ Sonant · ${house}` : '◆ Sonant · Catalog brief',
+        heading: house ? `${house} is looking for this.` : 'The catalog is looking for this.',
+        body: house
+          ? `<em style="color:#F5F1E8;font-style:italic;">${briefName}</em> is a new catalog brief from ${house}. Write to it, or submit it for review.`
+          : `<em style="color:#F5F1E8;font-style:italic;">${briefName}</em> is a new Sonant brief. Write to it, upload a take, or submit it for review.`,
         briefName,
         briefUrl,
         button: 'Open the brief →',

@@ -9,13 +9,14 @@ import UsageMeters from './UsageMeters';
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; queue?: string }>;
+  searchParams: Promise<{ tab?: string; queue?: string; kind?: string }>;
 }) {
   await requireSiteAdmin();
-  const { tab, queue } = await searchParams;
+  const { tab, queue, kind } = await searchParams;
   const active =
     tab === 'briefs' || tab === 'people' ? tab : 'submissions';
   const submissionQueue = queue === 'client' ? 'client' : 'catalog';
+  const briefKind = kind === 'catalog' ? 'catalog' : 'client';
 
   return (
     <div className="pt-20 pb-12 flex-1">
@@ -38,7 +39,7 @@ export default async function AdminPage({
           className="text-base text-[var(--text-tertiary)] mb-8 max-w-xl"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Catalog review, paid client briefs, and composer accounts.
+          Catalog review, house briefs, paid client briefs, and composer accounts.
         </p>
 
         <UsageMeters />
@@ -48,7 +49,7 @@ export default async function AdminPage({
         </Suspense>
 
         {active === 'briefs' ? (
-          <BriefsTab />
+          <BriefsTab kind={briefKind} />
         ) : active === 'people' ? (
           <PeopleTab />
         ) : (

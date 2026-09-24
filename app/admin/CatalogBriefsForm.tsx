@@ -1,21 +1,21 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import CatalogBriefsForm from './CatalogBriefsForm';
+import {
+  CATALOG_PARTNERS,
+  DEFAULT_CATALOG_PARTNER_ID,
+} from '@/lib/partners';
 
-export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'catalog' }) {
+const partners = Object.values(CATALOG_PARTNERS);
+
+export default function CatalogBriefsForm() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [sourceText, setSourceText] = useState('');
-  const [clientName, setClientName] = useState('');
   const [projectTitle, setProjectTitle] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [winFee, setWinFee] = useState('');
-  const [demoFee, setDemoFee] = useState('');
+  const [catalogId, setCatalogId] = useState(DEFAULT_CATALOG_PARTNER_ID);
   const [files, setFiles] = useState<File[]>([]);
-  const [discoInboxUrl, setDiscoInboxUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,8 +27,8 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!clientName.trim()) {
-      setError('Add a client name.');
+    if (!projectTitle.trim()) {
+      setError('Add a brief title.');
       return;
     }
     if (!sourceText.trim() && files.length === 0) {
@@ -40,15 +40,11 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
 
     const body = new FormData();
     body.set('sourceText', sourceText);
-    body.set('clientName', clientName);
     body.set('projectTitle', projectTitle);
-    body.set('dueDate', dueDate);
-    body.set('winFee', winFee);
-    body.set('demoFee', demoFee);
-    body.set('discoInboxUrl', discoInboxUrl);
+    body.set('catalogId', catalogId);
     files.forEach((file) => body.append('files', file));
 
-    const res = await fetch('/api/admin/client-briefs', { method: 'POST', body });
+    const res = await fetch('/api/admin/catalog-briefs', { method: 'POST', body });
     setSubmitting(false);
 
     if (!res.ok) {
@@ -61,120 +57,51 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
     router.refresh();
   }
 
-  const kindLink =
-    'px-5 py-3 text-xs tracking-[0.2em] uppercase transition-colors -mb-px border-b-2';
-
   return (
-    <>
-      <div className="flex items-end mb-8 border-b border-[var(--border-base)]">
-        <Link
-          href="/admin?tab=briefs"
-          className={`${kindLink} ${
-            kind === 'client'
-              ? 'text-[var(--text-primary)] border-[#E85D2F]'
-              : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
-          }`}
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          Client
-        </Link>
-        <Link
-          href="/admin?tab=briefs&kind=catalog"
-          className={`${kindLink} ${
-            kind === 'catalog'
-              ? 'text-[var(--text-primary)] border-[#E85D2F]'
-              : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
-          }`}
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          Catalog
-        </Link>
-      </div>
-
-      {kind === 'catalog' ? <CatalogBriefsForm /> : (
     <form onSubmit={handleSubmit} className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
-        Paste the client document, upload a photo, PDF, or Word file, then set the client, project title, and fees. Add client brief turns it into a published job for verified composers and emails them that it is live. Links in the paste become clickable on the published brief.
+        Paste Jack&apos;s notes or upload his PDF. Add catalog brief writes it into the Sonant format, generates an image, and emails everyone that it is live. Submissions come here for review.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
-          <label htmlFor="client-name" className={labelClass} style={mono}>Client name</label>
-          <input
-            id="client-name"
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-            placeholder="e.g. US Army"
+          <label htmlFor="catalog-house" className={labelClass} style={mono}>Catalog</label>
+          <select
+            id="catalog-house"
+            value={catalogId}
+            onChange={(e) => setCatalogId(e.target.value)}
             className={fieldClass}
             style={{ ...sans, borderRadius: '2px' }}
-          />
+          >
+            {partners.map((partner) => (
+              <option key={partner.id} value={partner.id}>
+                {partner.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
-          <label htmlFor="project-title" className={labelClass} style={mono}>Project title</label>
+          <label htmlFor="catalog-title" className={labelClass} style={mono}>Brief title</label>
           <input
-            id="project-title"
+            id="catalog-title"
             value={projectTitle}
             onChange={(e) => setProjectTitle(e.target.value)}
-            placeholder="e.g. The Field Is The Teacher"
-            className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
-          />
-        </div>
-        <div>
-          <label htmlFor="due-date" className={labelClass} style={mono}>Due date</label>
-          <input
-            id="due-date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            placeholder="e.g. Sep 4, 2026"
-            className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
-          />
-        </div>
-        <div>
-          <label htmlFor="demo-fee" className={labelClass} style={mono}>Demo fee</label>
-          <input
-            id="demo-fee"
-            value={demoFee}
-            onChange={(e) => setDemoFee(e.target.value)}
-            placeholder="e.g. $500"
-            className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label htmlFor="win-fee" className={labelClass} style={mono}>Win fee</label>
-          <input
-            id="win-fee"
-            value={winFee}
-            onChange={(e) => setWinFee(e.target.value)}
-            placeholder="e.g. $5,000 · 70/30 composer"
-            className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label htmlFor="disco-inbox" className={labelClass} style={mono}>Disco inbox (optional)</label>
-          <input
-            id="disco-inbox"
-            value={discoInboxUrl}
-            onChange={(e) => setDiscoInboxUrl(e.target.value)}
-            placeholder="https://s.disco.ac/… · blank uses the default inbox"
+            placeholder="e.g. Tribe Type Beat"
             className={fieldClass}
             style={{ ...sans, borderRadius: '2px' }}
           />
         </div>
       </div>
 
-      <label htmlFor="client-brief-source" className={labelClass} style={mono}>
-        Client brief
+      <label htmlFor="catalog-brief-source" className={labelClass} style={mono}>
+        Catalog notes
       </label>
       <textarea
-        id="client-brief-source"
+        id="catalog-brief-source"
         value={sourceText}
         onChange={(e) => setSourceText(e.target.value)}
         rows={10}
-        placeholder="Paste the client brief here."
+        placeholder="Paste the brief here. Groovy, playful, boom bap energy, references, whatever Jack sent."
         className={`${fieldClass} mb-4`}
         style={{ ...sans, borderRadius: '2px' }}
       />
@@ -238,10 +165,8 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
         className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50"
         style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
       >
-        {submitting ? '◆ Writing brief…' : '+ Add client brief'}
+        {submitting ? '◆ Writing brief…' : '+ Add catalog brief'}
       </button>
     </form>
-      )}
-    </>
   );
 }

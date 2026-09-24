@@ -157,6 +157,7 @@ export async function announceNewBrief(params: {
   kind: AnnouncementKind;
   briefId: string;
   briefName: string;
+  catalogName?: string;
   force?: boolean;
 }): Promise<{ sent: number; skipped?: boolean; error?: string }> {
   const announced = await readAnnounced(params.admin);
@@ -167,10 +168,11 @@ export async function announceNewBrief(params: {
   const emails = await recipientEmails(params.admin, params.kind);
   const briefName = params.briefName.trim() || 'Untitled brief';
   const briefUrl = `${siteUrl()}/briefs/${params.briefId}`;
+  const catalogName = params.catalogName?.trim();
   const sendOne =
     params.kind === 'client'
       ? (to: string) => sendPaidBriefAnnouncementEmail({ to, briefName, briefUrl })
-      : (to: string) => sendFeaturedBriefAnnouncementEmail({ to, briefName, briefUrl });
+      : (to: string) => sendFeaturedBriefAnnouncementEmail({ to, briefName, briefUrl, catalogName });
 
   const sent = await sendChunked(emails, sendOne);
   announced[params.briefId] = new Date().toISOString();

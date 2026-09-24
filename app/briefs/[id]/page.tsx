@@ -18,6 +18,7 @@ import RegenerateImageButton from '@/components/RegenerateImageButton';
 import AnnounceBriefButton from '@/components/AnnounceBriefButton';
 import { getSubmissionStatus } from '@/app/briefs/actions';
 import { getTrackPrivacyMap, isTrackPublic } from '@/lib/track-privacy';
+import { catalogPartnerFromBrief } from '@/lib/partners';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -43,6 +44,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
   const isClientBrief = (briefRow as { brief_type?: string }).brief_type === 'client' || brief.kind === 'client';
   const isFeatured = briefRow.user_id === ADMIN_USER_ID && !isClientBrief;
   const isAdmin = isSiteAdmin(user);
+  const catalogPartner = catalogPartnerFromBrief(brief);
 
   let canViewClient = isAdmin;
   if (user && isClientBrief && !canViewClient) {
@@ -204,6 +206,9 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           briefId={briefRow.id}
           briefName={brief.projectTitle || brief.codename}
           variant={isClientBrief ? 'client' : 'catalog'}
+          catalogExclusive={catalogPartner?.exclusive}
+          catalogName={catalogPartner?.name}
+          catalogSplit={catalogPartner?.split}
           loggedIn={!!user}
           alreadySubmitted={alreadySubmitted}
           submissionCredits={submissionCredits}
