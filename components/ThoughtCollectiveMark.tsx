@@ -1,28 +1,27 @@
 export default function ThoughtCollectiveMark({
   className,
   size = 20,
+  invert = false,
 }: {
   className?: string;
   size?: number;
+  invert?: boolean;
 }) {
   return (
-    <span
+    <img
+      src="/brand/thought-collective-mark.png"
+      alt=""
+      width={size}
+      height={size}
       className={className}
       aria-hidden="true"
       style={{
         width: size,
         height: size,
-        display: 'inline-block',
+        objectFit: 'contain',
+        display: 'block',
         flexShrink: 0,
-        backgroundColor: 'currentColor',
-        WebkitMaskImage: 'url(/brand/thought-collective-mark.png)',
-        maskImage: 'url(/brand/thought-collective-mark.png)',
-        WebkitMaskSize: 'contain',
-        maskSize: 'contain',
-        WebkitMaskRepeat: 'no-repeat',
-        maskRepeat: 'no-repeat',
-        WebkitMaskPosition: 'center',
-        maskPosition: 'center',
+        filter: invert ? 'brightness(0) invert(1)' : undefined,
       }}
     />
   );

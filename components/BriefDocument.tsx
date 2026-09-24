@@ -126,7 +126,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           />
           {partner && (
             <div className="absolute left-5 bottom-5 flex items-center gap-2.5 text-[#F5F1E8]">
-              <ThoughtCollectiveMark size={22} />
+              <ThoughtCollectiveMark size={22} invert />
               <span
                 className="text-[10px] tracking-[0.22em] uppercase"
                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
