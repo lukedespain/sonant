@@ -60,7 +60,7 @@ export default function CatalogBriefsForm() {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
-        Paste Jack&apos;s notes or upload his PDF. Add catalog brief writes it into the Sonant format, generates an image, and emails everyone that it is live. Submissions come here for review.
+        Paste Jack&apos;s notes or upload his PDF. Add catalog brief writes it into the Sonant format and generates an image. Check the brief, then use Email everyone when you want it to go out.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">

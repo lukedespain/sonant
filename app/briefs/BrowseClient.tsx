@@ -564,7 +564,7 @@ export default function BrowseClient({
           <div className="flex items-start justify-between gap-6 mb-8">
             <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               {isBriefAdmin
-                ? 'Tracks Thought Collective is looking for. Add a catalog brief from Jack\'s notes and it emails everyone that it is live.'
+                ? 'Tracks Thought Collective is looking for. Add a catalog brief from Jack\'s notes, then email everyone when you are ready.'
                 : 'Tracks Thought Collective is looking for right now. Every submission gets written feedback. Accepted tracks are pitched by the house.'}
             </p>
             {isBriefAdmin && (

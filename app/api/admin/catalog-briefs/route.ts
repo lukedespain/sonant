@@ -6,7 +6,6 @@ import { generateCatalogBrief } from '@/app/briefs/generateCatalogBrief';
 import { generateImageForBrief } from '@/app/briefs/generateImage';
 import type { Brief as GeneratorBrief } from '@/app/briefs/generate';
 import { revalidatePath } from 'next/cache';
-import { announceNewBrief, briefDisplayName } from '@/lib/brief-announcements';
 import { DEFAULT_CATALOG_PARTNER_ID, catalogPartnerById } from '@/lib/partners';
 
 export const maxDuration = 60;
@@ -134,18 +133,6 @@ export async function POST(req: Request) {
   revalidatePath('/briefs');
   revalidatePath(`/briefs/${saved.id}`);
   revalidatePath('/admin');
-
-  try {
-    await announceNewBrief({
-      admin,
-      kind: 'featured',
-      briefId: saved.id,
-      briefName: briefDisplayName(brief),
-      catalogName: partner.name,
-    });
-  } catch (announceError) {
-    console.error('Catalog brief announcement failed:', announceError);
-  }
 
   return NextResponse.json({ success: true, briefId: saved.id });
 }
