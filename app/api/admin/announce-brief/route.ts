@@ -6,7 +6,7 @@ import { announceNewBrief, briefDisplayName } from '@/lib/brief-announcements';
 import { isClientBriefRecord } from '@/lib/disco';
 import { catalogPartnerFromBrief } from '@/lib/partners';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export async function POST(req: Request) {
   const supabase = await createClient();

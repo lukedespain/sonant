@@ -138,16 +138,28 @@ async function recipientEmails(
   ];
 }
 
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function sendChunked(
   emails: string[],
   sendOne: (to: string) => Promise<{ error?: string }>
 ) {
-  const size = 6;
+  const size = 2;
   let sent = 0;
   for (let i = 0; i < emails.length; i += size) {
     const chunk = emails.slice(i, i + size);
-    const results = await Promise.all(chunk.map((to) => sendOne(to)));
+    const results = await Promise.all(
+      chunk.map(async (to) => {
+        const first = await sendOne(to);
+        if (!first.error) return first;
+        await wait(400);
+        return sendOne(to);
+      })
+    );
     sent += results.filter((result) => !result.error).length;
+    if (i + size < emails.length) await wait(400);
   }
   return sent;
 }

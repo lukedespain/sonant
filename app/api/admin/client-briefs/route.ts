@@ -6,7 +6,6 @@ import { generateClientBrief } from '@/app/briefs/generateClientBrief';
 import { generateImageForBrief } from '@/app/briefs/generateImage';
 import type { Brief as GeneratorBrief } from '@/app/briefs/generate';
 import { revalidatePath } from 'next/cache';
-import { announceNewBrief, briefDisplayName } from '@/lib/brief-announcements';
 
 export const maxDuration = 60;
 
@@ -145,17 +144,6 @@ export async function POST(req: Request) {
   revalidatePath('/briefs');
   revalidatePath(`/briefs/${saved.id}`);
   revalidatePath('/admin');
-
-  try {
-    await announceNewBrief({
-      admin,
-      kind: 'client',
-      briefId: saved.id,
-      briefName: briefDisplayName(brief),
-    });
-  } catch (error) {
-    console.error('Paid brief announcement failed:', error);
-  }
 
   return NextResponse.json({ success: true, briefId: saved.id });
 }

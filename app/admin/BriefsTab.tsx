@@ -94,7 +94,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
       {kind === 'catalog' ? <CatalogBriefsForm /> : (
     <form onSubmit={handleSubmit} className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
-        Paste the client document, upload a photo, PDF, or Word file, then set the client, project title, and fees. Add client brief turns it into a published job for verified composers and emails them that it is live. Links in the paste become clickable on the published brief.
+        Paste the client document, upload a photo, PDF, or Word file, then set the client, project title, and fees. Add client brief publishes it for verified composers. Check it, then use Email verified when you want it to go out. Links in the paste become clickable on the published brief.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">

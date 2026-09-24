@@ -5,6 +5,15 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = 'Sonant <hello@sonant.ac>';
 const LUKE = 'music@lukedespain.com';
 
+async function sendResend(payload: Parameters<typeof resend.emails.send>[0]) {
+  const { error } = await resend.emails.send(payload);
+  if (error) {
+    console.error('Resend send failed:', error);
+    return { error: error.message || 'Email failed to send.' };
+  }
+  return { success: true as const };
+}
+
 // Sent when a composer submits a track for review.
 export async function sendSubmissionReceivedEmail(params: {
   to: string;
@@ -251,7 +260,7 @@ export async function sendPaidBriefAnnouncementEmail(params: {
   const briefName = escapeHtml(params.briefName);
   const briefUrl = escapeHtml(params.briefUrl);
   try {
-    await resend.emails.send({
+    return await sendResend({
       from: FROM,
       to: params.to,
       subject: 'A paid brief is up on Sonant',
@@ -265,7 +274,6 @@ export async function sendPaidBriefAnnouncementEmail(params: {
         footer: 'You are seeing this because you have the verified composer badge.',
       }),
     });
-    return { success: true };
   } catch (error) {
     console.error('sendPaidBriefAnnouncementEmail failed:', error);
     return { error: 'Email failed to send.' };
@@ -283,7 +291,7 @@ export async function sendFeaturedBriefAnnouncementEmail(params: {
   const catalogName = params.catalogName?.trim();
   const house = catalogName ? escapeHtml(catalogName) : '';
   try {
-    await resend.emails.send({
+    return await sendResend({
       from: FROM,
       to: params.to,
       subject: house ? `${catalogName} is looking for a song` : 'A new Sonant brief is up',
@@ -299,7 +307,6 @@ export async function sendFeaturedBriefAnnouncementEmail(params: {
         footer: 'A practice room for sync composers.',
       }),
     });
-    return { success: true };
   } catch (error) {
     console.error('sendFeaturedBriefAnnouncementEmail failed:', error);
     return { error: 'Email failed to send.' };
