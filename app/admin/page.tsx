@@ -4,6 +4,7 @@ import AdminTabs from './AdminTabs';
 import SubmissionsTab from './SubmissionsTab';
 import BriefsTab from './BriefsTab';
 import PeopleTab from './PeopleTab';
+import HouseDigestTab from './HouseDigestTab';
 import UsageMeters from './UsageMeters';
 
 export default async function AdminPage({
@@ -14,7 +15,7 @@ export default async function AdminPage({
   await requireSiteAdmin();
   const { tab, queue, kind } = await searchParams;
   const active =
-    tab === 'briefs' || tab === 'people' ? tab : 'submissions';
+    tab === 'briefs' || tab === 'people' || tab === 'houses' ? tab : 'submissions';
   const submissionQueue = queue === 'client' ? 'client' : 'catalog';
   const briefKind = kind === 'catalog' ? 'catalog' : 'client';
 
@@ -50,6 +51,8 @@ export default async function AdminPage({
 
         {active === 'briefs' ? (
           <BriefsTab kind={briefKind} />
+        ) : active === 'houses' ? (
+          <HouseDigestTab />
         ) : active === 'people' ? (
           <PeopleTab />
         ) : (

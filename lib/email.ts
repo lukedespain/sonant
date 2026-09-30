@@ -373,6 +373,122 @@ function briefAnnouncementHtml(params: {
   `;
 }
 
+function houseCatalogDigestHtml(params: {
+  houseName: string;
+  discoPlaylistUrl: string;
+  tracks: string[];
+  note?: string;
+  briefsUrl: string;
+}) {
+  const house = escapeHtml(params.houseName);
+  const playlistUrl = escapeHtml(params.discoPlaylistUrl);
+  const briefsUrl = escapeHtml(params.briefsUrl);
+  const note = params.note?.trim()
+    ? `<tr><td style="padding:0 8px 24px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.7;color:#C4BFB5;">${escapeHtml(params.note.trim()).replace(/\n/g, '<br>')}</td></tr>`
+    : '';
+  const trackRows =
+    params.tracks.length > 0
+      ? `
+        <tr>
+          <td style="padding:0 8px 20px;">
+            <div style="font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#E85D2F;margin-bottom:12px;">This week's picks</div>
+            <ul style="margin:0;padding:0 0 0 18px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.65;color:#C4BFB5;">
+              ${params.tracks.map((t) => `<li style="margin-bottom:8px;">${escapeHtml(t)}</li>`).join('')}
+            </ul>
+          </td>
+        </tr>`
+      : '';
+
+  return `
+    <div style="margin:0;padding:0;background:#0A0908;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0A0908;">
+        <tr>
+          <td align="center" style="padding:40px 16px;">
+            <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="width:520px;max-width:520px;">
+              <tr>
+                <td style="padding:0 8px 24px;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#E85D2F;">
+                  ◆ Sonant · Catalog picks
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0 8px 16px;font-family:Georgia,'Times New Roman',serif;font-size:32px;line-height:1.15;color:#F5F1E8;">
+                  Picks for ${house}
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0 8px 28px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.7;color:#C4BFB5;">
+                  I reviewed new submissions from Sonant catalog briefs. The tracks below are the ones I recommend for your catalog right now. Everything is in one Disco playlist so you can listen the way you already work.
+                </td>
+              </tr>
+              ${note}
+              ${trackRows}
+              <tr>
+                <td style="padding:0 0 24px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#141312;border:1px solid #2A2826;border-radius:2px;">
+                    <tr>
+                      <td style="padding:24px;">
+                        <div style="font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#E85D2F;margin-bottom:10px;">Listen on Disco</div>
+                        <div style="font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:1.35;color:#F5F1E8;margin-bottom:18px;">Open the playlist</div>
+                        <a href="${playlistUrl}" style="display:inline-block;background:#E85D2F;color:#0A0908;text-decoration:none;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;padding:12px 18px;border-radius:2px;font-weight:500;">
+                          Open on Disco →
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0 8px 28px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#8A8680;">
+                  Briefs composers wrote to live on <a href="${briefsUrl}" style="color:#E85D2F;text-decoration:none;">Sonant</a> if you want context. This email is just the playlist.
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:24px 8px 0;border-top:1px solid #2A2826;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#5A5650;">
+                  <a href="https://sonant.ac" style="color:#8A8680;text-decoration:none;">sonant.ac</a>
+                  &nbsp;·&nbsp;
+                  Catalog review from Sonant
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `;
+}
+
+export async function sendHouseCatalogDigestEmail(params: {
+  to: string;
+  houseName: string;
+  discoPlaylistUrl: string;
+  tracks?: string[];
+  note?: string;
+  briefsUrl?: string;
+}) {
+  const houseName = params.houseName.trim() || 'your catalog';
+  const tracks = (params.tracks ?? []).map((t) => t.trim()).filter(Boolean);
+  const briefsUrl = params.briefsUrl?.trim() || 'https://sonant.ac/briefs?tab=catalog';
+  const subject = `Sonant picks for ${houseName}`;
+  try {
+    return await sendResend({
+      from: FROM,
+      to: params.to,
+      replyTo: LUKE,
+      subject,
+      html: houseCatalogDigestHtml({
+        houseName,
+        discoPlaylistUrl: params.discoPlaylistUrl,
+        tracks,
+        note: params.note,
+        briefsUrl,
+      }),
+    });
+  } catch (error) {
+    console.error('sendHouseCatalogDigestEmail failed:', error);
+    return { error: 'Email failed to send.' };
+  }
+}
+
 export async function sendReferralCreditEmail(params: {
   to: string;
   joinerName: string;

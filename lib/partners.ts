@@ -10,6 +10,8 @@ export type CatalogPartner = {
   markSrc: string;
   exclusive: boolean;
   split: string;
+  /** Default recipient for weekly catalog picks (override in admin before send). */
+  digestContactEmail?: string;
 };
 
 export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
@@ -21,8 +23,11 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     markSrc: '/brand/thought-collective-mark.png',
     exclusive: true,
     split: '50/50',
+    digestContactEmail: '',
   },
 };
+
+export const CATALOG_PARTNER_LIST = Object.values(CATALOG_PARTNERS);
 
 export const DEFAULT_CATALOG_PARTNER_ID = 'thought-collective';
 
