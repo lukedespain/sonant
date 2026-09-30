@@ -1,6 +1,7 @@
 export const THOUGHT_COLLECTIVE_SITE = 'https://www.wearethoughtcollective.com/';
 export const THOUGHT_COLLECTIVE_CATALOG =
   'https://wearethoughtcollective.disco.ac/cat/1526278692';
+export const SONANT_CATALOG = 'https://sonant.disco.ac/cat/152887908';
 
 export type CatalogPartner = {
   id: string;
@@ -24,6 +25,15 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     exclusive: true,
     split: '50/50',
     digestContactEmail: '',
+  },
+  sonant: {
+    id: 'sonant',
+    name: 'Sonant',
+    site: 'https://sonant.ac',
+    catalogUrl: SONANT_CATALOG,
+    markSrc: '',
+    exclusive: false,
+    split: '70/30 in your favor',
   },
 };
 

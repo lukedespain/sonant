@@ -1,5 +1,5 @@
 import React from 'react';
-import { catalogPartnerFromBrief } from '@/lib/partners';
+import { catalogPartnerFromBrief, type CatalogPartner } from '@/lib/partners';
 import ThoughtCollectiveMark from '@/components/ThoughtCollectiveMark';
 import { youtubeSearchUrlForTrack } from '@/lib/youtube-search';
 
@@ -70,6 +70,34 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
+function CatalogPartnerMark({
+  partner,
+  size,
+  invert = false,
+}: {
+  partner: CatalogPartner;
+  size: number;
+  invert?: boolean;
+}) {
+  if (partner.id === 'thought-collective') {
+    return <ThoughtCollectiveMark size={size} invert={invert} />;
+  }
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        display: 'block',
+        fontSize: size,
+        lineHeight: 1,
+        color: '#E85D2F',
+        flexShrink: 0,
+      }}
+    >
+      ◆
+    </span>
+  );
+}
+
 function SonicItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -126,7 +154,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           />
           {partner && (
             <div className="absolute left-5 bottom-5 flex items-center gap-2.5 text-[#F5F1E8]">
-              <ThoughtCollectiveMark size={22} invert />
+              <CatalogPartnerMark partner={partner} size={22} invert />
               <span
                 className="text-[10px] tracking-[0.22em] uppercase"
                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -153,7 +181,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
                 className="flex items-center gap-2"
                 style={{ color: 'var(--brief-text-h)' }}
               >
-                <ThoughtCollectiveMark size={16} />
+                <CatalogPartnerMark partner={partner} size={16} />
                 <span
                   className="text-[10px] tracking-[0.2em] uppercase"
                   style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
@@ -322,7 +350,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
             <Label>This catalog</Label>
             <div className="flex items-start gap-4 mb-5">
               <div className="mt-0.5 text-[var(--brief-text-h)]">
-                <ThoughtCollectiveMark size={28} />
+                <CatalogPartnerMark partner={partner} size={28} />
               </div>
               <div>
                 <div
@@ -390,7 +418,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
             </div>
           ) : partner ? (
             <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
-              Exclusive · {partner.split}
+              {partner.exclusive ? 'Exclusive' : 'Non-exclusive'} · {partner.split}
             </div>
           ) : isFeatured ? (
             <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>

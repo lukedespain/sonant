@@ -94,7 +94,7 @@ export async function generateCatalogBrief(
   }
 
   const issued = todayFormatted();
-  const prefix = partner.id === 'thought-collective' ? 'TC' : 'CAT';
+  const prefix = partner.id === 'thought-collective' ? 'TC' : partner.id === 'sonant' ? 'SN' : 'CAT';
   const briefId = makeBriefId(prefix);
 
   const textFiles = input.files.filter((f) => f.kind === 'text' && f.text).map((f) => `--- ${f.name} ---\n${f.text}`);

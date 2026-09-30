@@ -69,7 +69,7 @@ export default function HouseDigestTab() {
             className={fieldClass}
             style={{ ...sans, borderRadius: '2px' }}
           >
-            {CATALOG_PARTNER_LIST.map((p) => (
+            {CATALOG_PARTNER_LIST.filter((p) => p.id !== 'sonant').map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
