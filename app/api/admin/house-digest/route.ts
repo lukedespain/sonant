@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { isSiteAdmin } from '@/lib/admin';
 import { sendHouseCatalogDigestEmail } from '@/lib/email';
+import { splitDigestPicks } from '@/lib/house-digest';
 import { catalogPartnerById, DEFAULT_CATALOG_PARTNER_ID } from '@/lib/partners';
-import { siteUrl } from '@/lib/site-url';
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -22,12 +22,11 @@ export async function POST(req: Request) {
 
   const to = String(body?.to ?? '').trim();
   const discoPlaylistUrl = String(body?.discoPlaylistUrl ?? '').trim();
-  const note = typeof body?.note === 'string' ? body.note : '';
+  const intro = typeof body?.intro === 'string' ? body.intro : '';
+  const closing = typeof body?.closing === 'string' ? body.closing : '';
   const tracksRaw = typeof body?.tracks === 'string' ? body.tracks : '';
-  const tracks = tracksRaw
-    .split('\n')
-    .map((line: string) => line.trim())
-    .filter(Boolean);
+  const tracks = splitDigestPicks(tracksRaw);
+  const test = body?.test === true;
 
   if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
     return NextResponse.json({ error: 'Add a valid recipient email.' }, { status: 400 });
@@ -40,9 +39,10 @@ export async function POST(req: Request) {
     to,
     houseName: partner.name,
     discoPlaylistUrl,
+    intro,
     tracks,
-    note,
-    briefsUrl: `${siteUrl()}/briefs?tab=catalog`,
+    closing,
+    test,
   });
 
   if (result.error) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { HOUSE_DIGEST_CLOSING, HOUSE_DIGEST_INTRO } from '@/lib/house-digest';
 import {
   CATALOG_PARTNER_LIST,
   DEFAULT_CATALOG_PARTNER_ID,
@@ -14,8 +15,9 @@ export default function HouseDigestTab() {
   const [partnerId, setPartnerId] = useState(DEFAULT_CATALOG_PARTNER_ID);
   const [to, setTo] = useState('');
   const [discoPlaylistUrl, setDiscoPlaylistUrl] = useState('');
+  const [intro, setIntro] = useState(HOUSE_DIGEST_INTRO);
   const [tracks, setTracks] = useState('');
-  const [note, setNote] = useState('');
+  const [closing, setClosing] = useState(HOUSE_DIGEST_CLOSING);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -39,8 +41,10 @@ export default function HouseDigestTab() {
         partnerId,
         to: testOnly ? 'music@lukedespain.com' : to,
         discoPlaylistUrl,
+        intro,
         tracks,
-        note: testOnly ? `[TEST] ${note}`.trim() : note,
+        closing,
+        test: testOnly,
       }),
     });
 
@@ -56,7 +60,7 @@ export default function HouseDigestTab() {
   return (
     <div className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
-        Send a Sonant-branded note to a music house with your Disco playlist link. They listen on Disco. You curate on Sonant. Paste one track per line so the email lists what you picked.
+        Send a Sonant-branded note to a music house with your Disco playlist link. They listen on Disco. You curate on Sonant. Leave a blank line between picks and each one becomes a bullet.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -98,24 +102,33 @@ export default function HouseDigestTab() {
         style={{ ...sans, borderRadius: '2px' }}
       />
 
-      <label htmlFor="digest-tracks" className={labelClass} style={mono}>Tracks (one per line)</label>
+      <label htmlFor="digest-intro" className={labelClass} style={mono}>Body</label>
       <textarea
-        id="digest-tracks"
-        value={tracks}
-        onChange={(e) => setTracks(e.target.value)}
-        rows={8}
-        placeholder={'Composer Name · Track Title · Tribe Type Beat\nAnother Composer · Song · Tribe Type Beat'}
+        id="digest-intro"
+        value={intro}
+        onChange={(e) => setIntro(e.target.value)}
+        rows={5}
         className={`${fieldClass} mb-4`}
         style={{ ...sans, borderRadius: '2px' }}
       />
 
-      <label htmlFor="digest-note" className={labelClass} style={mono}>Short note (optional)</label>
+      <label htmlFor="digest-tracks" className={labelClass} style={mono}>This week&apos;s picks</label>
       <textarea
-        id="digest-note"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        rows={3}
-        placeholder="Anything you want Jack to know before he hits play."
+        id="digest-tracks"
+        value={tracks}
+        onChange={(e) => setTracks(e.target.value)}
+        rows={10}
+        placeholder={'Competence by Szymon is a great electronic rock track...\n\nWhat Was Felt by Szymon is a felt piano track...'}
+        className={`${fieldClass} mb-4`}
+        style={{ ...sans, borderRadius: '2px' }}
+      />
+
+      <label htmlFor="digest-closing" className={labelClass} style={mono}>Closing</label>
+      <textarea
+        id="digest-closing"
+        value={closing}
+        onChange={(e) => setClosing(e.target.value)}
+        rows={5}
         className={`${fieldClass} mb-6`}
         style={{ ...sans, borderRadius: '2px' }}
       />
