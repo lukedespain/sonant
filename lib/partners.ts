@@ -24,7 +24,7 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     markSrc: '/brand/thought-collective-mark.png',
     exclusive: true,
     split: '50/50',
-    digestContactEmail: '',
+    digestContactEmail: 'jack@wearethoughtcollective.com',
   },
   sonant: {
     id: 'sonant',

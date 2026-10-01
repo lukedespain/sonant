@@ -13,7 +13,9 @@ const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
 
 export default function HouseDigestTab() {
   const [partnerId, setPartnerId] = useState(DEFAULT_CATALOG_PARTNER_ID);
-  const [to, setTo] = useState('');
+  const [to, setTo] = useState(
+    () => catalogPartnerById(DEFAULT_CATALOG_PARTNER_ID)?.digestContactEmail ?? '',
+  );
   const [discoPlaylistUrl, setDiscoPlaylistUrl] = useState('');
   const [intro, setIntro] = useState(HOUSE_DIGEST_INTRO);
   const [tracks, setTracks] = useState('');
@@ -69,7 +71,11 @@ export default function HouseDigestTab() {
           <select
             id="digest-partner"
             value={partnerId}
-            onChange={(e) => setPartnerId(e.target.value)}
+            onChange={(e) => {
+              const nextId = e.target.value;
+              setPartnerId(nextId);
+              setTo(catalogPartnerById(nextId)?.digestContactEmail ?? '');
+            }}
             className={fieldClass}
             style={{ ...sans, borderRadius: '2px' }}
           >
