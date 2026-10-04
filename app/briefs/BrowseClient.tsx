@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { catalogPartnerFromBrief } from '@/lib/partners';
 
@@ -22,14 +21,6 @@ interface BriefRow {
   featured_track_url?: string | null;
 }
 
-type Tab = 'community' | 'catalog' | 'client';
-
-function tabFromSearch(value: string | null): Tab {
-  if (value === 'client') return 'client';
-  if (value === 'catalog') return 'catalog';
-  return 'community';
-}
-
 const MODE_LABELS: Record<string, string> = {
   brand: 'Brand',
   film: 'Film',
@@ -47,7 +38,6 @@ function briefSearchHaystack(brief: BriefRow) {
 type FilterState = {
   search: string;
   filterMode: string;
-  filterCategory: string;
   filterMood: string;
   filterGenre: string;
 };
@@ -57,10 +47,9 @@ function filterBriefs(briefs: BriefRow[], filters: FilterState, extra?: (b: Brie
   return briefs.filter((b) => {
     const matchSearch = !q || briefSearchHaystack(b).includes(q);
     const matchMode = !filters.filterMode || b.mode === filters.filterMode;
-    const matchCategory = !filters.filterCategory || b.target === filters.filterCategory;
     const matchMood = !filters.filterMood || b.moods.includes(filters.filterMood);
     const matchGenre = !filters.filterGenre || b.genres.includes(filters.filterGenre);
-    return matchSearch && matchMode && matchCategory && matchMood && matchGenre && (!extra || extra(b));
+    return matchSearch && matchMode && matchMood && matchGenre && (!extra || extra(b));
   });
 }
 
@@ -74,11 +63,7 @@ function collectTags(briefs: BriefRow[]) {
   return { moods: Array.from(moods).sort(), genres: Array.from(genres).sort() };
 }
 
-function ClientBriefCard({
-  brief,
-}: {
-  brief: BriefRow;
-}) {
+function ClientBriefCard({ brief }: { brief: BriefRow }) {
   const content = brief.generated_content ?? {};
   const imageUrl = content.imageUrl as string | undefined;
   const title = (content.projectTitle as string) || (content.codename as string) || 'Untitled';
@@ -155,16 +140,10 @@ function ClientBriefCard({
   );
 }
 
-/**
- * Silhouette of a client brief for viewers who are not allowed to receive the
- * real rows. Carries no data — it exists so the locked state has a card-sized
- * body to sit behind the overlay.
- */
 function ClientBriefPlaceholder() {
   const bar = (width: string, color: string) => (
     <div style={{ width, height: '10px', background: color, borderRadius: '2px' }} />
   );
-
   return (
     <div
       className="overflow-hidden border border-[var(--border-card)] bg-[var(--bg-card)]"
@@ -227,7 +206,7 @@ function BriefCard({
       {imageUrl && (
         <div className="relative w-full overflow-hidden" style={{ height: compact ? '100px' : '140px' }}>
           <img
-            src={imageUrl}
+            src={imageUrl as string}
             alt=""
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
@@ -237,7 +216,6 @@ function BriefCard({
           />
         </div>
       )}
-
       <div className={imageUrl ? 'px-4 pb-4 pt-3' : 'p-5'}>
         {featured && (
           <div
@@ -255,7 +233,6 @@ function BriefCard({
             Community
           </div>
         )}
-
         <h3 className="leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors mb-1">
           <span
             className={compact ? 'text-lg italic' : 'text-xl italic'}
@@ -276,13 +253,11 @@ function BriefCard({
             {modeLabel}
           </span>
         </h3>
-
         {project && !compact && (
           <p className="text-sm text-[var(--text-muted)] mb-3 leading-relaxed line-clamp-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            {project}
+            {project as string}
           </p>
         )}
-
         <div className="flex flex-wrap gap-1.5 mt-3">
           <span
             className="text-[10px] tracking-wider px-2 py-1 border text-[#E85D2F] border-[#E85D2F]/30 bg-[#E85D2F]/5"
@@ -305,6 +280,27 @@ function BriefCard({
   );
 }
 
+function SectionHeading({ label, count }: { label: string; count?: number }) {
+  return (
+    <div className="flex items-baseline gap-3 mb-6">
+      <h2
+        className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-primary)]"
+        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      >
+        {label}
+      </h2>
+      {count !== undefined && (
+        <span
+          className="text-[10px] text-[var(--text-dimmer)]"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        >
+          {count}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function BrowseClient({
   featuredBriefs,
   clientBriefs = [],
@@ -322,137 +318,41 @@ export default function BrowseClient({
   isVerified?: boolean;
   isBriefAdmin?: boolean;
 }) {
-  const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<Tab>(() => tabFromSearch(searchParams.get('tab')));
   const [search, setSearch] = useState('');
   const [filterMode, setFilterMode] = useState('');
-  const [filterCategory, setFilterCategory] = useState('');
   const [filterMood, setFilterMood] = useState('');
   const [filterGenre, setFilterGenre] = useState('');
   const [mineOnly, setMineOnly] = useState(mineOnlyDefault);
 
-  useEffect(() => {
-    setActiveTab(tabFromSearch(searchParams.get('tab')));
-    setMineOnly(searchParams.get('mine') === '1');
-  }, [searchParams]);
+  const allBriefs = useMemo(
+    () => [...clientBriefs, ...featuredBriefs, ...communityBriefs],
+    [clientBriefs, featuredBriefs, communityBriefs]
+  );
+  const { moods: allMoods, genres: allGenres } = useMemo(() => collectTags(allBriefs), [allBriefs]);
 
-  useEffect(() => {
-    setFilterCategory('');
-  }, [filterMode]);
+  const filterState: FilterState = { search, filterMode, filterMood, filterGenre };
 
-  const BRAND_CATEGORIES = ['Automotive', 'Beverage', 'Fashion', 'Financial', 'Food', 'Healthcare', 'Lifestyle', 'Sports', 'Technology'];
-  const FILM_CATEGORIES = ['Action', 'Documentary', 'Drama', 'Horror', 'Romance / Indie', 'Sci-Fi', 'Thriller / Suspense'];
-  const GAME_CATEGORIES = ['Boss Battle', 'Cinematic / Cutscene', 'Combat / Action', 'Exploration / Open World', 'Horror / Stealth', 'Main Menu / Title', 'Puzzle / Casual'];
-
-  const availableCategories = useMemo(() => {
-    if (filterMode === 'brand') return BRAND_CATEGORIES;
-    if (filterMode === 'film') return FILM_CATEGORIES;
-    if (filterMode === 'games') return GAME_CATEGORIES;
-    return [...BRAND_CATEGORIES, ...FILM_CATEGORIES, ...GAME_CATEGORIES].sort();
-  }, [filterMode]);
-
-  const filterState: FilterState = { search, filterMode, filterCategory, filterMood, filterGenre };
-
-  const sourceBriefs =
-    activeTab === 'catalog' ? featuredBriefs : activeTab === 'client' ? clientBriefs : communityBriefs;
-  const { moods: allMoods, genres: allGenres } = useMemo(() => collectTags(sourceBriefs), [sourceBriefs]);
-
+  const filteredClient = useMemo(() => filterBriefs(clientBriefs, filterState), [clientBriefs, search, filterMode, filterMood, filterGenre]);
+  const filteredCatalog = useMemo(() => filterBriefs(featuredBriefs, filterState), [featuredBriefs, search, filterMode, filterMood, filterGenre]);
   const filteredCommunity = useMemo(
     () => filterBriefs(communityBriefs, filterState, (b) => !mineOnly || b.user_id === currentUserId),
-    [communityBriefs, search, filterMode, filterCategory, filterMood, filterGenre, mineOnly, currentUserId]
-  );
-  const filteredCatalog = useMemo(
-    () => filterBriefs(featuredBriefs, filterState),
-    [featuredBriefs, search, filterMode, filterCategory, filterMood, filterGenre]
-  );
-  const filteredClient = useMemo(
-    () => filterBriefs(clientBriefs, filterState),
-    [clientBriefs, search, filterMode, filterCategory, filterMood, filterGenre]
+    [communityBriefs, search, filterMode, filterMood, filterGenre, mineOnly, currentUserId]
   );
 
   const clearFilters = () => {
     setSearch('');
     setFilterMode('');
-    setFilterCategory('');
     setFilterMood('');
     setFilterGenre('');
   };
 
-  const hasFilters = !!(search || filterMode || filterCategory || filterMood || filterGenre);
-  const selectClass = `text-xs tracking-[0.15em] uppercase bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-secondary)] px-3 py-2 focus:border-[#E85D2F] focus:outline-none appearance-none pr-6`;
-
-  const filterBar = (
-    <div className="flex flex-wrap gap-3 mb-6 items-end">
-      <div className="flex-1 min-w-[200px]">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or project…"
-          className="w-full px-4 py-2.5 text-sm bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] placeholder:text-[var(--text-dimmer)] focus:border-[#E85D2F] focus:outline-none"
-          style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
-        />
-      </div>
-      <div className="relative">
-        <select value={filterMode} onChange={(e) => setFilterMode(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-          <option value="">All Types</option>
-          <option value="brand">Brand</option>
-          <option value="film">Film</option>
-          <option value="games">Games</option>
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-      </div>
-      <div className="relative">
-        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-          <option value="">All Categories</option>
-          {availableCategories.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-      </div>
-      <div className="relative">
-        <select value={filterMood} onChange={(e) => setFilterMood(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-          <option value="">All Moods</option>
-          {allMoods.map((m) => <option key={m} value={m}>{m}</option>)}
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-      </div>
-      <div className="relative">
-        <select value={filterGenre} onChange={(e) => setFilterGenre(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
-          <option value="">All Genres</option>
-          {allGenres.map((g) => <option key={g} value={g}>{g}</option>)}
-        </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
-      </div>
-      {hasFilters && (
-        <button type="button" onClick={clearFilters} className="text-xs tracking-[0.15em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          Clear
-        </button>
-      )}
-      {activeTab === 'community' && currentUserId && (
-        <label className="flex items-center gap-2 cursor-pointer ml-auto">
-          <input
-            type="checkbox"
-            checked={mineOnly}
-            onChange={(e) => setMineOnly(e.target.checked)}
-            className="accent-[#E85D2F]"
-          />
-          <span className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            Show only my briefs
-          </span>
-        </label>
-      )}
-    </div>
-  );
-
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'community', label: 'Community Briefs' },
-    { key: 'catalog', label: 'Catalog Briefs' },
-    { key: 'client', label: 'Client Briefs' },
-  ];
+  const hasFilters = !!(search || filterMode || filterMood || filterGenre);
+  const selectClass = `text-xs tracking-[0.15em] uppercase bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-secondary)] px-3 py-2.5 focus:border-[#E85D2F] focus:outline-none appearance-none pr-6`;
 
   return (
     <>
-      <div className="mb-10 max-w-2xl">
+      {/* Header */}
+      <div className="mb-8 max-w-2xl">
         <h1
           className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4"
           style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
@@ -463,175 +363,194 @@ export default function BrowseClient({
           className="text-sm text-[var(--text-tertiary)] leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Briefs you write to. Community briefs anyone can take, catalog briefs from the houses, and paid client jobs once you have three placements.
+          Client jobs, catalog briefs from the houses, and community briefs to practice with.
         </p>
       </div>
 
-      <div className="flex items-end mb-8 border-b border-[var(--border-base)]">
-        <div className="flex gap-1">
-          {tabs.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => { setActiveTab(key); clearFilters(); }}
-              className={`px-5 py-3 text-xs tracking-[0.2em] uppercase transition-colors -mb-px border-b-2 ${
-                activeTab === key
-                  ? 'text-[var(--text-primary)] border-[#E85D2F]'
-                  : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
-              }`}
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              {label}
-            </button>
-          ))}
+      {/* Filter bar */}
+      <div className="flex flex-wrap gap-3 mb-10 items-end border-b border-[var(--border-base)] pb-8">
+        <div className="flex-1 min-w-[200px]">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name or project…"
+            className="w-full px-4 py-2.5 text-sm bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] placeholder:text-[var(--text-dimmer)] focus:border-[#E85D2F] focus:outline-none"
+            style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+          />
         </div>
+        <div className="relative">
+          <select value={filterMode} onChange={(e) => setFilterMode(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+            <option value="">Brief Type</option>
+            <option value="brand">Brand</option>
+            <option value="film">Film</option>
+            <option value="games">Games</option>
+          </select>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
+        </div>
+        <div className="relative">
+          <select value={filterMood} onChange={(e) => setFilterMood(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+            <option value="">Mood</option>
+            {allMoods.map((m) => <option key={m} value={m}>{m}</option>)}
+          </select>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
+        </div>
+        <div className="relative">
+          <select value={filterGenre} onChange={(e) => setFilterGenre(e.target.value)} className={selectClass} style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}>
+            <option value="">Genre</option>
+            {allGenres.map((g) => <option key={g} value={g}>{g}</option>)}
+          </select>
+          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-dimmer)] text-xs">▾</span>
+        </div>
+        {hasFilters && (
+          <button type="button" onClick={clearFilters} className="text-xs tracking-[0.15em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            Clear
+          </button>
+        )}
       </div>
 
-      {activeTab === 'client' && (
-        <>
-          <div className="flex items-start justify-between gap-6 mb-8">
-            <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              {isBriefAdmin
-                ? 'Live jobs from brands, studios, and supervisors. Add a client brief to turn their document into a published job for verified composers.'
-                : 'Real briefs from brands, studios, and supervisors. Verified composers get first access.'}
-            </p>
-            {isBriefAdmin && (
-              <Link
-                href="/admin?tab=briefs"
-                className="shrink-0 px-4 py-2.5 text-[10px] tracking-[0.2em] uppercase border border-[#E85D2F] text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-              >
-                + Add client brief
-              </Link>
-            )}
-          </div>
-          <div className="relative">
-            {isVerified ? (
-              <>
-                {filterBar}
-                <p className="text-xs text-[var(--text-dimmer)] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                  {filteredClient.length} brief{filteredClient.length !== 1 ? 's' : ''}
-                </p>
-                <div className="flex flex-col gap-4">
-                  {filteredClient.length === 0 ? (
-                    <p className="text-sm text-[var(--text-muted)] py-8" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      {hasFilters ? 'No briefs match your filters.' : 'No active client briefs yet.'}
-                    </p>
-                  ) : (
-                    filteredClient.map((brief) => <ClientBriefCard key={brief.id} brief={brief} />)
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div
-                  className="select-none pointer-events-none"
-                  style={{ filter: 'blur(10px)', transform: 'scale(1.01)' }}
-                  aria-hidden="true"
-                >
-                  <ClientBriefPlaceholder />
-                </div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-[var(--bg-base)]/35">
-                  <div
-                    className="w-12 h-12 flex items-center justify-center border border-[#E85D2F]/40 text-[#E85D2F] mb-5"
-                    style={{ borderRadius: '2px' }}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                      <rect x="4.5" y="9" width="11" height="8" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
-                      <path d="M7 9V6.5a3 3 0 016 0V9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                  <div
-                    className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] mb-3"
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                  >
-                    Verified composers only
-                  </div>
-                  <p
-                    className="text-sm text-[var(--text-muted)] max-w-sm leading-relaxed"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}
-                  >
-                    Place three tracks in the catalog to earn the badge and unlock access to paid client briefs.
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
-        </>
-      )}
-
-      {activeTab === 'catalog' && (
-        <>
-          <div className="flex items-start justify-between gap-6 mb-8">
-            <p className="text-sm text-[var(--text-tertiary)] max-w-xl leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              {isBriefAdmin
-                ? 'Tracks Thought Collective is looking for. Add a catalog brief from Jack\'s notes, then email everyone when you are ready.'
-                : 'Tracks Thought Collective is looking for right now. Every submission gets written feedback. Accepted tracks are pitched by the house.'}
-            </p>
-            {isBriefAdmin && (
-              <Link
-                href="/admin?tab=briefs&kind=catalog"
-                className="shrink-0 px-4 py-2.5 text-[10px] tracking-[0.2em] uppercase border border-[#E85D2F] text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-              >
-                + Add catalog brief
-              </Link>
-            )}
-          </div>
-
-          {filterBar}
-
-          <p className="text-xs text-[var(--text-dimmer)] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            {filteredCatalog.length} brief{filteredCatalog.length !== 1 ? 's' : ''}
-          </p>
-
-          {filteredCatalog.length === 0 ? (
-            <p className="text-sm text-[var(--text-muted)] py-8" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              {hasFilters ? 'No briefs match your filters.' : 'No catalog briefs yet.'}
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredCatalog.map((brief) => (
-                <BriefCard key={brief.id} brief={brief} featured />
-              ))}
-            </div>
+      {/* ── CLIENT BRIEFS ─────────────────────────────── */}
+      <section className="mb-16">
+        <div className="flex items-center justify-between mb-6">
+          <SectionHeading label="Client Briefs" count={isVerified ? filteredClient.length : undefined} />
+          {isBriefAdmin && (
+            <Link
+              href="/admin?tab=briefs"
+              className="px-4 py-2 text-[10px] tracking-[0.2em] uppercase border border-[#E85D2F] text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)] transition-colors"
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+            >
+              + Add
+            </Link>
           )}
-        </>
-      )}
+        </div>
 
-      {activeTab === 'community' && (
-        <>
-          <div className="mb-6 max-w-xl">
-            <p className="text-sm text-[var(--text-tertiary)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Practice briefs from the Generator. Upload a take to the playlist for free, or spend a credit to submit for written feedback.
-            </p>
-          </div>
-
-          {filterBar}
-
-          <p className="text-xs text-[var(--text-dimmer)] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-            {filteredCommunity.length} brief{filteredCommunity.length !== 1 ? 's' : ''}
-          </p>
-
-          {filteredCommunity.length === 0 ? (
-            <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-12 text-center" style={{ borderRadius: '2px' }}>
-              <p className="text-sm text-[var(--text-muted)] mb-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                {hasFilters ? 'No briefs match your filters.' : 'No community briefs yet. Generate the first one.'}
+        {isVerified ? (
+          <div className="flex flex-col gap-4">
+            {filteredClient.length === 0 ? (
+              <p className="text-sm text-[var(--text-muted)] py-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                {hasFilters ? 'No client briefs match your filters.' : 'No active client briefs yet.'}
               </p>
-              <a href="/generator"
-                className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}>
-                ◆ Open Generator
-              </a>
+            ) : (
+              filteredClient.map((brief) => <ClientBriefCard key={brief.id} brief={brief} />)
+            )}
+          </div>
+        ) : (
+          <div className="relative">
+            <div
+              className="select-none pointer-events-none"
+              style={{ filter: 'blur(10px)', transform: 'scale(1.01)' }}
+              aria-hidden="true"
+            >
+              <ClientBriefPlaceholder />
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredCommunity.map((brief) => (
-                <BriefCard key={brief.id} brief={brief} featured={false} compact />
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-[var(--bg-base)]/35">
+              <div
+                className="w-12 h-12 flex items-center justify-center border border-[#E85D2F]/40 text-[#E85D2F] mb-5"
+                style={{ borderRadius: '2px' }}
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <rect x="4.5" y="9" width="11" height="8" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+                  <path d="M7 9V6.5a3 3 0 016 0V9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div
+                className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] mb-3"
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              >
+                Verified composers only
+              </div>
+              <p
+                className="text-sm text-[var(--text-muted)] max-w-sm leading-relaxed"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
+                Place three tracks in the catalog to earn the badge and unlock access to paid client briefs.
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ── CATALOG BRIEFS ────────────────────────────── */}
+      <section className="mb-16">
+        <div className="flex items-center justify-between mb-6">
+          <SectionHeading label="Catalog Briefs" count={filteredCatalog.length} />
+          {isBriefAdmin && (
+            <Link
+              href="/admin?tab=briefs&kind=catalog"
+              className="px-4 py-2 text-[10px] tracking-[0.2em] uppercase border border-[#E85D2F] text-[#E85D2F] hover:bg-[#E85D2F] hover:text-[var(--bg-base)] transition-colors"
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+            >
+              + Add
+            </Link>
+          )}
+        </div>
+
+        {filteredCatalog.length === 0 ? (
+          <p className="text-sm text-[var(--text-muted)] py-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            {hasFilters ? 'No catalog briefs match your filters.' : 'No catalog briefs yet.'}
+          </p>
+        ) : (
+          <div className="overflow-x-auto pb-2 -mx-6 px-6 md:-mx-10 md:px-10">
+            <div
+              className="grid gap-4"
+              style={{
+                gridAutoFlow: 'column',
+                gridTemplateRows: 'repeat(2, auto)',
+                width: 'max-content',
+              }}
+            >
+              {filteredCatalog.map((brief) => (
+                <div key={brief.id} style={{ width: '280px' }}>
+                  <BriefCard brief={brief} featured />
+                </div>
               ))}
             </div>
-          )}
-        </>
-      )}
+          </div>
+        )}
+      </section>
+
+      {/* ── COMMUNITY BRIEFS ──────────────────────────── */}
+      <section>
+        <div className="flex items-center justify-between mb-6">
+          <SectionHeading label="Community Briefs" count={filteredCommunity.length} />
+          <div className="flex items-center gap-4">
+            {currentUserId && (
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={mineOnly}
+                  onChange={(e) => setMineOnly(e.target.checked)}
+                  className="accent-[#E85D2F]"
+                />
+                <span className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  Mine only
+                </span>
+              </label>
+            )}
+          </div>
+        </div>
+
+        {filteredCommunity.length === 0 ? (
+          <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-12 text-center" style={{ borderRadius: '2px' }}>
+            <p className="text-sm text-[var(--text-muted)] mb-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              {hasFilters ? 'No briefs match your filters.' : 'No community briefs yet. Generate the first one.'}
+            </p>
+            <a
+              href="/generator"
+              className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+            >
+              ◆ Open Generator
+            </a>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {filteredCommunity.map((brief) => (
+              <BriefCard key={brief.id} brief={brief} featured={false} compact />
+            ))}
+          </div>
+        )}
+      </section>
     </>
   );
 }
