@@ -148,6 +148,11 @@ export async function moveBriefToPractice(briefId: string): Promise<{ error?: st
   const content = { ...((brief.generated_content ?? {}) as Record<string, unknown>) };
   delete content.catalogId;
   delete content.catalog;
+  // Practice briefs have no hero image. Keep the URL so a move can be undone by hand.
+  if (content.imageUrl) {
+    content.archivedImageUrl = content.imageUrl;
+    delete content.imageUrl;
+  }
 
   const { error } = await admin
     .from('briefs')
