@@ -12,7 +12,10 @@ import {
   readVerifiedOverride,
 } from '@/lib/verification';
 import type { SubmissionItem } from '@/components/SubmissionHistory';
+import { readHandoffs, readRights } from '@/lib/handoff';
+import { catalogPartnerById } from '@/lib/partners';
 import DashboardView from './DashboardView';
+import type { Offer } from './OfferCard';
 
 export default async function DashboardPage({
   searchParams,
@@ -64,11 +67,28 @@ export default async function DashboardPage({
     createdAt: s.created_at as string,
   }));
 
+  const handoffs = readHandoffs(user.app_metadata);
+  const offers: Offer[] = submissions
+    .filter((s) => s.status === 'accepted' && handoffs[s.id] && !handoffs[s.id].agreedAt)
+    .map((s) => {
+      const partner = catalogPartnerById(handoffs[s.id].catalogId) ?? catalogPartnerById('sonant')!;
+      return {
+        submissionId: s.id,
+        briefName: s.briefCodename,
+        trackName: s.trackName ?? null,
+        catalogName: partner.name,
+        catalogDeal: `${partner.exclusive ? 'Exclusive' : 'Non-exclusive'} · ${partner.split}`,
+        terms: partner.terms,
+      };
+    });
+
   const p = profile as { full_name?: string; email?: string | null; submission_credits?: number } | null;
 
   return (
     <DashboardView
-      initialTab={tab === 'settings' ? 'settings' : 'submissions'}
+      initialTab={tab === 'settings' || tab === 'info' ? tab : 'submissions'}
+      rights={readRights(user.user_metadata)}
+      offers={offers}
       name={p?.full_name ?? ''}
       email={p?.email ?? user.email ?? ''}
       isAdmin={isAdmin}

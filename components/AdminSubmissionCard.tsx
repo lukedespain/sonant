@@ -6,6 +6,18 @@ import { recordDecision, type SubmissionDecision } from '@/app/briefs/actions';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
 
+export type AdminHandoff = {
+  agreedAt: string | null;
+  stemsUrl: string | null;
+  rights: {
+    legalName: string;
+    pro: string;
+    composerIpi: string;
+    publisherName: string;
+    publisherIpi: string;
+  } | null;
+};
+
 type AdminSubmissionCardProps = {
   submissionId: string;
   briefId: string;
@@ -23,6 +35,7 @@ type AdminSubmissionCardProps = {
   downloadHref?: string | null;
   playlistHref?: string | null;
   catalogName?: string;
+  handoff?: AdminHandoff | null;
 };
 
 export default function AdminSubmissionCard({
@@ -42,6 +55,7 @@ export default function AdminSubmissionCard({
   downloadHref = null,
   playlistHref = null,
   catalogName = 'Sonant',
+  handoff = null,
 }: AdminSubmissionCardProps) {
   const router = useRouter();
   const { track: activeTrack, isPlaying, play, pause } = useAudioPlayer();
@@ -114,6 +128,7 @@ export default function AdminSubmissionCard({
         : isSent
           ? `Sent to ${catalogName}`
           : 'Pending';
+  const handoffLabel = handoff ? (handoff.agreedAt ? ' · Signed' : ' · Awaiting signature') : '';
 
   const statusTone = isDisco
     ? deliveryConfirmedAt
@@ -194,6 +209,7 @@ export default function AdminSubmissionCard({
               }}
             >
               {statusLabel}
+              {handoffLabel}
             </span>
             <svg
               width="12"
@@ -343,6 +359,8 @@ export default function AdminSubmissionCard({
             </>
           ) : (
             <>
+              {handoff && <HandoffPanel handoff={handoff} catalogName={catalogName} />}
+
               <textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
@@ -361,6 +379,7 @@ export default function AdminSubmissionCard({
                 </div>
               )}
 
+              {!isDecided && (
               <p
                 className="text-[11px] text-[var(--text-muted)] leading-relaxed mb-3"
                 style={{ fontFamily: "'DM Sans', sans-serif" }}
@@ -371,6 +390,7 @@ export default function AdminSubmissionCard({
                     ? `Send to ${catalogName} when it is worth pitching. The composer gets your notes either way.`
                     : 'Sonant catalog brief. You make the call.'}
               </p>
+              )}
 
               <div className="flex gap-3 flex-wrap">
                 {canSend && (
@@ -447,5 +467,55 @@ function DecisionButton({
     >
       {label}
     </button>
+  );
+}
+
+function HandoffPanel({ handoff, catalogName }: { handoff: AdminHandoff; catalogName: string }) {
+  const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+  const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
+  if (!handoff.agreedAt) {
+    return (
+      <div className="mb-4 p-4 border border-[var(--border-card)] bg-[var(--bg-base)]" style={{ borderRadius: '2px' }}>
+        <div className="text-[10px] tracking-[0.2em] uppercase text-[#E8A33D]" style={mono}>
+          Waiting on the composer to sign on with {catalogName}
+        </div>
+      </div>
+    );
+  }
+  const r = handoff.rights;
+  const rows: [string, string][] = r
+    ? [
+        ['Legal name', r.legalName],
+        ['PRO', r.pro],
+        ['Composer IPI', r.composerIpi],
+        ['Publisher', r.publisherName || 'None'],
+        ['Publisher IPI', r.publisherIpi || 'None'],
+      ]
+    : [];
+  return (
+    <div className="mb-4 p-4 border border-[#7A9A6E]/40 bg-[var(--bg-base)]" style={{ borderRadius: '2px' }}>
+      <div className="text-[10px] tracking-[0.2em] uppercase text-[#7A9A6E] mb-3" style={mono}>
+        ◆ Signed {new Date(handoff.agreedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ready for {catalogName}
+      </div>
+      <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 mb-3">
+        {rows.map(([k, v]) => (
+          <div key={k}>
+            <dt className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={mono}>{k}</dt>
+            <dd className="text-sm text-[var(--text-primary)] break-words" style={sans}>{v}</dd>
+          </div>
+        ))}
+      </dl>
+      {handoff.stemsUrl && (
+        <a
+          href={handoff.stemsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+          style={{ ...mono, borderRadius: '2px' }}
+        >
+          ↗ Open stems
+        </a>
+      )}
+    </div>
   );
 }

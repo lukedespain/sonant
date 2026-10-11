@@ -13,6 +13,8 @@ export type CatalogPartner = {
   split: string;
   focus: string;
   blurb: string;
+  /** Shown to a composer when this catalog accepts their track. */
+  terms: string[];
   /** Default recipient for weekly catalog picks (override in admin before send). */
   digestContactEmail?: string;
 };
@@ -27,6 +29,11 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     exclusive: true,
     split: '50/50',
     focus: 'Brand',
+    terms: [
+      'Exclusive. Once accepted, the track lives only in the Thought Collective catalog.',
+      'Sync fees split 50/50 between you and Thought Collective.',
+      'Thought Collective pitches the track to agencies and brands.',
+    ],
     blurb:
       'A sync catalog built for brand work. Their briefs come from what agencies and brands are asking for right now, and accepted tracks get pitched to them directly.',
     digestContactEmail: 'jack@wearethoughtcollective.com',
@@ -40,6 +47,11 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     exclusive: false,
     split: '50/50',
     focus: 'Brand, film, games',
+    terms: [
+      'Non-exclusive. You can keep pitching the track anywhere else.',
+      'Sync fees split 50/50 between you and Sonant.',
+      'Sonant pitches the track directly.',
+    ],
     blurb:
       'Our own catalog, pitched by the Sonant team. It is newer and still growing. Placements here stay non-exclusive, so the music is yours to pitch anywhere else too.',
   },

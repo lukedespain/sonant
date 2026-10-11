@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { signOut } from '@/app/auth/actions';
 import AlertsPanel from '@/app/profile/[id]/AlertsPanel';
 import SubmissionHistory, { type SubmissionItem } from '@/components/SubmissionHistory';
+import type { RightsInfo } from '@/lib/handoff';
+import MyInfoPanel from './MyInfoPanel';
+import OfferCard, { type Offer } from './OfferCard';
 import type { AppNotification } from '@/lib/notifications';
 
 const serif = { fontFamily: "'Fraunces', serif" } as const;
@@ -12,10 +15,14 @@ const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
 const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
 
 type Panel = 'name' | 'email' | 'password' | 'delete' | null;
-type Tab = 'submissions' | 'settings';
+type Tab = 'submissions' | 'info' | 'settings';
+
+const TAB_LABEL: Record<Tab, string> = { submissions: 'My Submissions', info: 'My Info', settings: 'Settings' };
 
 export default function DashboardView({
   initialTab,
+  rights: initialRights,
+  offers,
   name: initialName,
   email: initialEmail,
   isAdmin,
@@ -29,6 +36,8 @@ export default function DashboardView({
   verificationThreshold,
 }: {
   initialTab: Tab;
+  rights: RightsInfo;
+  offers: Offer[];
   name: string;
   email: string;
   isAdmin: boolean;
@@ -46,6 +55,7 @@ export default function DashboardView({
   const [email, setEmail] = useState(initialEmail);
   const [panel, setPanel] = useState<Panel>(null);
   const [tab, setTab] = useState<Tab>(initialTab);
+  const [rights, setRights] = useState(initialRights);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -64,7 +74,7 @@ export default function DashboardView({
 
   function selectTab(next: Tab) {
     setTab(next);
-    const url = next === 'settings' ? '/dashboard?tab=settings' : '/dashboard';
+    const url = next === 'submissions' ? '/dashboard' : `/dashboard?tab=${next}`;
     window.history.replaceState(null, '', url);
   }
 
@@ -235,7 +245,7 @@ export default function DashboardView({
         </div>
 
         <div className="flex items-end mb-8 border-b border-[var(--border-base)]" role="tablist">
-          {(['submissions', 'settings'] as const).map((key) => (
+          {(['submissions', 'info', 'settings'] as const).map((key) => (
             <button
               key={key}
               type="button"
@@ -249,19 +259,29 @@ export default function DashboardView({
               }`}
               style={mono}
             >
-              {key === 'submissions' ? 'My Submissions' : 'Settings'}
+              {TAB_LABEL[key]}
+              {key === 'submissions' && offers.length > 0 && <span className="ml-2 text-[#E85D2F]">◆</span>}
             </button>
           ))}
         </div>
 
         {tab === 'submissions' && (
           <>
+            {offers.length > 0 && (
+              <div className="flex flex-col gap-5 mb-12">
+                {offers.map((offer) => (
+                  <OfferCard key={offer.submissionId} offer={offer} rights={rights} onRightsSaved={setRights} />
+                ))}
+              </div>
+            )}
             <SubmissionHistory items={submissions} />
             <section className="mt-20">
               <AlertsPanel initialItems={notifications} />
             </section>
           </>
         )}
+
+        {tab === 'info' && <MyInfoPanel rights={rights} onSaved={setRights} />}
 
         {tab === 'settings' && (
         <div className="max-w-2xl">

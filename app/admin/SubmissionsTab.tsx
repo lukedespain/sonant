@@ -3,6 +3,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import AdminSubmissionCard from '@/components/AdminSubmissionCard';
 import { SUBMISSION_BUCKET } from '@/lib/audio-upload';
 import { catalogPartnerFromBrief } from '@/lib/partners';
+import { readHandoffs, readRights } from '@/lib/handoff';
+import type { AdminHandoff } from '@/components/AdminSubmissionCard';
 
 type Queue = 'catalog' | 'client';
 
@@ -122,6 +124,24 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
     return same[0] ?? null;
   }
 
+  const acceptedOwners = [...new Set(rows.filter((r) => r.status === 'accepted').map((r) => r.user_id))];
+  const authUsers = Object.fromEntries(
+    await Promise.all(
+      acceptedOwners.map(async (id) => [id, (await admin.auth.admin.getUserById(id)).data?.user ?? null] as const)
+    )
+  );
+  function handoffFor(sub: SubmissionRow): AdminHandoff | null {
+    if (sub.status !== 'accepted') return null;
+    const owner = authUsers[sub.user_id];
+    const record = readHandoffs(owner?.app_metadata)[sub.id];
+    if (!record) return null;
+    return {
+      agreedAt: record.agreedAt ?? null,
+      stemsUrl: record.stemsUrl ?? null,
+      rights: record.agreedAt ? readRights(owner?.user_metadata) : null,
+    };
+  }
+
   const audioBySubmission = Object.fromEntries(
     await Promise.all(
       rows
@@ -159,6 +179,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
         ? `/api/admin/submissions/${sub.id}/download`
         : playlistHit?.file_url ?? null,
       playlistHref: playlistHit ? `/briefs/${sub.brief_id}#playlist` : null,
+      handoff: handoffFor(sub),
     };
   });
 
@@ -225,6 +246,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
               downloadHref={row.downloadHref}
               playlistHref={row.playlistHref}
               catalogName={row.catalogName}
+              handoff={row.handoff}
             />
           ))}
         </div>

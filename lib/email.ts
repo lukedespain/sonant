@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { siteUrl } from '@/lib/site-url';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -67,7 +68,7 @@ export async function sendDecisionEmail(params: {
     accepted: {
       subject: `${catalogName} accepted your track for ${projectName}`,
       heading: 'Congratulations',
-      intro: `${catalogName} accepted your track for <strong>${projectName}</strong>. Next, I will send over their terms and what they need from you to get it into the catalog.`,
+      intro: `${catalogName} accepted your track for <strong>${projectName}</strong>. Open your Sonant dashboard to review their terms, confirm your PRO details, and send your stems. Here are my notes.`,
     },
     not_accepted: wasSent
       ? {
@@ -92,6 +93,7 @@ export async function sendDecisionEmail(params: {
         <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
           <h2 style="font-weight: 500;">${heading}</h2>
           <p>${intro}</p>
+          ${decision === 'accepted' ? `<p><a href="${siteUrl()}/dashboard" style="color: #E85D2F;">Open your dashboard</a></p>` : ''}
           <div style="border-left: 2px solid #E85D2F; padding-left: 16px; margin: 24px 0; color: #1A1815;">
             ${feedback.replace(/\n/g, '<br>')}
           </div>
@@ -133,6 +135,53 @@ export async function sendCatalogAccessRequestEmail(params: {
     console.error('sendCatalogAccessRequestEmail failed:', error);
     return { error: 'Email failed to send.' };
   }
+}
+
+// Sent to Luke when a composer agrees to a catalog's terms and hands over stems.
+export async function sendHandoffEmail(params: {
+  composerName: string;
+  composerEmail: string;
+  projectName: string;
+  trackName: string | null;
+  catalogName: string;
+  stemsUrl: string;
+  rights: {
+    legalName: string;
+    pro: string;
+    composerIpi: string;
+    publisherName: string;
+    publisherIpi: string;
+  };
+}) {
+  const e = escapeHtml;
+  const r = params.rights;
+  const rows: [string, string][] = [
+    ['Composer', `${params.composerName || '(no name)'} · ${params.composerEmail}`],
+    ['Brief', params.projectName],
+    ['Track', params.trackName || '(not named)'],
+    ['Catalog', params.catalogName],
+    ['Legal name', r.legalName],
+    ['PRO', r.pro],
+    ['Composer IPI', r.composerIpi],
+    ['Publisher', r.publisherName || 'Self-published / none'],
+    ['Publisher IPI', r.publisherIpi || '(none)'],
+  ];
+  return sendResend({
+    from: FROM,
+    to: LUKE,
+    replyTo: params.composerEmail,
+    subject: `${params.composerName || params.composerEmail} signed on with ${params.catalogName} for ${params.projectName}`,
+    html: `
+      <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
+        <h2 style="font-weight: 500;">Ready to hand off to ${e(params.catalogName)}</h2>
+        <p>The composer agreed to the terms and sent their stems.</p>
+        <table style="border-collapse: collapse; margin: 16px 0;">
+          ${rows.map(([k, v]) => `<tr><td style="padding: 4px 16px 4px 0; color: #6B6560;">${e(k)}</td><td style="padding: 4px 0;">${e(v)}</td></tr>`).join('')}
+        </table>
+        <p><a href="${e(params.stemsUrl)}" style="color: #E85D2F;">Open the stems</a></p>
+      </div>
+    `,
+  });
 }
 
 function escapeHtml(value: string) {
