@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { btn } from '@/components/ui';
 
 export default function RegenerateImageButton({ briefId }: { briefId: string }) {
   const [loading, setLoading] = useState(false);
@@ -34,10 +35,9 @@ export default function RegenerateImageButton({ briefId }: { briefId: string }) 
       <button
         onClick={handleClick}
         disabled={loading}
-        className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
-        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+        className={btn('secondary', 'sm')}
       >
-        {loading ? '◆ Generating…' : '◆ Regen Image'}
+        {loading ? '◆ Generating…' : '◆ Regenerate image'}
       </button>
       {error && (
         <p

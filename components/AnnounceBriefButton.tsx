@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { btn } from '@/components/ui';
 
 export default function AnnounceBriefButton({
   briefId,
@@ -38,8 +39,7 @@ export default function AnnounceBriefButton({
         type="button"
         onClick={handleClick}
         disabled={sending}
-        className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
-        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+        className={btn('secondary', 'sm')}
       >
         {sending ? '◆ Sending…' : kind === 'client' ? '↗ Email verified' : '↗ Email everyone'}
       </button>

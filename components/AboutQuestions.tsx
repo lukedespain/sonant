@@ -1,126 +1,60 @@
-'use client';
-
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 
 const QUESTIONS: { q: string; a: ReactNode }[] = [
   {
     q: 'What is Sonant?',
-    a: 'A platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, Briefs, and Catalogs. The point is to build a catalog worth pitching.',
+    a: 'A place for sync composers to practice writing to spec, get written feedback, and get music into catalogs that pitch it to brands, film, and games.',
   },
   {
-    q: 'What is the Generator?',
-    a: 'A brief builder for practice on demand. You pick type, category, mood, and genre, and it writes a full creative brief the way a supervisor would: scene, instrumentation, references. No client required. Just reps.',
+    q: 'What are the different briefs?',
+    a: 'Practice briefs are for reps, and anyone can write to them. Catalog briefs come from music houses looking for specific tracks, and that is where you submit. Paid client briefs open up for verified composers.',
   },
   {
-    q: 'What are Briefs?',
-    a: 'The briefs you write to. Practice briefs are for reps and anyone can take them. Catalog briefs come from Sonant and partner houses, and that is where you submit for feedback and placement. Paid client jobs open up once you have three placements.',
+    q: 'What feedback do I get?',
+    a: 'Every catalog submission gets written feedback on the track, whether it goes to the catalog or not. It is tied to the brief you wrote to, so it stays specific.',
   },
   {
-    q: 'What are Catalogs?',
+    q: 'Who are the catalogs?',
     a: (
       <>
-        The music houses Sonant writes for, with the terms on each. Right now that is Thought Collective, a brand-focused catalog, and the Sonant catalog. Your own submissions and their status live in your Dashboard. Learn more about Thought Collective{' '}
-        <a
-          href={THOUGHT_COLLECTIVE_SITE}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[#E85D2F] hover:opacity-70"
-        >
-          here
-        </a>
-        .
+        Right now, <a href={THOUGHT_COLLECTIVE_SITE} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:opacity-70">Thought Collective</a>, a brand-focused catalog, and the Sonant catalog. Each one lists its deal and split on the Catalogs page.
       </>
     ),
   },
   {
-    q: 'Do I need an account?',
-    a: 'Anyone can use the Generator without signing up. An account is required to save briefs or submit from Briefs. Creating one is free, and every account includes one submission credit each month.',
-  },
-  {
     q: 'How do submission credits work?',
-    a: 'Each submission from a brief costs one credit. Free accounts include one credit per month. Extra credits are $10 each from your profile.',
+    a: 'Each submission costs one credit. Every free account gets one credit a month, and extra credits are $10 each from your Dashboard.',
   },
   {
-    q: 'How do I access paid opportunities?',
-    a: 'They live in Briefs under Client. Three catalog placements earn you access, so we know what you are good at and which jobs to send you.',
+    q: 'How do I get paid client briefs?',
+    a: 'Get three tracks accepted into a catalog. That earns the verified badge, and paid client briefs show up at the top of Briefs. We email you when a new one lands.',
   },
   {
-    q: 'What kind of feedback do I get?',
-    a: 'Every catalog submission gets written notes, whether the track is accepted or not. The notes are tied to the brief you wrote to, so they stay specific.',
+    q: 'Do I need an account?',
+    a: 'Not to try the Generator. You need a free account to save briefs and submit tracks.',
   },
 ];
 
-const serif = { fontFamily: "'Fraunces', serif" } as const;
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-
 export default function AboutQuestions() {
-  const [active, setActive] = useState(0);
-  const current = QUESTIONS[active];
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-10 md:gap-16 items-start">
-      <div className="border-t border-[var(--border-base)]">
-        {QUESTIONS.map((item, i) => {
-          const selected = i === active;
-          return (
-            <div key={item.q} className="border-b border-[var(--border-base)]">
-              <button
-                type="button"
-                onClick={() => setActive(i)}
-                aria-pressed={selected}
-                className={`w-full text-left py-4 md:py-5 transition-colors ${
-                  selected
-                    ? 'text-[var(--text-primary)]'
-                    : 'text-[var(--text-dimmer)] hover:text-[var(--text-secondary)]'
-                }`}
-                style={{ ...serif, fontWeight: 400 }}
-              >
-                <span className="flex items-baseline gap-4">
-                  <span
-                    className={`text-[10px] tabular-nums tracking-widest ${
-                      selected ? 'text-[#E85D2F]' : 'text-[var(--text-dimmer)]'
-                    }`}
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                  >
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <span className="text-base md:text-lg leading-snug">{item.q}</span>
-                </span>
-              </button>
-              {selected && (
-                <p
-                  className="md:hidden pb-5 pl-9 text-sm text-[var(--text-muted)] leading-relaxed"
-                  style={sans}
-                >
-                  {item.a}
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="hidden md:block md:sticky md:top-28">
-        <div
-          className="text-[9px] tracking-[0.35em] uppercase text-[#E85D2F] mb-5"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          {String(active + 1).padStart(2, '0')}
-        </div>
-        <h3
-          className="text-2xl lg:text-3xl tracking-tight leading-snug mb-6 text-[var(--text-primary)]"
-          style={{ ...serif, fontWeight: 400 }}
-        >
-          {current.q}
-        </h3>
-        <p
-          className="text-base text-[var(--text-muted)] leading-relaxed max-w-md"
-          style={sans}
-        >
-          {current.a}
-        </p>
-      </div>
+    <div className="border-t border-[var(--border-base)]">
+      {QUESTIONS.map((item) => (
+        <details key={item.q} className="group border-b border-[var(--border-base)]">
+          <summary className="flex items-center justify-between gap-6 py-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <span className="font-serif text-lg md:text-xl tracking-tight text-[var(--text-secondary)] group-open:text-[var(--text-primary)] transition-colors">
+              {item.q}
+            </span>
+            <span
+              className="shrink-0 text-[var(--text-dimmer)] group-open:text-[var(--accent)] transition-transform group-open:rotate-45 text-xl leading-none"
+              aria-hidden="true"
+            >
+              +
+            </span>
+          </summary>
+          <p className="pb-6 pr-10 text-[15px] text-[var(--text-muted)] leading-relaxed max-w-2xl">{item.a}</p>
+        </details>
+      ))}
     </div>
   );
 }

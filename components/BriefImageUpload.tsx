@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { btn } from '@/components/ui';
 
 export default function BriefImageUpload({
   briefId,
@@ -54,10 +55,9 @@ export default function BriefImageUpload({
       <button
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
-        className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
-        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+        className={btn('secondary', 'sm')}
       >
-        {uploading ? '◆ Uploading…' : hasImage ? '◆ Replace Image' : '◆ Upload Image'}
+        {uploading ? '◆ Uploading…' : hasImage ? '◆ Replace image' : '◆ Upload image'}
       </button>
       {error && (
         <p

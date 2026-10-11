@@ -1,134 +1,186 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import ComposerPath from '@/components/ComposerPath';
+import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { ADMIN_USER_ID } from '@/lib/admin';
+import { catalogPartnerFromBrief, CATALOG_PARTNER_LIST, CATALOG_PARTNERS } from '@/lib/partners';
 import AboutQuestions from '@/components/AboutQuestions';
-
-const serif = { fontFamily: "'Fraunces', serif" } as const;
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+import { btn } from '@/components/ui';
 
 const GUMROAD_URL = 'https://sonant.gumroad.com/l/royalties';
 
-export default function HomePage() {
+const STEPS = [
+  {
+    title: 'Pick a brief',
+    body: 'Catalog briefs say exactly what a music house is looking for. Practice briefs and the Generator are there for reps.',
+  },
+  {
+    title: 'Submit your track',
+    body: 'One credit, and every submission gets written feedback on the track. Free accounts get a credit every month.',
+  },
+  {
+    title: 'Get placed',
+    body: 'The strongest tracks go to the catalog. Three acceptances unlock paid client briefs.',
+  },
+];
+
+type HeroBrief = { id: string; title: string; logline: string; imageUrl: string; partner: string };
+
+async function latestCatalogBrief(): Promise<HeroBrief | null> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('briefs')
+    .select('id, generated_content')
+    .eq('user_id', ADMIN_USER_ID)
+    .eq('brief_type', 'catalog')
+    .order('created_at', { ascending: false })
+    .limit(6);
+  for (const row of data ?? []) {
+    const c = row.generated_content as {
+      imageUrl?: string;
+      codename?: string;
+      projectTitle?: string;
+      logline?: string;
+      project?: string;
+    } | null;
+    if (!c?.imageUrl) continue;
+    return {
+      id: row.id,
+      title: c.projectTitle || c.codename || 'Untitled',
+      logline: c.logline || c.project || '',
+      imageUrl: c.imageUrl,
+      partner: (catalogPartnerFromBrief(c) ?? CATALOG_PARTNERS.sonant).name,
+    };
+  }
+  return null;
+}
+
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const hero = await latestCatalogBrief();
+
   return (
     <div className="flex-1">
-
-      <section className="max-w-6xl mx-auto px-6 md:px-10 pt-20 md:pt-24 pb-16">
-        <div
-          className="text-[9px] tracking-[0.35em] uppercase text-[var(--text-dimmer)] mb-5"
-          style={mono}
-        >
-          Welcome Composers
+      <section className="max-w-6xl mx-auto px-5 md:px-10 pt-16 md:pt-24 pb-20 md:pb-28 grid md:grid-cols-[1.15fr_1fr] gap-14 md:gap-16 items-center">
+        <div>
+          <p className="label text-[var(--accent)] mb-6">For sync composers</p>
+          <h1 className="font-serif font-light tracking-tight leading-[0.98] text-[2.9rem] sm:text-6xl lg:text-7xl text-balance">
+            Learn to compose music <span className="italic text-[var(--accent)]">worth pitching.</span>
+          </h1>
+          <p className="mt-7 text-lg text-[var(--text-tertiary)] leading-relaxed max-w-lg">
+            Write to real briefs from music houses. Every submission gets written feedback, and the best tracks go into catalogs that pitch them.
+          </p>
+          <div className="mt-10 flex flex-wrap items-center gap-3">
+            {user ? (
+              <Link href="/briefs" className={btn('primary')}>◆ Open briefs</Link>
+            ) : (
+              <Link href="/signup" className={btn('primary')}>◆ Create free account</Link>
+            )}
+            <Link href={user ? '/generator' : '/briefs'} className={btn('secondary')}>
+              {user ? 'Try the generator' : 'See the briefs'}
+            </Link>
+          </div>
         </div>
-        <h1
-          className="tracking-tight leading-[0.95] mb-8 max-w-3xl"
-          style={{
-            ...serif,
-            fontWeight: 300,
-            fontSize: 'clamp(2.5rem, 6vw, 4.75rem)',
-          }}
-        >
-          Learn to compose music <span className="italic text-[#E85D2F]">worth pitching.</span>
-        </h1>
-        <p
-          className="text-base text-[var(--text-muted)] leading-relaxed max-w-xl"
-          style={sans}
-        >
-          Sonant is a platform for sync composers to practice writing to spec for brands, films and games.
-        </p>
-      </section>
 
-      <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20">
-          <ComposerPath />
-        </div>
-      </section>
-
-      <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20">
-          <h2
-            className="text-3xl md:text-4xl tracking-tight mb-10"
-            style={{ ...serif, fontWeight: 300 }}
+        {hero && (
+          <Link
+            href={`/briefs/${hero.id}`}
+            className="group block border border-[var(--border-card)] bg-[var(--bg-card)] rounded-[2px] overflow-hidden hover:border-[var(--accent-line)] transition-[border-color,transform] duration-500 md:rotate-[1.2deg] md:hover:rotate-0"
           >
-            Questions.
-          </h2>
+            <div className="relative aspect-[16/10] overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={hero.imageUrl}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
+              />
+            </div>
+            <div className="p-6">
+              <p className="label text-[var(--accent)]">◆ {hero.partner} is looking for</p>
+              <p className="mt-3 font-serif italic text-2xl tracking-tight">{hero.title}</p>
+              {hero.logline && (
+                <p className="mt-2 text-sm text-[var(--text-muted)] leading-relaxed line-clamp-2">{hero.logline}</p>
+              )}
+              <p className="mt-5 label text-[var(--text-dimmer)] group-hover:text-[var(--accent)] transition-colors">
+                Open the brief →
+              </p>
+            </div>
+          </Link>
+        )}
+      </section>
+
+      <section className="border-t border-[var(--border-base)]">
+        <div className="max-w-6xl mx-auto px-5 md:px-10 py-20 md:py-24">
+          <h2 className="font-serif font-light text-3xl md:text-4xl tracking-tight mb-12">How it works.</h2>
+          <ol className="grid md:grid-cols-3 gap-10 md:gap-12">
+            {STEPS.map((step, i) => (
+              <li key={step.title} className="border-t border-[var(--border-card)] pt-6">
+                <span className="font-mono text-xs text-[var(--accent)] tabular-nums">0{i + 1}</span>
+                <h3 className="mt-3 font-serif text-2xl tracking-tight">{step.title}</h3>
+                <p className="mt-3 text-[15px] text-[var(--text-muted)] leading-relaxed">{step.body}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3">
+            <span className="label text-[var(--text-dimmer)]">Writing for</span>
+            {CATALOG_PARTNER_LIST.map((p) => (
+              <Link
+                key={p.id}
+                href="/catalogs"
+                className="font-serif text-lg tracking-tight text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
+              >
+                {p.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-[var(--border-base)]">
+        <div className="max-w-6xl mx-auto px-5 md:px-10 py-20 md:py-24 grid md:grid-cols-[1fr_2fr] gap-10 md:gap-16">
+          <h2 className="font-serif font-light text-3xl md:text-4xl tracking-tight">Questions.</h2>
           <AboutQuestions />
         </div>
       </section>
 
       <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20 grid md:grid-cols-[1fr_auto] gap-10 items-center">
+        <div className="max-w-6xl mx-auto px-5 md:px-10 py-20 md:py-24 grid md:grid-cols-[1fr_auto] gap-10 items-center">
           <div className="max-w-xl">
-            <div className="text-[9px] tracking-[0.35em] uppercase text-[#E85D2F] mb-5" style={mono}>
-              ◆ The Sonant guide
-            </div>
-            <h2
-              className="text-3xl md:text-4xl tracking-tight leading-[1.1] mb-4"
-              style={{ ...serif, fontWeight: 300 }}
-            >
+            <p className="label text-[var(--accent)] mb-5">◆ The Sonant guide</p>
+            <h2 className="font-serif font-light text-3xl md:text-4xl tracking-tight leading-[1.1]">
               Every royalty <span className="italic">you&apos;re owed.</span>
             </h2>
-            <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
+            <p className="mt-4 text-[15px] text-[var(--text-muted)] leading-relaxed">
               A placement pays out in more places than most composers collect from. The guide walks you through PRO, MRO, and the rest, with a catalog tracker and split sheet template.
             </p>
-            <a
-              href={GUMROAD_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 transition-opacity"
-              style={mono}
-            >
-              Get the guide · $35 →
+            <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className={btn('secondary', 'md', 'mt-8')}>
+              Get the guide · $35 ↗
             </a>
           </div>
-          <a
-            href={GUMROAD_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden md:block shrink-0"
-            aria-label="Get the royalties guide"
-          >
+          <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="hidden md:block shrink-0" aria-label="Get the royalties guide">
             <Image
               src="/royalties-thumbnail.png"
               alt="Every Royalty You're Owed guide cover"
               width={220}
               height={220}
-              className="border border-[var(--border-card)]"
-              style={{ borderRadius: '2px' }}
+              className="border border-[var(--border-card)] rounded-[2px]"
             />
           </a>
         </div>
       </section>
 
-      <section className="border-t border-[var(--border-base)]">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-16 md:py-20">
-          <div className="max-w-xl">
-            <h2
-              className="text-4xl md:text-5xl tracking-tight leading-[1.05] mb-8"
-              style={{ ...serif, fontWeight: 300 }}
-            >
-              Ready to <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>compose?</span>
+      {!user && (
+        <section className="border-t border-[var(--border-base)]">
+          <div className="max-w-6xl mx-auto px-5 md:px-10 py-20 md:py-28 text-center">
+            <h2 className="font-serif font-light text-4xl md:text-5xl tracking-tight">
+              Ready to <span className="italic text-[var(--accent)]">compose?</span>
             </h2>
-            <div className="flex items-center gap-6 flex-wrap">
-              <Link
-                href="/generator"
-                className="px-7 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
-              >
-                ◆ Open the Generator
-              </Link>
-              <Link
-                href="/briefs"
-                className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-                style={mono}
-              >
-                Open Briefs →
-              </Link>
-            </div>
+            <p className="mt-4 text-[var(--text-muted)]">Free account. One submission credit every month.</p>
+            <Link href="/signup" className={btn('primary', 'md', 'mt-8')}>◆ Create free account</Link>
           </div>
-        </div>
-      </section>
-
+        </section>
+      )}
     </div>
   );
 }

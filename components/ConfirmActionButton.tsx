@@ -2,8 +2,6 @@
 
 import { useState, useTransition } from 'react';
 
-const mono = { fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' } as const;
-
 export default function ConfirmActionButton({
   label,
   confirmLabel,
@@ -25,8 +23,8 @@ export default function ConfirmActionButton({
     ? 'border-[#C5564A] text-[#C5564A]'
     : 'border-[#E85D2F] text-[#E85D2F]';
   const rest = danger
-    ? 'border-[#4A3633] text-[#9A8A86] hover:border-[#C5564A] hover:text-[#C5564A]'
-    : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]';
+    ? 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#C5564A] hover:text-[#C5564A]'
+    : 'border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent)] hover:text-[var(--accent)]';
 
   function run() {
     setError(null);
@@ -45,8 +43,7 @@ export default function ConfirmActionButton({
             type="button"
             onClick={run}
             disabled={pending}
-            className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border ${accent} disabled:opacity-60 disabled:cursor-wait transition-colors`}
-            style={mono}
+            className={`inline-flex items-center h-9 px-4 font-mono text-[10px] tracking-[0.14em] uppercase rounded-[2px] border ${accent} disabled:opacity-60 disabled:cursor-wait transition-colors`}
           >
             {pending ? pendingLabel : confirmLabel}
           </button>
@@ -54,8 +51,7 @@ export default function ConfirmActionButton({
             <button
               type="button"
               onClick={() => setConfirming(false)}
-              className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors px-1"
-              style={mono}
+              className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors px-1"
             >
               Cancel
             </button>
@@ -68,8 +64,7 @@ export default function ConfirmActionButton({
             setError(null);
             setConfirming(true);
           }}
-          className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border ${rest} transition-colors`}
-          style={mono}
+          className={`inline-flex items-center h-9 px-4 font-mono text-[10px] tracking-[0.14em] uppercase rounded-[2px] border ${rest} transition-colors`}
         >
           {label}
         </button>

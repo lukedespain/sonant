@@ -60,7 +60,7 @@ export async function sendDecisionEmail(params: {
 }) {
   const { to, projectName, catalogName, decision, wasSent } = params;
   const notes = params.feedback.trim();
-  const notesLine = notes ? ' Here are my notes.' : '';
+  const notesLine = ' Here is my written feedback on the track.';
 
   const copy = {
     sent_to_catalog: {
@@ -97,8 +97,8 @@ export async function sendDecisionEmail(params: {
         <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
           <h2 style="font-weight: 500;">${heading}</h2>
           <p>${intro}</p>
+          <div style="border-left: 2px solid #E85D2F; padding-left: 16px; margin: 24px 0; color: #1A1815;">${escapeHtml(notes).replace(/\n/g, '<br>')}</div>
           ${decision === 'accepted' ? `<p><a href="${siteUrl()}/dashboard" style="color: #E85D2F;">Open your dashboard</a></p>` : ''}
-          ${notes ? `<div style="border-left: 2px solid #E85D2F; padding-left: 16px; margin: 24px 0; color: #1A1815;">${escapeHtml(notes).replace(/\n/g, '<br>')}</div>` : ''}
           <p style="color: var(--text-muted); font-size: 13px; margin-top: 32px;">
             Sonant
           </p>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Brief } from './BriefDocument';
+import { btn } from '@/components/ui';
 
 // Individual instrument tags per genre — no multi-item strings
 const GENRE_INSTRUMENTS: Record<string, string[]> = {
@@ -139,10 +140,9 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+        className={btn('secondary', 'sm')}
       >
-        ◆ AI Prompt
+        ◆ AI prompt
       </button>
 
       {open && (

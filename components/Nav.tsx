@@ -6,28 +6,13 @@ import { usePathname } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import { signOut } from '@/app/auth/actions'
 import ThemeToggle from '@/components/ThemeToggle'
+import { btn } from '@/components/ui'
 
 function SignInLabel() {
   const { pending } = useLinkStatus()
   return pending ? (
-    <><span className="animate-pulse">◆</span>&nbsp;Signing in</>
-  ) : <>Sign In</>
-}
-
-function SignInDesktop({ style }: { style: React.CSSProperties }) {
-  const { pending } = useLinkStatus()
-  return (
-    <span
-      className={`h-10 px-4 flex items-center gap-1.5 border transition-colors ${
-        pending
-          ? 'border-[#E85D2F] text-[#E85D2F]'
-          : 'border-[var(--border-subtle)] text-[var(--text-secondary)] group-hover:border-[#E85D2F] group-hover:text-[#E85D2F]'
-      }`}
-      style={{ borderRadius: '2px', ...style }}
-    >
-      <SignInLabel />
-    </span>
-  )
+    <><span className="animate-pulse">◆</span>Signing in</>
+  ) : <>Sign in</>
 }
 
 type NavProps = {
@@ -41,12 +26,26 @@ const LINKS = [
   { href: '/catalogs', label: 'Catalogs' },
 ] as const
 
-export default function Nav({
-  user,
-  isSiteAdmin = false,
-}: NavProps) {
+function Wordmark({ onClick }: { onClick?: () => void }) {
+  return (
+    <Link href="/" className="flex items-center gap-2.5 shrink-0" onClick={onClick}>
+      <span
+        className="w-7 h-7 flex items-center justify-center bg-[var(--accent)] text-[var(--bg-base)] font-serif font-semibold text-xs rounded-[2px]"
+        aria-hidden="true"
+      >
+        ◆
+      </span>
+      <span className="font-serif text-[17px] tracking-tight font-medium">
+        Sonant<span className="text-[var(--accent)]">.</span>
+      </span>
+    </Link>
+  )
+}
+
+export default function Nav({ user, isSiteAdmin = false }: NavProps) {
   const pathname = usePathname()
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuPath, setMenuPath] = useState<string | null>(null)
+  const menuOpen = menuPath !== null && menuPath === pathname
 
   const isAuthPage =
     pathname === '/login' ||
@@ -54,30 +53,18 @@ export default function Nav({
     pathname === '/onboarding' ||
     pathname?.startsWith('/auth')
 
-  const isActive = (href: string) =>
-    href === '/briefs'
-      ? pathname === '/briefs' || pathname?.startsWith('/briefs/')
-      : pathname === href || pathname?.startsWith(href + '/')
+  const isActive = (href: string) => pathname === href || pathname?.startsWith(href + '/')
 
   const loggedIn = !!user && !isAuthPage
-  const showPages = !isAuthPage
-  const navLinks = isSiteAdmin
-    ? [...LINKS, { href: '/admin', label: 'Admin' }]
-    : [...LINKS]
+  const navLinks = isSiteAdmin ? [...LINKS, { href: '/admin', label: 'Admin' }] : [...LINKS]
+  const onDashboard = isActive('/dashboard')
 
-  const mono = { fontFamily: "'JetBrains Mono', monospace" }
-  const serif = { fontFamily: "'Fraunces', serif" }
-
-  const closeMenu = () => setMenuOpen(false)
-
-  useEffect(() => {
-    closeMenu()
-  }, [pathname])
+  const closeMenu = () => setMenuPath(null)
 
   useEffect(() => {
     if (!menuOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeMenu()
+      if (e.key === 'Escape') setMenuPath(null)
     }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
@@ -89,32 +76,12 @@ export default function Nav({
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-[var(--border-base)] bg-[var(--bg-base)] overflow-x-clip">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-4 flex items-center justify-between gap-3 md:grid md:grid-cols-[1fr_auto_1fr]">
+      <nav className="sticky top-0 z-50 border-b border-[var(--border-base)] bg-[var(--bg-base)]/90 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-5 md:px-10 h-16 flex items-center justify-between gap-6">
+          <Wordmark onClick={closeMenu} />
 
-          <Link href="/" className="flex items-center gap-3 justify-self-start min-w-0" onClick={closeMenu}>
-            <div
-              className="w-8 h-8 flex items-center justify-center shrink-0"
-              style={{
-                background: '#E85D2F',
-                color: 'var(--bg-base)',
-                fontFamily: "'Fraunces', serif",
-                fontWeight: 600,
-                borderRadius: '2px',
-              }}
-            >
-              ◆
-            </div>
-            <span
-              className="text-base tracking-tight hidden sm:inline"
-              style={{ ...serif, fontWeight: 500 }}
-            >
-              Sonant<span className="text-[#E85D2F]">.</span>
-            </span>
-          </Link>
-
-          {showPages ? (
-            <div className="hidden md:flex items-center justify-center gap-8">
+          {!isAuthPage && (
+            <div className="hidden md:flex items-center gap-8">
               {navLinks.map(({ href, label }) => {
                 const active = isActive(href)
                 return (
@@ -122,142 +89,102 @@ export default function Nav({
                     key={href}
                     href={href}
                     aria-current={active ? 'page' : undefined}
-                    className={`text-[10px] tracking-[0.2em] uppercase transition-colors whitespace-nowrap ${
-                      active
-                        ? 'text-[#E85D2F]'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    className={`label transition-colors ${
+                      active ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
-                    style={mono}
                   >
                     {label}
                   </Link>
                 )
               })}
             </div>
-          ) : (
-            <div className="hidden md:block" />
           )}
 
-          <div className="hidden md:flex items-center gap-2.5 justify-self-end">
-            {!isAuthPage && <ThemeToggle boxed />}
-
-            {!isAuthPage && !loggedIn && (
-              <Link
-                href="/login"
-                prefetch={false}
-                className="group"
-                style={{ ...mono, fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
-              >
-                <SignInDesktop style={mono} />
-              </Link>
-            )}
-
-            {loggedIn && user && (
-              <Link
-                href="/dashboard"
-                className={`h-10 px-4 flex items-center border transition-colors ${
-                  pathname === '/dashboard' || pathname?.startsWith('/dashboard/')
-                    ? 'border-[#E85D2F] text-[#E85D2F]'
-                    : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
-                }`}
-                style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
-              >
-                Dashboard
-              </Link>
-            )}
-          </div>
-
           {!isAuthPage && (
-            <div className="flex md:hidden items-center gap-2 shrink-0">
-            <ThemeToggle boxed />
-            <button
-              type="button"
-              onClick={() => setMenuOpen((o) => !o)}
-              className="flex items-center justify-center w-10 h-10 border border-[var(--border-subtle)] hover:border-[var(--text-dim)] transition-colors"
-              style={{ borderRadius: '2px' }}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={menuOpen}
-            >
-              {menuOpen ? (
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M2 2L12 12M12 2L2 12" stroke="var(--text-primary)" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-              ) : (
-                <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
-                  <path d="M0 1H16M0 5.5H16M0 10H16" stroke="var(--text-primary)" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-              )}
-            </button>
+            <div className="flex items-center gap-1 md:gap-3">
+              <ThemeToggle />
+              <div className="hidden md:block">
+                {loggedIn ? (
+                  <Link
+                    href="/dashboard"
+                    className={btn('secondary', 'sm', onDashboard ? '!border-[var(--accent)] !text-[var(--accent)]' : '')}
+                  >
+                    Dashboard
+                  </Link>
+                ) : (
+                  <Link href="/login" prefetch={false} className={btn('secondary', 'sm')}>
+                    <SignInLabel />
+                  </Link>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setMenuPath(menuOpen ? null : pathname)}
+                className="md:hidden w-10 h-10 flex items-center justify-center text-[var(--text-primary)]"
+                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={menuOpen}
+              >
+                {menuOpen ? (
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M2 2L12 12M12 2L2 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="12" viewBox="0 0 18 12" fill="none" aria-hidden="true">
+                    <path d="M0 1H18M0 6H18M0 11H18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                )}
+              </button>
             </div>
           )}
         </div>
       </nav>
 
       {!isAuthPage && menuOpen && (
-        <div className="md:hidden fixed inset-x-0 top-[65px] bottom-0 z-40 bg-[var(--bg-base)] flex flex-col overflow-y-auto">
-          <div className="px-6 pt-4 flex-1">
-            <nav className="flex flex-col">
-              {navLinks.map(({ href, label }) => {
-                const active = isActive(href)
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={closeMenu}
-                    className="py-5 border-b border-[var(--border-base)]"
+        <div className="md:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-[var(--bg-base)] flex flex-col overflow-y-auto">
+          <div className="px-5 pt-2 flex-1">
+            {navLinks.map(({ href, label }) => {
+              const active = isActive(href)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={closeMenu}
+                  className="flex items-center justify-between py-5 border-b border-[var(--border-base)]"
+                >
+                  <span
+                    className={`font-serif font-light text-3xl tracking-tight ${
+                      active ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
+                    }`}
                   >
-                    <span
-                      className={`text-2xl tracking-tight ${
-                        active ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
-                      }`}
-                      style={{ ...serif, fontWeight: 300 }}
-                    >
-                      {label}
-                      {active && <span className="ml-2 text-[#E85D2F] text-sm">◆</span>}
-                    </span>
-                  </Link>
-                )
-              })}
-            </nav>
+                    {label}
+                  </span>
+                  {active && <span className="text-[var(--accent)] text-sm">◆</span>}
+                </Link>
+              )
+            })}
           </div>
 
-          <div className="px-6 py-8 border-t border-[var(--border-base)] flex flex-col gap-5">
-            {loggedIn && user && (
+          <div className="px-5 py-8 border-t border-[var(--border-base)] flex flex-col gap-3">
+            {loggedIn ? (
               <>
-                <Link
-                  href="/dashboard"
-                  onClick={closeMenu}
-                  className={`text-[10px] tracking-[0.2em] uppercase ${
-                    pathname === '/dashboard' || pathname?.startsWith('/dashboard/')
-                      ? 'text-[#E85D2F]'
-                      : 'text-[var(--text-secondary)]'
-                  }`}
-                  style={mono}
-                >
+                <Link href="/dashboard" onClick={closeMenu} className={btn('primary', 'md', 'w-full')}>
                   Dashboard
                 </Link>
                 <form action={signOut}>
-                  <button
-                    type="submit"
-                    className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)]"
-                    style={mono}
-                  >
-                    Sign Out
+                  <button type="submit" className={btn('ghost', 'md', 'w-full')}>
+                    Sign out
                   </button>
                 </form>
               </>
-            )}
-
-            {!loggedIn && (
-              <Link
-                href="/login"
-                prefetch={false}
-                onClick={closeMenu}
-                className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] flex items-center gap-1.5"
-                style={mono}
-              >
-                <SignInLabel />
-              </Link>
+            ) : (
+              <>
+                <Link href="/signup" onClick={closeMenu} className={btn('primary', 'md', 'w-full')}>
+                  Create free account
+                </Link>
+                <Link href="/login" prefetch={false} onClick={closeMenu} className={btn('secondary', 'md', 'w-full')}>
+                  <SignInLabel />
+                </Link>
+              </>
             )}
           </div>
         </div>

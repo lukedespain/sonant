@@ -1,23 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import AudioPlayerBar from "@/components/AudioPlayerBar";
+import Footer from "@/components/Footer";
 import { Providers } from "./providers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSiteAdmin } from "@/lib/admin";
 import { ensureMonthlySubmissionCredit } from "@/lib/monthly-credit";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Sonant",
@@ -50,7 +41,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
       suppressHydrationWarning
     >
       <head>
@@ -68,6 +59,7 @@ export default async function RootLayout({
             isSiteAdmin={isSiteAdmin(user)}
           />
           {children}
+          <Footer />
           <AudioPlayerBar />
         </Providers>
       </body>

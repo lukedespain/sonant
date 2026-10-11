@@ -22,6 +22,7 @@ export interface Brief {
   briefId: string;
   issued: string;
   deadline?: string;
+  closedAt?: string;
   client: string;
   classification: string;
   project: string;
@@ -152,17 +153,6 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
                 'linear-gradient(to bottom, var(--brief-img-fade-from) 82%, var(--brief-img-fade-to) 100%)',
             }}
           />
-          {partner && (
-            <div className="absolute left-5 bottom-5 flex items-center gap-2.5 text-[#F5F1E8]">
-              <CatalogPartnerMark partner={partner} size={22} invert />
-              <span
-                className="text-[10px] tracking-[0.22em] uppercase"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
-                {partner.name}
-              </span>
-            </div>
-          )}
         </div>
       )}
 

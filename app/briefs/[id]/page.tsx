@@ -8,7 +8,6 @@ import { composerHasClientAccess } from '@/lib/verification';
 import { resolveDiscoInboxUrl } from '@/lib/disco';
 import DiscoInboxInput from '@/components/DiscoInboxInput';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
-import ExportPdfButton from '@/components/ExportPdfButton';
 import ShareBriefButton from '@/components/ShareBriefButton';
 import SunoPromptModal from '@/components/SunoPromptModal';
 import DeleteBriefButton from '@/components/DeleteBriefButton';
@@ -18,6 +17,12 @@ import BriefNextSteps from '@/components/BriefNextSteps';
 import BriefImageUpload from '@/components/BriefImageUpload';
 import RegenerateImageButton from '@/components/RegenerateImageButton';
 import AnnounceBriefButton from '@/components/AnnounceBriefButton';
+import CloseBriefButton from '@/components/CloseBriefButton';
+import SubmitTrackModal from '@/components/SubmitTrackModal';
+import ClientBriefSubmitModal from '@/components/ClientBriefSubmitModal';
+import { AdminMenu, DownloadBriefButton } from '@/components/BriefActions';
+import { btn } from '@/components/ui';
+import { isBriefClosed } from '@/lib/brief-status';
 import { getSubmissionStatus } from '@/app/briefs/actions';
 import { getTrackPrivacyMap, isTrackPublic } from '@/lib/track-privacy';
 import { CATALOG_PARTNERS, catalogPartnerFromBrief } from '@/lib/partners';
@@ -60,32 +65,15 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
   if (isClientBrief && !canViewClient) {
     return (
-      <div className="pt-20 pb-12 flex-1">
-        <div className="max-w-xl mx-auto px-6 md:px-10 text-center">
-          <div
-            className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] mb-4"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            Verified composers only
-          </div>
-          <h1
-            className="text-4xl tracking-tight mb-4"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-          >
-            Paid client briefs.
-          </h1>
-          <p
-            className="text-sm text-[var(--text-muted)] leading-relaxed mb-8"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            Place three tracks in the catalog to earn the badge and unlock access to paying clients.
+      <div className="flex-1 pt-24 pb-24">
+        <div className="max-w-xl mx-auto px-5 text-center">
+          <p className="label text-[var(--accent)]">Verified composers only</p>
+          <h1 className="mt-4 font-serif font-light text-4xl md:text-5xl tracking-tight">Paid client briefs.</h1>
+          <p className="mt-4 text-[15px] text-[var(--text-muted)] leading-relaxed">
+            Get three tracks accepted into a catalog to unlock paid client work.
           </p>
-          <Link
-            href="/briefs#catalog"
-            className="text-xs tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            ← Back to Briefs
+          <Link href="/briefs#catalog" className={btn('secondary', 'md', 'mt-8')}>
+            See catalog briefs
           </Link>
         </div>
       </div>
@@ -140,61 +128,88 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
   const featuredTrackId = (briefRow.featured_track_id as string | null) ?? null;
 
+  const closed = isClientBrief && isBriefClosed(brief);
+  const title = brief.projectTitle || brief.codename;
+  const kindLabel = isClientBrief
+    ? 'Paid client brief'
+    : isFeatured
+      ? `${catalogPartner?.name} catalog brief`
+      : 'Practice brief';
+
   return (
-    <div className="pt-20 pb-12 flex-1 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <div className="no-print mb-6 flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-4 flex-wrap">
-            <Link
-              href="/briefs"
-              className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              ← Back to Briefs
-            </Link>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            {isAdmin && (isClientBrief || isFeatured) && (
-              <AnnounceBriefButton
-                briefId={briefRow.id}
-                kind={isClientBrief ? 'client' : 'featured'}
-              />
-            )}
-            {isAdmin && <RegenerateImageButton briefId={briefRow.id} />}
-            {isAdmin && <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />}
-            {isPro && <SunoPromptModal brief={brief} />}
+    <div className="flex-1 min-w-0 pt-8 md:pt-10 pb-24 overflow-x-clip">
+      <div className="max-w-6xl mx-auto px-5 md:px-10">
+        <div className="no-print flex items-center justify-between gap-3 mb-6">
+          <Link href="/briefs" className={btn('ghost', 'sm')}>
+            ← Briefs
+          </Link>
+          <div className="flex items-center gap-2">
             {!isClientBrief && (
-              <ShareBriefButton
-                briefId={briefRow.id}
-                briefName={brief.projectTitle || brief.codename}
-                loggedIn={!!user}
-              />
+              <ShareBriefButton briefId={briefRow.id} briefName={title} loggedIn={!!user} />
             )}
-            {isClientBrief && <ExportPdfButton />}
-            {isAdmin && isFeatured && <MoveToPracticeButton briefId={briefRow.id} />}
-            {!!user && (isAdmin || user.id === briefRow.user_id) && (
-              <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" canMoveToPractice={isAdmin && isFeatured} />
+            {isPro && !isAdmin && <SunoPromptModal brief={brief} />}
+            {isAdmin && (
+              <AdminMenu>
+                {(isClientBrief || isFeatured) && (
+                  <AnnounceBriefButton briefId={briefRow.id} kind={isClientBrief ? 'client' : 'featured'} />
+                )}
+                {isClientBrief && <CloseBriefButton briefId={briefRow.id} closed={!!brief.closedAt} />}
+                <SunoPromptModal brief={brief} />
+                <RegenerateImageButton briefId={briefRow.id} />
+                <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />
+                {isFeatured && <MoveToPracticeButton briefId={briefRow.id} />}
+                <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" canMoveToPractice={isFeatured} />
+              </AdminMenu>
+            )}
+            {!isAdmin && !!user && user.id === briefRow.user_id && (
+              <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" />
             )}
           </div>
         </div>
 
-        {isClientBrief && (
-          <div
-            className="no-print mb-6 border border-[#E85D2F]/40 bg-[#E85D2F]/5 px-5 py-4"
-            style={{ borderRadius: '2px' }}
-          >
-            <div
-              className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] mb-2"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              ◆ Do not share this brief
-            </div>
-            <p
-              className="text-sm text-[var(--text-secondary)] leading-relaxed max-w-2xl"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
-            >
-              Paid client work stays inside Sonant. Do not forward this page, the PDF, or the references. If this reached the wrong person, tell the Sonant team.
+        <div className="no-print sticky top-16 z-20 -mx-5 md:mx-0 px-5 md:px-0 py-3 mb-6 bg-[var(--bg-base)]/90 backdrop-blur-md border-b border-[var(--border-base)] flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className={`label ${closed ? 'text-[var(--text-dimmer)]' : 'text-[var(--accent)]'}`}>
+              {closed ? 'Closed · ' : '◆ '}
+              {kindLabel}
             </p>
+            <p className="font-serif italic text-lg tracking-tight truncate">{title}</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <DownloadBriefButton className="hidden sm:inline-flex" />
+            {isFeatured &&
+              (user ? (
+                <SubmitTrackModal
+                  briefId={briefRow.id}
+                  projectName={title}
+                  alreadySubmitted={alreadySubmitted}
+                  submissionCredits={submissionCredits}
+                  isAdmin={isAdmin}
+                  triggerLabel="↗ Submit"
+                  triggerClassName={btn('primary', 'sm')}
+                />
+              ) : (
+                <Link href={`/signup?redirect=/briefs/${briefRow.id}`} className={btn('primary', 'sm')}>
+                  Submit
+                </Link>
+              ))}
+            {isClientBrief && !closed && user && (
+              <ClientBriefSubmitModal
+                briefId={briefRow.id}
+                briefName={title}
+                composerName={currentUserName}
+                discoUrl={discoUrl}
+                triggerLabel="↗ Deliver"
+                triggerClassName={btn('primary', 'sm')}
+              />
+            )}
+            {!isFeatured && !isClientBrief && <DownloadBriefButton className="sm:hidden" />}
+          </div>
+        </div>
+
+        {isClientBrief && (
+          <div className="no-print mb-6 text-sm text-[var(--text-muted)] leading-relaxed">
+            <span className="text-[var(--accent)]">◆ Private.</span> Paid client work stays inside Sonant. Please do not forward this page, the PDF, or the references.
             {isAdmin && (
               <DiscoInboxInput
                 briefId={briefRow.id}
@@ -208,7 +223,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
         <BriefNextSteps
           briefId={briefRow.id}
-          briefName={brief.projectTitle || brief.codename}
+          briefName={title}
           variant={isClientBrief ? 'client' : isFeatured ? 'catalog' : 'practice'}
           catalogExclusive={catalogPartner?.exclusive}
           catalogName={catalogPartner?.name}
@@ -219,6 +234,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           isAdmin={isAdmin}
           currentUserName={currentUserName}
           discoUrl={discoUrl}
+          closed={closed}
         />
 
         {isAdmin && !isClientBrief && communityTracks.length > 0 && (

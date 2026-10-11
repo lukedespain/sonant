@@ -359,6 +359,27 @@ export async function setFeaturedTrack(briefId: string, trackId: string | null):
   return {};
 }
 
+export async function setBriefClosed(briefId: string, closed: boolean): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!isSiteAdmin(user)) return { error: 'Not authorized.' };
+
+  const admin = createAdminClient();
+  const { data: brief } = await admin.from('briefs').select('generated_content').eq('id', briefId).maybeSingle();
+  if (!brief) return { error: 'Brief not found.' };
+
+  const content = { ...((brief.generated_content ?? {}) as Record<string, unknown>) };
+  if (closed) content.closedAt = new Date().toISOString();
+  else delete content.closedAt;
+
+  const { error } = await admin.from('briefs').update({ generated_content: content }).eq('id', briefId);
+  if (error) return { error: 'Could not update this brief.' };
+
+  revalidatePath('/briefs');
+  revalidatePath(`/briefs/${briefId}`);
+  return {};
+}
+
 export type SubmissionDecision = 'sent_to_catalog' | 'accepted' | 'not_accepted';
 
 export async function recordDecision(params: {
@@ -373,6 +394,9 @@ export async function recordDecision(params: {
   if (!isSiteAdmin(user)) {
     return { error: 'Not authorized.' };
   }
+  if (!feedback.trim()) {
+    return { error: 'Write your feedback on the track first.' };
+  }
 
   const admin = createAdminClient();
 
@@ -385,7 +409,7 @@ export async function recordDecision(params: {
 
   const { data: submission, error: updateError } = await admin
     .from('submissions')
-    .update({ status: decision, feedback: feedback.trim() || null })
+    .update({ status: decision, feedback: feedback.trim() })
     .eq('id', submissionId)
     .select('brief_id, user_id')
     .single();
@@ -436,7 +460,7 @@ export async function recordDecision(params: {
       ? { type: 'catalog_sent' as const, title: `Sent to ${catalogName}`, body: `${projectName} is with ${catalogName} for a decision.` }
       : decision === 'accepted'
         ? { type: 'catalog_accepted' as const, title: `Accepted by ${catalogName}`, body: `${projectName} was accepted by ${catalogName}.` }
-        : { type: 'catalog_reviewed' as const, title: 'Catalog review', body: feedback.trim() ? `Notes are ready for ${projectName}.` : `${projectName} was reviewed.` };
+        : { type: 'catalog_reviewed' as const, title: 'Catalog review', body: `Written feedback is ready for ${projectName}.` };
 
   try {
     await addNotification(admin, submission.user_id, { ...notification, href: decision === 'accepted' ? '/dashboard#offers' : `/dashboard#submission-${submissionId}` });

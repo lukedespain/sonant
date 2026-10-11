@@ -1,25 +1,23 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { ADMIN_USER_ID, isSiteAdmin } from '@/lib/admin';
-import { composerHasClientAccess } from '@/lib/verification';
-import BrowseClient from './BrowseClient';
+import {
+  VERIFICATION_THRESHOLD,
+  countAcceptedCatalogSubmissions,
+  isVerifiedComposer,
+  readVerifiedOverride,
+} from '@/lib/verification';
+import { isBriefClosed } from '@/lib/brief-status';
+import { Page, PageHeader } from '@/components/ui';
+import BrowseClient, { type BriefRow } from './BrowseClient';
 
-interface BriefRow {
-  id: string;
-  user_id: string;
-  mode: string;
-  target: string;
-  genres: string[];
-  moods: string[];
-  generated_content: {
-    codename?: string;
-    project?: string;
-    imageUrl?: string;
-    [key: string]: unknown;
-  };
-  created_at: string;
-  featured_track_url?: string | null;
+const NEW_FOR_MS = 7 * 24 * 60 * 60 * 1000;
+
+function newCutoff() {
+  return Date.now() - NEW_FOR_MS;
 }
+
+const FIELDS = 'id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url';
 
 export default async function BrowsePage({
   searchParams,
@@ -33,52 +31,70 @@ export default async function BrowsePage({
 
   const isBriefAdmin = isSiteAdmin(user);
 
-  const isVerified = user
-    ? await composerHasClientAccess(admin, user.id, isBriefAdmin)
-    : isBriefAdmin;
+  let acceptedCount = 0;
+  let isVerified = isBriefAdmin;
+  let hasSubmitted = true;
+  if (user && !isBriefAdmin) {
+    const [count, override, { count: submissionCount }] = await Promise.all([
+      countAcceptedCatalogSubmissions(admin, user.id),
+      readVerifiedOverride(admin, user.id),
+      admin.from('submissions').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+    ]);
+    acceptedCount = count;
+    isVerified = isVerifiedComposer(count, override);
+    hasSubmitted = (submissionCount ?? 0) > 0;
+  }
 
-  const { data: featuredBriefs } = await admin
-    .from('briefs')
-    .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
-    .eq('user_id', ADMIN_USER_ID)
-    .eq('brief_type', 'catalog')
-    .order('created_at', { ascending: false })
-    .returns<BriefRow[]>();
+  const [{ data: featuredBriefs }, { data: clientRows }, { data: communityBriefs }] = await Promise.all([
+    admin
+      .from('briefs')
+      .select(FIELDS)
+      .eq('user_id', ADMIN_USER_ID)
+      .eq('brief_type', 'catalog')
+      .order('created_at', { ascending: false })
+      .returns<BriefRow[]>(),
+    // Rows sent to the browser are visible to anyone who opens dev tools, so
+    // unverified viewers never receive client briefs at all.
+    isVerified
+      ? admin
+          .from('briefs')
+          .select(FIELDS)
+          .eq('brief_type', 'client')
+          .order('created_at', { ascending: false })
+          .returns<BriefRow[]>()
+      : Promise.resolve({ data: [] as BriefRow[] }),
+    admin
+      .from('briefs')
+      .select(FIELDS)
+      .or(`user_id.neq.${ADMIN_USER_ID},brief_type.eq.community`)
+      .neq('brief_type', 'client')
+      .order('created_at', { ascending: false })
+      .limit(80)
+      .returns<BriefRow[]>(),
+  ]);
 
-  // Anything handed to BrowseClient is serialized into the page payload and
-  // shipped to the browser, so unverified viewers must never be sent the rows
-  // at all — the blur overlay is presentation, not access control.
-  const { data: clientBriefs } = isVerified
-    ? await admin
-        .from('briefs')
-        .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
-        .eq('brief_type', 'client')
-        .order('created_at', { ascending: false })
-        .returns<BriefRow[]>()
-    : { data: [] as BriefRow[] };
-
-  const { data: communityBriefs } = await admin
-    .from('briefs')
-    .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
-    .or(`user_id.neq.${ADMIN_USER_ID},brief_type.eq.community`)
-    .neq('brief_type', 'client')
-    .order('created_at', { ascending: false })
-    .limit(80)
-    .returns<BriefRow[]>();
+  const clientBriefs = (clientRows ?? []).filter((b) => !isBriefClosed(b.generated_content));
 
   return (
-    <div className="pt-16 md:pt-20 pb-12 flex-1 min-w-0 overflow-x-clip">
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <BrowseClient
-          featuredBriefs={featuredBriefs ?? []}
-          clientBriefs={clientBriefs ?? []}
-          communityBriefs={communityBriefs ?? []}
-          currentUserId={user?.id ?? null}
-          mineOnlyDefault={params.mine === '1'}
-          isVerified={isVerified}
-          isBriefAdmin={isBriefAdmin}
-        />
-      </div>
-    </div>
+    <Page>
+      <PageHeader
+        title="The Briefs."
+        description="Paid client jobs, catalog briefs the houses are looking for, and practice briefs for reps."
+      />
+      <BrowseClient
+        featuredBriefs={featuredBriefs ?? []}
+        clientBriefs={clientBriefs}
+        communityBriefs={communityBriefs ?? []}
+        currentUserId={user?.id ?? null}
+        mineOnlyDefault={params.mine === '1'}
+        isVerified={isVerified}
+        isBriefAdmin={isBriefAdmin}
+        signedIn={!!user}
+        acceptedCount={acceptedCount}
+        verificationThreshold={VERIFICATION_THRESHOLD}
+        showStartHere={!!user && !isBriefAdmin && !hasSubmitted}
+        newSince={newCutoff()}
+      />
+    </Page>
   );
 }
