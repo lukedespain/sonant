@@ -38,7 +38,7 @@ type NavProps = {
 const LINKS = [
   { href: '/generator', label: 'Generator' },
   { href: '/briefs', label: 'Briefs' },
-  { href: '/catalog', label: 'Catalog' },
+  { href: '/catalogs', label: 'Catalogs' },
 ] as const
 
 export default function Nav({

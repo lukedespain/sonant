@@ -7,7 +7,7 @@ const DISCO_CATALOG_URL = 'https://sonant.disco.ac/cat/152887908';
 const faqs: { q: string; a: ReactNode }[] = [
   {
     q: 'What is Sonant?',
-    a: 'Sonant is a platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, Briefs, and the Catalog. The point is to build a catalog worth pitching. Sonant placements are 70/30, non-exclusive. Thought Collective catalog briefs use that house\'s terms, listed on each brief.',
+    a: 'Sonant is a platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, Briefs, and Catalogs. The point is to build a catalog worth pitching. Sonant placements are 70/30, non-exclusive. Thought Collective catalog briefs use that house\'s terms, listed on each brief.',
   },
   {
     q: 'What is the Generator?',
@@ -18,7 +18,7 @@ const faqs: { q: string; a: ReactNode }[] = [
     a: 'The briefs you write to. Practice briefs are for reps and anyone can take them. Catalog briefs come from Sonant and partner houses, and that is where you submit for feedback and placement. Paid client jobs open up once you have three catalog placements.',
   },
   {
-    q: 'What is the Catalog?',
+    q: 'What are Catalogs?',
     a: (
       <>
         The music houses Sonant writes for, with the terms on each. Right now that is Thought Collective, a brand-focused catalog, and the Sonant catalog. Your own submissions and their status live in your Dashboard. Learn more about Thought Collective{' '}
@@ -70,7 +70,7 @@ const faqs: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'Who is Sonant for?',
-    a: 'Composers who want to get better at writing to spec and build a catalog worth pitching, whether you\'re new to sync or already working. The Generator is the practice tool. Briefs is where you write to spec. Catalog shows the houses you write for, and your Dashboard tracks your submissions.',
+    a: 'Composers who want to get better at writing to spec and build a catalog worth pitching, whether you\'re new to sync or already working. The Generator is the practice tool. Briefs is where you write to spec. Catalogs shows the houses you write for, and your Dashboard tracks your submissions.',
   },
 ];
 
@@ -95,7 +95,7 @@ export default function FAQPage() {
           className="text-base text-[var(--text-tertiary)] mb-16 max-w-xl leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Everything you need to know about the Generator, Briefs, and the Catalog.
+          Everything you need to know about the Generator, Briefs, and Catalogs.
         </p>
 
         <div className="space-y-0 border-t border-[var(--border-base)]">

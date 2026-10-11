@@ -15,9 +15,9 @@ const PILLARS = [
   },
   {
     n: '03',
-    title: 'The Catalog',
+    title: 'The Catalogs',
     body: 'The music houses you write for and their terms. Thought Collective takes brand work, and the Sonant catalog is growing. Your submissions live in your Dashboard.',
-    href: '/catalog',
+    href: '/catalogs',
   },
 ] as const;
 

@@ -6,7 +6,7 @@ import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 const QUESTIONS: { q: string; a: ReactNode }[] = [
   {
     q: 'What is Sonant?',
-    a: 'A platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, Briefs, and the Catalog. The point is to build a catalog worth pitching.',
+    a: 'A platform for sync composers to practice writing to spec for brands, films and games. Three pages: the Generator, Briefs, and Catalogs. The point is to build a catalog worth pitching.',
   },
   {
     q: 'What is the Generator?',
@@ -17,7 +17,7 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
     a: 'The briefs you write to. Practice briefs are for reps and anyone can take them. Catalog briefs come from Sonant and partner houses, and that is where you submit for feedback and placement. Paid client jobs open up once you have three placements.',
   },
   {
-    q: 'What is the Catalog?',
+    q: 'What are Catalogs?',
     a: (
       <>
         The music houses Sonant writes for, with the terms on each. Right now that is Thought Collective, a brand-focused catalog, and the Sonant catalog. Your own submissions and their status live in your Dashboard. Learn more about Thought Collective{' '}

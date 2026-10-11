@@ -357,7 +357,7 @@ export default function BrowseClient({
           className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-4"
           style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
         >
-          Briefs.
+          The Briefs.
         </h1>
         <p
           className="text-sm text-[var(--text-tertiary)] leading-relaxed"
