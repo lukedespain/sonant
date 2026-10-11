@@ -9,6 +9,7 @@ import {
 } from '@/lib/verification';
 import { isBriefClosed } from '@/lib/brief-status';
 import { Page, PageHeader } from '@/components/ui';
+import BriefImporter from '@/components/BriefImporter';
 import BrowseClient, { type BriefRow } from './BrowseClient';
 
 const NEW_FOR_MS = 7 * 24 * 60 * 60 * 1000;
@@ -81,6 +82,7 @@ export default async function BrowsePage({
         title="The Briefs."
         description="Paid client jobs, catalog briefs the houses are looking for, and practice briefs for reps."
       />
+      {user && <BriefImporter />}
       <BrowseClient
         featuredBriefs={featuredBriefs ?? []}
         clientBriefs={clientBriefs}

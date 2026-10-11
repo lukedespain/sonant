@@ -127,7 +127,6 @@ export async function deleteBrief(briefId: string): Promise<{ error?: string; ha
     return { error: 'Could not delete this brief.' };
   }
 
-  revalidatePath('/library');
   revalidatePath('/briefs');
   return {};
 }
@@ -214,8 +213,6 @@ export async function submitTrack(briefId: string) {
     });
   }
 
-  revalidatePath('/library');
-  revalidatePath(`/library/${briefId}`);
   revalidatePath(`/briefs/${briefId}`);
   return { success: true };
 }

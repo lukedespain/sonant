@@ -10,14 +10,13 @@ import MyInfoPanel from './MyInfoPanel';
 import OfferCard, { type Offer } from './OfferCard';
 import type { AppNotification } from '@/lib/notifications';
 
-const serif = { fontFamily: "'Fraunces', serif" } as const;
 const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
 const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
 
 type Panel = 'name' | 'email' | 'password' | 'delete' | null;
 type Tab = 'submissions' | 'info' | 'settings';
 
-const TAB_LABEL: Record<Tab, string> = { submissions: 'My Submissions', info: 'My Info', settings: 'Settings' };
+const TAB_LABEL: Record<Tab, string> = { submissions: 'Submissions', info: 'My info', settings: 'Settings' };
 
 export default function DashboardView({
   initialTab,
@@ -191,60 +190,45 @@ export default function DashboardView({
   }
 
   return (
-    <div className="pt-16 md:pt-20 pb-20 flex-1 min-w-0 overflow-x-clip">
-      <div className="max-w-4xl mx-auto px-6 md:px-10">
-        <div
-          className="text-[9px] tracking-[0.35em] uppercase text-[var(--text-dimmer)] mb-5"
-          style={mono}
-        >
-          Dashboard
-        </div>
-        <h1
-          className="tracking-tight leading-[0.95] mb-10"
-          style={{ ...serif, fontWeight: 300, fontSize: 'clamp(2.5rem, 6vw, 4.25rem)' }}
-        >
-          {displayName}
-        </h1>
+    <div className="flex-1 min-w-0 pt-14 md:pt-20 pb-24 overflow-x-clip">
+      <div className="max-w-4xl mx-auto px-5 md:px-10">
+        <p className="label text-[var(--text-dimmer)] mb-4">Dashboard</p>
+        <h1 className="font-serif font-light tracking-tight leading-[1.02] text-[2.5rem] md:text-6xl mb-10">{displayName}</h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 border-y border-[var(--border-base)] mb-12">
-          <Stat label={isAdmin ? 'Catalog reviews' : 'Submission credits'} value={isAdmin ? '∞' : String(submissionCredits)}>
+        <div className="grid grid-cols-3 border-y border-[var(--border-base)] divide-x divide-[var(--border-base)]">
+          <Stat label={isAdmin ? 'Reviews' : 'Credits'} value={isAdmin ? '∞' : String(submissionCredits)}>
             {!isAdmin && (
-              <div className="flex items-center gap-3 flex-wrap">
+              <>
                 <button
                   type="button"
                   onClick={startCheckout}
                   disabled={checkoutLoading}
-                  className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40"
-                  style={mono}
+                  className="label text-[var(--accent)] hover:opacity-70 disabled:opacity-40"
                 >
                   {checkoutLoading ? '…' : '+ Add'}
                 </button>
                 {daysUntilNextCredit != null && (
-                  <span className="text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)]" style={mono}>
+                  <span className="hidden md:inline ml-3 text-xs text-[var(--text-dimmer)]">
                     Free one in {daysUntilNextCredit} {daysUntilNextCredit === 1 ? 'day' : 'days'}
                   </span>
                 )}
-              </div>
+              </>
             )}
           </Stat>
           <Stat label="In review" value={String(inReview)}>
-            <span className="text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)]" style={mono}>
-              Waiting on notes or a catalog
-            </span>
+            <span className="hidden md:inline text-xs text-[var(--text-dimmer)]">Waiting on feedback or a catalog</span>
           </Stat>
-          <Stat label="Accepted" value={String(acceptedCount)}>
-            <span
-              className={`text-[10px] tracking-[0.12em] uppercase ${verified ? 'text-[#E85D2F]' : 'text-[var(--text-dimmer)]'}`}
-              style={mono}
-            >
-              {verified
-                ? '◆ Verified · client briefs open'
-                : `${Math.max(verificationThreshold - acceptedCount, 0)} more to unlock client briefs`}
+          <Stat label="Accepted" value={`${acceptedCount}`}>
+            <span className={`hidden md:inline text-xs ${verified ? 'text-[var(--accent)]' : 'text-[var(--text-dimmer)]'}`}>
+              {verified ? '◆ Verified · client briefs open' : `${Math.max(verificationThreshold - acceptedCount, 0)} more to unlock client briefs`}
             </span>
           </Stat>
         </div>
+        <p className={`md:hidden mt-3 text-xs ${verified ? 'text-[var(--accent)]' : 'text-[var(--text-dimmer)]'}`}>
+          {verified ? '◆ Verified · client briefs open' : `${Math.max(verificationThreshold - acceptedCount, 0)} more acceptances unlock paid client briefs`}
+        </p>
 
-        <div className="flex items-end mb-8 border-b border-[var(--border-base)]" role="tablist">
+        <div className="mt-12 flex items-end mb-8 border-b border-[var(--border-base)]" role="tablist">
           {(['submissions', 'info', 'settings'] as const).map((key) => (
             <button
               key={key}
@@ -252,15 +236,14 @@ export default function DashboardView({
               role="tab"
               aria-selected={tab === key}
               onClick={() => selectTab(key)}
-              className={`px-5 py-3 text-xs tracking-[0.2em] uppercase transition-colors -mb-px border-b-2 ${
+              className={`px-4 md:px-5 py-3 label transition-colors -mb-px border-b-2 whitespace-nowrap ${
                 tab === key
-                  ? 'text-[var(--text-primary)] border-[#E85D2F]'
+                  ? 'text-[var(--text-primary)] border-[var(--accent)]'
                   : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
               }`}
-              style={mono}
             >
               {TAB_LABEL[key]}
-              {key === 'submissions' && offers.length > 0 && <span className="ml-2 text-[#E85D2F]">◆</span>}
+              {key === 'submissions' && offers.length > 0 && <span className="ml-2 text-[var(--accent)]">◆</span>}
             </button>
           ))}
         </div>
@@ -438,14 +421,10 @@ export default function DashboardView({
 
 function Stat({ label, value, children }: { label: string; value: string; children: ReactNode }) {
   return (
-    <div className="py-6 sm:px-6 first:sm:pl-0 border-b sm:border-b-0 sm:border-l first:sm:border-l-0 border-[var(--border-base)] last:border-b-0">
-      <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-2" style={mono}>
-        {label}
-      </div>
-      <div className="text-4xl leading-none text-[var(--text-primary)] mb-3" style={{ ...serif, fontWeight: 300 }}>
-        {value}
-      </div>
-      <div className="leading-snug">{children}</div>
+    <div className="py-5 md:py-6 px-3 md:px-6 first:pl-0">
+      <p className="label text-[var(--text-dimmer)]">{label}</p>
+      <p className="mt-2 font-serif font-light text-3xl md:text-4xl leading-none tabular-nums">{value}</p>
+      <div className="mt-3 min-h-4 leading-snug">{children}</div>
     </div>
   );
 }

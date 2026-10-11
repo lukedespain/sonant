@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
+import { btn } from '@/components/ui';
 import { useSearchParams } from 'next/navigation';
 import { signUp } from '@/app/auth/actions';
 
@@ -59,28 +60,24 @@ function SignUpForm() {
   return (
     <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Create Account
-        </div>
+        <p className="label text-[var(--accent)] mb-4">◆ Free account</p>
 
-        <h1 className="text-4xl md:text-5xl tracking-tight leading-tight mb-3"
-          style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+        <h1 className="font-serif font-light text-4xl md:text-5xl tracking-tight leading-tight mb-3">
           Start writing to <span className="italic">briefs.</span>
         </h1>
 
-        <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <p className="text-[15px] text-[var(--text-tertiary)] leading-relaxed mb-10">
           {invited
             ? 'A composer shared a brief with you. Create a free account to view it, save work, and submit from Briefs. One submission credit each month.'
-            : 'The Generator, Briefs, and Catalogs. Practice writing to spec, submit your best work, and build a catalog worth pitching. Free to create. One submission credit each month.'}
+            : 'Write to real briefs, get written feedback on every submission, and get your best tracks into catalogs. One free submission credit every month.'}
         </p>
 
         <form action={handleSubmit} className="space-y-5">
           {referredBy && <input type="hidden" name="referredBy" value={referredBy} />}
           {signupNext && <input type="hidden" name="signupNext" value={signupNext} />}
-          <Field label="Full Name" name="fullName" type="text" required />
-          <Field label="Email" name="email" type="email" required />
-          <Field label="Password" name="password" type="password" required minLength={8} />
+          <Field label="Full name" name="fullName" type="text" required autoComplete="name" />
+          <Field label="Email" name="email" type="email" required autoComplete="email" />
+          <Field label="Password" name="password" type="password" required minLength={8} autoComplete="new-password" hint="At least 8 characters." />
 
           {error && (
             <div className="text-sm text-[#FF8B6B] border border-[#FF8B6B]/30 bg-[#FF8B6B]/5 p-3"
@@ -92,14 +89,9 @@ function SignUpForm() {
           <button
             type="submit"
             disabled={submitting}
-            className={`w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase transition-all mt-2 ${
-              submitting
-                ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
-                : 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D]'
-            }`}
-            style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+            className={btn('primary', 'md', 'w-full h-12 mt-2')}
           >
-            {submitting ? '◆ Creating Account…' : '◆ Create Account'}
+            {submitting ? '◆ Creating account…' : '◆ Create account'}
           </button>
 
           <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -114,16 +106,12 @@ function SignUpForm() {
   );
 }
 
-function Field({ label, name, type, required, minLength }: {
-  label: string; name: string; type: string; required?: boolean; minLength?: number
+function Field({ label, name, type, required, minLength, autoComplete, hint }: {
+  label: string; name: string; type: string; required?: boolean; minLength?: number; autoComplete?: string; hint?: string
 }) {
   return (
     <div>
-      <label
-        htmlFor={name}
-        className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
-      >
+      <label htmlFor={name} className="block label text-[var(--text-muted)] mb-2">
         {label}
       </label>
       <input
@@ -132,9 +120,10 @@ function Field({ label, name, type, required, minLength }: {
         type={type}
         required={required}
         minLength={minLength}
-        className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none transition-colors"
-        style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+        autoComplete={autoComplete}
+        className="w-full h-12 px-4 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] rounded-[2px] focus:border-[var(--accent)] focus:outline-none transition-colors"
       />
+      {hint && <p className="mt-1.5 text-xs text-[var(--text-dimmer)]">{hint}</p>}
     </div>
   );
 }

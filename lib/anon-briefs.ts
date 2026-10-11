@@ -1,6 +1,6 @@
 // Client-side stash for briefs generated before a user signs up.
 // Per-browser only. Imported into the user's account on first
-// authenticated visit to /library, then cleared.
+// authenticated visit to /briefs, then cleared.
 
 const STORAGE_KEY = 'sonant_anon_briefs';
 

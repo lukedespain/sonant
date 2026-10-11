@@ -7,6 +7,7 @@ import { BRAND_CATEGORIES, FILM_CATEGORIES, GAMES_CATEGORIES } from '@/lib/brief
 import SunoPromptModal from './SunoPromptModal';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
 import BriefNextSteps from '@/components/BriefNextSteps';
+import { btn } from '@/components/ui';
 import { buildLoadingMessages } from '@/lib/brief-loading';
 
 // ---------- TYPES ----------
@@ -56,78 +57,44 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   return (
     <button
       onClick={onClick}
-      className={`transition-all duration-150 px-4 py-2.5 text-sm border tracking-wide ${
+      type="button"
+      aria-pressed={active}
+      className={`h-10 px-4 text-sm border rounded-[2px] transition-colors ${
         active
-          ? 'bg-[#E85D2F]/10 border-[#E85D2F] text-[#E85D2F]'
-          : 'bg-transparent border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--text-dim)] hover:text-[var(--text-primary)]'
+          ? 'bg-[var(--accent-soft)] border-[var(--accent)] text-[var(--accent)] font-medium'
+          : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--text-dim)] hover:text-[var(--text-primary)]'
       }`}
-      style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: active ? 500 : 400, borderRadius: '2px' }}
     >
       {children}
     </button>
   );
 }
 
-function BrandIcon() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <circle cx="13" cy="13" r="9.5" />
-    </svg>
-  );
-}
-function FilmIcon() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="8,5 21,13 8,21" />
-    </svg>
-  );
-}
-function GamesIcon() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <rect x="4" y="4" width="18" height="18" />
-    </svg>
-  );
-}
 
 function DomainCard({
   active,
   onClick,
-  icon,
   label,
   description,
 }: {
   active: boolean;
   onClick: () => void;
-  icon: React.ReactNode;
   label: string;
   description: string;
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`flex flex-col items-center text-center pt-7 pb-6 px-4 border transition-all duration-200 ${
+      aria-pressed={active}
+      className={`text-left p-4 md:p-5 border rounded-[2px] transition-colors ${
         active
-          ? 'border-[#E85D2F] bg-[#E85D2F]/8'
+          ? 'border-[var(--accent)] bg-[var(--accent-soft)]'
           : 'border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[var(--border-hover)]'
       }`}
-      style={{ borderRadius: '2px' }}
     >
-      <div className={`mb-4 transition-colors ${active ? 'text-[#E85D2F]' : 'text-[var(--text-muted)]'}`}>
-        {icon}
-      </div>
-      <div
-        className={`text-xl mb-2 transition-colors ${active ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
-        style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
-      >
-        {label}
-      </div>
-      <div
-        className={`text-xs leading-snug transition-colors ${active ? 'text-[var(--text-muted)]' : 'text-[var(--text-dimmer)]'}`}
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
-      >
-        {description}
-      </div>
+      <span className={`block font-serif text-xl ${active ? 'text-[var(--accent)]' : 'text-[var(--text-primary)]'}`}>{label}</span>
+      <span className="mt-1.5 block text-xs leading-snug text-[var(--text-muted)]">{description}</span>
     </button>
   );
 }
@@ -156,15 +123,12 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedBriefId, setSavedBriefId] = useState<string | null>(null);
-  const [announceFeatured, setAnnounceFeatured] = useState(true);
+  const [announceFeatured, setAnnounceFeatured] = useState(false);
   const briefRef = useRef<HTMLElement>(null);
   const optionsRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    if (!loading) {
-      setLoadingStep(0);
-      return;
-    }
+    if (!loading) return;
     const interval = setInterval(() => {
       setLoadingStep((s) => Math.min(s + 1, loadingMessages.length - 1));
     }, 6500);
@@ -285,7 +249,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
           briefRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
 
-        // Auto-save: logged-in users save to their library,
+        // Auto-save: logged-in users save to their account,
         // logged-out users get stashed locally until they sign up.
         if (user) {
           setSaveStatus('saving');
@@ -352,55 +316,40 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
         .pulse-soft { animation: pulse-soft 1.4s ease-in-out infinite; }
       `}</style>
 
-      {/* ── Hero (hidden when embedded on homepage) ── */}
       {!embedded && (
-        <section className="max-w-5xl mx-auto px-6 md:px-10 pt-20 pb-10">
-          <h1
-            className="text-5xl md:text-6xl tracking-tight leading-[1.05] mb-3 max-w-2xl"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-          >
-            The Generator.
-          </h1>
-          <p
-            className="text-sm text-[var(--text-muted)] mb-5 max-w-xl"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            The brief generator is for practice on demand. It writes a spec the way a supervisor would: scene, mood, instrumentation, references. Get the reps, then write to a brief in Briefs when you are ready to submit.
+        <section className="max-w-3xl mx-auto px-5 md:px-10 pt-14 md:pt-20 pb-4">
+          <h1 className="font-serif font-light tracking-tight leading-[1.02] text-[2.75rem] md:text-6xl">The Generator.</h1>
+          <p className="mt-4 text-base text-[var(--text-tertiary)] leading-relaxed max-w-xl">
+            Practice briefs on demand. Pick a type and a few moods and genres, and it writes a spec the way a supervisor would.
           </p>
         </section>
       )}
 
-      {!embedded && <div className="border-t border-[var(--border-base)]" />}
-
       {/* ── Form ── */}
-      <section ref={optionsRef} className={`max-w-2xl mx-auto px-6 pb-20 ${embedded ? 'pt-8' : 'pt-12'}`}>
+      <section ref={optionsRef} className={`max-w-3xl mx-auto px-5 md:px-10 pb-20 ${embedded ? 'pt-8' : 'pt-10'}`}>
 
         {/* Domain cards */}
         <div
-          className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          Brief Type
+          className="label text-[var(--text-muted)] mb-4"
+          >
+          Type
         </div>
         <div className="grid grid-cols-3 gap-3 mb-12">
           <DomainCard
             active={domain === 'brand'}
             onClick={() => handleDomainChange('brand')}
-            icon={<BrandIcon />}
             label="Brand"
             description="Commercials, campaigns, and brand spots."
           />
           <DomainCard
             active={domain === 'film'}
             onClick={() => handleDomainChange('film')}
-            icon={<FilmIcon />}
             label="Film"
             description="Scored cues for film and TV scenes."
           />
           <DomainCard
             active={domain === 'games'}
             onClick={() => handleDomainChange('games')}
-            icon={<GamesIcon />}
             label="Game"
             description="Combat loops, exploration, cutscenes, and title screens."
           />
@@ -409,9 +358,8 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
         {/* Category */}
         <div className="mb-10">
           <div
-            className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
+            className="label text-[var(--text-muted)] mb-4"
+            >
             {domain === 'film' ? 'Scene Type' : domain === 'games' ? 'Game Context' : 'Category'}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -426,10 +374,9 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
         {/* Mood */}
         <div className="mb-10">
           <div
-            className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            Mood <span className="opacity-50">· up to 3</span>
+            className="label text-[var(--text-muted)] mb-4"
+            >
+            Mood <span className="text-[var(--text-dimmer)]">· up to 3</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {availableMoods.map((m) => (
@@ -443,10 +390,9 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
         {/* Genre */}
         <div className="mb-10">
           <div
-            className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            Genre <span className="opacity-50">· up to 3</span>
+            className="label text-[var(--text-muted)] mb-4"
+            >
+            Genre <span className="text-[var(--text-dimmer)]">· up to 3</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {GENRES.map((g) => (
@@ -460,33 +406,34 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
         {/* Vocal toggle */}
         <div className="mb-12">
           <div
-            className="text-[9px] tracking-[0.28em] uppercase text-[var(--text-primary)] mb-4"
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            Track Type
+            className="label text-[var(--text-muted)] mb-4"
+            >
+            Track
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setWithVocals(false)}
-              className={`flex-1 py-3 text-xs tracking-[0.15em] uppercase transition-all border ${
+              type="button"
+              aria-pressed={!withVocals}
+              className={`flex-1 h-11 text-sm border rounded-[2px] transition-colors ${
                 !withVocals
-                  ? 'border-[#E85D2F] bg-[#E85D2F]/10 text-[#E85D2F]'
+                  ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] font-medium'
                   : 'border-[var(--border-card)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--border-subtle)]'
               }`}
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
             >
               Instrumental
             </button>
             <button
               onClick={() => setWithVocals(true)}
-              className={`flex-1 py-3 text-xs tracking-[0.15em] uppercase transition-all border ${
+              type="button"
+              aria-pressed={withVocals}
+              className={`flex-1 h-11 text-sm border rounded-[2px] transition-colors ${
                 withVocals
-                  ? 'border-[#E85D2F] bg-[#E85D2F]/10 text-[#E85D2F]'
+                  ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] font-medium'
                   : 'border-[var(--border-card)] bg-[var(--bg-card)] text-[var(--text-muted)] hover:border-[var(--border-subtle)]'
               }`}
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
             >
-              With Vocals
+              With vocals
             </button>
           </div>
         </div>
@@ -502,7 +449,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
                 className="mt-0.5 accent-[#E85D2F]"
               />
               <span className="text-[11px] leading-relaxed text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                Email everyone that this Sonant brief is up. Uncheck if you are just iterating.
+                Email everyone that this brief is up. Leave unchecked while you iterate.
               </span>
             </label>
           )}
@@ -510,29 +457,18 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
             <button
               onClick={handleGenerate}
               disabled={!canGenerate || loading}
-              className={`flex-1 py-4 text-sm tracking-[0.15em] uppercase transition-all ${
-                canGenerate && !loading
-                  ? 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] cursor-pointer'
-                  : 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
-              }`}
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+              className={btn('primary', 'md', 'flex-1 h-12')}
             >
-              {loading ? '◆ Generating…' : '◆ Generate Brief'}
+              {loading ? '◆ Generating…' : '◆ Generate brief'}
             </button>
             {(category || genres.length > 0 || moods.length > 0) && !loading && (
-              <button
-                onClick={handleReset}
-                className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              >
+              <button type="button" onClick={handleReset} className={btn('ghost', 'sm')}>
                 Reset
               </button>
             )}
           </div>
           {!canGenerate && !loading && (
-            <p className="text-[10px] text-[var(--text-dimmer)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Pick a category · mood · genre to unlock
-            </p>
+            <p className="text-xs text-[var(--text-dimmer)] text-center">Pick a category, a mood, and a genre to unlock.</p>
           )}
         </div>
       </section>
@@ -585,7 +521,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
                     {saveStatus === 'saving' ? '◆ Saving…' :
-                     saveStatus === 'saved' ? '✓ Saved to library' :
+                     saveStatus === 'saved' ? '✓ Saved' :
                      saveStatus === 'error' ? '× ' + (saveError || 'Could not save') :
                      ''}
                   </span>

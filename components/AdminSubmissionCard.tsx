@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { recordDecision, type SubmissionDecision } from '@/app/briefs/actions';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
+import { btn } from '@/components/ui';
 
 export type AdminHandoff = {
   agreedAt: string | null;
@@ -67,10 +68,6 @@ export default function AdminSubmissionCard({
   const [feedback, setFeedback] = useState(existingFeedback ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setOpen(isDisco ? !deliveryConfirmedAt : !isDecided);
-  }, [isDisco, isDecided, status, deliveryConfirmedAt]);
 
   async function handleDecision(decision: SubmissionDecision) {
     if (!feedback.trim()) {
@@ -144,8 +141,7 @@ export default function AdminSubmissionCard({
 
   return (
     <div
-      className="border border-[var(--border-card)] bg-[var(--bg-card)] p-6"
-      style={{ borderRadius: '2px' }}
+      className="border border-[var(--border-card)] bg-[var(--bg-card)] rounded-[2px] p-5 md:p-6"
     >
       <div className="flex items-start justify-between gap-4">
         {audioUrl && (
@@ -170,12 +166,7 @@ export default function AdminSubmissionCard({
           aria-expanded={open}
         >
           <div className="min-w-0">
-            <h3
-              className="text-xl mb-1 text-[var(--text-primary)]"
-              style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}
-            >
-              Project <span className="italic">{projectName}</span>
-            </h3>
+            <h3 className="font-serif italic text-xl tracking-tight mb-1">{projectName}</h3>
             <div
               className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)]"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -233,8 +224,7 @@ export default function AdminSubmissionCard({
               href={`/briefs/${briefId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-              style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+              className={btn('secondary', 'sm')}
             >
               ↗ View Brief
             </a>
@@ -243,8 +233,7 @@ export default function AdminSubmissionCard({
                 href={discoInboxUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                className={btn('secondary', 'sm')}
               >
                 ↗ Open Disco inbox
               </a>
@@ -254,8 +243,7 @@ export default function AdminSubmissionCard({
                 href={playlistHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                className={btn('secondary', 'sm')}
               >
                 ↗ Brief playlist
               </a>
@@ -264,8 +252,7 @@ export default function AdminSubmissionCard({
               <a
                 href={downloadHref}
                 download={audioName || true}
-                className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                className={btn('secondary', 'sm')}
               >
                 ↓ Download
               </a>

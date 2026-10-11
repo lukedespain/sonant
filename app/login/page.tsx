@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { btn } from '@/components/ui';
 import { signIn } from '@/app/auth/actions';
 
 export default function LoginPage() {
@@ -33,30 +33,27 @@ function LoginForm() {
   return (
     <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          ◆ Welcome Back
-        </div>
+        <p className="label text-[var(--accent)] mb-4">◆ Welcome back</p>
 
-        <h1 className="text-4xl md:text-5xl tracking-tight leading-tight mb-3" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+        <h1 className="font-serif font-light text-4xl md:text-5xl tracking-tight leading-tight mb-3">
           Sign <span className="italic">in</span>.
         </h1>
 
-        <p className="text-sm text-[var(--text-tertiary)] mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-          The Generator, Briefs, and Catalogs. Pick up where you left off.
+        <p className="text-[15px] text-[var(--text-tertiary)] mb-10">
+          Pick up where you left off.
         </p>
 
         <form action={handleSubmit} className="space-y-5">
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          <Field label="Email" name="email" type="email" required />
+          <Field label="Email" name="email" type="email" required autoComplete="email" />
           <div>
-            <Field label="Password" name="password" type="password" required />
+            <Field label="Password" name="password" type="password" required autoComplete="current-password" />
             <div className="mt-2 text-right">
               <Link
                 href="/forgot-password"
-                className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-dim)] hover:text-[#E85D2F] transition-colors"
-                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                className="text-xs text-[var(--text-dim)] hover:text-[var(--accent)] transition-colors"
               >
-                Forgot password
+                Forgot password?
               </Link>
             </div>
           </div>
@@ -85,25 +82,16 @@ function SubmitButton({ submitting }: { submitting: boolean }) {
     <button
       type="submit"
       disabled={submitting}
-      className={`w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase transition-all mt-2 ${
-        submitting
-          ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
-          : 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D]'
-      }`}
-      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+      className={btn('primary', 'md', 'w-full h-12 mt-2')}
     >
-      {submitting ? '◆ Signing In…' : '◆ Sign In'}
+      {submitting ? '◆ Signing in…' : '◆ Sign in'}
     </button>
   );
 }
-function Field({ label, name, type, required }: { label: string; name: string; type: string; required?: boolean }) {
+function Field({ label, name, type, required, autoComplete }: { label: string; name: string; type: string; required?: boolean; autoComplete?: string }) {
   return (
     <div>
-      <label
-        htmlFor={name}
-        className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
-      >
+      <label htmlFor={name} className="block label text-[var(--text-muted)] mb-2">
         {label}
       </label>
       <input
@@ -111,8 +99,8 @@ function Field({ label, name, type, required }: { label: string; name: string; t
         name={name}
         type={type}
         required={required}
-        className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none transition-colors"
-        style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+        autoComplete={autoComplete}
+        className="w-full h-12 px-4 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] rounded-[2px] focus:border-[var(--accent)] focus:outline-none transition-colors"
       />
     </div>
   );

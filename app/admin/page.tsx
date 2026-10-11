@@ -20,30 +20,9 @@ export default async function AdminPage({
   const briefKind = kind === 'catalog' ? 'catalog' : 'client';
 
   return (
-    <div className="pt-20 pb-12 flex-1">
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <div
-          className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          ◆ Admin
-        </div>
-
-        <h1
-          className="text-5xl md:text-6xl tracking-tight leading-tight mb-3"
-          style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
-        >
-          Dashboard.
-        </h1>
-
-        <p
-          className="text-base text-[var(--text-tertiary)] mb-8 max-w-xl"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
-          Catalog review, house briefs, paid client briefs, and composer accounts.
-        </p>
-
-        <UsageMeters />
+    <div className="flex-1 min-w-0 pt-12 md:pt-16 pb-24">
+      <div className="max-w-6xl mx-auto px-5 md:px-10">
+        <h1 className="font-serif font-light tracking-tight text-4xl md:text-5xl mb-8">Admin.</h1>
 
         <Suspense fallback={null}>
           <AdminTabs />
@@ -58,6 +37,8 @@ export default async function AdminPage({
         ) : (
           <SubmissionsTab queue={submissionQueue} />
         )}
+
+        <UsageMeters />
       </div>
     </div>
   );

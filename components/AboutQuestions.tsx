@@ -15,6 +15,14 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
     a: 'Every catalog submission gets written feedback on the track, whether it goes to the catalog or not. It is tied to the brief you wrote to, so it stays specific.',
   },
   {
+    q: 'What happens after I submit?',
+    a: 'Every track gets listened to against the brief, and you get written feedback by email and in your Dashboard. The strongest go to the catalog, and they make the final call, usually within a week.',
+  },
+  {
+    q: 'What are the terms if my track places?',
+    a: 'Each catalog lists its deal on the Catalogs page. Thought Collective is exclusive with a 50/50 split on sync fees. The Sonant catalog is non-exclusive, also 50/50, so you can pitch the track anywhere else too.',
+  },
+  {
     q: 'Who are the catalogs?',
     a: (
       <>

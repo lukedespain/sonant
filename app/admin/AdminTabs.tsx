@@ -13,29 +13,28 @@ const TABS = [
 export default function AdminTabs() {
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
-  const active =
-    tab === 'briefs' || tab === 'people' || tab === 'houses' ? tab : 'submissions';
+  const active = tab === 'briefs' || tab === 'people' || tab === 'houses' ? tab : 'submissions';
 
   return (
-    <div className="flex items-end mb-10 border-b border-[var(--border-base)]">
-      {TABS.map((tab) => {
-        const href = tab.id === 'submissions' ? '/admin' : `/admin?tab=${tab.id}`;
-        const isActive = active === tab.id;
+    <nav className="flex items-end mb-10 border-b border-[var(--border-base)] overflow-x-auto [scrollbar-width:none]">
+      {TABS.map((t) => {
+        const href = t.id === 'submissions' ? '/admin' : `/admin?tab=${t.id}`;
+        const isActive = active === t.id;
         return (
           <Link
-            key={tab.id}
+            key={t.id}
             href={href}
-            className={`px-5 py-3 text-xs tracking-[0.2em] uppercase transition-colors -mb-px border-b-2 ${
+            aria-current={isActive ? 'page' : undefined}
+            className={`px-4 md:px-5 py-3 label whitespace-nowrap transition-colors -mb-px border-b-2 ${
               isActive
-                ? 'text-[var(--text-primary)] border-[#E85D2F]'
+                ? 'text-[var(--text-primary)] border-[var(--accent)]'
                 : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
             }`}
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            {tab.label}
+            {t.label}
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 }

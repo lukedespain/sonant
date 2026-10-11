@@ -112,34 +112,6 @@ export async function sendDecisionEmail(params: {
   }
 }
 
-export async function sendCatalogAccessRequestEmail(params: {
-  email: string;
-  role: string;
-  lookingFor: string;
-}) {
-  const { email, role, lookingFor } = params;
-  try {
-    await resend.emails.send({
-      from: FROM,
-      to: LUKE,
-      replyTo: email,
-      subject: `Catalog access request from ${email}`,
-      html: `
-        <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
-          <h2 style="font-weight: 500;">New catalog access request</h2>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Role:</strong> ${role}</p>
-          <p><strong>Looking for:</strong> ${lookingFor || '(not provided)'}</p>
-        </div>
-      `,
-    });
-    return { success: true };
-  } catch (error) {
-    console.error('sendCatalogAccessRequestEmail failed:', error);
-    return { error: 'Email failed to send.' };
-  }
-}
-
 // Sent to Luke when a composer agrees to a catalog's terms and hands over stems.
 export async function sendHandoffEmail(params: {
   composerName: string;

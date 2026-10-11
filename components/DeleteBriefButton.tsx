@@ -6,7 +6,7 @@ import ConfirmActionButton from '@/components/ConfirmActionButton';
 
 export default function DeleteBriefButton({
   briefId,
-  redirectPath = '/library',
+  redirectPath = '/briefs',
   canMoveToPractice = false,
 }: {
   briefId: string;

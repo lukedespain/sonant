@@ -229,7 +229,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
         <div className="flex flex-col gap-4">
           {ordered.map((row) => (
             <AdminSubmissionCard
-              key={row.id}
+              key={`${row.id}:${row.status}:${row.deliveryConfirmedAt ?? ''}`}
               submissionId={row.id}
               briefId={row.briefId}
               projectName={row.projectName}
