@@ -1,25 +1,32 @@
 'use client'
 
-import Link from 'next/link'
+import Link, { useLinkStatus } from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import { signOut } from '@/app/auth/actions'
 import ThemeToggle from '@/components/ThemeToggle'
 
-function SignInLink({ className, style, children, onClick }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const [loading, setLoading] = useState(false)
+function SignInLabel() {
+  const { pending } = useLinkStatus()
+  return pending ? (
+    <><span className="animate-pulse">◆</span>&nbsp;Signing in</>
+  ) : <>Sign In</>
+}
+
+function SignInDesktop({ style }: { style: React.CSSProperties }) {
+  const { pending } = useLinkStatus()
   return (
-    <Link
-      href="/login"
-      onClick={(e) => { setLoading(true); onClick?.(e as unknown as React.MouseEvent<HTMLAnchorElement>) }}
-      className={`${className ?? ''} ${loading ? '!border-[#E85D2F] !text-[#E85D2F] cursor-wait' : ''}`}
-      style={style}
+    <span
+      className={`h-10 px-4 flex items-center gap-1.5 border transition-colors ${
+        pending
+          ? 'border-[#E85D2F] text-[#E85D2F]'
+          : 'border-[var(--border-subtle)] text-[var(--text-secondary)] group-hover:border-[#E85D2F] group-hover:text-[#E85D2F]'
+      }`}
+      style={{ borderRadius: '2px', ...style }}
     >
-      {loading ? (
-        <><span className="animate-pulse">◆</span>&nbsp;Signing in</>
-      ) : children}
-    </Link>
+      <SignInLabel />
+    </span>
   )
 }
 
@@ -135,12 +142,14 @@ export default function Nav({
             {!isAuthPage && <ThemeToggle boxed />}
 
             {!isAuthPage && !loggedIn && (
-              <SignInLink
-                className="h-10 px-4 flex items-center gap-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
+              <Link
+                href="/login"
+                prefetch={false}
+                className="group"
+                style={{ ...mono, fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
               >
-                Sign In
-              </SignInLink>
+                <SignInDesktop style={mono} />
+              </Link>
             )}
 
             {loggedIn && user && (
@@ -240,13 +249,15 @@ export default function Nav({
             )}
 
             {!loggedIn && (
-              <SignInLink
-                className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F]"
-                style={mono}
+              <Link
+                href="/login"
+                prefetch={false}
                 onClick={closeMenu}
+                className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] flex items-center gap-1.5"
+                style={mono}
               >
-                Sign In
-              </SignInLink>
+                <SignInLabel />
+              </Link>
             )}
           </div>
         </div>
