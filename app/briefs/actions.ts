@@ -439,7 +439,7 @@ export async function recordDecision(params: {
         : { type: 'catalog_reviewed' as const, title: 'Catalog review', body: feedback.trim() ? `Notes are ready for ${projectName}.` : `${projectName} was reviewed.` };
 
   try {
-    await addNotification(admin, submission.user_id, { ...notification, href: '/dashboard' });
+    await addNotification(admin, submission.user_id, { ...notification, href: decision === 'accepted' ? '/dashboard#offers' : `/dashboard#submission-${submissionId}` });
   } catch (error) {
     console.error('Catalog notification failed:', error);
   }

@@ -268,13 +268,15 @@ export default function DashboardView({
         {tab === 'submissions' && (
           <>
             {offers.length > 0 && (
-              <div className="flex flex-col gap-5 mb-12">
+              <div id="offers" className="flex flex-col gap-5 mb-12 scroll-mt-28">
                 {offers.map((offer) => (
                   <OfferCard key={offer.submissionId} offer={offer} rights={rights} onRightsSaved={setRights} />
                 ))}
               </div>
             )}
-            <SubmissionHistory items={submissions} />
+            <div id="submissions" className="scroll-mt-28">
+              <SubmissionHistory items={submissions} />
+            </div>
             <section className="mt-20">
               <AlertsPanel initialItems={notifications} />
             </section>

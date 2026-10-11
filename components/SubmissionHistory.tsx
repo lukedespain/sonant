@@ -75,7 +75,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
               : { color: '#E85D2F', bg: '#E85D2F15', border: '#E85D2F30' };
 
         return (
-          <div key={sub.id} className="border-b border-[var(--border-base)] py-6">
+          <div key={sub.id} id={`submission-${sub.id}`} className="border-b border-[var(--border-base)] py-6 scroll-mt-28">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1 flex-wrap">

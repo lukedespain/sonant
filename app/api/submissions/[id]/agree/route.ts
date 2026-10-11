@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { catalogPartnerById } from '@/lib/partners';
 import { sendHandoffEmail } from '@/lib/email';
+import { submissionFileName } from '@/lib/submission-files';
 import {
   normalizeRights,
   readHandoffs,
@@ -32,7 +33,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const admin = createAdminClient();
   const { data: submission } = await admin
     .from('submissions')
-    .select('id, user_id, brief_id, status, file_name')
+    .select('id, user_id, brief_id, status')
     .eq('id', id)
     .maybeSingle();
   if (!submission || submission.user_id !== user.id) {
@@ -67,7 +68,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     composerName: (profile as { full_name?: string } | null)?.full_name ?? '',
     composerEmail: user.email ?? '',
     projectName: content?.projectTitle || content?.codename || 'Untitled',
-    trackName: (submission as { file_name?: string | null }).file_name ?? null,
+    trackName: await submissionFileName(admin, id),
     catalogName: catalogPartnerById(offer.catalogId)?.name ?? 'Sonant',
     stemsUrl,
     rights,

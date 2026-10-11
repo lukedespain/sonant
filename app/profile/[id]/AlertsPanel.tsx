@@ -78,12 +78,14 @@ export default function AlertsPanel({
               </>
             );
             const className = `block py-5 border-b border-[var(--border-base)] ${item.read ? 'opacity-60' : ''}`;
-            return item.href ? (
+            const href = item.href === '/catalog' || item.href === '/dashboard' ? '/dashboard#submissions' : item.href;
+            return href ? (
               <Link
                 key={item.id}
-                href={item.href}
-                onClick={() => {
+                href={href}
+                onClick={(event) => {
                   if (!item.read) void mark([item.id]);
+                  if (jumpOnPage(href)) event.preventDefault();
                 }}
                 className={className}
               >
@@ -106,4 +108,19 @@ export default function AlertsPanel({
       )}
     </div>
   );
+}
+
+// Alerts usually point somewhere on the dashboard they are shown on, where a
+// plain link would not move. Scroll there and flash the target instead.
+function jumpOnPage(href: string): boolean {
+  const [path, hash] = href.split('#');
+  if (!hash || window.location.pathname !== path) return false;
+  const target = document.getElementById(hash) ?? document.getElementById('submissions');
+  if (!target) return false;
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  target.classList.remove('flash-target');
+  void target.offsetWidth;
+  target.classList.add('flash-target');
+  window.setTimeout(() => target.classList.remove('flash-target'), 2000);
+  return true;
 }

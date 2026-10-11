@@ -14,6 +14,7 @@ import {
 import type { SubmissionItem } from '@/components/SubmissionHistory';
 import { readHandoffs, readRights } from '@/lib/handoff';
 import { catalogPartnerById } from '@/lib/partners';
+import { submissionFileName } from '@/lib/submission-files';
 import DashboardView from './DashboardView';
 import type { Offer } from './OfferCard';
 
@@ -36,7 +37,7 @@ export default async function DashboardPage({
     listNotifications(admin, user.id),
     admin
       .from('submissions')
-      .select('id, brief_id, status, feedback, created_at, delivery, file_name')
+      .select('id, brief_id, status, feedback, created_at, delivery')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
     countAcceptedCatalogSubmissions(admin, user.id),
@@ -44,6 +45,13 @@ export default async function DashboardPage({
   ]);
 
   const rows = rawSubmissions ?? [];
+  const fileNames = Object.fromEntries(
+    await Promise.all(
+      rows
+        .filter((s) => (s as { delivery?: string }).delivery !== 'disco')
+        .map(async (s) => [s.id as string, await submissionFileName(admin, s.id as string)] as const)
+    )
+  );
   const briefIds = [...new Set(rows.map((s) => s.brief_id as string))];
   const { data: briefs } = briefIds.length
     ? await admin.from('briefs').select('id, user_id, generated_content, brief_type').in('id', briefIds)
@@ -59,7 +67,7 @@ export default async function DashboardPage({
     id: s.id as string,
     briefId: s.brief_id as string,
     briefCodename: briefMap[s.brief_id as string]?.name ?? 'Untitled',
-    trackName: (s as { file_name?: string | null }).file_name ?? null,
+    trackName: fileNames[s.id as string] ?? null,
     briefType: briefMap[s.brief_id as string]?.kind ?? 'catalog',
     delivery: (s as { delivery?: string }).delivery === 'disco' ? 'disco' : 'upload',
     status: s.status as string,
