@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { ADMIN_USER_ID, isSiteAdmin } from '@/lib/admin';
+import { isSiteAdmin } from '@/lib/admin';
+import { classifyBrief } from '@/lib/brief-kind';
 import { composerHasClientAccess } from '@/lib/verification';
 import { resolveDiscoInboxUrl } from '@/lib/disco';
 import DiscoInboxInput from '@/components/DiscoInboxInput';
@@ -11,6 +12,7 @@ import ExportPdfButton from '@/components/ExportPdfButton';
 import ShareBriefButton from '@/components/ShareBriefButton';
 import SunoPromptModal from '@/components/SunoPromptModal';
 import DeleteBriefButton from '@/components/DeleteBriefButton';
+import MoveToPracticeButton from '@/components/MoveToPracticeButton';
 import CommunityTracksSection from '@/components/CommunityTracksSection';
 import BriefNextSteps from '@/components/BriefNextSteps';
 import BriefImageUpload from '@/components/BriefImageUpload';
@@ -18,7 +20,7 @@ import RegenerateImageButton from '@/components/RegenerateImageButton';
 import AnnounceBriefButton from '@/components/AnnounceBriefButton';
 import { getSubmissionStatus } from '@/app/briefs/actions';
 import { getTrackPrivacyMap, isTrackPublic } from '@/lib/track-privacy';
-import { catalogPartnerFromBrief } from '@/lib/partners';
+import { CATALOG_PARTNERS, catalogPartnerFromBrief } from '@/lib/partners';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -41,10 +43,11 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
   const brief = briefRow.generated_content as Brief;
   const briefName = brief.codename ?? 'Untitled';
-  const isClientBrief = (briefRow as { brief_type?: string }).brief_type === 'client' || brief.kind === 'client';
-  const isFeatured = briefRow.user_id === ADMIN_USER_ID && !isClientBrief;
+  const kind = classifyBrief(briefRow);
+  const isClientBrief = kind === 'client';
+  const isFeatured = kind === 'catalog';
   const isAdmin = isSiteAdmin(user);
-  const catalogPartner = catalogPartnerFromBrief(brief);
+  const catalogPartner = isFeatured ? catalogPartnerFromBrief(brief) ?? CATALOG_PARTNERS.sonant : null;
 
   let canViewClient = isAdmin;
   if (user && isClientBrief && !canViewClient) {
@@ -78,7 +81,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             Place three tracks in the catalog to earn the badge and unlock access to paying clients.
           </p>
           <Link
-            href="/briefs?tab=catalog"
+            href="/briefs#catalog"
             className="text-xs tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
@@ -167,9 +170,10 @@ export default async function BrowseBriefPage({ params }: PageProps) {
                 loggedIn={!!user}
               />
             )}
-            <ExportPdfButton />
+            {isClientBrief && <ExportPdfButton />}
+            {isAdmin && isFeatured && <MoveToPracticeButton briefId={briefRow.id} />}
             {!!user && (isAdmin || user.id === briefRow.user_id) && (
-              <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" />
+              <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" canMoveToPractice={isAdmin && isFeatured} />
             )}
           </div>
         </div>
@@ -205,7 +209,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
         <BriefNextSteps
           briefId={briefRow.id}
           briefName={brief.projectTitle || brief.codename}
-          variant={isClientBrief ? 'client' : 'catalog'}
+          variant={isClientBrief ? 'client' : isFeatured ? 'catalog' : 'practice'}
           catalogExclusive={catalogPartner?.exclusive}
           catalogName={catalogPartner?.name}
           catalogSplit={catalogPartner?.split}
@@ -217,7 +221,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           discoUrl={discoUrl}
         />
 
-        {!isClientBrief && (
+        {isAdmin && !isClientBrief && communityTracks.length > 0 && (
           <CommunityTracksSection
             briefId={briefRow.id}
             briefName={briefName}

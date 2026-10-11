@@ -230,7 +230,7 @@ function BriefCard({
             className="text-[9px] tracking-[0.25em] uppercase text-[var(--text-dimmer)] mb-2"
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
           >
-            Community
+            Practice
           </div>
         )}
         <h3 className="leading-tight text-[var(--text-primary)] group-hover:text-[#E85D2F] transition-colors mb-1">
@@ -363,7 +363,7 @@ export default function BrowseClient({
           className="text-sm text-[var(--text-tertiary)] leading-relaxed"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          Client jobs, catalog briefs from the houses, and community briefs to practice with.
+          Paid client jobs, catalog briefs the houses are looking for, and practice briefs for reps.
         </p>
       </div>
 
@@ -471,7 +471,7 @@ export default function BrowseClient({
       </section>
 
       {/* ── CATALOG BRIEFS ────────────────────────────── */}
-      <section className="mb-16">
+      <section id="catalog" className="mb-16 scroll-mt-24">
         <div className="flex items-center justify-between mb-6">
           <SectionHeading label="Catalog Briefs" count={filteredCatalog.length} />
           {isBriefAdmin && (
@@ -512,7 +512,7 @@ export default function BrowseClient({
       {/* ── COMMUNITY BRIEFS ──────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-6">
-          <SectionHeading label="Community Briefs" count={filteredCommunity.length} />
+          <SectionHeading label="Practice Briefs" count={filteredCommunity.length} />
           <div className="flex items-center gap-4">
             {currentUserId && (
               <label className="flex items-center gap-2 cursor-pointer">
@@ -533,7 +533,7 @@ export default function BrowseClient({
         {filteredCommunity.length === 0 ? (
           <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-12 text-center" style={{ borderRadius: '2px' }}>
             <p className="text-sm text-[var(--text-muted)] mb-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              {hasFilters ? 'No briefs match your filters.' : 'No community briefs yet. Generate the first one.'}
+              {hasFilters ? 'No briefs match your filters.' : 'No practice briefs yet. Generate the first one.'}
             </p>
             <a
               href="/generator"

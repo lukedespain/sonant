@@ -340,7 +340,7 @@ export default function SubmitTrackModal({
                       </div>
                     </div>
                     <span className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      I understand this uses 1 submission credit. This goes privately to the Sonant team, not onto the playlist.
+                      I understand this uses 1 submission credit. This goes privately to the Sonant team.
                     </span>
                   </label>
                 </div>

@@ -15,13 +15,13 @@ const faqs: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'What are Briefs?',
-    a: 'The briefs you write to. Community briefs anyone can take, catalog briefs from Sonant and partner houses, and paid client jobs once you have three catalog placements. Client jobs stay behind the verified badge.',
+    a: 'The briefs you write to. Practice briefs are for reps and anyone can take them. Catalog briefs come from Sonant and partner houses, and that is where you submit for feedback and placement. Paid client jobs open up once you have three catalog placements.',
   },
   {
     q: 'What is the Catalog?',
     a: (
       <>
-        Your uploads and submissions. Thought Collective is our partner for pitching accepted tracks for sync licensing opportunities. Three placements unlock paid client briefs. You can learn more about Thought Collective{' '}
+        Your submissions and their status. Thought Collective is our partner for pitching accepted tracks for sync licensing opportunities. Three placements unlock paid client briefs. You can learn more about Thought Collective{' '}
         <a
           href={THOUGHT_COLLECTIVE_SITE}
           target="_blank"
@@ -46,7 +46,7 @@ const faqs: { q: string; a: ReactNode }[] = [
     q: 'What are the terms if my track gets placed?',
     a: (
       <>
-        Depends on the catalog. Community practice and Sonant catalog placements are non-exclusive. You own the music. If Sonant brokers a placement, you keep 70% of the sync fee, and you can pitch the same track elsewhere.
+        Depends on the catalog. Sonant catalog placements are non-exclusive. You own the music. If Sonant brokers a placement, you keep 70% of the sync fee, and you can pitch the same track elsewhere.
         <br /><br />
         Catalog briefs from Thought Collective are exclusive to that catalog. If Thought Collective pitches the track and it places, the sync fee splits 50/50. The terms for a house catalog are listed at the bottom of that brief.
       </>
@@ -70,7 +70,7 @@ const faqs: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'Who is Sonant for?',
-    a: 'Composers who want to get better at writing to spec and build a catalog worth pitching, whether you\'re new to sync or already working. The Generator is the practice tool. Briefs is where you write to spec. Catalog is where your uploads and submissions live.',
+    a: 'Composers who want to get better at writing to spec and build a catalog worth pitching, whether you\'re new to sync or already working. The Generator is the practice tool. Briefs is where you write to spec. Catalog is where your submissions live.',
   },
 ];
 

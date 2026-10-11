@@ -14,13 +14,13 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'What are Briefs?',
-    a: 'The briefs you write to. Community briefs anyone can take, catalog briefs from Sonant and partner houses, and paid client jobs once you have three placements. Anyone can write to community and catalog briefs. Client jobs stay behind the verified badge.',
+    a: 'The briefs you write to. Practice briefs are for reps and anyone can take them. Catalog briefs come from Sonant and partner houses, and that is where you submit for feedback and placement. Paid client jobs open up once you have three placements.',
   },
   {
     q: 'What is the Catalog?',
     a: (
       <>
-        Your uploads and submissions. Thought Collective is our partner for pitching accepted tracks for sync licensing opportunities. You can learn more about Thought Collective{' '}
+        Your submissions and their status. Thought Collective is our partner for pitching accepted tracks for sync licensing opportunities. You can learn more about Thought Collective{' '}
         <a
           href={THOUGHT_COLLECTIVE_SITE}
           target="_blank"

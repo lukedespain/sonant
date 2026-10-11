@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { ADMIN_USER_ID, isSiteAdmin } from '@/lib/admin';
+import { isSiteAdmin } from '@/lib/admin';
+import { classifyBrief } from '@/lib/brief-kind';
 import { announceNewBrief, briefDisplayName } from '@/lib/brief-announcements';
 import { isClientBriefRecord } from '@/lib/disco';
 import { catalogPartnerFromBrief } from '@/lib/partners';
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
     catalogId?: string;
   };
   const isClient = isClientBriefRecord(brief);
-  const isFeatured = brief.user_id === ADMIN_USER_ID && !isClient;
+  const isFeatured = !isClient && classifyBrief(brief) === 'catalog';
   const partner = catalogPartnerFromBrief(content);
   if (!isClient && !isFeatured) {
     return NextResponse.json({ error: 'Only paid and catalog briefs can be announced.' }, { status: 400 });

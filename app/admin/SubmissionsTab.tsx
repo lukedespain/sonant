@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createAdminClient } from '@/lib/supabase/admin';
 import AdminSubmissionCard from '@/components/AdminSubmissionCard';
 import { SUBMISSION_BUCKET } from '@/lib/audio-upload';
+import { catalogPartnerFromBrief } from '@/lib/partners';
 
 type Queue = 'catalog' | 'client';
 
@@ -97,6 +98,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
         {
           isClient: client,
           name: projectName(content, client),
+          catalogName: catalogPartnerFromBrief(content)?.name ?? 'Sonant',
         },
       ];
     })
@@ -129,7 +131,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   );
 
   const cards = rows.map((sub) => {
-    const brief = briefMap[sub.brief_id] ?? { isClient: false, name: 'Untitled' };
+    const brief = briefMap[sub.brief_id] ?? { isClient: false, name: 'Untitled', catalogName: 'Sonant' };
     const delivery: 'upload' | 'disco' = sub.delivery === 'disco' ? 'disco' : 'upload';
     const signed = audioBySubmission[sub.id] ?? null;
     const playlistHit = matchPlaylist(sub.user_id, sub.brief_id, signed?.name);
@@ -138,6 +140,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
       briefId: sub.brief_id,
       projectName: brief.name,
       isClient: brief.isClient,
+      catalogName: brief.catalogName,
       composerEmail: profileMap[sub.user_id]?.email ?? 'unknown',
       composerName: profileMap[sub.user_id]?.name ?? '',
       status: sub.status,
@@ -163,18 +166,14 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   const clientCards = cards.filter((row) => row.isClient);
   const visible = queue === 'client' ? clientCards : catalogCards;
 
-  const ordered = [
-    ...visible.filter((row) =>
-      row.delivery === 'disco' ? !row.deliveryConfirmedAt : row.status !== 'accepted' && row.status !== 'not_accepted'
-    ),
-    ...visible.filter((row) =>
-      row.delivery === 'disco' ? !!row.deliveryConfirmedAt : row.status === 'accepted' || row.status === 'not_accepted'
-    ),
-  ];
+  const stage = (row: (typeof cards)[number]) => {
+    if (row.delivery === 'disco') return row.deliveryConfirmedAt ? 2 : 0;
+    if (row.status === 'accepted' || row.status === 'not_accepted') return 2;
+    return row.status === 'sent_to_catalog' ? 1 : 0;
+  };
+  const ordered = [...visible].sort((a, b) => stage(a) - stage(b));
 
-  const catalogPending = catalogCards.filter(
-    (row) => row.status !== 'accepted' && row.status !== 'not_accepted'
-  ).length;
+  const catalogPending = catalogCards.filter((row) => stage(row) === 0).length;
   const clientPending = clientCards.filter((row) =>
     row.delivery === 'disco' ? !row.deliveryConfirmedAt : row.status !== 'accepted' && row.status !== 'not_accepted'
   ).length;
@@ -225,6 +224,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
               audioName={row.audioName}
               downloadHref={row.downloadHref}
               playlistHref={row.playlistHref}
+              catalogName={row.catalogName}
             />
           ))}
         </div>

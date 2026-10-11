@@ -10,7 +10,7 @@ const PILLARS = [
   {
     n: '02',
     title: 'The Briefs',
-    body: 'Community briefs are open for any composer to practice writing to, catalog briefs are currently in-demand from music houses, and client briefs are paid opportunities for verified composers.',
+    body: 'Practice briefs are open to any composer for reps. Catalog briefs are what music houses are looking for right now. Client briefs are paid work for verified composers.',
     href: '/briefs',
   },
   {

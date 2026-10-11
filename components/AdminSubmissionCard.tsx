@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { recordDecision } from '@/app/briefs/actions';
+import { recordDecision, type SubmissionDecision } from '@/app/briefs/actions';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
 
@@ -22,6 +22,7 @@ type AdminSubmissionCardProps = {
   audioName?: string | null;
   downloadHref?: string | null;
   playlistHref?: string | null;
+  catalogName?: string;
 };
 
 export default function AdminSubmissionCard({
@@ -40,11 +41,14 @@ export default function AdminSubmissionCard({
   audioName = null,
   downloadHref = null,
   playlistHref = null,
+  catalogName = 'Sonant',
 }: AdminSubmissionCardProps) {
   const router = useRouter();
   const { track: activeTrack, isPlaying, play, pause } = useAudioPlayer();
   const isDisco = delivery === 'disco';
   const isDecided = status === 'accepted' || status === 'not_accepted';
+  const isSent = status === 'sent_to_catalog';
+  const canSend = catalogName !== 'Sonant';
   const [open, setOpen] = useState(isDisco ? !deliveryConfirmedAt : !isDecided);
   const [feedback, setFeedback] = useState(existingFeedback ?? '');
   const [submitting, setSubmitting] = useState(false);
@@ -54,7 +58,7 @@ export default function AdminSubmissionCard({
     setOpen(isDisco ? !deliveryConfirmedAt : !isDecided);
   }, [isDisco, isDecided, status, deliveryConfirmedAt]);
 
-  async function handleDecision(accepted: boolean) {
+  async function handleDecision(decision: SubmissionDecision) {
     if (!feedback.trim()) {
       setError('Feedback is required before recording a decision.');
       return;
@@ -62,7 +66,7 @@ export default function AdminSubmissionCard({
     setSubmitting(true);
     setError(null);
 
-    const result = await recordDecision({ submissionId, accepted, feedback });
+    const result = await recordDecision({ submissionId, decision, feedback });
     setSubmitting(false);
 
     if (result.error) {
@@ -106,8 +110,10 @@ export default function AdminSubmissionCard({
     : status === 'accepted'
       ? 'Accepted'
       : status === 'not_accepted'
-        ? 'Reviewed'
-        : 'Pending';
+        ? 'Not accepted'
+        : isSent
+          ? `Sent to ${catalogName}`
+          : 'Pending';
 
   const statusTone = isDisco
     ? deliveryConfirmedAt
@@ -117,7 +123,9 @@ export default function AdminSubmissionCard({
       ? 'accepted'
       : status === 'not_accepted'
         ? 'reviewed'
-        : 'pending';
+        : isSent
+          ? 'sent'
+          : 'pending';
 
   return (
     <div
@@ -170,12 +178,16 @@ export default function AdminSubmissionCard({
                 background:
                   statusTone === 'accepted'
                     ? 'rgba(122, 154, 110, 0.15)'
+                    : statusTone === 'sent'
+                    ? 'rgba(146, 168, 209, 0.15)'
                     : statusTone === 'reviewed'
                     ? 'rgba(138, 134, 128, 0.15)'
                     : 'rgba(232, 163, 61, 0.15)',
                 color:
                   statusTone === 'accepted'
                     ? '#7A9A6E'
+                    : statusTone === 'sent'
+                    ? '#92A8D1'
                     : statusTone === 'reviewed'
                     ? 'var(--text-muted)'
                     : '#E8A33D',
@@ -349,37 +361,47 @@ export default function AdminSubmissionCard({
                 </div>
               )}
 
+              <p
+                className="text-[11px] text-[var(--text-muted)] leading-relaxed mb-3"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
+                {isSent
+                  ? `With ${catalogName}. Once they reply, mark Accepted or Not accepted. Add their reason to the notes first if you have it.`
+                  : canSend
+                    ? `Send to ${catalogName} when it is worth pitching. The composer gets your notes either way.`
+                    : 'Sonant catalog brief. You make the call.'}
+              </p>
+
               <div className="flex gap-3 flex-wrap">
-                <button
-                  onClick={() => handleDecision(true)}
+                {canSend && (
+                  <DecisionButton
+                    label={`↗ Send to ${catalogName}`}
+                    tone="send"
+                    primary={!isSent && !isDecided}
+                    disabled={submitting}
+                    onClick={() => handleDecision('sent_to_catalog')}
+                  />
+                )}
+                <DecisionButton
+                  label="◆ Accepted"
+                  tone="accept"
+                  primary={isSent || !canSend}
                   disabled={submitting}
-                  className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 transition-colors ${
-                    submitting
-                      ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
-                      : 'bg-[#7A9A6E] text-[var(--bg-base)] hover:bg-[#8BAB7E]'
-                  }`}
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-                >
-                  ◆ Accept
-                </button>
-                <button
-                  onClick={() => handleDecision(false)}
+                  onClick={() => handleDecision('accepted')}
+                />
+                <DecisionButton
+                  label="Not accepted"
+                  tone="reject"
+                  primary={false}
                   disabled={submitting}
-                  className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 border transition-colors ${
-                    submitting
-                      ? 'border-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
-                      : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#FF8B6B] hover:text-[#FF8B6B]'
-                  }`}
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
-                >
-                  Not Accepted
-                </button>
-                {isDecided && (
+                  onClick={() => handleDecision('not_accepted')}
+                />
+                {(isDecided || isSent) && (
                   <span
                     className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-dimmer)] self-center"
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}
                   >
-                    Decision recorded · re-deciding re-sends the email
+                    Each change emails the composer
                   </span>
                 )}
               </div>
@@ -388,5 +410,42 @@ export default function AdminSubmissionCard({
         </div>
       )}
     </div>
+  );
+}
+
+const TONES = {
+  send: { solid: 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D]', hover: 'hover:border-[#E85D2F] hover:text-[#E85D2F]' },
+  accept: { solid: 'bg-[#7A9A6E] text-[var(--bg-base)] hover:bg-[#8BAB7E]', hover: 'hover:border-[#7A9A6E] hover:text-[#7A9A6E]' },
+  reject: { solid: '', hover: 'hover:border-[#FF8B6B] hover:text-[#FF8B6B]' },
+} as const;
+
+function DecisionButton({
+  label,
+  tone,
+  primary,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  tone: keyof typeof TONES;
+  primary: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  const style = disabled
+    ? 'border border-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
+    : primary
+      ? TONES[tone].solid
+      : `border border-[var(--border-subtle)] text-[var(--text-secondary)] ${TONES[tone].hover}`;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 transition-colors ${style}`}
+      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: primary ? 500 : 400 }}
+    >
+      {label}
+    </button>
   );
 }

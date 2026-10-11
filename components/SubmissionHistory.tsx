@@ -8,6 +8,7 @@ export const SUBMISSION_STATUS: Record<string, { label: string; color: string }>
   received:       { label: 'Received',       color: 'var(--text-muted)' },
   in_review:      { label: 'In review',       color: '#E8B82F' },
   feedback_ready: { label: 'Feedback ready',  color: '#88B04B' },
+  sent_to_catalog: { label: 'Sent to catalog', color: '#92A8D1' },
   accepted:       { label: 'Accepted',        color: '#88B04B' },
   not_accepted:   { label: 'Not selected',    color: 'var(--text-muted)' },
 };

@@ -6,6 +6,7 @@ const MAX_ITEMS = 50;
 export type NotificationType =
   | 'referral_credit'
   | 'brief_upload'
+  | 'catalog_sent'
   | 'catalog_accepted'
   | 'catalog_reviewed';
 

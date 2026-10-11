@@ -60,7 +60,8 @@ export default async function BrowsePage({
   const { data: communityBriefs } = await admin
     .from('briefs')
     .select('id, user_id, mode, target, genres, moods, generated_content, created_at, featured_track_url')
-    .neq('user_id', ADMIN_USER_ID)
+    .or(`user_id.neq.${ADMIN_USER_ID},brief_type.eq.community`)
+    .neq('brief_type', 'client')
     .order('created_at', { ascending: false })
     .limit(80)
     .returns<BriefRow[]>();

@@ -176,7 +176,7 @@ export default function AccountView({
           {displayName}
         </h1>
         <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-12" style={sans}>
-          Update your name, email, and password. Uploads and submissions live in Catalog.
+          Update your name, email, and password. Your submissions live in Catalog.
         </p>
 
         <div className="border-t border-[var(--border-base)]">

@@ -47,26 +47,41 @@ export async function sendSubmissionReceivedEmail(params: {
   }
 }
 
-// Sent when an admin records a decision on a submission.
+// Sent when an admin moves a submission to a new stage.
 export async function sendDecisionEmail(params: {
   to: string;
   projectName: string;
-  accepted: boolean;
+  catalogName: string;
+  decision: 'sent_to_catalog' | 'accepted' | 'not_accepted';
+  wasSent: boolean;
   feedback: string;
 }) {
-  const { to, projectName, accepted, feedback } = params;
+  const { to, projectName, catalogName, decision, wasSent, feedback } = params;
 
-  const subject = accepted
-    ? `Your track for ${projectName} was accepted`
-    : `Feedback on your submission for ${projectName}`;
-
-  const heading = accepted
-    ? 'Your track was accepted'
-    : 'Your submission has been reviewed';
-
-  const intro = accepted
-    ? `Your track for <strong>${projectName}</strong> has been accepted into the Sonant Catalog.`
-    : `Your track for <strong>${projectName}</strong> has been reviewed. It is not joining the catalog this time, but here is feedback on the work.`;
+  const copy = {
+    sent_to_catalog: {
+      subject: `Your track for ${projectName} is going to ${catalogName}`,
+      heading: `Sent to ${catalogName}`,
+      intro: `Your track for <strong>${projectName}</strong> is great, and I sent it to ${catalogName}. They make the final call. I usually hear back within a week, and I will let you know either way. Here are my notes.`,
+    },
+    accepted: {
+      subject: `${catalogName} accepted your track for ${projectName}`,
+      heading: 'Congratulations',
+      intro: `${catalogName} accepted your track for <strong>${projectName}</strong>. Next, I will send over their terms and what they need from you to get it into the catalog.`,
+    },
+    not_accepted: wasSent
+      ? {
+          subject: `${catalogName} passed on ${projectName}`,
+          heading: `${catalogName} passed on this one`,
+          intro: `${catalogName} passed on your track for <strong>${projectName}</strong> this time. Getting sent to them at all means it was one of the strongest. Here are the notes.`,
+        }
+      : {
+          subject: `Feedback on your submission for ${projectName}`,
+          heading: 'Your submission has been reviewed',
+          intro: `Your track for <strong>${projectName}</strong> is not going to ${catalogName} this time, but here is feedback on the work.`,
+        },
+  }[decision];
+  const { subject, heading, intro } = copy;
 
   try {
     await resend.emails.send({
@@ -300,7 +315,7 @@ export async function sendFeaturedBriefAnnouncementEmail(params: {
         heading: house ? `${house} is looking for this.` : 'The catalog is looking for this.',
         body: house
           ? `<em style="color:#F5F1E8;font-style:italic;">${briefName}</em> is a new catalog brief from ${house}. Write to it, or submit it for review.`
-          : `<em style="color:#F5F1E8;font-style:italic;">${briefName}</em> is a new Sonant brief. Write to it, upload a take, or submit it for review.`,
+          : `<em style="color:#F5F1E8;font-style:italic;">${briefName}</em> is a new Sonant brief. Write to it and submit it for review.`,
         briefName,
         briefUrl,
         button: 'Open the brief →',

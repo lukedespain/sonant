@@ -125,7 +125,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
       ? 'Client Brief'
       : isFeatured
         ? 'Sonant Brief'
-        : 'Community Brief';
+        : 'Practice Brief';
 
   return (
     <div

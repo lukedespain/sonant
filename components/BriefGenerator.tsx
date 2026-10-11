@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import { saveBrief } from '@/app/briefs/actions';
 import { addAnonBrief } from '@/lib/anon-briefs';
 import { BRAND_CATEGORIES, FILM_CATEGORIES, GAMES_CATEGORIES } from '@/lib/brief-patterns';
 import SunoPromptModal from './SunoPromptModal';
 import BriefDocument, { type Brief } from '@/components/BriefDocument';
-import SubmitTrackModal from '@/components/SubmitTrackModal';
-import UploadTrackModal from '@/components/UploadTrackModal';
+import BriefNextSteps from '@/components/BriefNextSteps';
 import { buildLoadingMessages } from '@/lib/brief-loading';
 
 // ---------- TYPES ----------
@@ -136,130 +134,10 @@ function DomainCard({
 
 
 function NextSteps({ briefId, loggedIn }: { briefId: string | null; loggedIn: boolean }) {
-  const submitHref = loggedIn
-    ? (briefId ? `/briefs/${briefId}` : '/signup')
-    : '/signup';
-
   return (
-    <section className="max-w-5xl mx-auto px-6 md:px-10 py-20">
-      <h2 className="text-4xl md:text-5xl mb-3 tracking-tight leading-tight" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
-        Once your track is <span className="italic">ready</span>.
-      </h2>
-      <p className="text-base text-[var(--text-tertiary)] mb-12 max-w-xl" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-        Upload a take to this brief for free, or submit it to the catalog for one credit and written feedback.
-      </p>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="relative p-8 border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[var(--border-hover)] transition-colors flex flex-col" style={{ borderRadius: '2px' }}>
-          <div className="flex items-start justify-between mb-6">
-            <span className="text-2xl text-[#E85D2F]">↑</span>
-            <span className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-dim)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Upload · Playlist
-            </span>
-          </div>
-          <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-            Upload to <span className="italic">This Brief</span>
-          </h3>
-          <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Attach an MP3 to the playlist. Keep it public so other composers can hear it, or private on your profile.
-          </p>
-          <ul className="space-y-2 mb-8 flex-1">
-            {[
-              'Free. No credit used',
-              'Public or private, you choose',
-              'Lives on this brief and your profile',
-              'Does not go to the catalog',
-            ].map((b, i) => (
-              <li key={i} className="flex gap-3 items-baseline text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                <span className="text-[#E85D2F]">·</span>
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="space-y-3">
-            {loggedIn && briefId ? (
-              <UploadTrackModal
-                briefId={briefId}
-                briefName="This brief"
-                triggerLabel="↑ Upload MP3"
-                triggerClassName="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#F5EFE0] text-[#1A1815] hover:bg-[#FFFFFF] transition-colors text-center"
-              />
-            ) : (
-              <Link
-                href={loggedIn ? submitHref : '/signup'}
-                className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#F5EFE0] text-[#1A1815] hover:bg-[#FFFFFF] transition-colors text-center"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-              >
-                {loggedIn ? '↗ Open Brief to Upload' : '◆ Create Account to Upload'}
-              </Link>
-            )}
-            <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              MP3 · max 50 MB
-            </div>
-          </div>
-        </div>
-
-        <div className="relative p-8 border border-[#E85D2F]/30 bg-[var(--bg-card)] hover:border-[#E85D2F]/60 transition-colors flex flex-col" style={{ borderRadius: '2px' }}>
-          <div className="flex items-start justify-between mb-6">
-            <span className="text-2xl text-[#E85D2F]">↗</span>
-            <span className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              Submit · Catalog
-            </span>
-          </div>
-          <h3 className="text-3xl mb-3 leading-tight text-[var(--text-primary)]" style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
-            Submit to the <span className="italic">catalog</span>
-          </h3>
-          <p className="text-sm text-[var(--text-tertiary)] leading-relaxed mb-6" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Send your track in for written feedback and catalog consideration. One submission credit. An account is required.
-          </p>
-          <ul className="space-y-2 mb-8 flex-1">
-            {[
-              'Uses 1 submission credit',
-              'Written feedback on every submission',
-              'Accepted tracks are placed and pitched',
-              'Non-exclusive: the music stays yours',
-            ].map((b, i) => (
-              <li key={i} className="flex gap-3 items-baseline text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                <span className="text-[#E85D2F]">·</span>
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="space-y-3">
-            {loggedIn && briefId ? (
-              <SubmitTrackModal
-                briefId={briefId}
-                projectName="This brief"
-                alreadySubmitted={false}
-                triggerLabel="↗ Submit to Catalog"
-                triggerClassName="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
-              />
-            ) : (
-              <Link
-                href={loggedIn ? submitHref : '/signup'}
-                className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
-                style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
-              >
-                {loggedIn ? '↗ Open Brief to Submit' : '◆ Create Account to Submit'}
-              </Link>
-            )}
-            <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dim)] text-center" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              {loggedIn ? '1 credit · written feedback' : 'Free account · 1 credit / month'}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-8 text-center">
-        <Link
-          href="/"
-          className="text-xs tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
-        >
-          How Sonant works →
-        </Link>
-      </div>
-    </section>
+    <div className="max-w-5xl mx-auto px-6 md:px-10 pb-20">
+      <BriefNextSteps briefId={briefId} briefName="This brief" variant="practice" loggedIn={loggedIn} />
+    </div>
   );
 }
 

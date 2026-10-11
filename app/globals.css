@@ -203,6 +203,10 @@ body {
     display: none !important;
   }
 
+  body[data-print-brief] *:not(:has(.brief-document)):not(.brief-document):not(.brief-document *) {
+    display: none !important;
+  }
+
   .brief-document {
     box-shadow: none !important;
     -webkit-print-color-adjust: exact !important;

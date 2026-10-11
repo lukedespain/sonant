@@ -2,13 +2,13 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isSiteAdmin } from '@/lib/admin';
 import { sendDecisionEmail, sendSubmissionReceivedEmail } from '@/lib/email';
 import { addNotification } from '@/lib/notifications';
 import { ADMIN_USER_ID } from '@/lib/admin';
 import { announceNewBrief, briefDisplayName } from '@/lib/brief-announcements';
+import { catalogPartnerFromBrief } from '@/lib/partners';
 
 type Mode = 'brand' | 'film' | 'games';
 
@@ -96,37 +96,71 @@ export async function saveBrief(input: SaveBriefInput) {
 
   return { success: true, briefId: data.id };
 }
-export async function deleteBrief(formData: FormData) {
+export async function deleteBrief(briefId: string): Promise<{ error?: string; hasActivity?: boolean }> {
   const supabase = await createClient();
-
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Sign in to delete briefs.' };
+  if (!briefId) return { error: 'Missing brief.' };
 
-  if (!user) {
-    redirect('/login');
-  }
-
-  const briefId = formData.get('briefId') as string;
-  const redirectTo = (formData.get('redirectPath') as string | null) ?? '/library';
-
-  if (!briefId) {
-    redirect(redirectTo);
-  }
-
-  const ADMIN_USER_ID = '38ebaf6a-8f02-4e1f-a682-62039fb52756';
-  const isAdmin = user.id === ADMIN_USER_ID;
-
-  // Admin can delete any brief; regular users can only delete their own.
   const admin = createAdminClient();
-  const query = admin.from('briefs').delete().eq('id', briefId);
-  const { error } = isAdmin ? await query : await query.eq('user_id', user.id);
+  const { data: brief } = await admin.from('briefs').select('user_id').eq('id', briefId).maybeSingle();
+  if (!brief) return { error: 'Brief not found.' };
+  if (!isSiteAdmin(user) && brief.user_id !== user.id) return { error: 'You can only delete your own briefs.' };
 
+  // Tracks and submissions point at the brief, so deleting it would fail (or
+  // orphan composers' work). Those briefs get moved to practice instead.
+  const [{ count: subCount }, { count: trackCount }] = await Promise.all([
+    admin.from('submissions').select('id', { count: 'exact', head: true }).eq('brief_id', briefId),
+    admin.from('community_tracks').select('id', { count: 'exact', head: true }).eq('brief_id', briefId),
+  ]);
+  if ((subCount ?? 0) + (trackCount ?? 0) > 0) {
+    return {
+      error: 'Composers have tracks or submissions on this brief, so it cannot be deleted.',
+      hasActivity: true,
+    };
+  }
+
+  const { error } = await admin.from('briefs').delete().eq('id', briefId);
   if (error) {
     console.error('Delete brief error:', error);
+    return { error: 'Could not delete this brief.' };
   }
 
   revalidatePath('/library');
   revalidatePath('/briefs');
-  redirect(redirectTo);
+  return {};
+}
+
+export async function moveBriefToPractice(briefId: string): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!isSiteAdmin(user)) return { error: 'Not authorized.' };
+
+  const admin = createAdminClient();
+  const { data: brief } = await admin
+    .from('briefs')
+    .select('brief_type, generated_content')
+    .eq('id', briefId)
+    .maybeSingle();
+  if (!brief) return { error: 'Brief not found.' };
+  if (brief.brief_type === 'client') return { error: 'Client briefs cannot move to practice.' };
+
+  const content = { ...((brief.generated_content ?? {}) as Record<string, unknown>) };
+  delete content.catalogId;
+  delete content.catalog;
+
+  const { error } = await admin
+    .from('briefs')
+    .update({ brief_type: 'community', generated_content: content })
+    .eq('id', briefId);
+  if (error) {
+    console.error('Move to practice error:', error);
+    return { error: 'Could not move this brief.' };
+  }
+
+  revalidatePath('/briefs');
+  revalidatePath(`/briefs/${briefId}`);
+  return {};
 }
 export async function submitTrack(briefId: string) {
   const supabase = await createClient();
@@ -319,33 +353,36 @@ export async function setFeaturedTrack(briefId: string, trackId: string | null):
   return {};
 }
 
+export type SubmissionDecision = 'sent_to_catalog' | 'accepted' | 'not_accepted';
+
 export async function recordDecision(params: {
   submissionId: string;
-  accepted: boolean;
+  decision: SubmissionDecision;
   feedback: string;
 }) {
-  const { submissionId, accepted, feedback } = params;
+  const { submissionId, decision, feedback } = params;
 
-  // Verify the caller is the admin.
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!isSiteAdmin(user)) {
     return { error: 'Not authorized.' };
   }
-
   if (!feedback.trim()) {
     return { error: 'Feedback is required.' };
   }
 
-  // Use the admin client to update another user's submission row.
   const admin = createAdminClient();
 
-  const newStatus = accepted ? 'accepted' : 'not_accepted';
+  const { data: before } = await admin
+    .from('submissions')
+    .select('status')
+    .eq('id', submissionId)
+    .maybeSingle();
+  const wasSent = before?.status === 'sent_to_catalog';
 
   const { data: submission, error: updateError } = await admin
     .from('submissions')
-    .update({ status: newStatus, feedback })
+    .update({ status: decision, feedback })
     .eq('id', submissionId)
     .select('brief_id, user_id')
     .single();
@@ -355,40 +392,39 @@ export async function recordDecision(params: {
     return { error: 'Could not update submission.' };
   }
 
-  // Look up the brief's project name and the composer's email for the email.
   const { data: brief } = await admin
     .from('briefs')
     .select('generated_content')
     .eq('id', submission.brief_id)
     .single();
 
-  const { data: composer } = await admin.auth.admin.getUserById(
-    submission.user_id
-  );
+  const { data: composer } = await admin.auth.admin.getUserById(submission.user_id);
 
   const projectName =
     (brief?.generated_content as { codename?: string })?.codename ?? 'your brief';
+  const catalogName = catalogPartnerFromBrief(brief?.generated_content)?.name ?? 'Sonant';
   const composerEmail = composer?.user?.email;
 
-  // Send the decision email (best-effort — does not block the decision).
   if (composerEmail) {
     await sendDecisionEmail({
       to: composerEmail,
       projectName,
-      accepted,
+      catalogName,
+      decision,
+      wasSent,
       feedback,
     });
   }
 
+  const notification =
+    decision === 'sent_to_catalog'
+      ? { type: 'catalog_sent' as const, title: `Sent to ${catalogName}`, body: `${projectName} is with ${catalogName} for a decision.` }
+      : decision === 'accepted'
+        ? { type: 'catalog_accepted' as const, title: `Accepted by ${catalogName}`, body: `${projectName} was accepted by ${catalogName}.` }
+        : { type: 'catalog_reviewed' as const, title: 'Catalog review', body: `Written feedback is ready for ${projectName}.` };
+
   try {
-    await addNotification(admin, submission.user_id, {
-      type: accepted ? 'catalog_accepted' : 'catalog_reviewed',
-      title: accepted ? 'Accepted to the catalog' : 'Catalog review',
-      body: accepted
-        ? `${projectName} was accepted to the catalog.`
-        : `Written feedback is ready for ${projectName}.`,
-      href: '/catalog',
-    });
+    await addNotification(admin, submission.user_id, { ...notification, href: '/catalog' });
   } catch (error) {
     console.error('Catalog notification failed:', error);
   }
