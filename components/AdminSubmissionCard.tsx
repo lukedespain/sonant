@@ -73,10 +73,6 @@ export default function AdminSubmissionCard({
   }, [isDisco, isDecided, status, deliveryConfirmedAt]);
 
   async function handleDecision(decision: SubmissionDecision) {
-    if (!feedback.trim()) {
-      setError('Feedback is required before recording a decision.');
-      return;
-    }
     setSubmitting(true);
     setError(null);
 
@@ -364,7 +360,7 @@ export default function AdminSubmissionCard({
               <textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Written feedback for the composer. This is included in the decision email."
+                placeholder="Optional notes for the composer. Added to the email only if you write something."
                 rows={4}
                 className="w-full px-4 py-3 bg-[var(--bg-base)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none transition-colors text-sm mb-3"
                 style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}

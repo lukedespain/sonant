@@ -373,9 +373,6 @@ export async function recordDecision(params: {
   if (!isSiteAdmin(user)) {
     return { error: 'Not authorized.' };
   }
-  if (!feedback.trim()) {
-    return { error: 'Feedback is required.' };
-  }
 
   const admin = createAdminClient();
 
@@ -388,7 +385,7 @@ export async function recordDecision(params: {
 
   const { data: submission, error: updateError } = await admin
     .from('submissions')
-    .update({ status: decision, feedback })
+    .update({ status: decision, feedback: feedback.trim() || null })
     .eq('id', submissionId)
     .select('brief_id, user_id')
     .single();
@@ -439,7 +436,7 @@ export async function recordDecision(params: {
       ? { type: 'catalog_sent' as const, title: `Sent to ${catalogName}`, body: `${projectName} is with ${catalogName} for a decision.` }
       : decision === 'accepted'
         ? { type: 'catalog_accepted' as const, title: `Accepted by ${catalogName}`, body: `${projectName} was accepted by ${catalogName}.` }
-        : { type: 'catalog_reviewed' as const, title: 'Catalog review', body: `Written feedback is ready for ${projectName}.` };
+        : { type: 'catalog_reviewed' as const, title: 'Catalog review', body: feedback.trim() ? `Notes are ready for ${projectName}.` : `${projectName} was reviewed.` };
 
   try {
     await addNotification(admin, submission.user_id, { ...notification, href: '/dashboard' });

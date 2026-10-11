@@ -57,29 +57,31 @@ export async function sendDecisionEmail(params: {
   wasSent: boolean;
   feedback: string;
 }) {
-  const { to, projectName, catalogName, decision, wasSent, feedback } = params;
+  const { to, projectName, catalogName, decision, wasSent } = params;
+  const notes = params.feedback.trim();
+  const notesLine = notes ? ' Here are my notes.' : '';
 
   const copy = {
     sent_to_catalog: {
       subject: `Your track for ${projectName} is going to ${catalogName}`,
       heading: `Sent to ${catalogName}`,
-      intro: `Your track for <strong>${projectName}</strong> is great, and I sent it to ${catalogName}. They make the final call. I usually hear back within a week, and I will let you know either way. Here are my notes.`,
+      intro: `Your track for <strong>${projectName}</strong> is great, and I sent it to ${catalogName}. They make the final call. I usually hear back within a week, and I will let you know either way.${notesLine}`,
     },
     accepted: {
       subject: `${catalogName} accepted your track for ${projectName}`,
       heading: 'Congratulations',
-      intro: `${catalogName} accepted your track for <strong>${projectName}</strong>. Open your Sonant dashboard to review their terms, confirm your PRO details, and send your stems. Here are my notes.`,
+      intro: `${catalogName} accepted your track for <strong>${projectName}</strong>. Open your Sonant dashboard to review their terms, confirm your PRO details, and send your stems.${notesLine}`,
     },
     not_accepted: wasSent
       ? {
           subject: `${catalogName} passed on ${projectName}`,
           heading: `${catalogName} passed on this one`,
-          intro: `${catalogName} passed on your track for <strong>${projectName}</strong> this time. Getting sent to them at all means it was one of the strongest. Here are the notes.`,
+          intro: `${catalogName} passed on your track for <strong>${projectName}</strong> this time. Getting sent to them at all means it was one of the strongest.${notesLine}`,
         }
       : {
-          subject: `Feedback on your submission for ${projectName}`,
+          subject: `Your submission for ${projectName}`,
           heading: 'Your submission has been reviewed',
-          intro: `Your track for <strong>${projectName}</strong> is not going to ${catalogName} this time, but here is feedback on the work.`,
+          intro: `Your track for <strong>${projectName}</strong> is not going to ${catalogName} this time. Thanks for sending it in, and keep writing.${notesLine}`,
         },
   }[decision];
   const { subject, heading, intro } = copy;
@@ -94,9 +96,7 @@ export async function sendDecisionEmail(params: {
           <h2 style="font-weight: 500;">${heading}</h2>
           <p>${intro}</p>
           ${decision === 'accepted' ? `<p><a href="${siteUrl()}/dashboard" style="color: #E85D2F;">Open your dashboard</a></p>` : ''}
-          <div style="border-left: 2px solid #E85D2F; padding-left: 16px; margin: 24px 0; color: #1A1815;">
-            ${feedback.replace(/\n/g, '<br>')}
-          </div>
+          ${notes ? `<div style="border-left: 2px solid #E85D2F; padding-left: 16px; margin: 24px 0; color: #1A1815;">${escapeHtml(notes).replace(/\n/g, '<br>')}</div>` : ''}
           <p style="color: var(--text-muted); font-size: 13px; margin-top: 32px;">
             Sonant
           </p>
