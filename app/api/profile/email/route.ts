@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   const admin = createAdminClient();
   await admin.from('profiles').update({ email: nextEmail }).eq('id', user.id);
 
-  revalidatePath('/account');
+  revalidatePath('/dashboard');
   revalidatePath(`/profile/${user.id}`);
   return NextResponse.json({ ok: true, email: nextEmail });
 }

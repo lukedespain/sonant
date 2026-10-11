@@ -16,7 +16,7 @@ const PILLARS = [
   {
     n: '03',
     title: 'The Catalog',
-    body: 'This is where you can view your music uploads and the status of your catalog submissions. Thought Collective is our official partner for pitching accepted tracks for sync licensing opportunities.',
+    body: 'The music houses you write for and their terms. Thought Collective takes brand work, and the Sonant catalog is growing. Your submissions live in your Dashboard.',
     href: '/catalog',
   },
 ] as const;

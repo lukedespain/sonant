@@ -227,7 +227,7 @@ export default function BriefNextSteps({
           bullets={[
             'Uses 1 submission credit',
             'Written feedback on every submission',
-            catalogExclusive ? `Exclusive · ${catalogSplit} if it places` : 'Non-exclusive: the music stays yours',
+            `${catalogExclusive ? 'Exclusive' : 'Non-exclusive'} · ${catalogSplit} if it places`,
           ]}
           footnote={loggedIn ? '1 credit · MP3 or WAV' : 'Free account · 1 credit / month'}
         >

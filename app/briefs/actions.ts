@@ -77,7 +77,7 @@ export async function saveBrief(input: SaveBriefInput) {
     console.error('Counter update error:', counterErr);
   }
 
-  revalidatePath('/account');
+  revalidatePath('/dashboard');
   revalidatePath('/briefs');
 
   if (input.announce === true && user.id === ADMIN_USER_ID) {
@@ -429,7 +429,7 @@ export async function recordDecision(params: {
         : { type: 'catalog_reviewed' as const, title: 'Catalog review', body: `Written feedback is ready for ${projectName}.` };
 
   try {
-    await addNotification(admin, submission.user_id, { ...notification, href: '/catalog' });
+    await addNotification(admin, submission.user_id, { ...notification, href: '/dashboard' });
   } catch (error) {
     console.error('Catalog notification failed:', error);
   }
@@ -437,7 +437,7 @@ export async function recordDecision(params: {
   revalidatePath('/admin');
   revalidatePath('/submissions-admin');
   revalidatePath('/submissions');
-  revalidatePath('/catalog');
+  revalidatePath('/dashboard');
   revalidatePath('/music');
   revalidatePath(`/profile/${submission.user_id}`);
   return { success: true };

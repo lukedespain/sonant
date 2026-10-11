@@ -11,6 +11,8 @@ export type CatalogPartner = {
   markSrc: string;
   exclusive: boolean;
   split: string;
+  focus: string;
+  blurb: string;
   /** Default recipient for weekly catalog picks (override in admin before send). */
   digestContactEmail?: string;
 };
@@ -24,6 +26,9 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     markSrc: '/brand/thought-collective-mark.png',
     exclusive: true,
     split: '50/50',
+    focus: 'Brand',
+    blurb:
+      'A sync catalog built for brand work. Their briefs come from what agencies and brands are asking for right now, and accepted tracks get pitched to them directly.',
     digestContactEmail: 'jack@wearethoughtcollective.com',
   },
   sonant: {
@@ -33,7 +38,10 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     catalogUrl: SONANT_CATALOG,
     markSrc: '',
     exclusive: false,
-    split: '70/30 in your favor',
+    split: '50/50',
+    focus: 'Brand, film, games',
+    blurb:
+      'Our own catalog, pitched by the Sonant team. It is newer and still growing. Placements here stay non-exclusive, so the music is yours to pitch anywhere else too.',
   },
 };
 

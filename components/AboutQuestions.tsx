@@ -20,7 +20,7 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
     q: 'What is the Catalog?',
     a: (
       <>
-        Your submissions and their status. Thought Collective is our partner for pitching accepted tracks for sync licensing opportunities. You can learn more about Thought Collective{' '}
+        The music houses Sonant writes for, with the terms on each. Right now that is Thought Collective, a brand-focused catalog, and the Sonant catalog. Your own submissions and their status live in your Dashboard. Learn more about Thought Collective{' '}
         <a
           href={THOUGHT_COLLECTIVE_SITE}
           target="_blank"

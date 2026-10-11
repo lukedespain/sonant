@@ -20,7 +20,7 @@ export default async function ProfilePage({
   const isOwner = user?.id === id;
   const viewerIsAdmin = isSiteAdmin(user);
 
-  if (isOwner) redirect('/account');
+  if (isOwner) redirect('/dashboard');
   if (!viewerIsAdmin) redirect('/');
 
   const { data: profile } = await admin

@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
 
-  revalidatePath('/account');
+  revalidatePath('/dashboard');
   revalidatePath('/community');
   return NextResponse.json({ avatar_url: avatarUrl });
 }

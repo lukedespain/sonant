@@ -9,7 +9,7 @@ export default async function OnboardingPage() {
 
   // If account_type was set at signup, skip straight to the right destination
   const accountType = user.user_metadata?.account_type;
-  if (accountType === 'business') redirect('/account');
+  if (accountType === 'business') redirect('/dashboard');
   if (accountType === 'composer') redirect('/briefs');
 
   // Fallback: show the picker (edge case — old accounts or missing metadata)

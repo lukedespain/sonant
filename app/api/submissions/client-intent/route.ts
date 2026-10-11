@@ -115,7 +115,7 @@ export async function POST(req: Request) {
   }
 
   revalidatePath(`/briefs/${briefId}`);
-  revalidatePath('/catalog');
+  revalidatePath('/dashboard');
   revalidatePath('/music');
   revalidatePath('/submissions');
   revalidatePath('/admin');

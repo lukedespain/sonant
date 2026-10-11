@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         type === 'recovery'
           ? '/update-password'
           : accountType === 'business'
-            ? '/account'
+            ? '/dashboard'
             : fromMeta ?? '/briefs';
       return NextResponse.redirect(`${origin}${dest}`);
     }

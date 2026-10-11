@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
   if (metaError) return NextResponse.json({ error: metaError.message }, { status: 500 });
 
-  revalidatePath('/account');
+  revalidatePath('/dashboard');
   revalidatePath(`/profile/${user.id}`);
   return NextResponse.json({ ok: true });
 }

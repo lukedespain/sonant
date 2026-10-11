@@ -57,7 +57,7 @@ export default function AlertsPanel({
 
       {items.length === 0 ? (
         <p className="text-sm text-[var(--text-muted)]" style={sans}>
-          Invites, catalog decisions, and takes on your briefs will show up here.
+          Referral credits and catalog decisions show up here.
         </p>
       ) : (
         <div className="border-t border-[var(--border-base)]">

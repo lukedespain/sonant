@@ -1,10 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from '@/app/auth/actions';
 import AlertsPanel from '@/app/profile/[id]/AlertsPanel';
+import SubmissionHistory, { type SubmissionItem } from '@/components/SubmissionHistory';
 import type { AppNotification } from '@/lib/notifications';
 
 const serif = { fontFamily: "'Fraunces', serif" } as const;
@@ -12,26 +12,40 @@ const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
 const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
 
 type Panel = 'name' | 'email' | 'password' | 'delete' | null;
+type Tab = 'submissions' | 'settings';
 
-export default function AccountView({
+export default function DashboardView({
+  initialTab,
   name: initialName,
   email: initialEmail,
   isAdmin,
   submissionCredits,
   daysUntilNextCredit = null,
   notifications = [],
+  submissions,
+  inReview,
+  acceptedCount,
+  verified,
+  verificationThreshold,
 }: {
+  initialTab: Tab;
   name: string;
   email: string;
   isAdmin: boolean;
   submissionCredits: number;
   daysUntilNextCredit?: number | null;
   notifications?: AppNotification[];
+  submissions: SubmissionItem[];
+  inReview: number;
+  acceptedCount: number;
+  verified: boolean;
+  verificationThreshold: number;
 }) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState(initialEmail);
   const [panel, setPanel] = useState<Panel>(null);
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -47,6 +61,12 @@ export default function AccountView({
   const [deleteConfirm, setDeleteConfirm] = useState('');
 
   const displayName = name || 'Composer';
+
+  function selectTab(next: Tab) {
+    setTab(next);
+    const url = next === 'settings' ? '/dashboard?tab=settings' : '/dashboard';
+    window.history.replaceState(null, '', url);
+  }
 
   function open(next: Panel) {
     setPanel((cur) => (cur === next ? null : next));
@@ -162,23 +182,89 @@ export default function AccountView({
 
   return (
     <div className="pt-16 md:pt-20 pb-20 flex-1 min-w-0 overflow-x-clip">
-      <div className="max-w-2xl mx-auto px-6 md:px-10">
+      <div className="max-w-4xl mx-auto px-6 md:px-10">
         <div
           className="text-[9px] tracking-[0.35em] uppercase text-[var(--text-dimmer)] mb-5"
           style={mono}
         >
-          Your account
+          Dashboard
         </div>
         <h1
-          className="tracking-tight leading-[0.95] mb-3"
+          className="tracking-tight leading-[0.95] mb-10"
           style={{ ...serif, fontWeight: 300, fontSize: 'clamp(2.5rem, 6vw, 4.25rem)' }}
         >
           {displayName}
         </h1>
-        <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-12" style={sans}>
-          Update your name, email, and password. Your submissions live in Catalog.
-        </p>
 
+        <div className="grid grid-cols-1 sm:grid-cols-3 border-y border-[var(--border-base)] mb-12">
+          <Stat label={isAdmin ? 'Catalog reviews' : 'Submission credits'} value={isAdmin ? '∞' : String(submissionCredits)}>
+            {!isAdmin && (
+              <div className="flex items-center gap-3 flex-wrap">
+                <button
+                  type="button"
+                  onClick={startCheckout}
+                  disabled={checkoutLoading}
+                  className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40"
+                  style={mono}
+                >
+                  {checkoutLoading ? '…' : '+ Add'}
+                </button>
+                {daysUntilNextCredit != null && (
+                  <span className="text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)]" style={mono}>
+                    Free one in {daysUntilNextCredit} {daysUntilNextCredit === 1 ? 'day' : 'days'}
+                  </span>
+                )}
+              </div>
+            )}
+          </Stat>
+          <Stat label="In review" value={String(inReview)}>
+            <span className="text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)]" style={mono}>
+              Waiting on notes or a catalog
+            </span>
+          </Stat>
+          <Stat label="Accepted" value={String(acceptedCount)}>
+            <span
+              className={`text-[10px] tracking-[0.12em] uppercase ${verified ? 'text-[#E85D2F]' : 'text-[var(--text-dimmer)]'}`}
+              style={mono}
+            >
+              {verified
+                ? '◆ Verified · client briefs open'
+                : `${Math.max(verificationThreshold - acceptedCount, 0)} more to unlock client briefs`}
+            </span>
+          </Stat>
+        </div>
+
+        <div className="flex items-end mb-8 border-b border-[var(--border-base)]" role="tablist">
+          {(['submissions', 'settings'] as const).map((key) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={tab === key}
+              onClick={() => selectTab(key)}
+              className={`px-5 py-3 text-xs tracking-[0.2em] uppercase transition-colors -mb-px border-b-2 ${
+                tab === key
+                  ? 'text-[var(--text-primary)] border-[#E85D2F]'
+                  : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
+              }`}
+              style={mono}
+            >
+              {key === 'submissions' ? 'My Submissions' : 'Settings'}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'submissions' && (
+          <>
+            <SubmissionHistory items={submissions} />
+            <section className="mt-20">
+              <AlertsPanel initialItems={notifications} />
+            </section>
+          </>
+        )}
+
+        {tab === 'settings' && (
+        <div className="max-w-2xl">
         <div className="border-t border-[var(--border-base)]">
           <SettingRow
             label="Name"
@@ -261,33 +347,6 @@ export default function AccountView({
               </form>
             )}
           </SettingRow>
-
-          <div className="py-5 border-b border-[var(--border-base)]">
-            <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-2" style={mono}>
-              {isAdmin ? 'Catalog reviews' : 'Submission credits'}
-            </div>
-            <div className="flex items-end justify-between gap-3">
-              <div className="text-3xl leading-none text-[var(--text-primary)]" style={{ ...serif, fontWeight: 300 }}>
-                {isAdmin ? '∞' : submissionCredits}
-              </div>
-              {!isAdmin && (
-                <button
-                  type="button"
-                  onClick={startCheckout}
-                  disabled={checkoutLoading}
-                  className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40 mb-0.5"
-                  style={mono}
-                >
-                  {checkoutLoading ? '…' : '+ Add'}
-                </button>
-              )}
-            </div>
-            {!isAdmin && daysUntilNextCredit != null && (
-              <p className="mt-2 text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)]" style={mono}>
-                Next free credit in {daysUntilNextCredit} {daysUntilNextCredit === 1 ? 'day' : 'days'}
-              </p>
-            )}
-          </div>
         </div>
 
         {message && (
@@ -296,16 +355,6 @@ export default function AccountView({
         {error && (
           <p className="pt-5 text-[11px] text-[#FF8B6B]" style={sans}>× {error}</p>
         )}
-
-        <div className="pt-8">
-          <Link
-            href="/catalog"
-            className="inline-block text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
-            style={mono}
-          >
-            View catalog →
-          </Link>
-        </div>
 
         <div className="pt-8 flex items-center justify-between gap-4">
           <form action={signOut}>
@@ -358,10 +407,23 @@ export default function AccountView({
           </form>
         )}
 
-        <section className="mt-20 pt-16 border-t border-[var(--border-base)]">
-          <AlertsPanel initialItems={notifications} />
-        </section>
+        </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, children }: { label: string; value: string; children: ReactNode }) {
+  return (
+    <div className="py-6 sm:px-6 first:sm:pl-0 border-b sm:border-b-0 sm:border-l first:sm:border-l-0 border-[var(--border-base)] last:border-b-0">
+      <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-2" style={mono}>
+        {label}
+      </div>
+      <div className="text-4xl leading-none text-[var(--text-primary)] mb-3" style={{ ...serif, fontWeight: 300 }}>
+        {value}
+      </div>
+      <div className="leading-snug">{children}</div>
     </div>
   );
 }

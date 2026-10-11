@@ -154,15 +154,15 @@ export default function Nav({
 
             {loggedIn && user && (
               <Link
-                href="/account"
+                href="/dashboard"
                 className={`h-10 px-4 flex items-center border transition-colors ${
-                  pathname === '/account' || pathname?.startsWith('/account/')
+                  pathname === '/dashboard' || pathname?.startsWith('/dashboard/')
                     ? 'border-[#E85D2F] text-[#E85D2F]'
                     : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
                 }`}
                 style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
               >
-                My Account
+                Dashboard
               </Link>
             )}
           </div>
@@ -225,16 +225,16 @@ export default function Nav({
             {loggedIn && user && (
               <>
                 <Link
-                  href="/account"
+                  href="/dashboard"
                   onClick={closeMenu}
                   className={`text-[10px] tracking-[0.2em] uppercase ${
-                    pathname === '/account' || pathname?.startsWith('/account/')
+                    pathname === '/dashboard' || pathname?.startsWith('/dashboard/')
                       ? 'text-[#E85D2F]'
                       : 'text-[var(--text-secondary)]'
                   }`}
                   style={mono}
                 >
-                  My Account
+                  Dashboard
                 </Link>
                 <form action={signOut}>
                   <button
