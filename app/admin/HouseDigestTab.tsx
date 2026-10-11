@@ -41,7 +41,7 @@ export default function HouseDigestTab() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         partnerId,
-        to: testOnly ? 'music@lukedespain.com' : to,
+        to: testOnly ? 'luke@sonant.ac' : to,
         discoPlaylistUrl,
         intro,
         tracks,
@@ -56,7 +56,7 @@ export default function HouseDigestTab() {
       setError(json.error ?? 'Could not send.');
       return;
     }
-    setMessage(testOnly ? 'Test sent to music@lukedespain.com' : `Sent to ${to}`);
+    setMessage(testOnly ? 'Test sent to luke@sonant.ac' : `Sent to ${to}`);
   }
 
   return (

@@ -4,7 +4,7 @@ import { siteUrl } from '@/lib/site-url';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = 'Sonant <hello@sonant.ac>';
-const LUKE = 'music@lukedespain.com';
+const LUKE = 'luke@sonant.ac';
 
 async function sendResend(payload: Parameters<typeof resend.emails.send>[0]) {
   const { error } = await resend.emails.send(payload);
@@ -25,6 +25,7 @@ export async function sendSubmissionReceivedEmail(params: {
   try {
     await resend.emails.send({
       from: FROM,
+      replyTo: LUKE,
       to,
       subject: `Your submission for ${projectName} was received`,
       html: `
@@ -89,6 +90,7 @@ export async function sendDecisionEmail(params: {
   try {
     await resend.emails.send({
       from: FROM,
+      replyTo: LUKE,
       to,
       subject,
       html: `
@@ -120,6 +122,7 @@ export async function sendCatalogAccessRequestEmail(params: {
     await resend.emails.send({
       from: FROM,
       to: LUKE,
+      replyTo: email,
       subject: `Catalog access request from ${email}`,
       html: `
         <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
@@ -209,6 +212,7 @@ export async function sendBriefShareEmail(params: {
   try {
     await resend.emails.send({
       from: FROM,
+      replyTo: LUKE,
       to: params.to,
       subject: `${params.senderName} shared a catalog brief with you`,
       html: `
@@ -326,6 +330,7 @@ export async function sendPaidBriefAnnouncementEmail(params: {
   try {
     return await sendResend({
       from: FROM,
+      replyTo: LUKE,
       to: params.to,
       subject: 'A paid brief is up on Sonant',
       html: briefAnnouncementHtml({
@@ -357,6 +362,7 @@ export async function sendFeaturedBriefAnnouncementEmail(params: {
   try {
     return await sendResend({
       from: FROM,
+      replyTo: LUKE,
       to: params.to,
       subject: house ? `${catalogName} is looking for a song` : 'A new Sonant brief is up',
       html: briefAnnouncementHtml({
@@ -567,6 +573,7 @@ export async function sendReferralCreditEmail(params: {
   try {
     await resend.emails.send({
       from: FROM,
+      replyTo: LUKE,
       to: params.to,
       subject: 'You earned a Sonant submission credit',
       html: `
