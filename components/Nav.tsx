@@ -7,6 +7,22 @@ import type { User } from '@supabase/supabase-js'
 import { signOut } from '@/app/auth/actions'
 import ThemeToggle from '@/components/ThemeToggle'
 
+function SignInLink({ className, style, children, onClick }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const [loading, setLoading] = useState(false)
+  return (
+    <Link
+      href="/login"
+      onClick={(e) => { setLoading(true); onClick?.(e as unknown as React.MouseEvent<HTMLAnchorElement>) }}
+      className={`${className ?? ''} ${loading ? '!border-[#E85D2F] !text-[#E85D2F] cursor-wait' : ''}`}
+      style={style}
+    >
+      {loading ? (
+        <><span className="animate-pulse">◆</span>&nbsp;Signing in</>
+      ) : children}
+    </Link>
+  )
+}
+
 type NavProps = {
   user: User | null
   isSiteAdmin?: boolean
@@ -119,13 +135,12 @@ export default function Nav({
             {!isAuthPage && <ThemeToggle boxed />}
 
             {!isAuthPage && !loggedIn && (
-              <Link
-                href="/login"
-                className="h-10 px-4 flex items-center border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+              <SignInLink
+                className="h-10 px-4 flex items-center gap-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
                 style={{ ...mono, borderRadius: '2px', fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
               >
                 Sign In
-              </Link>
+              </SignInLink>
             )}
 
             {loggedIn && user && (
@@ -225,14 +240,13 @@ export default function Nav({
             )}
 
             {!loggedIn && (
-              <Link
-                href="/login"
-                onClick={closeMenu}
+              <SignInLink
                 className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F]"
                 style={mono}
+                onClick={closeMenu}
               >
                 Sign In
-              </Link>
+              </SignInLink>
             )}
           </div>
         </div>
