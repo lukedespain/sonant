@@ -259,35 +259,19 @@ function LockedClientBriefs({
 
 function CatalogCarousel({ briefs }: { briefs: BriefRow[] }) {
   const scroller = useRef<HTMLDivElement>(null);
-  const [edges, setEdges] = useState({ start: true, end: briefs.length <= 6 });
+  const [atEnd, setAtEnd] = useState(briefs.length <= 6);
 
   function update() {
     const el = scroller.current;
     if (!el) return;
-    setEdges({ start: el.scrollLeft < 8, end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 8 });
+    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 8);
   }
-  function page(dir: 1 | -1) {
-    const el = scroller.current;
-    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: 'smooth' });
-  }
-
-  const arrow =
-    'w-9 h-9 flex items-center justify-center border border-[var(--border-subtle)] rounded-[2px] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-30 disabled:pointer-events-none transition-colors';
-
   return (
     <div className="relative">
-      <div className="hidden md:flex absolute -top-[3.6rem] right-0 gap-2">
-        <button type="button" className={arrow} onClick={() => page(-1)} disabled={edges.start} aria-label="Previous catalog briefs">
-          ←
-        </button>
-        <button type="button" className={arrow} onClick={() => page(1)} disabled={edges.end} aria-label="More catalog briefs">
-          →
-        </button>
-      </div>
       <div
         ref={scroller}
         onScroll={update}
-        className="overflow-x-auto snap-x snap-mandatory md:snap-none -mx-5 px-5 md:mx-0 md:px-0 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="sonant-h-scroll snap-x snap-mandatory md:snap-none -mx-5 px-5 md:mx-0 md:px-0 pb-3"
       >
         <div className="grid grid-flow-col auto-cols-[272px] grid-rows-1 md:grid-rows-2 gap-4 w-max">
           {briefs.map((brief) => (
@@ -297,7 +281,7 @@ function CatalogCarousel({ briefs }: { briefs: BriefRow[] }) {
           ))}
         </div>
       </div>
-      {!edges.end && (
+      {!atEnd && (
         <div className="hidden md:block pointer-events-none absolute right-0 top-0 bottom-2 w-24 bg-gradient-to-l from-[var(--bg-base)] to-transparent" />
       )}
     </div>
