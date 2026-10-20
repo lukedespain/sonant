@@ -8,7 +8,7 @@ import { sendDecisionEmail, sendSubmissionReceivedEmail } from '@/lib/email';
 import { addNotification } from '@/lib/notifications';
 import { ADMIN_USER_ID } from '@/lib/admin';
 import { announceNewBrief, briefDisplayName } from '@/lib/brief-announcements';
-import { catalogPartnerFromBrief } from '@/lib/partners';
+import { catalogPartnerById, catalogPartnerFromBrief } from '@/lib/partners';
 import { readHandoffs } from '@/lib/handoff';
 
 type Mode = 'brand' | 'film' | 'games';
@@ -456,12 +456,14 @@ export async function recordDecision(params: {
 
   const projectName =
     (brief?.generated_content as { codename?: string })?.codename ?? 'your brief';
-  const partner = catalogPartnerFromBrief(brief?.generated_content);
+  // A track added from outside Sonant carries its catalog on a preset handoff.
+  const preset = readHandoffs(composer?.user?.app_metadata)[submissionId];
+  const partner = catalogPartnerById(preset?.catalogId) ?? catalogPartnerFromBrief(brief?.generated_content);
   const catalogName = partner?.name ?? 'Sonant';
 
   if (decision === 'accepted' && composer?.user) {
     const handoffs = readHandoffs(composer.user.app_metadata);
-    if (!handoffs[submissionId]) {
+    if (!handoffs[submissionId]?.offeredAt) {
       handoffs[submissionId] = { catalogId: partner?.id ?? 'sonant', offeredAt: new Date().toISOString() };
       const { error: offerError } = await admin.auth.admin.updateUserById(submission.user_id, {
         app_metadata: { ...composer.user.app_metadata, handoffs },

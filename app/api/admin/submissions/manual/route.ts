@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isSiteAdmin } from '@/lib/admin';
 import { isClientBriefRecord } from '@/lib/disco';
+import { catalogPartnerById } from '@/lib/partners';
+import { readHandoffs } from '@/lib/handoff';
 import {
   MAX_AUDIO_BYTES,
   SUBMISSION_BUCKET,
@@ -22,7 +24,8 @@ export async function POST(req: Request) {
 
   const body = (await req.json().catch(() => null)) as {
     composerEmail?: string;
-    briefId?: string;
+    briefUrl?: string;
+    catalogId?: string;
     trackName?: string;
     fileName?: string;
     fileSize?: number;
@@ -30,9 +33,12 @@ export async function POST(req: Request) {
   } | null;
 
   const email = body?.composerEmail?.trim().toLowerCase() ?? '';
-  const briefId = body?.briefId ?? '';
+  const briefId = body?.briefUrl?.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0] ?? '';
+  const partner = catalogPartnerById(body?.catalogId);
   const trackName = body?.trackName?.trim() ?? '';
-  if (!email || !briefId) return NextResponse.json({ error: 'Add the composer email and pick a brief.' }, { status: 400 });
+  if (!email) return NextResponse.json({ error: 'Add the composer email.' }, { status: 400 });
+  if (!briefId) return NextResponse.json({ error: 'Paste the brief link, like https://sonant.ac/briefs/…' }, { status: 400 });
+  if (!partner) return NextResponse.json({ error: 'Pick the catalog this track is for.' }, { status: 400 });
 
   const admin = createAdminClient();
   const { data: profile } = await admin.from('profiles').select('id').ilike('email', email).maybeSingle();
@@ -65,6 +71,9 @@ export async function POST(req: Request) {
     upload = { signedUrl: signed.signedUrl, contentType: contentTypeFor(kind) };
   }
 
+  const { data: composer } = await admin.auth.admin.getUserById(profile.id);
+  if (!composer?.user) return NextResponse.json({ error: 'Could not load that composer account.' }, { status: 500 });
+
   const { error: insertError } = await admin.from('submissions').insert({
     id: submissionId,
     user_id: profile.id,
@@ -76,6 +85,13 @@ export async function POST(req: Request) {
     console.error('Manual submission insert failed:', insertError);
     return NextResponse.json({ error: 'Could not create the submission.' }, { status: 500 });
   }
+
+  const handoffs = readHandoffs(composer.user.app_metadata);
+  handoffs[submissionId] = { catalogId: partner.id, offeredAt: '' };
+  const { error: presetError } = await admin.auth.admin.updateUserById(profile.id, {
+    app_metadata: { ...composer.user.app_metadata, handoffs },
+  });
+  if (presetError) console.error('Could not set catalog for outside submission:', presetError);
 
   revalidatePath('/admin');
   return NextResponse.json({ ok: true, submissionId, upload });

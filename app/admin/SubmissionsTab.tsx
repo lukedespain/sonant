@@ -2,10 +2,9 @@ import Link from 'next/link';
 import { createAdminClient } from '@/lib/supabase/admin';
 import AdminSubmissionCard from '@/components/AdminSubmissionCard';
 import { SUBMISSION_BUCKET } from '@/lib/audio-upload';
-import { catalogPartnerFromBrief } from '@/lib/partners';
+import { catalogPartnerById, catalogPartnerFromBrief } from '@/lib/partners';
 import { readHandoffs, readRights } from '@/lib/handoff';
 import type { AdminHandoff } from '@/components/AdminSubmissionCard';
-import { ADMIN_USER_ID } from '@/lib/admin';
 import ManualSubmissionForm from './ManualSubmissionForm';
 
 type Queue = 'catalog' | 'client';
@@ -126,17 +125,17 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
     return same[0] ?? null;
   }
 
-  const acceptedOwners = [...new Set(rows.filter((r) => r.status === 'accepted').map((r) => r.user_id))];
+  const queueOwners = [...new Set(rows.filter((r) => r.status !== 'not_accepted').map((r) => r.user_id))];
   const authUsers = Object.fromEntries(
     await Promise.all(
-      acceptedOwners.map(async (id) => [id, (await admin.auth.admin.getUserById(id)).data?.user ?? null] as const)
+      queueOwners.map(async (id) => [id, (await admin.auth.admin.getUserById(id)).data?.user ?? null] as const)
     )
   );
   function handoffFor(sub: SubmissionRow): AdminHandoff | null {
     if (sub.status !== 'accepted') return null;
     const owner = authUsers[sub.user_id];
     const record = readHandoffs(owner?.app_metadata)[sub.id];
-    if (!record) return null;
+    if (!record?.offeredAt) return null;
     return {
       agreedAt: record.agreedAt ?? null,
       stemsUrl: record.stemsUrl ?? null,
@@ -164,7 +163,8 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
       briefId: sub.brief_id,
       projectName: brief.name,
       isClient: brief.isClient,
-      catalogName: brief.catalogName,
+      catalogName:
+        catalogPartnerById(readHandoffs(authUsers[sub.user_id]?.app_metadata)[sub.id]?.catalogId)?.name ?? brief.catalogName,
       composerEmail: profileMap[sub.user_id]?.email ?? 'unknown',
       composerName: profileMap[sub.user_id]?.name ?? '',
       status: sub.status,
@@ -191,19 +191,6 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   const clientCards = cards.filter((row) => row.isClient);
   const visible = queue === 'client' ? clientCards : catalogCards;
 
-  const { data: catalogBriefRows } =
-    queue === 'catalog'
-      ? await admin
-          .from('briefs')
-          .select('id, generated_content')
-          .eq('user_id', ADMIN_USER_ID)
-          .eq('brief_type', 'catalog')
-          .order('created_at', { ascending: false })
-      : { data: [] };
-  const briefOptions = (catalogBriefRows ?? []).map((b: { id: string; generated_content: BriefContent & { catalogId?: string } }) => ({
-    id: b.id,
-    label: `${b.generated_content?.projectTitle || b.generated_content?.codename || 'Untitled'} · ${catalogPartnerFromBrief(b.generated_content)?.name ?? 'Sonant'}`,
-  }));
 
   const stage = (row: (typeof cards)[number]) => {
     if (row.delivery === 'disco') return row.deliveryConfirmedAt ? 2 : 0;
@@ -234,7 +221,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
         />
       </div>
 
-      {queue === 'catalog' && <ManualSubmissionForm briefs={briefOptions} />}
+      {queue === 'catalog' && <ManualSubmissionForm />}
 
       {ordered.length === 0 ? (
         <div

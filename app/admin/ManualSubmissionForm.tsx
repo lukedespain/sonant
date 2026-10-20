@@ -4,16 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { putToSignedUrl } from '@/lib/upload-client';
 import { btn } from '@/components/ui';
-
-type BriefOption = { id: string; label: string };
+import { CATALOG_PARTNER_LIST, DEFAULT_CATALOG_PARTNER_ID } from '@/lib/partners';
 
 const inputClass =
   'w-full h-11 px-3 bg-[var(--bg-base)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] rounded-[2px] focus:border-[var(--accent)] focus:outline-none';
 
-export default function ManualSubmissionForm({ briefs }: { briefs: BriefOption[] }) {
+export default function ManualSubmissionForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
-  const [briefId, setBriefId] = useState('');
+  const [briefUrl, setBriefUrl] = useState('');
+  const [catalogId, setCatalogId] = useState<string>(DEFAULT_CATALOG_PARTNER_ID);
   const [trackName, setTrackName] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
@@ -32,7 +32,8 @@ export default function ManualSubmissionForm({ briefs }: { briefs: BriefOption[]
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           composerEmail: email,
-          briefId,
+          briefUrl,
+          catalogId,
           trackName,
           fileName: file?.name,
           fileSize: file?.size,
@@ -50,7 +51,7 @@ export default function ManualSubmissionForm({ briefs }: { briefs: BriefOption[]
       }
       setDone(`Added ${trackName || file?.name || 'the track'} to the queue. Find it below and mark it like any other.`);
       setEmail('');
-      setBriefId('');
+      setBriefUrl('');
       setTrackName('');
       setFile(null);
       router.refresh();
@@ -72,7 +73,7 @@ export default function ManualSubmissionForm({ briefs }: { briefs: BriefOption[]
       </summary>
       <form onSubmit={submit} className="px-5 pb-6 pt-1 grid gap-4">
         <p className="text-sm text-[var(--text-muted)] leading-relaxed max-w-2xl">
-          The composer needs a Sonant account. This adds the track to the queue as if they submitted it, with no credit used. Then use Send or Accepted as usual, and they get the emails and the catalog sign-on.
+          The composer needs a Sonant account. Paste the link to any brief they wrote to, practice briefs included, and pick the catalog it is going to. This adds the track to the queue with no credit used. Then use Send or Accepted as usual, and they get the emails and that catalog&apos;s sign-on.
         </p>
         <div className="grid sm:grid-cols-2 gap-4">
           <label className="grid gap-2">
@@ -80,12 +81,21 @@ export default function ManualSubmissionForm({ briefs }: { briefs: BriefOption[]
             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
           </label>
           <label className="grid gap-2">
-            <span className="label text-[var(--text-muted)]">Catalog brief</span>
-            <select required value={briefId} onChange={(e) => setBriefId(e.target.value)} className={inputClass}>
-              <option value="">Pick a brief</option>
-              {briefs.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.label}
+            <span className="label text-[var(--text-muted)]">Brief link</span>
+            <input
+              required
+              value={briefUrl}
+              onChange={(e) => setBriefUrl(e.target.value)}
+              placeholder="https://sonant.ac/briefs/…"
+              className={inputClass}
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="label text-[var(--text-muted)]">Catalog</span>
+            <select value={catalogId} onChange={(e) => setCatalogId(e.target.value)} className={inputClass}>
+              {CATALOG_PARTNER_LIST.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
                 </option>
               ))}
             </select>
