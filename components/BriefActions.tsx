@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { btn } from '@/components/ui';
 
 /** Prints only the brief document (see the data-print-brief rule in globals.css). */
@@ -14,18 +14,49 @@ export function printBrief() {
   window.print();
 }
 
+/** Downloads the server-rendered PDF. Briefs that are not saved yet fall back to printing. */
 export function DownloadBriefButton({
+  briefId,
   variant = 'secondary',
   size = 'sm',
   className = '',
 }: {
+  briefId?: string | null;
   variant?: 'primary' | 'secondary';
   size?: 'sm' | 'md';
   className?: string;
 }) {
+  const [state, setState] = useState<'idle' | 'working' | 'error'>('idle');
+
+  async function download() {
+    if (!briefId) {
+      printBrief();
+      return;
+    }
+    setState('working');
+    try {
+      const res = await fetch(`/api/briefs/${briefId}/pdf`);
+      if (!res.ok) throw new Error(String(res.status));
+      const blob = await res.blob();
+      const name =
+        /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? 'Sonant brief.pdf';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      setState('idle');
+    } catch {
+      setState('error');
+    }
+  }
+
   return (
-    <button type="button" onClick={printBrief} className={btn(variant, size, className)}>
-      ↓ Download PDF
+    <button type="button" onClick={download} disabled={state === 'working'} className={btn(variant, size, className)}>
+      {state === 'working' ? 'Preparing PDF…' : state === 'error' ? 'Try again' : '↓ Download PDF'}
     </button>
   );
 }

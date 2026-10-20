@@ -178,7 +178,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             <p className="font-serif italic text-lg tracking-tight truncate">{title}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <DownloadBriefButton className="hidden sm:inline-flex" />
+            <DownloadBriefButton briefId={briefRow.id} className="hidden sm:inline-flex" />
             {isFeatured &&
               (user ? (
                 <SubmitTrackModal
@@ -205,7 +205,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
                 triggerClassName={btn('primary', 'sm')}
               />
             )}
-            {!isFeatured && !isClientBrief && <DownloadBriefButton className="sm:hidden" />}
+            {!isFeatured && !isClientBrief && <DownloadBriefButton briefId={briefRow.id} className="sm:hidden" />}
           </div>
         </div>
 

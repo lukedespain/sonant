@@ -147,8 +147,8 @@ export default function BriefNextSteps({
             title={<>Download <span className="italic">the brief</span></>}
             body="Keep it open next to your session while you write."
             bullets={['Every section, laid out for print', 'Just the brief, nothing else on the page']}
-            action={<DownloadBriefButton variant="secondary" size="md" className="w-full" />}
-            footnote="Opens print. Choose Save as PDF."
+            action={<DownloadBriefButton briefId={briefId} variant="secondary" size="md" className="w-full" />}
+            footnote={briefId ? 'Saves a PDF to your computer' : 'Opens print. Choose Save as PDF.'}
           />
         </div>
       </section>
@@ -166,8 +166,8 @@ export default function BriefNextSteps({
           title={<>Download <span className="italic">the brief</span></>}
           body="Keep it open next to your session while you write."
           bullets={['Every section, laid out for print', 'Free, no credit used']}
-          action={<DownloadBriefButton variant="secondary" size="md" className="w-full" />}
-          footnote="Opens print. Choose Save as PDF."
+          action={<DownloadBriefButton briefId={briefId} variant="secondary" size="md" className="w-full" />}
+          footnote={briefId ? 'Saves a PDF to your computer' : 'Opens print. Choose Save as PDF.'}
         />
         <Card
           accent
