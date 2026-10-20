@@ -6,6 +6,7 @@ import { recordDecision, type SubmissionDecision } from '@/app/briefs/actions';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
 import { btn } from '@/components/ui';
+import { CATALOG_PARTNER_LIST, catalogPartnerById } from '@/lib/partners';
 
 export type AdminHandoff = {
   agreedAt: string | null;
@@ -37,7 +38,7 @@ type AdminSubmissionCardProps = {
   audioName?: string | null;
   downloadHref?: string | null;
   playlistHref?: string | null;
-  catalogName?: string;
+  catalogId?: string;
   handoff?: AdminHandoff | null;
 };
 
@@ -57,7 +58,7 @@ export default function AdminSubmissionCard({
   audioName = null,
   downloadHref = null,
   playlistHref = null,
-  catalogName = 'Sonant',
+  catalogId = 'sonant',
   handoff = null,
 }: AdminSubmissionCardProps) {
   const router = useRouter();
@@ -65,7 +66,10 @@ export default function AdminSubmissionCard({
   const isDisco = delivery === 'disco';
   const isDecided = status === 'accepted' || status === 'not_accepted';
   const isSent = status === 'sent_to_catalog';
-  const canSend = catalogName !== 'Sonant';
+  const catalogName = catalogPartnerById(catalogId)?.name ?? 'Sonant';
+  const [selectedCatalog, setSelectedCatalog] = useState(catalogId);
+  const selectedName = catalogPartnerById(selectedCatalog)?.name ?? 'Sonant';
+  const canSend = selectedCatalog !== 'sonant';
   const [open, setOpen] = useState(isDisco ? !deliveryConfirmedAt : !isDecided);
   const [feedback, setFeedback] = useState(existingFeedback ?? '');
   const [submitting, setSubmitting] = useState(false);
@@ -79,7 +83,7 @@ export default function AdminSubmissionCard({
     setSubmitting(true);
     setError(null);
 
-    const result = await recordDecision({ submissionId, decision, feedback });
+    const result = await recordDecision({ submissionId, decision, feedback, catalogId: selectedCatalog });
     setSubmitting(false);
 
     if (result.error) {
@@ -376,15 +380,35 @@ export default function AdminSubmissionCard({
                 {isSent
                   ? `With ${catalogName}. Once they reply, mark Accepted or Not accepted. Add their reason to the notes first if you have it.`
                   : canSend
-                    ? `Send to ${catalogName} when it is worth pitching. The composer gets your notes either way.`
-                    : 'Sonant catalog brief. You make the call.'}
+                    ? `Send to ${selectedName} when it is worth pitching. The composer gets your notes either way.`
+                    : 'Sonant catalog. You make the call.'}
               </p>
+              )}
+
+              {!handoff?.agreedAt && (
+                <label className="mb-3 flex items-center gap-3">
+                  <span className="label text-[var(--text-dimmer)]">Catalog</span>
+                  <select
+                    value={selectedCatalog}
+                    onChange={(e) => setSelectedCatalog(e.target.value)}
+                    className="h-9 pl-3 pr-8 text-sm bg-[var(--bg-base)] border border-[var(--border-card)] text-[var(--text-primary)] rounded-[2px] focus:border-[var(--accent)] focus:outline-none"
+                  >
+                    {CATALOG_PARTNER_LIST.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedCatalog !== catalogId && (
+                    <span className="text-[11px] text-[var(--text-muted)]">Brief was for {catalogName}</span>
+                  )}
+                </label>
               )}
 
               <div className="flex gap-3 flex-wrap">
                 {canSend && (
                   <DecisionButton
-                    label={`↗ Send to ${catalogName}`}
+                    label={`↗ Send to ${selectedName}`}
                     tone="send"
                     primary={!isSent && !isDecided}
                     disabled={submitting}

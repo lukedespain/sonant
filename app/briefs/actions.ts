@@ -413,6 +413,7 @@ export async function recordDecision(params: {
   submissionId: string;
   decision: SubmissionDecision;
   feedback: string;
+  catalogId?: string;
 }) {
   const { submissionId, decision, feedback } = params;
 
@@ -456,19 +457,28 @@ export async function recordDecision(params: {
 
   const projectName =
     (brief?.generated_content as { codename?: string })?.codename ?? 'your brief';
-  // A track added from outside Sonant carries its catalog on a preset handoff.
-  const preset = readHandoffs(composer?.user?.app_metadata)[submissionId];
-  const partner = catalogPartnerById(preset?.catalogId) ?? catalogPartnerFromBrief(brief?.generated_content);
+  // The catalog comes from the admin's pick, then any earlier pick stored on the
+  // composer's handoff, then the brief itself. It can differ from the brief.
+  const handoffs = readHandoffs(composer?.user?.app_metadata);
+  const existing = handoffs[submissionId];
+  const partner =
+    catalogPartnerById(params.catalogId) ??
+    catalogPartnerById(existing?.catalogId) ??
+    catalogPartnerFromBrief(brief?.generated_content);
   const catalogName = partner?.name ?? 'Sonant';
 
-  if (decision === 'accepted' && composer?.user) {
-    const handoffs = readHandoffs(composer.user.app_metadata);
-    if (!handoffs[submissionId]?.offeredAt) {
-      handoffs[submissionId] = { catalogId: partner?.id ?? 'sonant', offeredAt: new Date().toISOString() };
+  if (decision !== 'not_accepted' && composer?.user && !existing?.agreedAt) {
+    const next = {
+      ...existing,
+      catalogId: partner?.id ?? 'sonant',
+      offeredAt: decision === 'accepted' ? existing?.offeredAt || new Date().toISOString() : existing?.offeredAt ?? '',
+    };
+    if (next.catalogId !== existing?.catalogId || next.offeredAt !== existing?.offeredAt) {
+      handoffs[submissionId] = next;
       const { error: offerError } = await admin.auth.admin.updateUserById(submission.user_id, {
         app_metadata: { ...composer.user.app_metadata, handoffs },
       });
-      if (offerError) console.error('Could not create catalog offer:', offerError);
+      if (offerError) console.error('Could not save the catalog for this submission:', offerError);
     }
   }
   const composerEmail = composer?.user?.email;

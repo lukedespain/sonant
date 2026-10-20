@@ -101,7 +101,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
         {
           isClient: client,
           name: projectName(content, client),
-          catalogName: catalogPartnerFromBrief(content)?.name ?? 'Sonant',
+          catalogId: catalogPartnerFromBrief(content)?.id ?? 'sonant',
         },
       ];
     })
@@ -154,7 +154,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   );
 
   const cards = rows.map((sub) => {
-    const brief = briefMap[sub.brief_id] ?? { isClient: false, name: 'Untitled', catalogName: 'Sonant' };
+    const brief = briefMap[sub.brief_id] ?? { isClient: false, name: 'Untitled', catalogId: 'sonant' };
     const delivery: 'upload' | 'disco' = sub.delivery === 'disco' ? 'disco' : 'upload';
     const signed = audioBySubmission[sub.id] ?? null;
     const playlistHit = matchPlaylist(sub.user_id, sub.brief_id, signed?.name);
@@ -163,8 +163,8 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
       briefId: sub.brief_id,
       projectName: brief.name,
       isClient: brief.isClient,
-      catalogName:
-        catalogPartnerById(readHandoffs(authUsers[sub.user_id]?.app_metadata)[sub.id]?.catalogId)?.name ?? brief.catalogName,
+      catalogId:
+        catalogPartnerById(readHandoffs(authUsers[sub.user_id]?.app_metadata)[sub.id]?.catalogId)?.id ?? brief.catalogId,
       composerEmail: profileMap[sub.user_id]?.email ?? 'unknown',
       composerName: profileMap[sub.user_id]?.name ?? '',
       status: sub.status,
@@ -252,7 +252,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
               audioName={row.audioName}
               downloadHref={row.downloadHref}
               playlistHref={row.playlistHref}
-              catalogName={row.catalogName}
+              catalogId={row.catalogId}
               handoff={row.handoff}
             />
           ))}
