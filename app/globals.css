@@ -250,3 +250,10 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .flash-target { animation: none; outline: 1px solid #E85D2F; }
 }
+
+/* The Thought Collective mark is black artwork: flip it to white on the dark theme. */
+.tc-mark { filter: brightness(0) invert(1); }
+[data-theme="light"] .tc-mark { filter: none; }
+@media print {
+  .tc-mark { filter: none !important; }
+}

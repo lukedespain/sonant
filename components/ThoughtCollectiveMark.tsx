@@ -13,7 +13,7 @@ export default function ThoughtCollectiveMark({
       alt=""
       width={size}
       height={size}
-      className={className}
+      className={`${invert ? '' : 'tc-mark'} ${className ?? ''}`.trim()}
       aria-hidden="true"
       style={{
         width: size,
