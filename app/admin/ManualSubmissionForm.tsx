@@ -9,7 +9,9 @@ import { CATALOG_PARTNER_LIST, DEFAULT_CATALOG_PARTNER_ID } from '@/lib/partners
 const inputClass =
   'w-full h-11 px-3 bg-[var(--bg-base)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] rounded-[2px] focus:border-[var(--accent)] focus:outline-none';
 
-export default function ManualSubmissionForm() {
+export type ComposerOption = { email: string; name: string };
+
+export default function ManualSubmissionForm({ composers }: { composers: ComposerOption[] }) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [briefUrl, setBriefUrl] = useState('');
@@ -78,7 +80,21 @@ export default function ManualSubmissionForm() {
         <div className="grid sm:grid-cols-2 gap-4">
           <label className="grid gap-2">
             <span className="label text-[var(--text-muted)]">Composer email</span>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+            <input
+              type="email"
+              required
+              list="sonant-composers"
+              autoComplete="off"
+              placeholder="Start typing a name or email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClass}
+            />
+            <datalist id="sonant-composers">
+              {composers.map((c) => (
+                <option key={c.email} value={c.email} label={c.name || c.email} />
+              ))}
+            </datalist>
           </label>
           <label className="grid gap-2">
             <span className="label text-[var(--text-muted)]">Brief link</span>

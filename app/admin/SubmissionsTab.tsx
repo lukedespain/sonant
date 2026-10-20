@@ -5,7 +5,7 @@ import { SUBMISSION_BUCKET } from '@/lib/audio-upload';
 import { catalogPartnerById, catalogPartnerFromBrief } from '@/lib/partners';
 import { readHandoffs, readRights } from '@/lib/handoff';
 import type { AdminHandoff } from '@/components/AdminSubmissionCard';
-import ManualSubmissionForm from './ManualSubmissionForm';
+import ManualSubmissionForm, { type ComposerOption } from './ManualSubmissionForm';
 
 type Queue = 'catalog' | 'client';
 
@@ -192,6 +192,15 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   const visible = queue === 'client' ? clientCards : catalogCards;
 
 
+  const { data: composerRows } =
+    queue === 'catalog'
+      ? await admin.from('profiles').select('full_name, email').not('email', 'is', null).order('full_name')
+      : { data: [] };
+  const composers: ComposerOption[] = (composerRows ?? []).map((p: { full_name: string | null; email: string }) => ({
+    email: p.email,
+    name: p.full_name ?? '',
+  }));
+
   const stage = (row: (typeof cards)[number]) => {
     if (row.delivery === 'disco') return row.deliveryConfirmedAt ? 2 : 0;
     if (row.status === 'accepted' || row.status === 'not_accepted') return 2;
@@ -221,7 +230,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
         />
       </div>
 
-      {queue === 'catalog' && <ManualSubmissionForm />}
+      {queue === 'catalog' && <ManualSubmissionForm composers={composers} />}
 
       {ordered.length === 0 ? (
         <div
