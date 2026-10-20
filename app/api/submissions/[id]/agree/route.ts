@@ -19,11 +19,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Sign in first.' }, { status: 401 });
 
-  const body = (await req.json().catch(() => null)) as { stemsUrl?: string; rights?: unknown; agreed?: boolean; humanMade?: boolean } | null;
+  const body = (await req.json().catch(() => null)) as { stemsUrl?: string; noStems?: boolean; rights?: unknown; agreed?: boolean; humanMade?: boolean } | null;
   if (!body?.agreed) return NextResponse.json({ error: 'Agree to the terms to continue.' }, { status: 400 });
 
-  const stemsUrl = (body.stemsUrl ?? '').trim();
-  const stemsProblem = validateStemsUrl(stemsUrl);
+  const noStems = body.noStems === true;
+  const stemsUrl = noStems ? '' : (body.stemsUrl ?? '').trim();
+  const stemsProblem = noStems ? null : validateStemsUrl(stemsUrl);
   if (stemsProblem) return NextResponse.json({ error: stemsProblem }, { status: 400 });
 
   const rights = normalizeRights(readRights({ rights: body.rights }));
@@ -55,7 +56,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   const agreedAt = new Date().toISOString();
-  handoffs[id] = { ...offer, agreedAt, stemsUrl, humanMade: body.humanMade === true };
+  handoffs[id] = { ...offer, agreedAt, stemsUrl: stemsUrl || undefined, noStems, humanMade: body.humanMade === true };
 
   const { error } = await admin.auth.admin.updateUserById(user.id, {
     user_metadata: { ...fresh?.user?.user_metadata, rights },
@@ -76,7 +77,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     trackName: await submissionFileName(admin, id),
     catalogName: partner?.name ?? 'Sonant',
     humanMade: body.humanMade === true,
-    stemsUrl,
+    stemsUrl: stemsUrl || null,
     rights,
   });
 

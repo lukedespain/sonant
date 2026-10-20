@@ -71,7 +71,7 @@ export async function sendDecisionEmail(params: {
     accepted: {
       subject: `${catalogName} accepted your track for ${projectName}`,
       heading: 'Congratulations',
-      intro: `${catalogName} accepted your track for <strong>${projectName}</strong>. Open your Sonant dashboard to review their terms, confirm your PRO details, and send your stems.${notesLine}`,
+      intro: `${catalogName} accepted your track for <strong>${projectName}</strong>. Open your Sonant dashboard to review their terms, confirm your PRO details, and send your stems (skip that if it is a single-instrument track).${notesLine}`,
     },
     not_accepted: wasSent
       ? {
@@ -119,7 +119,7 @@ export async function sendHandoffEmail(params: {
   projectName: string;
   trackName: string | null;
   catalogName: string;
-  stemsUrl: string;
+  stemsUrl: string | null;
   humanMade: boolean;
   rights: {
     legalName: string;
@@ -142,6 +142,7 @@ export async function sendHandoffEmail(params: {
     ['Publisher', r.publisherName || 'Self-published / none'],
     ['Publisher IPI', r.publisherIpi || '(none)'],
     ['Human-made', params.humanMade ? 'Confirmed by composer' : 'Not confirmed'],
+    ['Stems', params.stemsUrl ? 'Linked below' : 'None. Full mix only (single-instrument track)'],
   ];
   return sendResend({
     from: FROM,
@@ -151,11 +152,11 @@ export async function sendHandoffEmail(params: {
     html: `
       <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
         <h2 style="font-weight: 500;">Ready to hand off to ${e(params.catalogName)}</h2>
-        <p>The composer agreed to the terms and sent their stems.</p>
+        <p>The composer agreed to the terms${params.stemsUrl ? ' and sent their stems' : ''}.</p>
         <table style="border-collapse: collapse; margin: 16px 0;">
           ${rows.map(([k, v]) => `<tr><td style="padding: 4px 16px 4px 0; color: #6B6560;">${e(k)}</td><td style="padding: 4px 0;">${e(v)}</td></tr>`).join('')}
         </table>
-        <p><a href="${e(params.stemsUrl)}" style="color: #E85D2F;">Open the stems</a></p>
+        ${params.stemsUrl ? `<p><a href="${e(params.stemsUrl)}" style="color: #E85D2F;">Open the stems</a></p>` : ''}
       </div>
     `,
   });

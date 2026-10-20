@@ -16,6 +16,7 @@ export type Handoff = {
   offeredAt: string;
   agreedAt?: string;
   stemsUrl?: string;
+  noStems?: boolean;
   humanMade?: boolean;
 };
 

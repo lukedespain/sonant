@@ -5,6 +5,8 @@ import { SUBMISSION_BUCKET } from '@/lib/audio-upload';
 import { catalogPartnerFromBrief } from '@/lib/partners';
 import { readHandoffs, readRights } from '@/lib/handoff';
 import type { AdminHandoff } from '@/components/AdminSubmissionCard';
+import { ADMIN_USER_ID } from '@/lib/admin';
+import ManualSubmissionForm from './ManualSubmissionForm';
 
 type Queue = 'catalog' | 'client';
 
@@ -139,6 +141,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
       agreedAt: record.agreedAt ?? null,
       stemsUrl: record.stemsUrl ?? null,
       humanMade: record.humanMade === true,
+      noStems: record.noStems === true,
       rights: record.agreedAt ? readRights(owner?.user_metadata) : null,
     };
   }
@@ -188,6 +191,20 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   const clientCards = cards.filter((row) => row.isClient);
   const visible = queue === 'client' ? clientCards : catalogCards;
 
+  const { data: catalogBriefRows } =
+    queue === 'catalog'
+      ? await admin
+          .from('briefs')
+          .select('id, generated_content')
+          .eq('user_id', ADMIN_USER_ID)
+          .eq('brief_type', 'catalog')
+          .order('created_at', { ascending: false })
+      : { data: [] };
+  const briefOptions = (catalogBriefRows ?? []).map((b: { id: string; generated_content: BriefContent & { catalogId?: string } }) => ({
+    id: b.id,
+    label: `${b.generated_content?.projectTitle || b.generated_content?.codename || 'Untitled'} · ${catalogPartnerFromBrief(b.generated_content)?.name ?? 'Sonant'}`,
+  }));
+
   const stage = (row: (typeof cards)[number]) => {
     if (row.delivery === 'disco') return row.deliveryConfirmedAt ? 2 : 0;
     if (row.status === 'accepted' || row.status === 'not_accepted') return 2;
@@ -216,6 +233,8 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
           active={queue === 'client'}
         />
       </div>
+
+      {queue === 'catalog' && <ManualSubmissionForm briefs={briefOptions} />}
 
       {ordered.length === 0 ? (
         <div

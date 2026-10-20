@@ -10,6 +10,7 @@ import { btn } from '@/components/ui';
 export type AdminHandoff = {
   agreedAt: string | null;
   stemsUrl: string | null;
+  noStems: boolean;
   humanMade: boolean;
   rights: {
     legalName: string;
@@ -479,6 +480,7 @@ function HandoffPanel({ handoff, catalogName }: { handoff: AdminHandoff; catalog
         ['Publisher', r.publisherName || 'None'],
         ['Publisher IPI', r.publisherIpi || 'None'],
         ['Human-made', handoff.humanMade ? 'Confirmed' : 'Not confirmed'],
+        ['Stems', handoff.noStems ? 'None, full mix only' : 'Linked'],
       ]
     : [];
   return (

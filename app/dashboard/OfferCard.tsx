@@ -41,6 +41,7 @@ export default function OfferCard({
   const [rights, setRights] = useState(savedRights);
   const [editingInfo, setEditingInfo] = useState(validateRights(savedRights) !== null);
   const [stemsUrl, setStemsUrl] = useState('');
+  const [noStems, setNoStems] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [humanMade, setHumanMade] = useState(!offer.humanMadeOnly);
   const ready = agreed && humanMade;
@@ -63,7 +64,7 @@ export default function OfferCard({
     const res = await fetch(`/api/submissions/${offer.submissionId}/agree`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stemsUrl, rights, agreed, humanMade }),
+      body: JSON.stringify({ stemsUrl: noStems ? '' : stemsUrl, noStems, rights, agreed, humanMade }),
     });
     const json = (await res.json().catch(() => ({}))) as { error?: string };
     setSending(false);
@@ -170,16 +171,28 @@ export default function OfferCard({
           <label htmlFor={`stems-${offer.submissionId}`} className="block text-sm text-[var(--text-muted)] mb-3" style={sans}>
             A Dropbox, Google Drive, or WeTransfer link to a folder of WAV stems. Make sure anyone with the link can open it.
           </label>
-          <input
-            id={`stems-${offer.submissionId}`}
-            type="url"
-            required
-            placeholder="https://"
-            value={stemsUrl}
-            onChange={(e) => setStemsUrl(e.target.value)}
-            className="w-full px-3 py-2.5 bg-[var(--bg-base)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none"
-            style={{ ...sans, borderRadius: '2px' }}
-          />
+          {!noStems && (
+            <input
+              id={`stems-${offer.submissionId}`}
+              type="url"
+              required
+              placeholder="https://"
+              value={stemsUrl}
+              onChange={(e) => setStemsUrl(e.target.value)}
+              className="w-full px-3 py-2.5 bg-[var(--bg-base)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] rounded-[2px] focus:border-[var(--accent)] focus:outline-none"
+            />
+          )}
+          <label className="mt-3 flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={noStems}
+              onChange={(e) => setNoStems(e.target.checked)}
+              className="mt-0.5 accent-[var(--accent)]"
+            />
+            <span className="text-sm text-[var(--text-muted)]">
+              This track has no stems, like a solo piano piece. The full mix is all there is.
+            </span>
+          </label>
         </section>
 
         <div className="flex items-center gap-4 flex-wrap">
