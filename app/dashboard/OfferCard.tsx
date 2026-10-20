@@ -16,6 +16,7 @@ export type Offer = {
   catalogName: string;
   catalogDeal: string;
   terms: string[];
+  humanMadeOnly: boolean;
 };
 
 function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
@@ -41,6 +42,8 @@ export default function OfferCard({
   const [editingInfo, setEditingInfo] = useState(validateRights(savedRights) !== null);
   const [stemsUrl, setStemsUrl] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [humanMade, setHumanMade] = useState(!offer.humanMadeOnly);
+  const ready = agreed && humanMade;
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -60,7 +63,7 @@ export default function OfferCard({
     const res = await fetch(`/api/submissions/${offer.submissionId}/agree`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stemsUrl, rights, agreed }),
+      body: JSON.stringify({ stemsUrl, rights, agreed, humanMade }),
     });
     const json = (await res.json().catch(() => ({}))) as { error?: string };
     setSending(false);
@@ -124,6 +127,19 @@ export default function OfferCard({
               I agree to {offer.catalogName}&apos;s terms for this track.
             </span>
           </label>
+          {offer.humanMadeOnly && (
+            <label className="mt-3 flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={humanMade}
+                onChange={(e) => setHumanMade(e.target.checked)}
+                className="mt-0.5 accent-[var(--accent)]"
+              />
+              <span className="text-sm text-[var(--text-primary)]">
+                This track is fully human-made. No AI-generated music, stems, or vocals.
+              </span>
+            </label>
+          )}
         </section>
 
         <section>
@@ -169,14 +185,16 @@ export default function OfferCard({
         <div className="flex items-center gap-4 flex-wrap">
           <button
             type="submit"
-            disabled={!agreed || sending}
+            disabled={!ready || sending}
             className="px-6 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
           >
             {sending ? 'Sending…' : `◆ Sign on with ${offer.catalogName}`}
           </button>
-          {!agreed && (
-            <span className="text-[11px] text-[var(--text-dimmer)]" style={sans}>Agree to the terms first.</span>
+          {!ready && (
+            <span className="text-[11px] text-[var(--text-dimmer)]" style={sans}>
+              {agreed ? 'Confirm the track is human-made.' : 'Agree to the terms first.'}
+            </span>
           )}
           {error && <span role="alert" className="text-[11px] text-[#FF8B6B]" style={sans}>{error}</span>}
         </div>

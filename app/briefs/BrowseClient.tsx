@@ -234,7 +234,7 @@ function LockedClientBriefs({
       <div className="flex-1 max-w-xl">
         <p className="font-serif text-xl md:text-2xl tracking-tight">Paid client briefs are for verified composers.</p>
         <p className="mt-2 text-sm text-[var(--text-muted)] leading-relaxed">
-          Get {threshold} tracks accepted into a catalog to unlock them. We email you the moment a new one lands.
+          Client briefs are confidential, pre-release work. They open after {threshold} catalog placements, and we email you the moment a new one lands.
         </p>
       </div>
       {signedIn ? (

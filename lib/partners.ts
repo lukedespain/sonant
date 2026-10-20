@@ -10,6 +10,8 @@ export type CatalogPartner = {
   catalogUrl: string;
   markSrc: string;
   exclusive: boolean;
+  /** No AI-generated music, stems, or vocals. Confirmed by the composer at sign-on. */
+  humanMadeOnly: boolean;
   split: string;
   focus: string;
   blurb: string;
@@ -27,12 +29,14 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     catalogUrl: THOUGHT_COLLECTIVE_CATALOG,
     markSrc: '/brand/thought-collective-mark.png',
     exclusive: true,
+    humanMadeOnly: true,
     split: '50/50',
     focus: 'Brand',
     terms: [
       'Exclusive. Once accepted, the track lives only in the Thought Collective catalog.',
       'Sync fees split 50/50 between you and Thought Collective.',
       'Thought Collective pitches the track to agencies and brands.',
+      'Human-made only. No AI-generated music, stems, or vocals.',
     ],
     blurb:
       'A sync catalog built for brand work. Their briefs come from what agencies and brands are asking for right now, and accepted tracks get pitched to them directly.',
@@ -45,12 +49,14 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     catalogUrl: SONANT_CATALOG,
     markSrc: '',
     exclusive: false,
+    humanMadeOnly: true,
     split: '50/50',
     focus: 'Brand, film, games',
     terms: [
       'Non-exclusive. You can keep pitching the track anywhere else.',
       'Sync fees split 50/50 between you and Sonant.',
       'Sonant pitches the track directly.',
+      'Human-made only. No AI-generated music, stems, or vocals.',
     ],
     blurb:
       'Our own catalog, pitched by the Sonant team. It is newer and still growing. Placements here stay non-exclusive, so the music is yours to pitch anywhere else too.',

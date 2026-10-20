@@ -11,16 +11,16 @@ const GUMROAD_URL = 'https://sonant.gumroad.com/l/royalties';
 
 const STEPS = [
   {
-    title: 'Pick a brief',
-    body: 'Catalog briefs say exactly what a music house is looking for. Practice briefs and the Generator are there for reps.',
+    title: 'Practice',
+    body: 'Generate a brief or pick a practice brief, and write a syncable track. It is yours to keep: build your catalog, release it as an artist, or just get the reps.',
   },
   {
-    title: 'Submit your track',
-    body: 'One credit, and every submission gets written feedback on the track. Free accounts get a credit every month.',
+    title: 'Submit to a catalog',
+    body: 'Catalog briefs are built with partner catalogs from what their clients keep asking for. No deadline. Every submission gets written feedback, and the strongest go into the catalog.',
   },
   {
-    title: 'Get placed',
-    body: 'The strongest tracks go to the catalog. Three acceptances unlock paid client briefs.',
+    title: 'Get paid work',
+    body: 'Three catalog placements make you a verified composer. That opens paid client briefs: confidential, pre-release jobs with short turnarounds.',
   },
 ];
 
@@ -69,7 +69,7 @@ export default async function HomePage() {
             Learn to compose music <span className="italic text-[var(--accent)]">worth pitching.</span>
           </h1>
           <p className="mt-7 text-lg text-[var(--text-tertiary)] leading-relaxed max-w-lg">
-            Write to real briefs from music houses. Every submission gets written feedback, and the best tracks go into catalogs that pitch them.
+            Practice writing to spec with briefs built like the real thing. When a track is ready, submit it to a partner catalog for written feedback and a shot at placement.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             {user ? (
@@ -112,7 +112,10 @@ export default async function HomePage() {
 
       <section className="border-t border-[var(--border-base)]">
         <div className="max-w-6xl mx-auto px-5 md:px-10 py-20 md:py-24">
-          <h2 className="font-serif font-light text-3xl md:text-4xl tracking-tight mb-12">How it works.</h2>
+          <h2 className="font-serif font-light text-3xl md:text-4xl tracking-tight">How it works.</h2>
+          <p className="mt-4 mb-12 text-[15px] text-[var(--text-muted)] leading-relaxed max-w-xl">
+            Custom scoring, artist sync, or catalogs: every path in sync starts with writing to spec.
+          </p>
           <ol className="grid md:grid-cols-3 gap-10 md:gap-12">
             {STEPS.map((step, i) => (
               <li key={step.title} className="border-t border-[var(--border-card)] pt-6">
@@ -122,7 +125,10 @@ export default async function HomePage() {
               </li>
             ))}
           </ol>
-          <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3">
+          <p className="mt-14 text-[15px] text-[var(--text-secondary)] leading-relaxed max-w-xl">
+            <span className="text-[var(--accent)]">◆ Human-made.</span> Sonant is built for composers, and catalogs are hearing it from their clients too: original music, no AI.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
             <span className="label text-[var(--text-dimmer)]">Writing for</span>
             {CATALOG_PARTNER_LIST.map((p) => (
               <Link

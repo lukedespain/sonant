@@ -4,7 +4,7 @@ import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 const QUESTIONS: { q: string; a: ReactNode }[] = [
   {
     q: 'What is Sonant?',
-    a: 'A place for sync composers to practice writing to spec, get written feedback, and get music into catalogs that pitch it to brands, film, and games.',
+    a: 'A practice tool for sync composers. Write to briefs built like the real thing, get written feedback, and get your best tracks into catalogs that pitch them to brands, film, and games.',
   },
   {
     q: 'What are the different briefs?',
@@ -36,7 +36,11 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'How do I get paid client briefs?',
-    a: 'Get three tracks accepted into a catalog. That earns the verified badge, and paid client briefs show up at the top of Briefs. We email you when a new one lands.',
+    a: 'Get three tracks accepted into a catalog. Client briefs are confidential, pre-release work, so they open to verified composers only. Once you are verified they show at the top of Briefs, and we email you when a new one lands.',
+  },
+  {
+    q: 'Can I use AI?',
+    a: 'Sonant is built for human-made music. Each catalog sets its own rule, shown on its card and on its briefs, and you confirm it when you sign on. Thought Collective and the Sonant catalog are human-made only. Even where AI is allowed, lean away from it: AI-generated stems and vocals are a gray area for rights, and many clients ask for no AI at all.',
   },
   {
     q: 'Do I need an account?',

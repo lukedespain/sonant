@@ -138,6 +138,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
     return {
       agreedAt: record.agreedAt ?? null,
       stemsUrl: record.stemsUrl ?? null,
+      humanMade: record.humanMade === true,
       rights: record.agreedAt ? readRights(owner?.user_metadata) : null,
     };
   }

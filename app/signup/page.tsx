@@ -69,7 +69,7 @@ function SignUpForm() {
         <p className="text-[15px] text-[var(--text-tertiary)] leading-relaxed mb-10">
           {invited
             ? 'A composer shared a brief with you. Create a free account to view it, save work, and submit from Briefs. One submission credit each month.'
-            : 'Write to real briefs, get written feedback on every submission, and get your best tracks into catalogs. One free submission credit every month.'}
+            : 'Practice writing to spec, get written feedback on catalog submissions, and get your best tracks into catalogs. One free submission credit every month.'}
         </p>
 
         <form action={handleSubmit} className="space-y-5">

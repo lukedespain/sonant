@@ -87,6 +87,7 @@ export default async function DashboardPage({
         catalogName: partner.name,
         catalogDeal: `${partner.exclusive ? 'Exclusive' : 'Non-exclusive'} · ${partner.split}`,
         terms: partner.terms,
+        humanMadeOnly: partner.humanMadeOnly,
       };
     });
 

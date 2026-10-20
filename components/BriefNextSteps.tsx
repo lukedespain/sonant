@@ -14,6 +14,7 @@ type Props = {
   catalogExclusive?: boolean;
   catalogName?: string;
   catalogSplit?: string;
+  humanMadeOnly?: boolean;
   loggedIn: boolean;
   alreadySubmitted?: boolean;
   submissionCredits?: number;
@@ -76,6 +77,7 @@ export default function BriefNextSteps({
   catalogExclusive = false,
   catalogName = 'Sonant',
   catalogSplit = '50/50',
+  humanMadeOnly = false,
   loggedIn,
   alreadySubmitted = false,
   submissionCredits = 0,
@@ -175,6 +177,7 @@ export default function BriefNextSteps({
             'Uses 1 submission credit',
             'Written feedback on every submission',
             `${catalogExclusive ? 'Exclusive' : 'Non-exclusive'} · ${catalogSplit} if it places`,
+            ...(humanMadeOnly ? ['Human-made only, no AI'] : []),
           ]}
           action={
             loggedIn && briefId ? (

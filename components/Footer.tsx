@@ -33,7 +33,7 @@ export default function Footer() {
             Sonant<span className="text-[var(--accent)]">.</span>
           </p>
           <p className="mt-2 text-sm text-[var(--text-muted)] leading-relaxed">
-            Write to real briefs. Get written feedback. Get your music into catalogs.
+            Practice writing to spec. Get written feedback. Get your music into catalogs.
           </p>
         </div>
         {COLUMNS.map((col) => (

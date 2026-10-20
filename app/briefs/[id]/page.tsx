@@ -228,6 +228,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           catalogExclusive={catalogPartner?.exclusive}
           catalogName={catalogPartner?.name}
           catalogSplit={catalogPartner?.split}
+          humanMadeOnly={catalogPartner?.humanMadeOnly}
           loggedIn={!!user}
           alreadySubmitted={alreadySubmitted}
           submissionCredits={submissionCredits}

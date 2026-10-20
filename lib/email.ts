@@ -120,6 +120,7 @@ export async function sendHandoffEmail(params: {
   trackName: string | null;
   catalogName: string;
   stemsUrl: string;
+  humanMade: boolean;
   rights: {
     legalName: string;
     pro: string;
@@ -140,6 +141,7 @@ export async function sendHandoffEmail(params: {
     ['Composer IPI', r.composerIpi],
     ['Publisher', r.publisherName || 'Self-published / none'],
     ['Publisher IPI', r.publisherIpi || '(none)'],
+    ['Human-made', params.humanMade ? 'Confirmed by composer' : 'Not confirmed'],
   ];
   return sendResend({
     from: FROM,

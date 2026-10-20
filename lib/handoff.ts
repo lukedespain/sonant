@@ -16,6 +16,7 @@ export type Handoff = {
   offeredAt: string;
   agreedAt?: string;
   stemsUrl?: string;
+  humanMade?: boolean;
 };
 
 export const EMPTY_RIGHTS: RightsInfo = {

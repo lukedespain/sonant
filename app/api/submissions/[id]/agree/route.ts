@@ -19,7 +19,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Sign in first.' }, { status: 401 });
 
-  const body = (await req.json().catch(() => null)) as { stemsUrl?: string; rights?: unknown; agreed?: boolean } | null;
+  const body = (await req.json().catch(() => null)) as { stemsUrl?: string; rights?: unknown; agreed?: boolean; humanMade?: boolean } | null;
   if (!body?.agreed) return NextResponse.json({ error: 'Agree to the terms to continue.' }, { status: 400 });
 
   const stemsUrl = (body.stemsUrl ?? '').trim();
@@ -49,8 +49,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (!offer) return NextResponse.json({ error: 'There is no offer on this track.' }, { status: 400 });
   if (offer.agreedAt) return NextResponse.json({ ok: true, agreedAt: offer.agreedAt });
 
+  const partner = catalogPartnerById(offer.catalogId);
+  if (partner?.humanMadeOnly && body.humanMade !== true) {
+    return NextResponse.json({ error: `${partner.name} only accepts human-made tracks. Confirm the track is not AI-generated.` }, { status: 400 });
+  }
+
   const agreedAt = new Date().toISOString();
-  handoffs[id] = { ...offer, agreedAt, stemsUrl };
+  handoffs[id] = { ...offer, agreedAt, stemsUrl, humanMade: body.humanMade === true };
 
   const { error } = await admin.auth.admin.updateUserById(user.id, {
     user_metadata: { ...fresh?.user?.user_metadata, rights },
@@ -69,7 +74,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     composerEmail: user.email ?? '',
     projectName: content?.projectTitle || content?.codename || 'Untitled',
     trackName: await submissionFileName(admin, id),
-    catalogName: catalogPartnerById(offer.catalogId)?.name ?? 'Sonant',
+    catalogName: partner?.name ?? 'Sonant',
+    humanMade: body.humanMade === true,
     stemsUrl,
     rights,
   });

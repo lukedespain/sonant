@@ -101,6 +101,7 @@ function PartnerCard({
     ['Deal', partner.exclusive ? 'Exclusive' : 'Non-exclusive'],
     ['Split', `${partner.split} on placements`],
     ['Focus', partner.focus],
+    ['Music', partner.humanMadeOnly ? 'Human-made only' : 'AI allowed'],
     ['Open briefs', String(openBriefs)],
   ];
   const linkClass =

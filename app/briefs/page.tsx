@@ -80,7 +80,7 @@ export default async function BrowsePage({
     <Page>
       <PageHeader
         title="The Briefs."
-        description="Paid client jobs, catalog briefs the houses are looking for, and practice briefs for reps."
+        description="Practice briefs for reps, catalog briefs the houses are looking for, and paid client work for verified composers."
       />
       {user && <BriefImporter />}
       <BrowseClient
