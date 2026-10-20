@@ -356,6 +356,36 @@ export async function setFeaturedTrack(briefId: string, trackId: string | null):
   return {};
 }
 
+export async function setHomeFeatured(briefId: string, featured: boolean): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!isSiteAdmin(user)) return { error: 'Not authorized.' };
+
+  const admin = createAdminClient();
+  const { data: rows } = await admin
+    .from('briefs')
+    .select('id, generated_content')
+    .eq('user_id', ADMIN_USER_ID)
+    .neq('brief_type', 'client');
+
+  // Only one brief is featured on the homepage at a time.
+  for (const row of rows ?? []) {
+    const content = (row.generated_content ?? {}) as Record<string, unknown>;
+    const shouldFeature = featured && row.id === briefId;
+    if (!!content.homeFeatured === shouldFeature) continue;
+    const next = { ...content };
+    if (shouldFeature) next.homeFeatured = true;
+    else delete next.homeFeatured;
+    const { error } = await admin.from('briefs').update({ generated_content: next }).eq('id', row.id);
+    if (error) return { error: 'Could not update the homepage brief.' };
+  }
+
+  revalidatePath('/');
+  revalidatePath('/briefs');
+  revalidatePath(`/briefs/${briefId}`);
+  return {};
+}
+
 export async function setBriefClosed(briefId: string, closed: boolean): Promise<{ error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

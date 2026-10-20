@@ -34,15 +34,23 @@ async function latestCatalogBrief(): Promise<HeroBrief | null> {
     .eq('user_id', ADMIN_USER_ID)
     .eq('brief_type', 'catalog')
     .order('created_at', { ascending: false })
-    .limit(6);
-  for (const row of data ?? []) {
-    const c = row.generated_content as {
-      imageUrl?: string;
-      codename?: string;
-      projectTitle?: string;
-      logline?: string;
-      project?: string;
-    } | null;
+    .limit(50);
+  type Content = {
+    imageUrl?: string;
+    codename?: string;
+    projectTitle?: string;
+    logline?: string;
+    project?: string;
+    homeFeatured?: boolean;
+  } | null;
+  const rows = data ?? [];
+  // The admin-starred brief wins; otherwise the newest brief with an image.
+  const ordered = [
+    ...rows.filter((r) => (r.generated_content as Content)?.homeFeatured),
+    ...rows.filter((r) => !(r.generated_content as Content)?.homeFeatured),
+  ];
+  for (const row of ordered) {
+    const c = row.generated_content as Content;
     if (!c?.imageUrl) continue;
     return {
       id: row.id,

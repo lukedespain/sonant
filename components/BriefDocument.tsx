@@ -23,6 +23,7 @@ export interface Brief {
   issued: string;
   deadline?: string;
   closedAt?: string;
+  homeFeatured?: boolean;
   client: string;
   classification: string;
   project: string;

@@ -18,6 +18,7 @@ import BriefImageUpload from '@/components/BriefImageUpload';
 import RegenerateImageButton from '@/components/RegenerateImageButton';
 import AnnounceBriefButton from '@/components/AnnounceBriefButton';
 import CloseBriefButton from '@/components/CloseBriefButton';
+import HomeStarButton from '@/components/HomeStarButton';
 import SubmitTrackModal from '@/components/SubmitTrackModal';
 import ClientBriefSubmitModal from '@/components/ClientBriefSubmitModal';
 import { AdminMenu, DownloadBriefButton } from '@/components/BriefActions';
@@ -154,6 +155,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
                   <AnnounceBriefButton briefId={briefRow.id} kind={isClientBrief ? 'client' : 'featured'} />
                 )}
                 {isClientBrief && <CloseBriefButton briefId={briefRow.id} closed={!!brief.closedAt} />}
+                {isFeatured && <HomeStarButton briefId={briefRow.id} featured={!!brief.homeFeatured} variant="menu" />}
                 <SunoPromptModal brief={brief} />
                 <RegenerateImageButton briefId={briefRow.id} />
                 <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />

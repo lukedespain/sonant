@@ -4,6 +4,7 @@ import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { catalogPartnerFromBrief } from '@/lib/partners';
 import { EmptyState, SectionHeader, btn } from '@/components/ui';
+import HomeStarButton from '@/components/HomeStarButton';
 
 export interface BriefRow {
   id: string;
@@ -17,6 +18,7 @@ export interface BriefRow {
     project?: string;
     projectTitle?: string;
     imageUrl?: string;
+    homeFeatured?: boolean;
     [key: string]: unknown;
   };
   created_at: string;
@@ -257,7 +259,7 @@ function LockedClientBriefs({
   );
 }
 
-function CatalogCarousel({ briefs }: { briefs: BriefRow[] }) {
+function CatalogCarousel({ briefs, isAdmin }: { briefs: BriefRow[]; isAdmin: boolean }) {
   const scroller = useRef<HTMLDivElement>(null);
   const [atEnd, setAtEnd] = useState(briefs.length <= 6);
 
@@ -275,8 +277,13 @@ function CatalogCarousel({ briefs }: { briefs: BriefRow[] }) {
       >
         <div className="grid grid-flow-col auto-cols-[272px] grid-rows-1 md:grid-rows-2 gap-4 w-max">
           {briefs.map((brief) => (
-            <div key={brief.id} className="snap-start">
+            <div key={brief.id} className="snap-start relative">
               <CatalogCard brief={brief} />
+              {isAdmin && (
+                <div className="absolute top-2 right-2">
+                  <HomeStarButton briefId={brief.id} featured={!!brief.generated_content.homeFeatured} />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -426,7 +433,7 @@ export default function BrowseClient({
         {catalog.length === 0 ? (
           <EmptyState title={hasFilters ? 'No catalog briefs match your filters.' : 'No catalog briefs right now.'} />
         ) : (
-          <CatalogCarousel briefs={catalog} />
+          <CatalogCarousel briefs={catalog} isAdmin={isBriefAdmin} />
         )}
       </section>
 
