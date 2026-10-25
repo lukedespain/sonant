@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { catalogPartnerFromBrief } from '@/lib/partners';
 import { EmptyState, SectionHeader, btn } from '@/components/ui';
@@ -169,7 +169,7 @@ function CatalogCard({ brief }: { brief: BriefRow }) {
       className="group flex flex-col h-full border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[var(--accent-line)] rounded-[2px] overflow-hidden transition-colors"
     >
       {c.imageUrl && (
-        <div className="relative h-36 overflow-hidden">
+        <div className="relative h-40 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={c.imageUrl}
@@ -261,13 +261,24 @@ function LockedClientBriefs({
 
 function CatalogCarousel({ briefs, isAdmin }: { briefs: BriefRow[]; isAdmin: boolean }) {
   const scroller = useRef<HTMLDivElement>(null);
-  const [atEnd, setAtEnd] = useState(briefs.length <= 6);
+  const [atEnd, setAtEnd] = useState(false);
 
   function update() {
     const el = scroller.current;
     if (!el) return;
     setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 8);
   }
+
+  // Re-check when the row or the window resizes, so the fade only shows while
+  // there is something left to scroll to.
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => update());
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [briefs.length]);
+
   return (
     <div className="relative">
       <div
@@ -275,7 +286,7 @@ function CatalogCarousel({ briefs, isAdmin }: { briefs: BriefRow[]; isAdmin: boo
         onScroll={update}
         className="sonant-h-scroll snap-x snap-mandatory md:snap-none -mx-5 px-5 md:mx-0 md:px-0 pb-3"
       >
-        <div className="grid grid-flow-col auto-cols-[272px] grid-rows-1 md:grid-rows-2 gap-4 w-max">
+        <div className="grid grid-flow-col auto-cols-[300px] md:auto-cols-[352px] grid-rows-1 gap-4 w-max">
           {briefs.map((brief) => (
             <div key={brief.id} className="snap-start relative">
               <CatalogCard brief={brief} />
@@ -289,7 +300,7 @@ function CatalogCarousel({ briefs, isAdmin }: { briefs: BriefRow[]; isAdmin: boo
         </div>
       </div>
       {!atEnd && (
-        <div className="hidden md:block pointer-events-none absolute right-0 top-0 bottom-2 w-24 bg-gradient-to-l from-[var(--bg-base)] to-transparent" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-3 w-16 md:w-32 bg-gradient-to-l from-[var(--bg-base)] to-transparent" />
       )}
     </div>
   );
