@@ -432,17 +432,24 @@ function linkifySonant(html: string) {
 function houseCatalogDigestHtml(params: {
   houseName: string;
   discoPlaylistUrl: string;
+  greeting: string;
   intro: string;
   tracks: string[];
   closing?: string;
 }) {
   const house = escapeHtml(params.houseName);
   const playlistUrl = escapeHtml(params.discoPlaylistUrl);
+  const greeting = params.greeting.trim()
+    ? `<tr><td style="padding:8px 8px 12px;font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:1.3;color:#F5F1E8;">${escapeHtml(params.greeting.trim())}</td></tr>`
+    : '';
   const intro = params.intro.trim()
     ? `<tr><td style="padding:0 8px 28px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.7;color:#C4BFB5;">${digestTextHtml(params.intro)}</td></tr>`
     : '';
   const closing = params.closing?.trim()
-    ? `<tr><td style="padding:0 8px 28px;font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#8A8680;">${linkifySonant(digestTextHtml(params.closing))}</td></tr>`
+    ? `<tr><td style="padding:4px 8px 28px;">
+        <div style="font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#E85D2F;margin-bottom:12px;">Thanks for listening</div>
+        <div style="font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.7;color:#C4BFB5;">${linkifySonant(digestTextHtml(params.closing))}</div>
+      </td></tr>`
     : '';
   const trackRows =
     params.tracks.length > 0
@@ -473,6 +480,7 @@ function houseCatalogDigestHtml(params: {
                   Picks for ${house}
                 </td>
               </tr>
+              ${greeting}
               ${intro}
               ${trackRows}
               <tr>
@@ -510,6 +518,7 @@ export async function sendHouseCatalogDigestEmail(params: {
   to: string;
   houseName: string;
   discoPlaylistUrl: string;
+  greeting?: string;
   intro?: string;
   tracks?: string[];
   closing?: string;
@@ -527,6 +536,7 @@ export async function sendHouseCatalogDigestEmail(params: {
       html: houseCatalogDigestHtml({
         houseName,
         discoPlaylistUrl: params.discoPlaylistUrl,
+        greeting: params.greeting?.trim() || '',
         intro: params.intro?.trim() || '',
         tracks,
         closing: params.closing,

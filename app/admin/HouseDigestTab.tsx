@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { HOUSE_DIGEST_CLOSING, HOUSE_DIGEST_INTRO } from '@/lib/house-digest';
+import { HOUSE_DIGEST_CLOSING, HOUSE_DIGEST_INTRO, greetingNameFromEmail } from '@/lib/house-digest';
 import {
   CATALOG_PARTNER_LIST,
   DEFAULT_CATALOG_PARTNER_ID,
@@ -25,6 +25,8 @@ export default function HouseDigestTab() {
   const [error, setError] = useState<string | null>(null);
 
   const partner = useMemo(() => catalogPartnerById(partnerId), [partnerId]);
+  const contactName = greetingNameFromEmail(to);
+  const greeting = contactName ? `Hi ${contactName}` : '';
 
   const fieldClass =
     'w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none';
@@ -43,6 +45,7 @@ export default function HouseDigestTab() {
         partnerId,
         to: testOnly ? 'luke@sonant.ac' : to,
         discoPlaylistUrl,
+        greeting,
         intro,
         tracks,
         closing,
@@ -62,7 +65,7 @@ export default function HouseDigestTab() {
   return (
     <div className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
-        Send a Sonant-branded note to a music house with your Disco playlist link. They listen on Disco. You curate on Sonant. Leave a blank line between picks and each one becomes a bullet.
+        Send a Sonant-branded note to a music house with your Disco playlist link. They listen on Disco. You curate on Sonant. Each label shows what appears in the email. In the body, leave a blank line between picks and each one becomes a bullet.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -108,7 +111,9 @@ export default function HouseDigestTab() {
         style={{ ...sans, borderRadius: '2px' }}
       />
 
-      <label htmlFor="digest-intro" className={labelClass} style={mono}>Body</label>
+      <label htmlFor="digest-intro" className={labelClass} style={mono}>
+        Intro {greeting && <span className="normal-case tracking-normal text-[var(--text-dimmer)]">({greeting})</span>}
+      </label>
       <textarea
         id="digest-intro"
         value={intro}
@@ -118,7 +123,9 @@ export default function HouseDigestTab() {
         style={{ ...sans, borderRadius: '2px' }}
       />
 
-      <label htmlFor="digest-tracks" className={labelClass} style={mono}>This week&apos;s picks</label>
+      <label htmlFor="digest-tracks" className={labelClass} style={mono}>
+        Body <span className="normal-case tracking-normal text-[var(--text-dimmer)]">(This week&apos;s picks)</span>
+      </label>
       <textarea
         id="digest-tracks"
         value={tracks}
@@ -129,7 +136,9 @@ export default function HouseDigestTab() {
         style={{ ...sans, borderRadius: '2px' }}
       />
 
-      <label htmlFor="digest-closing" className={labelClass} style={mono}>Closing</label>
+      <label htmlFor="digest-closing" className={labelClass} style={mono}>
+        Closing <span className="normal-case tracking-normal text-[var(--text-dimmer)]">(Thanks for listening)</span>
+      </label>
       <textarea
         id="digest-closing"
         value={closing}

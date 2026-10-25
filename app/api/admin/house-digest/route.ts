@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   const to = String(body?.to ?? '').trim();
   const discoPlaylistUrl = String(body?.discoPlaylistUrl ?? '').trim();
   const intro = typeof body?.intro === 'string' ? body.intro : '';
+  const greeting = typeof body?.greeting === 'string' ? body.greeting.slice(0, 80) : '';
   const closing = typeof body?.closing === 'string' ? body.closing : '';
   const tracksRaw = typeof body?.tracks === 'string' ? body.tracks : '';
   const tracks = splitDigestPicks(tracksRaw);
@@ -39,6 +40,7 @@ export async function POST(req: Request) {
     to,
     houseName: partner.name,
     discoPlaylistUrl,
+    greeting,
     intro,
     tracks,
     closing,
