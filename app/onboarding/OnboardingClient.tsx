@@ -52,7 +52,7 @@ export default function OnboardingClient() {
             </div>
             <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8"
               style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              Composers, producers, musicians. Write to briefs, get written feedback on every submission, and build toward a spot in the Sonant catalog.
+              Composers, producers, musicians. Write to briefs, get written feedback on every submission, and build toward a spot in a partner catalog.
             </p>
             <div className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] group-hover:translate-x-1 transition-transform"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}>

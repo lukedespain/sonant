@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { ADMIN_USER_ID } from '@/lib/admin';
-import { catalogPartnerFromBrief, CATALOG_PARTNER_LIST, CATALOG_PARTNERS } from '@/lib/partners';
+import { catalogPartnerFromBrief, LISTED_CATALOG_PARTNERS, CATALOG_PARTNERS } from '@/lib/partners';
 import AboutQuestions from '@/components/AboutQuestions';
 import { btn } from '@/components/ui';
 
@@ -138,7 +138,7 @@ export default async function HomePage() {
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
             <span className="label text-[var(--text-dimmer)]">Writing for</span>
-            {CATALOG_PARTNER_LIST.map((p) => (
+            {LISTED_CATALOG_PARTNERS.map((p) => (
               <Link
                 key={p.id}
                 href="/catalogs"

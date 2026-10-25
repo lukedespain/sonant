@@ -20,13 +20,13 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'What are the terms if my track places?',
-    a: 'Each catalog lists its deal on the Catalogs page. Thought Collective is exclusive with a 50/50 split on sync fees. The Sonant catalog is non-exclusive, also 50/50, so you can pitch the track anywhere else too.',
+    a: 'Each catalog lists its deal on the Catalogs page. Thought Collective is exclusive, with a 50/50 split on sync fees when a track places.',
   },
   {
     q: 'Who are the catalogs?',
     a: (
       <>
-        Right now, <a href={THOUGHT_COLLECTIVE_SITE} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:opacity-70">Thought Collective</a>, a brand-focused catalog, and the Sonant catalog. Each one lists its deal and split on the Catalogs page.
+        Right now, <a href={THOUGHT_COLLECTIVE_SITE} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:opacity-70">Thought Collective</a>, a brand-focused catalog. More partners are on the way, and each one lists its deal on the Catalogs page.
       </>
     ),
   },
@@ -40,7 +40,7 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'Can I use AI?',
-    a: 'Sonant is built for human-made music. Each catalog sets its own rule, shown on its card and on its briefs, and you confirm it when you sign on. Thought Collective and the Sonant catalog are human-made only. Even where AI is allowed, lean away from it: AI-generated stems and vocals are a gray area for rights, and many clients ask for no AI at all.',
+    a: 'Sonant is built for human-made music. Each catalog sets its own rule, shown on its card and on its briefs, and you confirm it when you sign on. Thought Collective is human-made only. Even where AI is allowed, lean away from it: AI-generated stems and vocals are a gray area for rights, and many clients ask for no AI at all.',
   },
   {
     q: 'Do I need an account?',

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { ADMIN_USER_ID } from '@/lib/admin';
-import { CATALOG_PARTNER_LIST, catalogPartnerFromBrief, type CatalogPartner } from '@/lib/partners';
+import { LISTED_CATALOG_PARTNERS, catalogPartnerFromBrief, type CatalogPartner } from '@/lib/partners';
 import { VERIFICATION_THRESHOLD } from '@/lib/verification';
 import { Page, PageHeader, btn } from '@/components/ui';
 
@@ -40,7 +40,7 @@ export default async function CatalogPage() {
         />
 
         <div className="flex flex-col gap-5 mb-20">
-          {CATALOG_PARTNER_LIST.map((partner) => (
+          {LISTED_CATALOG_PARTNERS.map((partner) => (
             <PartnerCard key={partner.id} partner={partner} openBriefs={openBriefs[partner.id] ?? 0} />
           ))}
         </div>

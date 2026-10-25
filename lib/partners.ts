@@ -10,6 +10,8 @@ export type CatalogPartner = {
   catalogUrl: string;
   markSrc: string;
   exclusive: boolean;
+  /** Shown publicly on Catalogs and the homepage. Unlisted catalogs stay available to admins. */
+  listed: boolean;
   /** No AI-generated music, stems, or vocals. Confirmed by the composer at sign-on. */
   humanMadeOnly: boolean;
   split: string;
@@ -29,6 +31,7 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     catalogUrl: THOUGHT_COLLECTIVE_CATALOG,
     markSrc: '/brand/thought-collective-mark.png',
     exclusive: true,
+    listed: true,
     humanMadeOnly: true,
     split: '50/50',
     focus: 'Brand',
@@ -49,6 +52,7 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
     catalogUrl: SONANT_CATALOG,
     markSrc: '',
     exclusive: false,
+    listed: false,
     humanMadeOnly: true,
     split: '50/50',
     focus: 'Brand, film, games',
@@ -64,6 +68,7 @@ export const CATALOG_PARTNERS: Record<string, CatalogPartner> = {
 };
 
 export const CATALOG_PARTNER_LIST = Object.values(CATALOG_PARTNERS);
+export const LISTED_CATALOG_PARTNERS = CATALOG_PARTNER_LIST.filter((p) => p.listed);
 
 export const DEFAULT_CATALOG_PARTNER_ID = 'thought-collective';
 
