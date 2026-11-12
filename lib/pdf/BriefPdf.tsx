@@ -8,109 +8,98 @@ import { youtubeSearchUrlForTrack } from '@/lib/youtube-search';
 const FONT_DIR = path.join(process.cwd(), 'lib/pdf/fonts');
 const font = (file: string) => path.join(FONT_DIR, file);
 
+// Inter, as on wearethoughtcollective.com. Latin subset; covers the briefs we write.
 Font.register({
-  family: 'Fraunces',
+  family: 'Inter',
   fonts: [
-    { src: font('Fraunces-300.ttf'), fontWeight: 300 },
-    { src: font('Fraunces-400.ttf'), fontWeight: 400 },
-    { src: font('Fraunces-400-italic.ttf'), fontWeight: 400, fontStyle: 'italic' },
+    { src: font('Inter-400.ttf'), fontWeight: 400 },
+    { src: font('Inter-500.ttf'), fontWeight: 500 },
   ],
 });
-Font.register({
-  family: 'DM Sans',
-  fonts: [
-    { src: font('DMSans-400.ttf'), fontWeight: 400 },
-    { src: font('DMSans-500.ttf'), fontWeight: 500 },
-    { src: font('DMSans-600.ttf'), fontWeight: 600 },
-  ],
-});
-Font.register({ family: 'JetBrains Mono', src: font('JetBrainsMono-400.ttf') });
 Font.registerHyphenationCallback((word) => [word]);
 
+export const TC_MARK_PATH = path.join(process.cwd(), 'public/brand/thought-collective-mark.png');
+
+// Printed spec sheet: white paper, black ink, grey for labels.
 const C = {
-  paper: '#F5EFE0',
-  ink: '#1A1815',
-  body: '#2E2A25',
-  meta: '#8A8680',
-  rule: '#D9D0BD',
-  accent: '#E85D2F',
-  use: '#4F7F45',
-  skip: '#B33A1A',
+  paper: '#FFFFFF',
+  ink: '#0A0A0A',
+  body: '#262626',
+  meta: '#7A7A7A',
+  rule: '#E3E3E3',
 };
+
+const LABEL_W = 108;
 
 const s = StyleSheet.create({
   page: {
     backgroundColor: C.paper,
     color: C.body,
-    fontFamily: 'DM Sans',
-    fontSize: 10.5,
-    paddingTop: 44,
+    fontFamily: 'Inter',
+    fontSize: 10,
+    lineHeight: 1.5,
+    paddingTop: 40,
     paddingBottom: 60,
-    paddingHorizontal: 54,
+    paddingHorizontal: 48,
   },
-  hero: { width: '100%', height: 190, objectFit: 'cover', borderRadius: 2, marginBottom: 26 },
-  kickerRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  kicker: { fontFamily: 'JetBrains Mono', fontSize: 7.5, letterSpacing: 2, color: C.meta, textTransform: 'uppercase' },
-  title: { fontFamily: 'Fraunces', fontWeight: 300, fontSize: 30, color: C.ink, lineHeight: 1.1, marginBottom: 8 },
-  titleItalic: { fontFamily: 'Fraunces', fontWeight: 400, fontStyle: 'italic' },
-  meta: { fontFamily: 'JetBrains Mono', fontSize: 7.5, color: C.meta, lineHeight: 1.6 },
-  header: { borderBottomWidth: 1, borderBottomColor: C.rule, paddingBottom: 16, marginBottom: 22 },
-  section: { marginBottom: 20 },
-  label: { fontFamily: 'JetBrains Mono', fontSize: 7.5, letterSpacing: 2, color: C.accent, textTransform: 'uppercase', marginBottom: 8 },
-  scene: { fontFamily: 'Fraunces', fontWeight: 300, fontSize: 14.5, lineHeight: 1.5, color: C.ink },
-  bodyText: { fontSize: 10.5, lineHeight: 1.6 },
-  row: { flexDirection: 'row', marginBottom: 6 },
-  arrow: { fontFamily: 'JetBrains Mono', color: C.accent, width: 16, fontSize: 10 },
-  rowText: { flex: 1, fontSize: 10.5, lineHeight: 1.5 },
-  ref: { borderLeftWidth: 2, borderLeftColor: C.rule, paddingLeft: 10, marginBottom: 12 },
-  refTitle: { fontWeight: 500, fontSize: 10.5, color: C.ink, textDecoration: 'none', marginBottom: 3 },
-  refLine: { fontSize: 9.5, lineHeight: 1.5 },
-  dnaGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  dnaItem: { width: '33.33%', paddingRight: 12, marginBottom: 12 },
-  dnaLabel: { fontFamily: 'JetBrains Mono', fontSize: 7, letterSpacing: 1.5, color: C.meta, textTransform: 'uppercase', marginBottom: 3 },
-  dnaValue: { fontSize: 10, fontWeight: 500, color: C.ink, lineHeight: 1.35 },
-  box: { borderWidth: 1, borderColor: C.rule, borderRadius: 2, padding: 16, marginBottom: 18 },
-  boxName: { fontFamily: 'Fraunces', fontSize: 14, color: C.ink, marginBottom: 2 },
-  boxText: { fontSize: 9.5, lineHeight: 1.6, marginTop: 8 },
+  masthead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 34 },
+  brand: { flexDirection: 'row', alignItems: 'center' },
+  mark: { width: 15, height: 15, marginRight: 7 },
+  brandName: { fontSize: 10.5, fontWeight: 500, color: C.ink, letterSpacing: -0.1 },
+  kind: { fontSize: 9.5, color: C.meta },
+  title: { fontSize: 38, fontWeight: 500, color: C.ink, lineHeight: 1.0, letterSpacing: -1.6, marginBottom: 12 },
+  project: { fontSize: 12.5, color: C.body, lineHeight: 1.45, marginBottom: 10, maxWidth: 440 },
+  meta: { fontSize: 8.5, color: C.meta },
+  hero: { width: '100%', height: 170, objectFit: 'cover', marginTop: 22, marginBottom: 4 },
+  row: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: C.rule, paddingTop: 12, paddingBottom: 12 },
+  rowLabel: { width: LABEL_W, fontSize: 9, color: C.meta, paddingTop: 1 },
+  rowBody: { flex: 1 },
+  scene: { fontSize: 13, lineHeight: 1.45, color: C.ink, letterSpacing: -0.2 },
+  text: { fontSize: 10, lineHeight: 1.6, color: C.body },
+  listItem: { flexDirection: 'row', paddingVertical: 4, borderTopWidth: 1, borderTopColor: C.rule },
+  listFirst: { borderTopWidth: 0, paddingTop: 0 },
+  num: { width: 20, fontSize: 9, color: C.meta, paddingTop: 0.5 },
+  listText: { flex: 1, fontSize: 10, lineHeight: 1.45, color: C.body },
+  refGrid: { flexDirection: 'row', flexWrap: 'wrap' },
+  ref: { width: '50%', paddingRight: 14, marginBottom: 10 },
+  refTitle: { fontSize: 10, fontWeight: 500, color: C.ink, textDecoration: 'none', marginBottom: 3 },
+  refLine: { fontSize: 9, lineHeight: 1.45, color: C.body },
+  refSkip: { fontSize: 9, lineHeight: 1.45, color: C.meta },
+  specGrid: { flexDirection: 'row', flexWrap: 'wrap' },
+  spec: { width: '33.33%', paddingRight: 12, marginBottom: 8 },
+  specLabel: { fontSize: 8, color: C.meta, marginBottom: 2 },
+  specValue: { fontSize: 10, color: C.ink, lineHeight: 1.35 },
   footer: {
     position: 'absolute',
-    bottom: 26,
-    left: 54,
-    right: 54,
+    bottom: 28,
+    left: 48,
+    right: 48,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    fontFamily: 'JetBrains Mono',
-    fontSize: 7,
+    fontSize: 8,
     color: C.meta,
-    letterSpacing: 1,
+    borderTopWidth: 1,
+    borderTopColor: C.rule,
+    paddingTop: 8,
   },
 });
 
-function Label({ children }: { children: string }) {
-  return <Text style={s.label}>◆  {children}</Text>;
-}
-
-/** A list section whose heading never sits alone at the bottom of a page. */
-function ListSection({ label, items }: { label: string; items: React.ReactNode[] }) {
-  if (items.length === 0) return null;
-  const [first, ...rest] = items;
+/** A labelled spec-sheet row. Its first lines never sit alone at the bottom of a page. */
+function Row({ label, children, keepTogether = false }: { label: string; children: React.ReactNode; keepTogether?: boolean }) {
   return (
-    <View style={s.section}>
-      <View wrap={false}>
-        <Label>{label}</Label>
-        {first}
-      </View>
-      {rest}
+    <View style={s.row} wrap={!keepTogether} minPresenceAhead={40}>
+      <Text style={s.rowLabel}>{label}</Text>
+      <View style={s.rowBody}>{children}</View>
     </View>
   );
 }
 
-function DnaItem({ label, value }: { label: string; value?: string }) {
+function Spec({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
   return (
-    <View style={s.dnaItem}>
-      <Text style={s.dnaLabel}>{label}</Text>
-      <Text style={s.dnaValue}>{value}</Text>
+    <View style={s.spec} wrap={false}>
+      <Text style={s.specLabel}>{label}</Text>
+      <Text style={s.specValue}>{value}</Text>
     </View>
   );
 }
@@ -118,156 +107,153 @@ function DnaItem({ label, value }: { label: string; value?: string }) {
 export default function BriefPdf({
   brief,
   partner,
-  houseLabel,
+  kindLabel,
   image,
+  mark,
 }: {
   brief: Brief;
   partner: CatalogPartner | null;
-  houseLabel: string;
+  kindLabel: string;
   image: Buffer | null;
+  mark: Buffer | null;
 }) {
   const title = brief.projectTitle || brief.codename;
   const isClient = brief.kind === 'client';
   const meta = [
+    isClient ? brief.client : null,
     brief.briefId,
-    brief.client,
-    !isClient && brief.brandName && brief.brandName !== brief.client ? brief.brandName : null,
-    !isClient ? brief.project : null,
     brief.issued ? `Issued ${brief.issued}` : null,
     brief.deadline ? `Due ${brief.deadline}` : null,
   ].filter(Boolean).join('  ·  ');
+  const direction = brief.direction ?? [];
+  const references = brief.references ?? [];
 
   return (
-    <Document title={`Project ${title}`} author="Sonant" creator="Sonant" producer="Sonant">
+    <Document title={title} author="Thought Collective" creator="Thought Collective" producer="Thought Collective">
       <Page size="LETTER" style={s.page}>
+        <View style={s.masthead}>
+          <View style={s.brand}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image, not an HTML img */}
+            {mark && <Image src={mark} style={s.mark} />}
+            <Text style={s.brandName}>Thought Collective</Text>
+          </View>
+          <Text style={s.kind}>{kindLabel}</Text>
+        </View>
+
+        <Text style={s.title}>{title}</Text>
+        {!isClient && brief.project ? <Text style={s.project}>{brief.project}</Text> : null}
+        <Text style={s.meta}>{meta}</Text>
+
         {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image, not an HTML img */}
         {image && <Image src={image} style={s.hero} />}
 
-        <View style={s.header}>
-          <View style={s.kickerRow}>
-            <Text style={s.kicker}>Music brief</Text>
-            {partner && <Text style={s.kicker}>{partner.name}</Text>}
-          </View>
-          <Text style={s.title}>
-            Project <Text style={s.titleItalic}>{title}</Text>
-          </Text>
-          <Text style={s.meta}>{meta}</Text>
-        </View>
+        <View style={{ marginTop: image ? 14 : 26 }}>
+          <Row label="The scene">
+            <Text style={s.scene}>{brief.story}</Text>
+          </Row>
 
-        <View style={s.section}>
-          <Label>The scene</Label>
-          <Text style={s.scene}>{brief.story}</Text>
-        </View>
+          <Row label="The music">
+            <Text style={s.text}>{brief.ask}</Text>
+          </Row>
 
-        <View style={s.section}>
-          <Label>The music</Label>
-          <Text style={s.bodyText}>{brief.ask}</Text>
-        </View>
+          {direction.length > 0 && (
+            <Row label="Direction">
+              {direction.map((d, i) => (
+                <View key={i} style={i === 0 ? [s.listItem, s.listFirst] : s.listItem} wrap={false}>
+                  <Text style={s.num}>{String(i + 1).padStart(2, '0')}</Text>
+                  <Text style={s.listText}>{d}</Text>
+                </View>
+              ))}
+            </Row>
+          )}
 
-        <ListSection
-          label="Direction"
-          items={(brief.direction ?? []).map((d, i) => (
-            <View key={i} style={s.row} wrap={false}>
-              <Text style={s.arrow}>→</Text>
-              <Text style={s.rowText}>{d}</Text>
-            </View>
-          ))}
-        />
-
-        <ListSection
-          label="References"
-          items={(brief.references ?? []).map((r, i) => {
-            const href = partner ? youtubeSearchUrlForTrack(r.track) : r.url;
-            return (
-              <View key={i} style={s.ref} wrap={false}>
-                {href ? (
-                  <Link src={href} style={s.refTitle}>
-                    {r.track}  ↗
-                  </Link>
-                ) : (
-                  <Text style={s.refTitle}>{r.track}</Text>
-                )}
-                {(r.like || r.why) && (
-                  <Text style={s.refLine}>
-                    <Text style={{ color: C.use, fontWeight: 600 }}>Use: </Text>
-                    {r.like ?? r.why}
-                  </Text>
-                )}
-                {r.avoid && (
-                  <Text style={s.refLine}>
-                    <Text style={{ color: C.skip, fontWeight: 600 }}>Skip: </Text>
-                    {r.avoid}
-                  </Text>
-                )}
+          {references.length > 0 && (
+            <Row label="References">
+              <View style={s.refGrid}>
+                {references.map((r, i) => {
+                  const href = partner ? youtubeSearchUrlForTrack(r.track) : r.url;
+                  return (
+                    <View key={i} style={s.ref} wrap={false}>
+                      {href ? (
+                        <Link src={href} style={s.refTitle}>{r.track}</Link>
+                      ) : (
+                        <Text style={s.refTitle}>{r.track}</Text>
+                      )}
+                      {(r.like || r.why) && (
+                        <Text style={s.refLine}>
+                          <Text style={{ color: C.ink, fontWeight: 500 }}>Use  </Text>
+                          {r.like ?? r.why}
+                        </Text>
+                      )}
+                      {r.avoid && (
+                        <Text style={s.refSkip}>
+                          <Text style={{ fontWeight: 500 }}>Skip  </Text>
+                          {r.avoid}
+                        </Text>
+                      )}
+                    </View>
+                  );
+                })}
               </View>
-            );
-          })}
-        />
+            </Row>
+          )}
 
-        {!partner && (
-          <ListSection
-            label="Files and links"
-            items={(brief.links ?? []).map((link) => (
-              <View key={link.url} style={s.row} wrap={false}>
-                <Text style={s.arrow}>→</Text>
-                <Link src={link.url} style={[s.rowText, { color: C.ink, textDecoration: 'none' }]}>
-                  {link.label}  ↗
+          {!partner && brief.links && brief.links.length > 0 && (
+            <Row label="Files and links">
+              {brief.links.map((link) => (
+                <Link key={link.url} src={link.url} style={[s.text, { color: C.ink, textDecoration: 'none', marginBottom: 4 }]}>
+                  {link.label}
                 </Link>
-              </View>
-            ))}
-          />
-        )}
+              ))}
+            </Row>
+          )}
 
-        <View style={s.section} wrap={false}>
-          <Label>Sonic DNA</Label>
-          <View style={s.dnaGrid}>
-            <DnaItem label="Genre" value={brief.genrePalette} />
-            <DnaItem label="Mood" value={brief.emotionalArc} />
-            <DnaItem label="Tempo" value={brief.tempo} />
-            <DnaItem label="Key" value={brief.key} />
-            <DnaItem label="Length" value={brief.length} />
-            <DnaItem label="Type" value={brief.vocals} />
-          </View>
+          <Row label="Sound">
+            <View style={s.specGrid}>
+              <Spec label="Genre" value={brief.genrePalette} />
+              <Spec label="Mood" value={brief.emotionalArc} />
+              <Spec label="Tempo" value={brief.tempo} />
+              <Spec label="Key" value={brief.key} />
+              <Spec label="Length" value={brief.length} />
+              <Spec label="Type" value={brief.vocals} />
+            </View>
+          </Row>
+
+          {partner && (
+            <Row label="The deal">
+              <View style={s.specGrid}>
+                <Spec label="Catalogue" value={partner.name} />
+                <Spec label="Rights" value={partner.exclusive ? 'Exclusive' : 'Non-exclusive'} />
+                <Spec label="Sync fees" value={`${partner.split} split`} />
+              </View>
+              <Text style={s.text}>
+                Accepted tracks go into the {partner.name} catalogue{partner.exclusive ? ' exclusively' : ''}, and we pitch them to agencies and brands. If one places, the sync fee splits {partner.split}.
+                {partner.humanMadeOnly ? ' Human-made only: no AI-generated music, stems, or vocals.' : ''}
+              </Text>
+            </Row>
+          )}
+
+          {isClient && (
+            <Row label="The opportunity" keepTogether>
+              <View style={s.specGrid}>
+                <Spec label="Due" value={brief.deadline} />
+                <Spec label="Demo fee" value={brief.demoFee} />
+                <Spec label="Win" value={brief.winFee} />
+              </View>
+              <Text style={s.text}>
+                Verified composers only. These are paying clients. We review what you submit and secure a demo fee if it goes to the client. If the track wins the job, the split is 70/30 in your favour. These jobs move fast, so stay available for edits.
+              </Text>
+              <Text style={[s.text, { color: C.ink, marginTop: 6 }]}>Confidential. Please do not forward this brief.</Text>
+            </Row>
+          )}
         </View>
 
-        {partner && (
-          <View style={s.box} wrap={false}>
-            <Label>This catalog</Label>
-            <Text style={s.boxName}>{partner.name}</Text>
-            <Text style={s.kicker}>
-              {partner.exclusive ? 'Exclusive' : 'Non-exclusive'}  ·  {partner.split} split
-              {partner.humanMadeOnly ? '  ·  Human-made only' : ''}
-            </Text>
-            <Text style={s.boxText}>
-              Writing to this brief means you are writing for the {partner.name} catalog.
-              {partner.exclusive
-                ? ' If the track is accepted, it is exclusive to that catalog.'
-                : ' If the track is accepted, it stays non-exclusive.'}{' '}
-              If {partner.name} pitches the track and it places, the sync fee splits {partner.split}.
-            </Text>
-          </View>
-        )}
-
-        {isClient && (
-          <View style={s.box} wrap={false}>
-            <Label>The opportunity</Label>
-            <View style={s.dnaGrid}>
-              <DnaItem label="Due" value={brief.deadline} />
-              <DnaItem label="Demo fee" value={brief.demoFee} />
-              <DnaItem label="Win" value={brief.winFee} />
-            </View>
-            <Text style={s.boxText}>
-              Verified composers only. These are paying clients. Sonant reviews what you submit, secures a demo fee if it goes to the client, and if the track wins the job, the split is 70/30 in your favor. These jobs move fast, so stay available for edits.
-            </Text>
-            <Text style={[s.boxText, { color: C.accent }]}>Confidential. Please do not forward this brief.</Text>
-          </View>
-        )}
-
+        {/* A render-prop page number blanks this whole footer in react-pdf 4.9, so there is none. */}
         <View style={s.footer} fixed>
           <Text>
-            SONANT  ·  {brief.briefId}  ·  {houseLabel.toUpperCase()}
+            {brief.briefId}  ·  {kindLabel}
           </Text>
-          <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+          <Text>wearethoughtcollective.com</Text>
         </View>
       </Page>
     </Document>

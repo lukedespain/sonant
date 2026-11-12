@@ -6,8 +6,9 @@ import { isSiteAdmin } from '@/lib/admin';
 import { classifyBrief } from '@/lib/brief-kind';
 import { composerHasClientAccess } from '@/lib/verification';
 import { CATALOG_PARTNERS, catalogPartnerFromBrief } from '@/lib/partners';
-import type { Brief } from '@/components/BriefDocument';
-import BriefPdf from '@/lib/pdf/BriefPdf';
+import { readFile } from 'node:fs/promises';
+import { briefKindLabel, type Brief } from '@/components/BriefDocument';
+import BriefPdf, { TC_MARK_PATH } from '@/lib/pdf/BriefPdf';
 
 export const runtime = 'nodejs';
 
@@ -26,7 +27,7 @@ async function loadImage(url: string | undefined): Promise<Buffer | null> {
 
 function fileName(title: string) {
   const clean = title.replace(/[^\w\s&-]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 80) || 'Brief';
-  return `Sonant - Project ${clean}.pdf`;
+  return `Thought Collective - ${clean}.pdf`;
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -48,12 +49,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   }
 
   const brief = row.generated_content as Brief;
-  const partner = kind === 'catalog' ? catalogPartnerFromBrief(brief) ?? CATALOG_PARTNERS.sonant : null;
-  const houseLabel =
-    kind === 'client' ? 'Client brief' : partner ? `${partner.name} catalog brief` : 'Practice brief';
+  const partner = kind === 'catalog' ? catalogPartnerFromBrief(brief) ?? CATALOG_PARTNERS['thought-collective'] : null;
+  const kindLabel = briefKindLabel(brief, kind === 'catalog');
 
-  const image = await loadImage(brief.imageUrl);
-  const pdf = await renderToBuffer(createElement(BriefPdf, { brief, partner, houseLabel, image }) as Parameters<typeof renderToBuffer>[0]);
+  const [image, mark] = await Promise.all([
+    loadImage(brief.imageUrl),
+    readFile(TC_MARK_PATH).catch(() => null),
+  ]);
+  const pdf = await renderToBuffer(
+    createElement(BriefPdf, { brief, partner, kindLabel, image, mark }) as Parameters<typeof renderToBuffer>[0],
+  );
 
   const title = brief.projectTitle || brief.codename || 'Brief';
   return new Response(new Uint8Array(pdf), {

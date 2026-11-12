@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@react-pdf/renderer'],
   outputFileTracingIncludes: {
-    '/api/briefs/[id]/pdf': ['./lib/pdf/fonts/**/*'],
+    '/api/briefs/[id]/pdf': ['./lib/pdf/fonts/**/*', './public/brand/thought-collective-mark.png'],
   },
   experimental: {
     serverActions: {

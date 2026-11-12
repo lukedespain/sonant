@@ -1,5 +1,5 @@
 import React from 'react';
-import { catalogPartnerFromBrief, type CatalogPartner } from '@/lib/partners';
+import { catalogPartnerFromBrief } from '@/lib/partners';
 import ThoughtCollectiveMark from '@/components/ThoughtCollectiveMark';
 import { youtubeSearchUrlForTrack } from '@/lib/youtube-search';
 
@@ -57,367 +57,206 @@ export interface Brief {
   usage?: string;
 }
 
-const NOISE_SVG =
-  "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E\")";
+/** Human label for a brief, shared by the page and the PDF. */
+export function briefKindLabel(brief: Pick<Brief, 'kind' | 'catalogId'>, isCatalog: boolean): string {
+  if (brief.kind === 'client') return 'Client brief';
+  if (isCatalog || catalogPartnerFromBrief(brief)) return 'Catalogue brief';
+  return 'Brief';
+}
 
-function Label({ children }: { children: React.ReactNode }) {
+/** One row of the spec sheet: label on the left, content on the right. */
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div
-      className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase mb-3"
-      style={{ fontFamily: "var(--brand-mono)", color: 'var(--accent)' }}
+    <section
+      className="grid md:grid-cols-[200px_minmax(0,1fr)] gap-x-10 gap-y-3 py-8 md:py-10"
+      style={{ borderTop: '1px solid var(--brief-divider)' }}
     >
-      <span>◆</span>
-      <span>{children}</span>
-    </div>
+      <h2 className="text-[15px] tracking-[-0.01em]" style={{ color: 'var(--brief-text-meta)' }}>
+        {label}
+      </h2>
+      <div className="min-w-0">{children}</div>
+    </section>
   );
 }
 
-function CatalogPartnerMark({
-  partner,
-  size,
-  invert = false,
-}: {
-  partner: CatalogPartner;
-  size: number;
-  invert?: boolean;
-}) {
-  if (partner.id === 'thought-collective') {
-    return <ThoughtCollectiveMark size={size} invert={invert} />;
-  }
-  return (
-    <span
-      aria-hidden="true"
-      style={{
-        display: 'block',
-        fontSize: size,
-        lineHeight: 1,
-        color: 'var(--accent)',
-        flexShrink: 0,
-      }}
-    >
-      ◆
-    </span>
-  );
-}
-
-function SonicItem({ label, value }: { label: string; value: string }) {
+function Spec({ label, value }: { label: string; value?: string }) {
+  if (!value) return null;
   return (
     <div>
-      <div
-        className="text-[10px] tracking-[0.2em] uppercase mb-1"
-        style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
-      >
-        {label}
-      </div>
-      <div
-        className="text-sm leading-snug"
-        style={{ fontFamily: "var(--brand-sans)", fontWeight: 500, color: 'var(--brief-text-h)' }}
-      >
-        {value}
-      </div>
+      <dt className="text-[13px] mb-1" style={{ color: 'var(--brief-text-meta)' }}>{label}</dt>
+      <dd className="text-[16px] leading-snug" style={{ color: 'var(--brief-text-h)' }}>{value}</dd>
     </div>
   );
 }
 
 export default function BriefDocument({ brief, isFeatured = false }: { brief: Brief; isFeatured?: boolean }) {
   const partner = catalogPartnerFromBrief(brief);
-  const houseLabel = partner
-    ? `${partner.name} Catalog Brief`
-    : brief.kind === 'client'
-      ? 'Client Brief'
-      : isFeatured
-        ? 'Thought Collective Brief'
-        : 'Practice Brief';
+  const isClient = brief.kind === 'client';
+  const kindLabel = briefKindLabel(brief, isFeatured);
+  const title = brief.projectTitle || brief.codename;
+  const meta = [
+    brief.briefId,
+    brief.issued ? `Issued ${brief.issued}` : null,
+    brief.deadline ? `Due ${brief.deadline}` : null,
+  ].filter(Boolean);
 
   return (
-    <div
-      className="relative shadow-2xl brief-document w-full overflow-hidden"
-      style={{
-        backgroundImage: `${NOISE_SVG}, linear-gradient(180deg, var(--brief-bg-from) 0%, var(--brief-bg-to) 100%)`,
-        color: 'var(--brief-text-h)',
-        borderRadius: '2px',
-      }}
-    >
-      {/* Hero image */}
-      {brief.imageUrl && (
-        <div className="relative w-full" style={{ height: '260px' }}>
-          <img
-            src={brief.imageUrl}
-            alt=""
-            className="w-full h-full object-cover"
-            style={{ display: 'block' }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(to bottom, var(--brief-img-fade-from) 82%, var(--brief-img-fade-to) 100%)',
-            }}
-          />
+    <article className="brief-document w-full" style={{ color: 'var(--brief-text-h)' }}>
+      {/* Masthead */}
+      <header className="pt-6 md:pt-10 pb-10 md:pb-14">
+        <div className="hidden print:flex items-center justify-between gap-4 mb-10 text-[15px]">
+          <span className="flex items-center gap-2.5">
+            <ThoughtCollectiveMark size={20} />
+            <span className="font-medium tracking-[-0.01em]">Thought Collective</span>
+          </span>
+          <span style={{ color: 'var(--brief-text-meta)' }}>{kindLabel}</span>
         </div>
+        <h1
+          className="font-medium tracking-[-0.045em] leading-[0.95] text-[2.75rem] sm:text-6xl md:text-[5.5rem] text-balance"
+          style={{ fontFamily: 'var(--brand-display)' }}
+        >
+          {title}
+        </h1>
+        {!isClient && brief.project && (
+          <p className="mt-6 text-[19px] md:text-[21px] leading-[1.45] tracking-[-0.01em] max-w-3xl" style={{ color: 'var(--brief-text-body)' }}>
+            {brief.project}
+          </p>
+        )}
+        <p className="mt-5 text-[15px] tabular-nums" style={{ color: 'var(--brief-text-meta)' }}>
+          {[brief.client && isClient ? brief.client : null, ...meta].filter(Boolean).join(' · ')}
+        </p>
+      </header>
+
+      {brief.imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={brief.imageUrl} alt="" className="w-full aspect-[16/9] md:aspect-[21/9] object-cover mb-4" style={{ display: 'block' }} />
       )}
 
-      <div className="p-8 md:p-12">
-        {/* Header */}
-        <div className="mb-8 pb-6" style={{ borderBottom: '1px solid var(--brief-divider)' }}>
-          <div className="mb-3 flex items-center justify-between gap-4">
-            <div
-              className="text-[10px] tracking-[0.3em] uppercase"
-              style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
-            >
-              Music Brief
-            </div>
-            {partner && (
-              <div
-                className="flex items-center gap-2"
-                style={{ color: 'var(--brief-text-h)' }}
-              >
-                <CatalogPartnerMark partner={partner} size={16} />
-                <span
-                  className="text-[10px] tracking-[0.2em] uppercase"
-                  style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
-                >
-                  {partner.name}
-                </span>
-              </div>
-            )}
-          </div>
-          <h1
-            className="text-4xl md:text-5xl tracking-tight leading-none mb-3"
-            style={{ fontFamily: "var(--brand-display)", fontWeight: 300, color: 'var(--brief-text-h)' }}
-          >
-            Project{' '}
-            <span className="italic" style={{ fontWeight: 400 }}>
-              {brief.projectTitle || brief.codename}
-            </span>
-          </h1>
-          <div
-            className="text-xs tracking-wide"
-            style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
-          >
-            {brief.briefId} · {brief.client}
-            {brief.kind === 'client' ? '' : brief.brandName && brief.brandName !== brief.client ? ` · ${brief.brandName}` : ''}
-            {brief.kind === 'client' ? '' : ` · ${brief.project}`}
-            {' · '}Issued {brief.issued}
-            {brief.deadline ? ` · Due ${brief.deadline}` : ''}
-          </div>
-        </div>
+      <Row label="The scene">
+        <p className="text-[21px] md:text-[26px] leading-[1.4] tracking-[-0.02em] max-w-3xl">{brief.story}</p>
+      </Row>
 
-        {/* The Scene */}
-        <div className="mb-8">
-          <Label>The Scene</Label>
-          <p
-            className="text-xl md:text-2xl leading-relaxed"
-            style={{ fontFamily: "var(--brand-display)", fontWeight: 300, color: 'var(--brief-text-h)' }}
-          >
-            {brief.story}
-          </p>
-        </div>
+      <Row label="The music">
+        <p className="text-[17px] leading-relaxed max-w-3xl" style={{ color: 'var(--brief-text-body)' }}>{brief.ask}</p>
+      </Row>
 
-        {/* The Music */}
-        <div className="mb-8">
-          <Label>The Music</Label>
-          <p className="text-base leading-relaxed" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
-            {brief.ask}
-          </p>
-        </div>
-
-        {/* Direction */}
-        <div className="mb-8">
-          <Label>Direction</Label>
-          <ul className="space-y-2.5">
+      {brief.direction.length > 0 && (
+        <Row label="Direction">
+          <ol className="max-w-3xl">
             {brief.direction.map((d, i) => (
-              <li key={i} className="flex gap-3 items-baseline">
-                <span
-                  style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-arrow)', flexShrink: 0 }}
-                >
-                  →
-                </span>
-                <span className="text-base leading-snug" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
-                  {d}
-                </span>
+              <li
+                key={i}
+                className="grid grid-cols-[32px_1fr] py-3 text-[17px] leading-snug"
+                style={{ borderTop: i === 0 ? undefined : '1px solid var(--brief-divider)', color: 'var(--brief-text-body)' }}
+              >
+                <span className="tabular-nums text-[15px]" style={{ color: 'var(--brief-text-meta)' }}>{String(i + 1).padStart(2, '0')}</span>
+                <span>{d}</span>
+              </li>
+            ))}
+          </ol>
+        </Row>
+      )}
+
+      {brief.references.length > 0 && (
+        <Row label="References">
+          <ul className="grid sm:grid-cols-2 gap-x-10 gap-y-8 max-w-4xl">
+            {brief.references.map((r, i) => {
+              const href = partner ? youtubeSearchUrlForTrack(r.track) : r.url;
+              return (
+                <li key={i}>
+                  {href ? (
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="text-[17px] font-medium tracking-[-0.01em] hover:opacity-70 transition-opacity">
+                      {r.track} ↗
+                    </a>
+                  ) : (
+                    <p className="text-[17px] font-medium tracking-[-0.01em]">{r.track}</p>
+                  )}
+                  {(r.like || r.why) && (
+                    <p className="mt-2 text-[15px] leading-relaxed" style={{ color: 'var(--brief-text-body)' }}>
+                      <span style={{ color: 'var(--brief-text-h)' }}>Use</span>
+                      <span style={{ color: 'var(--brief-text-meta)' }}> · </span>
+                      {r.like ?? r.why}
+                    </p>
+                  )}
+                  {r.avoid && (
+                    <p className="mt-1 text-[15px] leading-relaxed" style={{ color: 'var(--brief-text-meta)' }}>
+                      <span>Skip · </span>
+                      {r.avoid}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </Row>
+      )}
+
+      {!partner && brief.links && brief.links.length > 0 && (
+        <Row label="Files and links">
+          <ul className="space-y-2">
+            {brief.links.map((link) => (
+              <li key={link.url}>
+                <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-[17px] hover:opacity-70 transition-opacity break-all">
+                  {link.label} ↗
+                </a>
               </li>
             ))}
           </ul>
-        </div>
+        </Row>
+      )}
 
-        {brief.references.length > 0 && (
-        <div className="mb-8">
-          <Label>References</Label>
-          <div className="space-y-5">
-            {brief.references.map((r, i) => {
-              const href = partner
-                ? youtubeSearchUrlForTrack(r.track)
-                : r.url;
-              return (
-              <div key={i} className="pl-4" style={{ borderLeft: '2px solid var(--brief-ref-border)' }}>
-                {href ? (
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-base font-medium mb-1.5 inline-block hover:text-[var(--accent)] transition-colors"
-                    style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-h)' }}
-                  >
-                    {r.track} ↗
-                  </a>
-                ) : (
-                  <div
-                    className="text-base font-medium mb-1.5"
-                    style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-h)' }}
-                  >
-                    {r.track}
-                  </div>
-                )}
-                {(r.like || r.why) && (
-                  <div
-                    className="text-sm mb-1"
-                    style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}
-                  >
-                    <span className="font-semibold" style={{ color: 'var(--brief-use-color)' }}>Use:</span>{' '}
-                    {r.like ?? r.why}
-                  </div>
-                )}
-                {r.avoid && (
-                  <div className="text-sm" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
-                    <span className="font-semibold" style={{ color: 'var(--brief-skip-color)' }}>Skip:</span>{' '}
-                    {r.avoid}
-                  </div>
-                )}
-              </div>
-              );
-            })}
-          </div>
-        </div>
-        )}
+      <Row label="Sound">
+        <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-6 max-w-4xl">
+          <Spec label="Genre" value={brief.genrePalette} />
+          <Spec label="Mood" value={brief.emotionalArc} />
+          <Spec label="Tempo" value={brief.tempo} />
+          <Spec label="Key" value={brief.key} />
+          <Spec label="Length" value={brief.length} />
+          <Spec label="Type" value={brief.vocals} />
+        </dl>
+      </Row>
 
-        {!partner && brief.links && brief.links.length > 0 && (
-          <div className="mb-8">
-            <Label>Files and links</Label>
-            <ul className="space-y-3">
-              {brief.links.map((link) => (
-                <li key={link.url} className="flex gap-3 items-baseline">
-                  <span
-                    style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-arrow)', flexShrink: 0 }}
-                  >
-                    →
-                  </span>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-base leading-snug hover:text-[var(--accent)] transition-colors break-all"
-                    style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-h)' }}
-                  >
-                    {link.label}
-                    <span
-                      className="ml-2 text-[10px] tracking-[0.15em] uppercase"
-                      style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
-                    >
-                      Open ↗
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+      {partner && (
+        <Row label="The deal">
+          <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-6 max-w-4xl mb-6">
+            <Spec label="Catalogue" value={partner.name} />
+            <Spec label="Rights" value={partner.exclusive ? 'Exclusive' : 'Non-exclusive'} />
+            <Spec label="Sync fees" value={`${partner.split} split`} />
+          </dl>
+          <p className="text-[15px] leading-relaxed max-w-2xl" style={{ color: 'var(--brief-text-body)' }}>
+            Accepted tracks go into the {partner.name} catalogue{partner.exclusive ? ' exclusively' : ''}, and we pitch them to agencies and brands. If one places, the sync fee splits {partner.split}.
+            {partner.humanMadeOnly ? ' Human-made only: no AI-generated music, stems, or vocals.' : ''}
+          </p>
+        </Row>
+      )}
 
-        {/* Sonic DNA */}
-        <div className="mb-6">
-          <Label>Sonic DNA</Label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
-            <SonicItem label="Genre" value={brief.genrePalette} />
-            <SonicItem label="Mood" value={brief.emotionalArc} />
-            <SonicItem label="Tempo" value={brief.tempo} />
-            <SonicItem label="Key" value={brief.key} />
-            <SonicItem label="Length" value={brief.length} />
-            <SonicItem label="Type" value={brief.vocals} />
+      {isClient && (
+        <Row label="The opportunity">
+          {(brief.demoFee || brief.winFee || brief.deadline) && (
+            <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-6 max-w-4xl mb-6">
+              <Spec label="Due" value={brief.deadline} />
+              <Spec label="Demo fee" value={brief.demoFee} />
+              <Spec label="Win" value={brief.winFee} />
+            </dl>
+          )}
+          <div className="space-y-3 text-[15px] leading-relaxed max-w-2xl" style={{ color: 'var(--brief-text-body)' }}>
+            <p>Verified composers only. These are paying clients, so treat it like the job.</p>
+            <p>
+              Thought Collective is the intermediary. You write to this brief and we review what you submit. If it is strong enough to send to the client, we secure you a demo fee, and that fee covers any back and forth to get it closer.
+            </p>
+            <p>If the track wins the job, we split 70/30 in your favour.</p>
+            <p>These jobs move fast. Only submit if you can stay available for edits if yours goes to the client.</p>
           </div>
-        </div>
+        </Row>
+      )}
 
-        {partner && (
-          <div className="mb-6 p-6" style={{ border: '1px solid var(--brief-divider)', borderRadius: '2px' }}>
-            <Label>This catalog</Label>
-            <div className="flex items-start gap-4 mb-5">
-              <div className="mt-0.5 text-[var(--brief-text-h)]">
-                <CatalogPartnerMark partner={partner} size={28} />
-              </div>
-              <div>
-                <div
-                  className="text-lg mb-1"
-                  style={{ fontFamily: "var(--brand-display)", fontWeight: 400, color: 'var(--brief-text-h)' }}
-                >
-                  {partner.name}
-                </div>
-                <div
-                  className="text-[10px] tracking-[0.2em] uppercase"
-                  style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
-                >
-                  {partner.exclusive ? 'Exclusive' : 'Non-exclusive'} · {partner.split} split
-                </div>
-              </div>
-            </div>
-            <div className="space-y-3 text-sm leading-relaxed" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
-              <p>
-                Writing to this brief means you are writing for the {partner.name} catalog.
-                {partner.exclusive
-                  ? ' If the track is accepted, it is exclusive to that catalog.'
-                  : ' If the track is accepted, it stays non-exclusive.'}
-              </p>
-              <p>
-                If {partner.name} pitches the track and it places, the sync fee splits {partner.split}.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {brief.kind === 'client' && (
-          <div className="mb-6 p-6" style={{ border: '1px solid var(--brief-divider)', borderRadius: '2px' }}>
-            <Label>The opportunity</Label>
-            {(brief.demoFee || brief.winFee || brief.deadline) && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-                {brief.deadline && <SonicItem label="Due" value={brief.deadline} />}
-                {brief.demoFee && <SonicItem label="Demo fee" value={brief.demoFee} />}
-                {brief.winFee && <SonicItem label="Win" value={brief.winFee} />}
-              </div>
-            )}
-            <div className="space-y-3 text-sm leading-relaxed" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
-              <p>Verified composers only. These are paying clients. Treat it like the job, not practice.</p>
-              <p>
-                Thought Collective is the intermediary. You write to this brief. We review what you submit. If it is strong enough to send to the client, we secure you a demo fee. If they like it and want you on the back and forth to get it closer, that work is covered by the demo fee too.
-              </p>
-              <p>If the track wins the job, we split 70/30 in your favor.</p>
-              <p>
-                These jobs move fast. Do not submit unless you can stay available and on call for edits if yours is chosen to go to the client.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="mt-8 pt-6 flex items-center justify-between" style={{ borderTop: '1px solid var(--brief-divider)' }}>
-          <div
-            className="text-[10px] tracking-[0.2em] uppercase"
-            style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
-          >
-            {brief.briefId} · {houseLabel}
-          </div>
-          {brief.kind === 'client' ? (
-            <div className="text-xs italic" style={{ fontFamily: "var(--brand-display)", color: 'var(--brief-text-meta)' }}>
-              Be available. Move fast.
-            </div>
-          ) : partner ? (
-            <div className="text-xs italic" style={{ fontFamily: "var(--brand-display)", color: 'var(--brief-text-meta)' }}>
-              {partner.exclusive ? 'Exclusive' : 'Non-exclusive'} · {partner.split}
-            </div>
-          ) : isFeatured ? (
-            <div className="text-xs italic" style={{ fontFamily: "var(--brand-display)", color: 'var(--brief-text-meta)' }}>
-              Write it. Submit it. Get placed.
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </div>
+      <footer
+        className="pt-6 flex flex-wrap items-center justify-between gap-3 text-[13px]"
+        style={{ borderTop: '1px solid var(--brief-divider)', color: 'var(--brief-text-meta)' }}
+      >
+        <span className="tabular-nums">{brief.briefId} · {kindLabel}</span>
+        <span>{isClient ? 'Confidential. Please do not forward.' : 'wearethoughtcollective.com'}</span>
+      </footer>
+    </article>
   );
 }
