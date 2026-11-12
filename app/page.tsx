@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { loadCatalogueBriefs } from '@/lib/tc-briefs';
@@ -29,19 +30,30 @@ export default async function HomePage() {
 
   return (
     <div className="flex-1">
-      <section className={`${wrap} pt-16 md:pt-28 pb-20 md:pb-32`}>
-        <p className="text-[17px] text-[var(--text-muted)] mb-6 md:mb-8">For composers</p>
-        <h1 className="display-title max-w-[11ch]">Write for Thought Collective</h1>
-        <div className="mt-10 md:mt-14 grid md:grid-cols-2 gap-10 items-end">
-          <p className="text-[19px] md:text-[21px] leading-[1.45] tracking-[-0.01em] text-[var(--text-secondary)] max-w-xl">
+      <section className={`${wrap} pt-12 md:pt-16 pb-20 md:pb-28 grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-10 md:gap-12 items-center`}>
+        <div>
+          <p className="text-[17px] text-[var(--text-muted)] mb-6 md:mb-8">For composers</p>
+          <h1 className="display-title max-w-[11ch]">Write for Thought Collective</h1>
+          <p className="mt-10 md:mt-12 text-[19px] md:text-[21px] leading-[1.45] tracking-[-0.01em] text-[var(--text-secondary)] max-w-xl">
             We&apos;re a London music and sound company making music for advertising, film, and television, with a boutique catalogue alongside. These are the tracks our clients keep asking for.
           </p>
-          <div className="flex flex-wrap gap-3 md:justify-end">
+          <div className="mt-10 flex flex-wrap gap-3">
             <Link href="/briefs" className={btn('primary', 'md')}>See the briefs</Link>
             {!user && (
               <Link href="/signup" className={btn('secondary', 'md')}>Create an account</Link>
             )}
           </div>
+        </div>
+        <div className="relative hidden sm:block max-w-[520px] w-full justify-self-center md:justify-self-end">
+          <Image
+            src="/brand/composer-sketch.jpg"
+            alt="Ink sketch of a composer writing at a studio keyboard"
+            width={768}
+            height={1024}
+            priority
+            sizes="(min-width: 768px) 40vw, 80vw"
+            className="w-full h-auto [mask-image:radial-gradient(ellipse_at_center,black_62%,transparent_100%)]"
+          />
         </div>
       </section>
 
