@@ -75,7 +75,7 @@ export default function BriefNextSteps({
   briefName,
   variant,
   catalogExclusive = false,
-  catalogName = 'Sonant',
+  catalogName = 'Thought Collective',
   catalogSplit = '50/50',
   humanMadeOnly = false,
   loggedIn,
@@ -95,7 +95,7 @@ export default function BriefNextSteps({
           <div className="border border-dashed border-[var(--border-card)] rounded-[2px] px-6 py-12 text-center">
             <p className="font-serif text-2xl tracking-tight">This brief is closed.</p>
             <p className="mt-3 text-sm text-[var(--text-muted)] max-w-md mx-auto leading-relaxed">
-              New paid client briefs are on the way. Verified composers get an email the moment one hits Sonant.
+              New paid client briefs are on the way. Verified composers get an email the moment one is posted.
             </p>
           </div>
         </section>
@@ -105,13 +105,13 @@ export default function BriefNextSteps({
       <section className="mt-16 no-print">
         <Heading
           title={<>Ready to <span className="italic">deliver</span>.</>}
-          body="Paid client work goes to Disco as a WAV. No credit is used, and it stays private to the Sonant team."
+          body="Paid client work goes to Disco as a WAV. No credit is used, and it stays private to Thought Collective."
         />
         <div className="max-w-xl">
           <Card
             accent
             title={<>Deliver on <span className="italic">Disco</span></>}
-            body="This opens the Sonant Disco inbox. Send as many takes as you like. We want to hear the good ones."
+            body="This opens our Disco inbox. Send as many takes as you like. We want to hear the good ones."
             bullets={['No credit used', 'WAV, as many takes as you want', 'Demo fee if we send it to the client']}
             action={
               loggedIn && briefId ? (
@@ -171,8 +171,8 @@ export default function BriefNextSteps({
         />
         <Card
           accent
-          title={<>Submit to <span className="italic">{catalogName}</span></>}
-          body={`The strongest tracks go to ${catalogName}.${catalogExclusive ? ' Accepted tracks are exclusive to their catalog.' : ''}`}
+          title="Submit your track"
+          body={`The strongest tracks go into the ${catalogName} catalogue.${catalogExclusive ? ' Accepted tracks are exclusive to it.' : ''}`}
           bullets={[
             'Uses 1 submission credit',
             'Written feedback on every submission',
@@ -187,7 +187,7 @@ export default function BriefNextSteps({
                 alreadySubmitted={alreadySubmitted}
                 submissionCredits={submissionCredits}
                 isAdmin={isAdmin}
-                triggerLabel="↗ Submit track"
+                triggerLabel="Submit track"
                 triggerClassName={btn('primary', 'md', 'w-full')}
               />
             ) : (

@@ -46,7 +46,7 @@ function SignUpForm() {
           <div className="border border-[var(--accent)]/40 bg-[var(--accent)]/5 p-6" style={{ borderRadius: '2px' }}>
             <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--accent)] mb-3"
               style={{ fontFamily: "var(--brand-mono)" }}>
-              ◆ Check your email
+              Check your email
             </div>
             <p className="text-base leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
               We sent a confirmation link to verify your account. Click it and you&apos;ll be taken straight to the briefs.
@@ -60,7 +60,7 @@ function SignUpForm() {
   return (
     <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
-        <p className="label text-[var(--accent)] mb-4">◆ Free account</p>
+        <p className="label text-[var(--accent)] mb-4">Free account</p>
 
         <h1 className="font-serif font-light text-4xl md:text-5xl tracking-tight leading-tight mb-3">
           Start writing to <span className="italic">briefs.</span>
@@ -91,7 +91,7 @@ function SignUpForm() {
             disabled={submitting}
             className={btn('primary', 'md', 'w-full h-12 mt-2')}
           >
-            {submitting ? '◆ Creating account…' : '◆ Create account'}
+            {submitting ? 'Creating account…' : 'Create account'}
           </button>
 
           <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "var(--brand-sans)" }}>

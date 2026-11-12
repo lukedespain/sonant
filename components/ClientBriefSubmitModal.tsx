@@ -97,7 +97,7 @@ export default function ClientBriefSubmitModal({
           >
             {done ? (
               <div className="text-center py-4">
-                <div className="text-3xl text-[var(--accent)] mb-4">◆</div>
+                <div className="text-3xl text-[var(--accent)] mb-4">✓</div>
                 <h2 className="text-2xl mb-3" style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}>
                   Disco is open.
                 </h2>
@@ -130,7 +130,7 @@ export default function ClientBriefSubmitModal({
             ) : (
               <>
                 <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
-                  ◆ Deliver on Disco
+                  Deliver on Disco
                 </div>
 
                 <div className="space-y-5">
@@ -174,7 +174,7 @@ export default function ClientBriefSubmitModal({
 
                 {!canDeliver && (
                   <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-                    This brief does not have a Disco inbox yet. Tell the Sonant team.
+                    This brief does not have a Disco inbox yet. Email hello@thoughtcollective.com.
                   </p>
                 )}
 
@@ -190,7 +190,7 @@ export default function ClientBriefSubmitModal({
                     }`}
                     style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                   >
-                    {logging ? '◆ Opening…' : '◆ Open Disco'}
+                    {logging ? 'Opening…' : 'Open Disco'}
                   </a>
                   <button
                     type="button"

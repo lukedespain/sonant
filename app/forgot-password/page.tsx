@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
           className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-4"
           style={{ fontFamily: "var(--brand-mono)" }}
         >
-          ◆ Account
+          Account
         </div>
 
         <h1
@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
             style={{ borderRadius: '2px' }}
           >
             <p className="text-base leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-              If that email is on Sonant, we sent a reset link. It expires in about an hour.
+              If that email has an account, we sent a reset link. It expires in about an hour.
             </p>
             <p className="text-xs text-[var(--text-dim)] mt-4" style={{ fontFamily: "var(--brand-sans)" }}>
               <Link href="/login" className="text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
                 }`}
                 style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
               >
-                {submitting ? '◆ Sending…' : '◆ Send Reset Link'}
+                {submitting ? 'Sending…' : 'Send Reset Link'}
               </button>
 
               <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "var(--brand-sans)" }}>

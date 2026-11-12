@@ -238,7 +238,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
         className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
         style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
       >
-        {submitting ? '◆ Writing brief…' : '+ Add client brief'}
+        {submitting ? 'Writing brief…' : '+ Add client brief'}
       </button>
     </form>
       )}

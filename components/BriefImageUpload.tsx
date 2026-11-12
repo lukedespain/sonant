@@ -57,7 +57,7 @@ export default function BriefImageUpload({
         disabled={uploading}
         className={btn('secondary', 'sm')}
       >
-        {uploading ? '◆ Uploading…' : hasImage ? '◆ Replace image' : '◆ Upload image'}
+        {uploading ? 'Uploading…' : hasImage ? 'Replace image' : 'Upload image'}
       </button>
       {error && (
         <p

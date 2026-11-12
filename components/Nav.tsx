@@ -1,38 +1,45 @@
 'use client'
 
-import Link, { useLinkStatus } from 'next/link'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import { signOut } from '@/app/auth/actions'
-import ThemeToggle from '@/components/ThemeToggle'
-import { btn } from '@/components/ui'
 import ThoughtCollectiveMark from '@/components/ThoughtCollectiveMark'
-
-function SignInLabel() {
-  const { pending } = useLinkStatus()
-  return pending ? (
-    <><span className="animate-pulse">◆</span>Signing in</>
-  ) : <>Sign in</>
-}
+import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners'
 
 type NavProps = {
   user: User | null
   isSiteAdmin?: boolean
 }
 
-const LINKS = [
-  { href: '/generator', label: 'Generator' },
-  { href: '/briefs', label: 'Briefs' },
-  { href: '/catalogs', label: 'Catalogs' },
-] as const
+const CONTACT_EMAIL = 'hello@thoughtcollective.com'
 
 function Wordmark({ onClick }: { onClick?: () => void }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 shrink-0" onClick={onClick}>
-      <ThoughtCollectiveMark size={22} />
-      <span className="text-[15px] tracking-[-0.01em] font-medium">Thought Collective</span>
+    <Link href="/" className="flex items-center gap-3 shrink-0" onClick={onClick}>
+      <ThoughtCollectiveMark size={26} />
+      <span className="text-[17px] md:text-[19px] tracking-[-0.02em] font-medium">Thought Collective</span>
     </Link>
+  )
+}
+
+/** The "+ Menu" / "— Close" toggle from wearethoughtcollective.com. */
+function MenuToggle({ open, onClick }: { open: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={open}
+      aria-label={open ? 'Close menu' : 'Open menu'}
+      className="flex items-center gap-3 h-10 px-1 text-[17px] tracking-[-0.01em] text-[var(--text-primary)] hover:opacity-70 transition-opacity"
+    >
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+        <path d="M0 9H18" stroke="currentColor" strokeWidth="1.25" />
+        {!open && <path d="M9 0V18" stroke="currentColor" strokeWidth="1.25" />}
+      </svg>
+      {open ? 'Close' : 'Menu'}
+    </button>
   )
 }
 
@@ -40,20 +47,24 @@ export default function Nav({ user, isSiteAdmin = false }: NavProps) {
   const pathname = usePathname()
   const [menuPath, setMenuPath] = useState<string | null>(null)
   const menuOpen = menuPath !== null && menuPath === pathname
+  const closeMenu = () => setMenuPath(null)
 
   const isAuthPage =
     pathname === '/login' ||
     pathname === '/signup' ||
     pathname === '/onboarding' ||
     pathname?.startsWith('/auth')
-
-  const isActive = (href: string) => pathname === href || pathname?.startsWith(href + '/')
-
   const loggedIn = !!user && !isAuthPage
-  const navLinks = isSiteAdmin ? [...LINKS, { href: '/admin', label: 'Admin' }] : [...LINKS]
-  const onDashboard = isActive('/dashboard')
 
-  const closeMenu = () => setMenuPath(null)
+  const links = [
+    { href: '/', label: 'Home' },
+    { href: '/briefs', label: 'Briefs' },
+    ...(loggedIn ? [{ href: '/dashboard', label: 'Dashboard' }] : [{ href: '/login', label: 'Sign in' }]),
+    ...(isSiteAdmin ? [{ href: '/admin', label: 'Admin' }] : []),
+    { href: '/faq', label: 'FAQ' },
+  ]
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname === href || pathname?.startsWith(href + '/')
 
   useEffect(() => {
     if (!menuOpen) return
@@ -61,125 +72,76 @@ export default function Nav({ user, isSiteAdmin = false }: NavProps) {
       if (e.key === 'Escape') setMenuPath(null)
     }
     document.addEventListener('keydown', onKey)
-    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
     return () => {
       document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
     }
   }, [menuOpen])
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-[var(--border-base)] bg-[var(--bg-base)]/90 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-5 md:px-10 h-16 flex items-center justify-between gap-6">
+      <nav className="no-print sticky top-0 z-50 bg-[var(--bg-base)]/85 backdrop-blur-md">
+        <div className="max-w-[1440px] mx-auto px-5 md:px-[60px] h-20 md:h-24 flex items-center justify-between gap-6">
           <Wordmark onClick={closeMenu} />
-
           {!isAuthPage && (
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map(({ href, label }) => {
-                const active = isActive(href)
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    aria-current={active ? 'page' : undefined}
-                    className={`label transition-colors ${
-                      active ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    {label}
-                  </Link>
-                )
-              })}
-            </div>
-          )}
-
-          {!isAuthPage && (
-            <div className="flex items-center gap-1 md:gap-3">
-              <ThemeToggle />
-              <div className="hidden md:block">
-                {loggedIn ? (
-                  <Link
-                    href="/dashboard"
-                    className={btn('secondary', 'sm', onDashboard ? '!border-[var(--accent)] !text-[var(--accent)]' : '')}
-                  >
-                    Dashboard
-                  </Link>
-                ) : (
-                  <Link href="/login" prefetch={false} className={btn('secondary', 'sm')}>
-                    <SignInLabel />
-                  </Link>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => setMenuPath(menuOpen ? null : pathname)}
-                className="md:hidden w-10 h-10 flex items-center justify-center text-[var(--text-primary)]"
-                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-                aria-expanded={menuOpen}
-              >
-                {menuOpen ? (
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                    <path d="M2 2L12 12M12 2L2 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                ) : (
-                  <svg width="18" height="12" viewBox="0 0 18 12" fill="none" aria-hidden="true">
-                    <path d="M0 1H18M0 6H18M0 11H18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                )}
-              </button>
+            <div className="flex items-center gap-6">
+              {!loggedIn && (
+                <Link
+                  href="/login"
+                  prefetch={false}
+                  className="hidden sm:block text-[17px] tracking-[-0.01em] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                >
+                  Sign in
+                </Link>
+              )}
+              <MenuToggle open={menuOpen} onClick={() => setMenuPath(menuOpen ? null : pathname)} />
             </div>
           )}
         </div>
       </nav>
 
       {!isAuthPage && menuOpen && (
-        <div className="md:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-[var(--bg-base)] flex flex-col overflow-y-auto">
-          <div className="px-5 pt-2 flex-1">
-            {navLinks.map(({ href, label }) => {
-              const active = isActive(href)
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={closeMenu}
-                  className="flex items-center justify-between py-5 border-b border-[var(--border-base)]"
-                >
-                  <span
-                    className={`font-serif font-light text-3xl tracking-tight ${
-                      active ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'
-                    }`}
-                  >
-                    {label}
-                  </span>
-                  {active && <span className="text-[var(--accent)] text-sm">◆</span>}
-                </Link>
-              )
-            })}
-          </div>
+        <div className="fixed inset-0 z-40 bg-[var(--bg-base)] overflow-y-auto">
+          <div className="max-w-[1440px] mx-auto px-5 md:px-[60px] pt-28 md:pt-40 pb-16 grid md:grid-cols-2 gap-16 min-h-full">
+            <div className="hidden md:block" aria-hidden="true" />
+            <div className="flex flex-col justify-between gap-16">
+              <ul className="flex flex-col gap-1 md:gap-2">
+                {links.map(({ href, label }) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      onClick={closeMenu}
+                      prefetch={href === '/login' ? false : undefined}
+                      aria-current={isActive(href) ? 'page' : undefined}
+                      className={`block text-[3.25rem] md:text-[6rem] leading-[1.02] font-medium tracking-[-0.045em] transition-colors ${
+                        isActive(href) ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)] hover:text-[var(--text-muted)]'
+                      }`}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
 
-          <div className="px-5 py-8 border-t border-[var(--border-base)] flex flex-col gap-3">
-            {loggedIn ? (
-              <>
-                <Link href="/dashboard" onClick={closeMenu} className={btn('primary', 'md', 'w-full')}>
-                  Dashboard
-                </Link>
-                <form action={signOut}>
-                  <button type="submit" className={btn('ghost', 'md', 'w-full')}>
-                    Sign out
-                  </button>
-                </form>
-              </>
-            ) : (
-              <>
-                <Link href="/signup" onClick={closeMenu} className={btn('primary', 'md', 'w-full')}>
-                  Create free account
-                </Link>
-                <Link href="/login" prefetch={false} onClick={closeMenu} className={btn('secondary', 'md', 'w-full')}>
-                  <SignInLabel />
-                </Link>
-              </>
-            )}
+              <div className="grid grid-cols-2 gap-8 text-[17px] tracking-[-0.01em]">
+                <div>
+                  <p className="text-[var(--text-muted)] mb-2">Email</p>
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="hover:opacity-70">{CONTACT_EMAIL}</a>
+                </div>
+                <div>
+                  <p className="text-[var(--text-muted)] mb-2">Thought Collective</p>
+                  <a href={THOUGHT_COLLECTIVE_SITE} className="hover:opacity-70">Main site ↗</a>
+                  {loggedIn && (
+                    <form action={signOut} className="mt-1">
+                      <button type="submit" className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+                        Sign out
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -58,7 +58,7 @@ export default function BriefImporter() {
         className="text-xs tracking-[0.2em] uppercase text-[var(--accent)]"
         style={{ fontFamily: "var(--brand-mono)" }}
       >
-        ◆ Importing your saved briefs…
+        Importing your saved briefs…
       </div>
     </div>
   );

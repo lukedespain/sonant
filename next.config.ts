@@ -16,6 +16,13 @@ const nextConfig: NextConfig = {
       { source: '/browse/:id', destination: '/briefs/:id', permanent: true },
       { source: '/submissions', destination: '/dashboard', permanent: false },
       { source: '/music', destination: '/dashboard', permanent: false },
+      // Sonant-only pages that the Thought Collective portal drops.
+      { source: '/generator', destination: '/briefs', permanent: false },
+      { source: '/generator/:path*', destination: '/briefs', permanent: false },
+      { source: '/catalogs', destination: '/briefs', permanent: false },
+      { source: '/catalog', destination: '/briefs', permanent: false },
+      { source: '/community', destination: '/briefs', permanent: false },
+      { source: '/royalties', destination: '/', permanent: false },
     ];
   },
 };

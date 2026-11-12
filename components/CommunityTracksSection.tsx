@@ -75,7 +75,7 @@ export default function CommunityTracksSection({
         className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-2"
         style={{ fontFamily: "var(--brand-mono)" }}
       >
-        ◆ Playlist
+        Playlist
       </div>
       <p
         className="text-sm text-[var(--text-muted)] mb-5 max-w-xl leading-relaxed"

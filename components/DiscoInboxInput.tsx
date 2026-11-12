@@ -35,13 +35,13 @@ export default function DiscoInboxInput({
         className="text-[9px] tracking-[0.3em] uppercase text-[var(--accent)] mb-3"
         style={{ fontFamily: "var(--brand-mono)" }}
       >
-        ◆ Admin · Disco inbox
+        Admin · Disco inbox
       </div>
       <p
         className="text-xs text-[var(--text-muted)] leading-relaxed mb-3"
         style={{ fontFamily: "var(--brand-sans)" }}
       >
-        Verified composers are sent here. Leave blank to use the default Sonant inbox.
+        Verified composers are sent here. Leave blank to use the default inbox.
       </p>
       <div className="flex gap-2 items-center">
         <input

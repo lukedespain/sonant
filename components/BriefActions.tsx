@@ -39,7 +39,7 @@ export function DownloadBriefButton({
       if (!res.ok) throw new Error(String(res.status));
       const blob = await res.blob();
       const name =
-        /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? 'Sonant brief.pdf';
+        /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? 'Thought Collective brief.pdf';
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

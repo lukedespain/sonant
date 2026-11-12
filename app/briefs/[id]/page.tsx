@@ -134,12 +134,12 @@ export default async function BrowseBriefPage({ params }: PageProps) {
   const kindLabel = isClientBrief
     ? 'Paid client brief'
     : isFeatured
-      ? `${catalogPartner?.name} catalog brief`
+      ? 'Catalogue brief'
       : 'Practice brief';
 
   return (
     <div className="flex-1 min-w-0 pt-8 md:pt-10 pb-24 overflow-x-clip">
-      <div className="max-w-6xl mx-auto px-5 md:px-10">
+      <div className="max-w-[1440px] mx-auto px-5 md:px-[60px]">
         <div className="no-print flex items-center justify-between gap-3 mb-6">
           <Link href="/briefs" className={btn('ghost', 'sm')}>
             ← Briefs
@@ -169,13 +169,13 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="no-print sticky top-16 z-20 -mx-5 md:mx-0 px-5 md:px-0 py-3 mb-6 bg-[var(--bg-base)]/90 backdrop-blur-md border-b border-[var(--border-base)] flex items-center justify-between gap-4">
+        <div className="no-print sticky top-20 md:top-24 z-20 -mx-5 md:mx-0 px-5 md:px-0 py-3 mb-6 bg-[var(--bg-base)]/90 backdrop-blur-md border-b border-[var(--border-base)] flex items-center justify-between gap-4">
           <div className="min-w-0">
             <p className={`label ${closed ? 'text-[var(--text-dimmer)]' : 'text-[var(--accent)]'}`}>
-              {closed ? 'Closed · ' : '◆ '}
+              {closed ? 'Closed · ' : ''}
               {kindLabel}
             </p>
-            <p className="font-serif italic text-lg tracking-tight truncate">{title}</p>
+            <p className="text-lg font-medium tracking-[-0.02em] truncate">{title}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <DownloadBriefButton briefId={briefRow.id} className="hidden sm:inline-flex" />
@@ -187,7 +187,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
                   alreadySubmitted={alreadySubmitted}
                   submissionCredits={submissionCredits}
                   isAdmin={isAdmin}
-                  triggerLabel="↗ Submit"
+                  triggerLabel="Submit"
                   triggerClassName={btn('primary', 'sm')}
                 />
               ) : (
@@ -201,7 +201,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
                 briefName={title}
                 composerName={currentUserName}
                 discoUrl={discoUrl}
-                triggerLabel="↗ Deliver"
+                triggerLabel="Deliver"
                 triggerClassName={btn('primary', 'sm')}
               />
             )}
@@ -211,7 +211,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
         {isClientBrief && (
           <div className="no-print mb-6 text-sm text-[var(--text-muted)] leading-relaxed">
-            <span className="text-[var(--accent)]">◆ Private.</span> Paid client work stays inside Sonant. Please do not forward this page, the PDF, or the references.
+            <span className="text-[var(--text-primary)]">Private.</span> Paid client work stays between you and Thought Collective. Please do not forward this page, the PDF, or the references.
             {isAdmin && (
               <DiscoInboxInput
                 briefId={briefRow.id}

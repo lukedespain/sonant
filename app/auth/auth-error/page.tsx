@@ -8,7 +8,7 @@ export default function AuthErrorPage() {
           className="text-[10px] tracking-[0.3em] uppercase text-[var(--accent)] mb-4"
           style={{ fontFamily: "var(--brand-mono)" }}
         >
-          ◆ Verification link expired
+          Verification link expired
         </div>
 
         <h2
@@ -34,7 +34,7 @@ export default function AuthErrorPage() {
               borderRadius: '2px',
             }}
           >
-            ◆ Sign In
+            Sign In
           </Link>
           <Link
             href="/forgot-password"

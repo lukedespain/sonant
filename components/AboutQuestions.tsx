@@ -3,48 +3,40 @@ import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 
 const QUESTIONS: { q: string; a: ReactNode }[] = [
   {
-    q: 'What is Sonant?',
-    a: 'A practice tool for sync composers. Write to briefs built like the real thing, get written feedback, and get your best tracks into catalogs that pitch them to brands, film, and games.',
+    q: 'What is this?',
+    a: 'The composer side of Thought Collective. We post briefs for the tracks our clients keep asking for, you write to them, and the strongest submissions go into our catalogue.',
   },
   {
-    q: 'What are the different briefs?',
-    a: 'Practice briefs are for reps, and anyone can write to them. Catalog briefs come from music houses looking for specific tracks, and that is where you submit. Paid client briefs open up for verified composers.',
-  },
-  {
-    q: 'What feedback do I get?',
-    a: 'Every catalog submission gets written feedback on the track, whether it goes to the catalog or not. It is tied to the brief you wrote to, so it stays specific.',
-  },
-  {
-    q: 'What happens after I submit?',
-    a: 'Every track gets listened to against the brief, and you get written feedback by email and in your Dashboard. The strongest go to the catalog, and they make the final call, usually within a week.',
-  },
-  {
-    q: 'What are the terms if my track places?',
-    a: 'Each catalog lists its deal on the Catalogs page. Thought Collective is exclusive, with a 50/50 split on sync fees when a track places.',
-  },
-  {
-    q: 'Who are the catalogs?',
+    q: 'Who is Thought Collective?',
     a: (
       <>
-        Right now, <a href={THOUGHT_COLLECTIVE_SITE} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:opacity-70">Thought Collective</a>, a brand-focused catalog. More partners are on the way, and each one lists its deal on the Catalogs page.
+        A London music and sound company. We make original music and sound for advertising, film, and television, and run a boutique catalogue alongside. See our work at{' '}
+        <a href={THOUGHT_COLLECTIVE_SITE} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:opacity-70">
+          wearethoughtcollective.com
+        </a>
+        .
       </>
     ),
   },
   {
-    q: 'How do submission credits work?',
-    a: 'Each submission costs one credit. Every free account gets one credit a month, and extra credits are $10 each from your Dashboard.',
+    q: 'What happens after I submit?',
+    a: 'We listen to every track against the brief and send written feedback by email and in your Dashboard, whether it goes into the catalogue or not.',
   },
   {
-    q: 'How do I get paid client briefs?',
-    a: 'Get three tracks accepted into a catalog. Client briefs are confidential, pre-release work, so they open to verified composers only. Once you are verified they show at the top of Briefs, and we email you when a new one lands.',
+    q: 'What are the terms if my track is accepted?',
+    a: 'Exclusive to the Thought Collective catalogue, with sync fees split 50/50. We pitch it to agencies and brands. You sign on from your Dashboard with your PRO and IPI details and a link to the stems.',
+  },
+  {
+    q: 'What is the roster?',
+    a: 'Composers with a track in our catalogue. When a brand job needs custom music, the roster is who we call first, matched on the genres and moods we have already placed from you. After three placements, paid client briefs open up here too.',
   },
   {
     q: 'Can I use AI?',
-    a: 'Sonant is built for human-made music. Each catalog sets its own rule, shown on its card and on its briefs, and you confirm it when you sign on. Thought Collective is human-made only. Even where AI is allowed, lean away from it: AI-generated stems and vocals are a gray area for rights, and many clients ask for no AI at all.',
+    a: 'No. The catalogue is human-made only: no AI-generated music, stems, or vocals. You confirm it when you sign on.',
   },
   {
-    q: 'Do I need an account?',
-    a: 'Not to try the Generator. You need a free account to save briefs and submit tracks.',
+    q: 'How do submissions work?',
+    a: 'Each submission uses one credit. Every account gets one free credit a month, and extra credits are $10 each from your Dashboard.',
   },
 ];
 
@@ -53,18 +45,18 @@ export default function AboutQuestions() {
     <div className="border-t border-[var(--border-base)]">
       {QUESTIONS.map((item) => (
         <details key={item.q} className="group border-b border-[var(--border-base)]">
-          <summary className="flex items-center justify-between gap-6 py-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-            <span className="font-serif text-lg md:text-xl tracking-tight text-[var(--text-secondary)] group-open:text-[var(--text-primary)] transition-colors">
+          <summary className="flex items-center justify-between gap-6 py-6 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <span className="text-[21px] md:text-[24px] font-medium tracking-[-0.025em] text-[var(--text-secondary)] group-open:text-[var(--text-primary)] transition-colors">
               {item.q}
             </span>
             <span
-              className="shrink-0 text-[var(--text-dimmer)] group-open:text-[var(--accent)] transition-transform group-open:rotate-45 text-xl leading-none"
+              className="shrink-0 text-[var(--text-dimmer)] group-open:text-[var(--text-primary)] transition-transform group-open:rotate-45 text-2xl leading-none font-light"
               aria-hidden="true"
             >
               +
             </span>
           </summary>
-          <p className="pb-6 pr-10 text-[15px] text-[var(--text-muted)] leading-relaxed max-w-2xl">{item.a}</p>
+          <p className="pb-7 pr-10 text-[17px] text-[var(--text-muted)] leading-relaxed max-w-2xl">{item.a}</p>
         </details>
       ))}
     </div>

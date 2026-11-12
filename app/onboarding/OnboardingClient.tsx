@@ -23,7 +23,7 @@ export default function OnboardingClient() {
 
         <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-5"
           style={{ fontFamily: "var(--brand-mono)" }}>
-          ◆ You&apos;re in
+          You&apos;re in
         </div>
 
         <h1 className="text-4xl md:text-5xl tracking-tight leading-[1.1] mb-4"
@@ -33,7 +33,7 @@ export default function OnboardingClient() {
 
         <p className="text-base text-[var(--text-tertiary)] mb-12 max-w-md leading-relaxed"
           style={{ fontFamily: "var(--brand-sans)" }}>
-          Tell us how you&apos;re using Sonant. We&apos;ll shape your experience around it.
+          Tell us a little about you.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -56,7 +56,7 @@ export default function OnboardingClient() {
             </p>
             <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] group-hover:translate-x-1 transition-transform"
               style={{ fontFamily: "var(--brand-mono)" }}>
-              {saving === 'composer' ? '◆ Setting up…' : '◆ Continue as music creator →'}
+              {saving === 'composer' ? 'Setting up…' : 'Continue as music creator →'}
             </div>
           </button>
 
@@ -78,7 +78,7 @@ export default function OnboardingClient() {
             </p>
             <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] group-hover:translate-x-1 transition-transform"
               style={{ fontFamily: "var(--brand-mono)" }}>
-              {saving === 'business' ? '◆ Setting up…' : '◆ Continue as music buyer →'}
+              {saving === 'business' ? 'Setting up…' : 'Continue as music buyer →'}
             </div>
           </button>
 

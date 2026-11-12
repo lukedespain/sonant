@@ -80,9 +80,9 @@ export default function OfferCard({
   if (done) {
     return (
       <div className="border border-[#7A9A6E]/40 bg-[var(--bg-card)] p-8" style={{ borderRadius: '2px' }}>
-        <div className="text-[10px] tracking-[0.25em] uppercase text-[#7A9A6E] mb-3" style={mono}>◆ Signed on</div>
+        <div className="text-[10px] tracking-[0.25em] uppercase text-[#7A9A6E] mb-3" style={mono}>Signed on</div>
         <p className="text-sm text-[var(--text-secondary)] leading-relaxed" style={sans}>
-          You are in. Sonant is handing {trackLabel} and your stems to {offer.catalogName} now. Keep in touch, and keep writing.
+          You are in. We have {trackLabel} and your stems, and it is going into the {offer.catalogName} catalogue now. Keep in touch, and keep writing.
         </p>
       </div>
     );
@@ -96,7 +96,7 @@ export default function OfferCard({
     >
       <div className="p-8 md:p-10 border-b border-[var(--border-card)]">
         <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--accent)] mb-4" style={mono}>
-          ◆ Congratulations
+          Congratulations
         </div>
         <h2 className="text-3xl md:text-4xl tracking-tight leading-tight mb-3" style={{ ...serif, fontWeight: 300 }}>
           {offer.catalogName} wants <span className="italic">{trackLabel}</span>.
@@ -202,7 +202,7 @@ export default function OfferCard({
             className="px-6 py-3.5 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
           >
-            {sending ? 'Sending…' : `◆ Sign on with ${offer.catalogName}`}
+            {sending ? 'Sending…' : `Sign on with ${offer.catalogName}`}
           </button>
           {!ready && (
             <span className="text-[11px] text-[var(--text-dimmer)]" style={sans}>

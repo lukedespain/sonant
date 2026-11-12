@@ -33,7 +33,7 @@ function LoginForm() {
   return (
     <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
-        <p className="label text-[var(--accent)] mb-4">◆ Welcome back</p>
+        <p className="label text-[var(--accent)] mb-4">Welcome back</p>
 
         <h1 className="font-serif font-light text-4xl md:text-5xl tracking-tight leading-tight mb-3">
           Sign <span className="italic">in</span>.
@@ -84,7 +84,7 @@ function SubmitButton({ submitting }: { submitting: boolean }) {
       disabled={submitting}
       className={btn('primary', 'md', 'w-full h-12 mt-2')}
     >
-      {submitting ? '◆ Signing in…' : '◆ Sign in'}
+      {submitting ? 'Signing in…' : 'Sign in'}
     </button>
   );
 }

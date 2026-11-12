@@ -43,7 +43,7 @@ export default function MyInfoPanel({
   return (
     <form onSubmit={save} className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-xl" style={sans}>
-        When a catalog takes one of your tracks, they need this to register it and pay you. Fill it in once and it is ready when you need it. Only the Sonant team sees it.
+        When we take one of your tracks, we need this to register it and pay you. Fill it in once and it is ready when you need it. Only Thought Collective sees it.
       </p>
       <RightsFields value={rights} onChange={setRights} />
       <div className="mt-8 flex items-center gap-4 flex-wrap">
@@ -53,7 +53,7 @@ export default function MyInfoPanel({
           className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-wait transition-colors"
           style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
         >
-          {saving ? 'Saving…' : '◆ Save my info'}
+          {saving ? 'Saving…' : 'Save my info'}
         </button>
         {message && <span className="text-[11px] text-[#7A9A6E]" style={sans}>{message}</span>}
         {error && <span role="alert" className="text-[11px] text-[var(--danger)]" style={sans}>{error}</span>}

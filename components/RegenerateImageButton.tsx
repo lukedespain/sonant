@@ -37,7 +37,7 @@ export default function RegenerateImageButton({ briefId }: { briefId: string }) 
         disabled={loading}
         className={btn('secondary', 'sm')}
       >
-        {loading ? '◆ Generating…' : '◆ Regenerate image'}
+        {loading ? 'Generating…' : 'Regenerate image'}
       </button>
       {error && (
         <p

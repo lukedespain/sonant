@@ -142,7 +142,7 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
         onClick={() => setOpen(true)}
         className={btn('secondary', 'sm')}
       >
-        ◆ AI prompt
+        AI prompt
       </button>
 
       {open && (
@@ -163,7 +163,7 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-card)]">
               <div>
                 <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--accent)] mb-0.5" style={{ fontFamily: "var(--brand-mono)" }}>
-                  ◆ AI Music Prompt
+                  AI Music Prompt
                 </div>
                 <div className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-mono)" }}>
                   Project {brief.codename} · Suno / Udio

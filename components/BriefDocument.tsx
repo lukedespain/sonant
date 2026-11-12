@@ -126,7 +126,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
     : brief.kind === 'client'
       ? 'Client Brief'
       : isFeatured
-        ? 'Sonant Brief'
+        ? 'Thought Collective Brief'
         : 'Practice Brief';
 
   return (
@@ -385,7 +385,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
             <div className="space-y-3 text-sm leading-relaxed" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
               <p>Verified composers only. These are paying clients. Treat it like the job, not practice.</p>
               <p>
-                Sonant is the intermediary. You write to this brief. We review what you submit. If it is strong enough to send to the client, we secure you a demo fee. If they like it and want you on the back and forth to get it closer, that work is covered by the demo fee too.
+                Thought Collective is the intermediary. You write to this brief. We review what you submit. If it is strong enough to send to the client, we secure you a demo fee. If they like it and want you on the back and forth to get it closer, that work is covered by the demo fee too.
               </p>
               <p>If the track wins the job, we split 70/30 in your favor.</p>
               <p>

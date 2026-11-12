@@ -110,7 +110,7 @@ export default function ShareBriefButton({
           >
             {done ? (
               <div className="text-center py-4">
-                <div className="text-3xl text-[var(--accent)] mb-4">◆</div>
+                <div className="text-3xl text-[var(--accent)] mb-4">✓</div>
                 <h2 className="text-2xl mb-3" style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}>
                   Invite{sentCount === 1 ? '' : 's'} sent.
                 </h2>
@@ -123,13 +123,13 @@ export default function ShareBriefButton({
                   className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"
                   style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                 >
-                  ◆ Done
+                  Done
                 </button>
               </div>
             ) : !loggedIn ? (
               <>
                 <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
-                  ◆ Share Brief
+                  Share Brief
                 </div>
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-8" style={{ fontFamily: "var(--brand-sans)" }}>
                   Sign in to send this brief and earn a submission credit when someone joins from your invite.
@@ -140,7 +140,7 @@ export default function ShareBriefButton({
                     className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors text-center"
                     style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                   >
-                    ◆ Sign In
+                    Sign In
                   </Link>
                   <button
                     type="button"
@@ -155,7 +155,7 @@ export default function ShareBriefButton({
             ) : (
               <form onSubmit={handleSend}>
                 <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
-                  ◆ Share Brief
+                  Share Brief
                 </div>
 
                 <div className="space-y-5">
@@ -240,7 +240,7 @@ export default function ShareBriefButton({
                     className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                   >
-                    {sending ? '◆ Sending…' : '◆ Send Invites'}
+                    {sending ? 'Sending…' : 'Send Invites'}
                   </button>
                   <button
                     type="button"

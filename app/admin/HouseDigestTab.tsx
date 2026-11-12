@@ -163,7 +163,7 @@ export default function HouseDigestTab() {
           className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
           style={{ ...mono, borderRadius: '2px' }}
         >
-          {sending ? '◆ Sending…' : 'Send test to me'}
+          {sending ? 'Sending…' : 'Send test to me'}
         </button>
         <button
           type="button"
@@ -172,7 +172,7 @@ export default function HouseDigestTab() {
           className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
           style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
         >
-          {sending ? '◆ Sending…' : 'Send to house'}
+          {sending ? 'Sending…' : 'Send to house'}
         </button>
       </div>
     </div>

@@ -23,7 +23,7 @@ export default function UpdatePasswordPage() {
           className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-4"
           style={{ fontFamily: "var(--brand-mono)" }}
         >
-          ◆ Account
+          Account
         </div>
 
         <h1
@@ -67,7 +67,7 @@ export default function UpdatePasswordPage() {
             }`}
             style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
           >
-            {submitting ? '◆ Saving…' : '◆ Update Password'}
+            {submitting ? 'Saving…' : 'Update Password'}
           </button>
         </form>
       </div>

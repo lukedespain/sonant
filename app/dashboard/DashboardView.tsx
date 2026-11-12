@@ -220,12 +220,12 @@ export default function DashboardView({
           </Stat>
           <Stat label="Accepted" value={`${acceptedCount}`}>
             <span className={`hidden md:inline text-xs ${verified ? 'text-[var(--accent)]' : 'text-[var(--text-dimmer)]'}`}>
-              {verified ? '◆ Verified · client briefs open' : `${Math.max(verificationThreshold - acceptedCount, 0)} more to unlock client briefs`}
+              {verified ? 'Verified · client briefs open' : `${Math.max(verificationThreshold - acceptedCount, 0)} more to unlock client briefs`}
             </span>
           </Stat>
         </div>
         <p className={`md:hidden mt-3 text-xs ${verified ? 'text-[var(--accent)]' : 'text-[var(--text-dimmer)]'}`}>
-          {verified ? '◆ Verified · client briefs open' : `${Math.max(verificationThreshold - acceptedCount, 0)} more acceptances unlock paid client briefs`}
+          {verified ? 'Verified · client briefs open' : `${Math.max(verificationThreshold - acceptedCount, 0)} more acceptances unlock paid client briefs`}
         </p>
 
         <div className="mt-12 flex items-end mb-8 border-b border-[var(--border-base)]" role="tablist">
@@ -243,7 +243,7 @@ export default function DashboardView({
               }`}
             >
               {TAB_LABEL[key]}
-              {key === 'submissions' && offers.length > 0 && <span className="ml-2 text-[var(--accent)]">◆</span>}
+              {key === 'submissions' && offers.length > 0 && <span className="ml-2 text-[var(--accent)]">✓</span>}
             </button>
           ))}
         </div>

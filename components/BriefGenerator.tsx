@@ -459,7 +459,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
               disabled={!canGenerate || loading}
               className={btn('primary', 'md', 'flex-1 h-12')}
             >
-              {loading ? '◆ Generating…' : '◆ Generate brief'}
+              {loading ? 'Generating…' : 'Generate brief'}
             </button>
             {(category || genres.length > 0 || moods.length > 0) && !loading && (
               <button type="button" onClick={handleReset} className={btn('ghost', 'sm')}>
@@ -476,7 +476,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
       {loading && (
         <section className="max-w-2xl mx-auto px-6 py-16 fade-up">
           <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-4 pulse-soft" style={{ fontFamily: "var(--brand-mono)" }}>
-            ◆ Working · this takes 30-60 seconds
+            Working · this takes 30-60 seconds
           </div>
           <div
             key={loadingStep}
@@ -498,7 +498,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
           <section ref={briefRef} className="max-w-5xl mx-auto px-6 md:px-10 py-16 fade-up overflow-x-hidden">
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
               <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-mono)" }}>
-                ◆ Brief Generated · {generated.briefId}
+                Brief Generated · {generated.briefId}
               </div>
               <div className="flex gap-3 flex-wrap">
                 {isAdmin && <SunoPromptModal brief={generated} />}
@@ -520,7 +520,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
                     }`}
                     style={{ fontFamily: "var(--brand-mono)" }}
                   >
-                    {saveStatus === 'saving' ? '◆ Saving…' :
+                    {saveStatus === 'saving' ? 'Saving…' :
                      saveStatus === 'saved' ? '✓ Saved' :
                      saveStatus === 'error' ? '× ' + (saveError || 'Could not save') :
                      ''}

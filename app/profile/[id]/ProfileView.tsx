@@ -365,7 +365,7 @@ export default function ProfileView({
                       className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"
                       style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
                     >
-                      ◆ Open Briefs
+                      Open Briefs
                     </Link>
                   </>
                 )}

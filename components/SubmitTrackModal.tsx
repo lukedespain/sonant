@@ -202,7 +202,7 @@ export default function SubmitTrackModal({
             {done ? (
               /* Success state */
               <div className="text-center py-4">
-                <div className="text-3xl text-[var(--accent)] mb-4">◆</div>
+                <div className="text-3xl text-[var(--accent)] mb-4">✓</div>
                 <h2 className="text-2xl mb-3" style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}>
                   Track submitted.
                 </h2>
@@ -214,13 +214,13 @@ export default function SubmitTrackModal({
                   className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"
                   style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                 >
-                  ◆ Done
+                  Done
                 </button>
               </div>
             ) : (
               <>
                 <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
-                  ◆ Submit Track
+                  Submit Track
                 </div>
 
                 <div className="space-y-5">
@@ -240,7 +240,7 @@ export default function SubmitTrackModal({
                     </label>
                     <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "var(--brand-sans)" }}>
                       {isAdmin
-                        ? 'Sonant team · no credit used'
+                        ? 'Thought Collective · no credit used'
                         : `${submissionCredits} ${submissionCredits === 1 ? 'credit' : 'credits'} remaining · this uses 1`}
                     </p>
                   </div>
@@ -340,7 +340,7 @@ export default function SubmitTrackModal({
                       </div>
                     </div>
                     <span className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-                      I understand this uses 1 submission credit. This goes privately to the Sonant team.
+                      I understand this uses 1 submission credit. This goes privately to Thought Collective.
                     </span>
                   </label>
                 </div>
@@ -398,9 +398,9 @@ export default function SubmitTrackModal({
                   >
                     {uploading
                       ? progress < 100
-                        ? `◆ Uploading ${progress}%`
-                        : '◆ Finishing…'
-                      : '◆ Submit Track'}
+                        ? `Uploading ${progress}%`
+                        : 'Finishing…'
+                      : 'Submit Track'}
                   </button>
                   <button
                     onClick={handleClose}

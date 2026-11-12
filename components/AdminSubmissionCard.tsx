@@ -345,7 +345,7 @@ export default function AdminSubmissionCard({
                     }`}
                     style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                   >
-                    ◆ Mark delivered
+                    Mark delivered
                   </button>
                 )}
               </div>
@@ -416,7 +416,7 @@ export default function AdminSubmissionCard({
                   />
                 )}
                 <DecisionButton
-                  label="◆ Accepted"
+                  label="Accepted"
                   tone="accept"
                   primary={isSent || !canSend}
                   disabled={submitting}
@@ -510,7 +510,7 @@ function HandoffPanel({ handoff, catalogName }: { handoff: AdminHandoff; catalog
   return (
     <div className="mb-4 p-4 border border-[#7A9A6E]/40 bg-[var(--bg-base)]" style={{ borderRadius: '2px' }}>
       <div className="text-[10px] tracking-[0.2em] uppercase text-[#7A9A6E] mb-3" style={mono}>
-        ◆ Signed {new Date(handoff.agreedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ready for {catalogName}
+        Signed {new Date(handoff.agreedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ready for {catalogName}
       </div>
       <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 mb-3">
         {rows.map(([k, v]) => (

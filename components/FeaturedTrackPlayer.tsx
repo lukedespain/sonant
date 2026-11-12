@@ -49,7 +49,7 @@ export default function FeaturedTrackPlayer({
           className="text-[9px] tracking-[0.3em] uppercase text-[var(--accent)] mb-0.5"
           style={{ fontFamily: "var(--brand-mono)" }}
         >
-          {isCurrentlyPlaying ? '◆ Currently Playing' : '◆ Featured Track'}
+          {isCurrentlyPlaying ? 'Currently Playing' : 'Featured Track'}
         </div>
         {fileName && (
           <div

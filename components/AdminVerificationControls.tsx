@@ -62,7 +62,7 @@ export default function AdminVerificationControls({
         className="text-[9px] tracking-[0.3em] uppercase text-[var(--accent)] mb-2"
         style={{ fontFamily: "var(--brand-mono)" }}
       >
-        ◆ Admin · Verified badge
+        Admin · Verified badge
       </div>
       <p
         className="text-xs text-[var(--text-muted)] leading-relaxed mb-3"

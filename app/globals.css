@@ -130,12 +130,28 @@
 
 /* Small uppercase UI label: used sparingly for meta, never for body copy. */
 .label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--brand-sans);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
+}
+
+/* The giant page title from wearethoughtcollective.com ("All Works"). */
+.display-title {
+  font-family: var(--brand-display);
+  font-weight: 500;
+  font-size: clamp(3.25rem, 8.5vw, 7.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+
+/* Serif classes from the old brand now render as tight Inter display type. */
+.font-serif {
+  letter-spacing: -0.03em;
+}
+.font-serif.italic, .font-serif .italic {
+  font-style: normal;
 }
 
 html {

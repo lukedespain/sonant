@@ -1,74 +1,42 @@
 import Link from 'next/link';
 import ThoughtCollectiveMark from '@/components/ThoughtCollectiveMark';
+import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 
-const GUMROAD_URL = 'https://sonant.gumroad.com/l/royalties';
-
-const COLUMNS: { title: string; links: { label: string; href: string; external?: boolean }[] }[] = [
-  {
-    title: 'Composers',
-    links: [
-      { label: 'Generator', href: '/generator' },
-      { label: 'Briefs', href: '/briefs' },
-      { label: 'Catalogs', href: '/catalogs' },
-    ],
-  },
-  {
-    title: 'Learn',
-    links: [
-      { label: 'FAQ', href: '/faq' },
-      { label: 'Royalties guide', href: GUMROAD_URL, external: true },
-    ],
-  },
-  {
-    title: 'Contact',
-    links: [{ label: 'hello@sonant.ac', href: 'mailto:hello@sonant.ac' }],
-  },
+const LINKS: { label: string; href: string; external?: boolean }[] = [
+  { label: 'Briefs', href: '/briefs' },
+  { label: 'FAQ', href: '/faq' },
+  { label: 'Main site ↗', href: THOUGHT_COLLECTIVE_SITE, external: true },
+  { label: 'hello@thoughtcollective.com', href: 'mailto:hello@thoughtcollective.com', external: true },
 ];
 
 export default function Footer() {
   return (
-    <footer className="no-print border-t border-[var(--border-base)] mt-auto">
-      <div className="max-w-6xl mx-auto px-5 md:px-10 py-14 grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr] gap-10">
-        <div className="col-span-2 md:col-span-1 max-w-xs">
-          <p className="flex items-center gap-2.5 text-[15px] font-medium tracking-[-0.01em]">
-            <ThoughtCollectiveMark size={20} />
+    <footer className="no-print mt-auto">
+      <div className="max-w-[1440px] mx-auto px-5 md:px-[60px] py-14 md:py-20 flex flex-col md:flex-row md:items-end justify-between gap-10">
+        <div>
+          <p className="flex items-center gap-3 text-[17px] font-medium tracking-[-0.02em]">
+            <ThoughtCollectiveMark size={22} />
             Thought Collective
           </p>
-          <p className="mt-2 text-sm text-[var(--text-muted)] leading-relaxed">
-            Practice writing to spec. Get written feedback. Get your music into catalogs.
+          <p className="mt-3 text-[15px] text-[var(--text-muted)] max-w-sm leading-relaxed">
+            Briefs for composers from a London music and sound company.
           </p>
         </div>
-        {COLUMNS.map((col) => (
-          <div key={col.title}>
-            <p className="label text-[var(--text-dimmer)] mb-4">{col.title}</p>
-            <ul className="space-y-2.5">
-              {col.links.map((link) => (
-                <li key={link.label}>
-                  {link.external ? (
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
-                    >
-                      {link.label} ↗
-                    </a>
-                  ) : (
-                    <Link
-                      href={link.href}
-                      className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors break-all"
-                    >
-                      {link.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <div className="max-w-6xl mx-auto px-5 md:px-10 pb-10 text-xs text-[var(--text-dimmer)]">
-        © {new Date().getFullYear()} Sonant
+        <ul className="flex flex-wrap gap-x-8 gap-y-3 text-[15px]">
+          {LINKS.map((link) => (
+            <li key={link.label}>
+              {link.external ? (
+                <a href={link.href} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+                  {link.label}
+                </a>
+              ) : (
+                <Link href={link.href} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+                  {link.label}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </footer>
   );
