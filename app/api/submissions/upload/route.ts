@@ -114,7 +114,7 @@ export async function POST(req: Request) {
       await admin.storage.from(SUBMISSION_BUCKET).remove([storagePath]);
       return spend.reason === 'insufficient'
         ? NextResponse.json(
-            { error: 'You need a submission credit.', uploadGone: true },
+            { error: 'No free submissions left this week. A new one arrives every week.', uploadGone: true },
             { status: 402 }
           )
         : NextResponse.json({ error: spend.message, uploadGone: true }, { status: 500 });

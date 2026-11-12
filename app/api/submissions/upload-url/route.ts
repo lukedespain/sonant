@@ -69,7 +69,7 @@ export async function POST(req: Request) {
       credits = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
     }
     if (credits < 1) {
-      return NextResponse.json({ error: 'You need a submission credit.' }, { status: 402 });
+      return NextResponse.json({ error: 'No free submissions left this week. A new one arrives every week.' }, { status: 402 });
     }
   }
 

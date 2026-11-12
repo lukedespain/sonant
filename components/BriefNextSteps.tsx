@@ -174,7 +174,7 @@ export default function BriefNextSteps({
           title="Submit your track"
           body={`The strongest tracks go into the ${catalogName} catalogue.${catalogExclusive ? ' Accepted tracks are exclusive to it.' : ''}`}
           bullets={[
-            'Uses 1 submission credit',
+            'Free: one submission a week, and they stack',
             'Written feedback on every submission',
             `${catalogExclusive ? 'Exclusive' : 'Non-exclusive'} · ${catalogSplit} if it places`,
             ...(humanMadeOnly ? ['Human-made only, no AI'] : []),
@@ -196,7 +196,7 @@ export default function BriefNextSteps({
               </Link>
             )
           }
-          footnote={loggedIn ? 'MP3 or WAV' : 'Free account · 1 credit a month'}
+          footnote={loggedIn ? 'MP3 or WAV' : 'Free account · one submission a week'}
         />
       </div>
     </section>

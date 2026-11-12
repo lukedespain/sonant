@@ -35,8 +35,8 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
     a: 'No. The catalogue is human-made only: no AI-generated music, stems, or vocals. You confirm it when you sign on.',
   },
   {
-    q: 'How do submissions work?',
-    a: 'Each submission uses one credit. Every account gets one free credit a month, and extra credits are $10 each from your Dashboard.',
+    q: 'Does it cost anything?',
+    a: 'No. Submitting is free. Every account gets one submission a week, and unused ones stack, so you can save them up for a brief that fits you.',
   },
 ];
 

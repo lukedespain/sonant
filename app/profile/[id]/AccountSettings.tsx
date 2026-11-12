@@ -143,17 +143,6 @@ export default function AccountSettings({
             <div className="text-3xl leading-none text-[var(--text-primary)]" style={{ ...serif, fontWeight: 300 }}>
               {isAdmin ? '∞' : submissionCredits}
             </div>
-            {!isAdmin && (
-              <button
-                type="button"
-                onClick={onAddCredits}
-                disabled={checkoutLoading}
-                className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70 disabled:opacity-40 mb-0.5"
-                style={mono}
-              >
-                {checkoutLoading ? '…' : '+ Add'}
-              </button>
-            )}
           </div>
           {!isAdmin && daysUntilNextCredit != null && (
             <p className="mt-2 text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)]" style={mono}>

@@ -4,8 +4,6 @@ import type { User } from '@supabase/supabase-js';
 /** UTC calendar date. Month is 1–12. */
 export type Ymd = { y: number; m: number; d: number };
 
-const MAX_CATCH_UP = 12;
-
 export function toYmd(value: string | Date): Ymd {
   const d = typeof value === 'string' ? new Date(value) : value;
   return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate() };
@@ -50,25 +48,50 @@ export function daysBetween(from: Ymd, to: Ymd): number {
 }
 
 /**
- * Monthly credits after the signup credit. `lastGranted` is the signup date
- * until the first anniversary is paid, then each anniversary as it is granted.
+ * How often every account gets a free submission credit. Credits stack and
+ * never expire. Switch to 'month' when reviewing gets to be too much.
+ */
+export const CREDIT_PERIOD: 'week' | 'month' = 'week';
+
+/** Most periods paid out in one catch-up, as a guard against bad dates. */
+const MAX_CATCH_UP_PERIODS = 520;
+
+/** The nth credit date after signup (n = 1 is one period after signup). */
+export function addPeriods(signup: Ymd, n: number): Ymd {
+  if (CREDIT_PERIOD === 'month') return addMonths(signup, n);
+  const d = new Date(Date.UTC(signup.y, signup.m - 1, signup.d + 7 * n));
+  return toYmd(d);
+}
+
+/** Index of the first credit date strictly after `after`. */
+function firstPeriodAfter(signup: Ymd, after: Ymd): number {
+  let n =
+    CREDIT_PERIOD === 'week'
+      ? Math.max(1, Math.floor(daysBetween(signup, after) / 7))
+      : Math.max(1, (after.y - signup.y) * 12 + (after.m - signup.m) - 1);
+  while (n > 1 && compareYmd(addPeriods(signup, n - 1), after) > 0) n--;
+  while (compareYmd(addPeriods(signup, n), after) <= 0) n++;
+  return n;
+}
+
+/**
+ * Credits after the signup credit. `lastGranted` is the signup date until the
+ * first one is paid, then each credit date as it is granted. Every missed
+ * period is paid, so credits stack while someone is away.
  */
 export function dueCreditDates(signup: Ymd, lastGranted: Ymd, today: Ymd): Ymd[] {
   const due: Ymd[] = [];
-  for (let n = 1; n <= 36 && due.length < MAX_CATCH_UP; n++) {
-    const date = addMonths(signup, n);
+  for (let n = firstPeriodAfter(signup, lastGranted); due.length < MAX_CATCH_UP_PERIODS; n++) {
+    const date = addPeriods(signup, n);
     if (compareYmd(date, today) > 0) break;
-    if (compareYmd(date, lastGranted) > 0) due.push(date);
+    due.push(date);
   }
   return due;
 }
 
 export function nextCreditDate(signup: Ymd, lastGranted: Ymd, today: Ymd): Ymd {
-  for (let n = 1; n <= 48; n++) {
-    const date = addMonths(signup, n);
-    if (compareYmd(date, today) > 0 && compareYmd(date, lastGranted) > 0) return date;
-  }
-  return addMonths(signup, 1);
+  const after = compareYmd(today, lastGranted) > 0 ? today : lastGranted;
+  return addPeriods(signup, firstPeriodAfter(signup, after));
 }
 
 export type MonthlyCreditState = {

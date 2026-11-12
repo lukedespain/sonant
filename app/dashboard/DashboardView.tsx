@@ -58,7 +58,6 @@ export default function DashboardView({
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const [nextName, setNextName] = useState(initialName);
   const [newEmail, setNewEmail] = useState('');
@@ -175,19 +174,6 @@ export default function DashboardView({
     window.location.href = '/';
   }
 
-  async function startCheckout() {
-    setCheckoutLoading(true);
-    const res = await fetch('/api/stripe/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'submission' }),
-    });
-    setCheckoutLoading(false);
-    if (res.ok) {
-      const { url } = await res.json();
-      window.location.href = url;
-    }
-  }
 
   return (
     <div className="flex-1 min-w-0 pt-14 md:pt-20 pb-24 overflow-x-clip">
@@ -199,17 +185,9 @@ export default function DashboardView({
           <Stat label={isAdmin ? 'Reviews' : 'Credits'} value={isAdmin ? '∞' : String(submissionCredits)}>
             {!isAdmin && (
               <>
-                <button
-                  type="button"
-                  onClick={startCheckout}
-                  disabled={checkoutLoading}
-                  className="label text-[var(--accent)] hover:opacity-70 disabled:opacity-40"
-                >
-                  {checkoutLoading ? '…' : '+ Add'}
-                </button>
                 {daysUntilNextCredit != null && (
-                  <span className="hidden md:inline ml-3 text-xs text-[var(--text-dimmer)]">
-                    Free one in {daysUntilNextCredit} {daysUntilNextCredit === 1 ? 'day' : 'days'}
+                  <span className="text-xs text-[var(--text-dimmer)]">
+                    +1 free in {daysUntilNextCredit} {daysUntilNextCredit === 1 ? 'day' : 'days'}
                   </span>
                 )}
               </>

@@ -347,25 +347,7 @@ export default function SubmitTrackModal({
 
                 {!hasCredit && (
                   <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-                    You need a submission credit to send this in.{' '}
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const res = await fetch('/api/stripe/checkout', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ type: 'submission' }),
-                        });
-                        if (res.ok) {
-                          const { url } = await res.json();
-                          window.location.href = url;
-                        }
-                      }}
-                      className="text-[var(--accent)] hover:opacity-70"
-                    >
-                      Buy a credit
-                    </button>
-                    .
+                    You have used your free submissions for now. A new one arrives every week, and unused ones stack up, so check back in a few days.
                   </p>
                 )}
 
