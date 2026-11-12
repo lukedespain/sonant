@@ -7,6 +7,8 @@ import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
 import { btn } from '@/components/ui';
 import { CATALOG_PARTNER_LIST, catalogPartnerById } from '@/lib/partners';
+import TagPicker from '@/components/TagPicker';
+import Link from 'next/link';
 
 export type AdminHandoff = {
   agreedAt: string | null;
@@ -40,6 +42,9 @@ type AdminSubmissionCardProps = {
   playlistHref?: string | null;
   catalogId?: string;
   handoff?: AdminHandoff | null;
+  briefGenres?: string[];
+  briefMoods?: string[];
+  savedTags?: { genres: string[]; moods: string[] } | null;
 };
 
 export default function AdminSubmissionCard({
@@ -60,6 +65,9 @@ export default function AdminSubmissionCard({
   playlistHref = null,
   catalogId = 'sonant',
   handoff = null,
+  briefGenres = [],
+  briefMoods = [],
+  savedTags = null,
 }: AdminSubmissionCardProps) {
   const router = useRouter();
   const { track: activeTrack, isPlaying, play, pause } = useAudioPlayer();
@@ -72,6 +80,8 @@ export default function AdminSubmissionCard({
   const canSend = selectedCatalog !== 'sonant';
   const [open, setOpen] = useState(isDisco ? !deliveryConfirmedAt : !isDecided);
   const [feedback, setFeedback] = useState(existingFeedback ?? '');
+  // Starts with everything on the brief ticked; untick what the track does not nail.
+  const [tags, setTags] = useState(savedTags ?? { genres: briefGenres, moods: briefMoods });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,7 +93,17 @@ export default function AdminSubmissionCard({
     setSubmitting(true);
     setError(null);
 
-    const result = await recordDecision({ submissionId, decision, feedback, catalogId: selectedCatalog });
+    if (decision === 'accepted' && (tags.genres.length === 0 || tags.moods.length === 0)) {
+      setError('Tag at least one genre and one mood this track nails.');
+      return;
+    }
+    const result = await recordDecision({
+      submissionId,
+      decision,
+      feedback,
+      catalogId: selectedCatalog,
+      tags: decision === 'accepted' ? tags : undefined,
+    });
     setSubmitting(false);
 
     if (result.error) {
@@ -383,6 +403,28 @@ export default function AdminSubmissionCard({
                     ? `Send to ${selectedName} when it is worth pitching. The composer gets your notes either way.`
                     : 'Sonant catalog. You make the call.'}
               </p>
+              )}
+
+              {!isDecided && (
+                <div className="mb-4 p-4 border border-[var(--border-card)] rounded-[2px]">
+                  <p className="text-sm mb-1">If it&apos;s accepted, what does it nail?</p>
+                  <p className="text-[12px] text-[var(--text-muted)] mb-3">
+                    Untick what this track doesn&apos;t do, or add your own. The composer is verified for these on the roster. Only admins see them.
+                  </p>
+                  <TagPicker genreOptions={briefGenres} moodOptions={briefMoods} value={tags} onChange={setTags} />
+                </div>
+              )}
+              {status === 'accepted' && (
+                <p className="mb-4 text-[13px] text-[var(--text-muted)]">
+                  {savedTags ? (
+                    <>Verified for {[...savedTags.genres, ...savedTags.moods].join(' · ')}. </>
+                  ) : (
+                    <>Not tagged yet. </>
+                  )}
+                  <Link href="/admin?tab=roster" className="underline underline-offset-4 hover:text-[var(--text-primary)]">
+                    Edit in Roster
+                  </Link>
+                </p>
               )}
 
               {!handoff?.agreedAt && (

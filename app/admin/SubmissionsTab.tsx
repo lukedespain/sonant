@@ -4,6 +4,7 @@ import AdminSubmissionCard from '@/components/AdminSubmissionCard';
 import { SUBMISSION_BUCKET } from '@/lib/audio-upload';
 import { catalogPartnerById, catalogPartnerFromBrief } from '@/lib/partners';
 import { readHandoffs, readRights } from '@/lib/handoff';
+import { readTrackTags } from '@/lib/track-tags';
 import type { AdminHandoff } from '@/components/AdminSubmissionCard';
 import ManualSubmissionForm, { type ComposerOption } from './ManualSubmissionForm';
 
@@ -76,7 +77,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
       ? admin.from('profiles').select('id, full_name, email').in('id', userIds)
       : Promise.resolve({ data: [] }),
     briefIds.length
-      ? admin.from('briefs').select('id, brief_type, generated_content').in('id', briefIds)
+      ? admin.from('briefs').select('id, brief_type, genres, moods, generated_content').in('id', briefIds)
       : Promise.resolve({ data: [] }),
     userIds.length
       ? admin
@@ -93,7 +94,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
     ])
   );
   const briefMap = Object.fromEntries(
-    (briefs ?? []).map((b: { id: string; brief_type?: string | null; generated_content: BriefContent }) => {
+    (briefs ?? []).map((b: { id: string; brief_type?: string | null; genres?: string[] | null; moods?: string[] | null; generated_content: BriefContent }) => {
       const content = b.generated_content;
       const client = isClientBrief(b.brief_type, content);
       return [
@@ -102,6 +103,8 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
           isClient: client,
           name: projectName(content, client),
           catalogId: catalogPartnerFromBrief(content)?.id ?? 'sonant',
+          genres: b.genres ?? [],
+          moods: b.moods ?? [],
         },
       ];
     })
@@ -154,7 +157,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   );
 
   const cards = rows.map((sub) => {
-    const brief = briefMap[sub.brief_id] ?? { isClient: false, name: 'Untitled', catalogId: 'sonant' };
+    const brief = briefMap[sub.brief_id] ?? { isClient: false, name: 'Untitled', catalogId: 'sonant', genres: [] as string[], moods: [] as string[] };
     const delivery: 'upload' | 'disco' = sub.delivery === 'disco' ? 'disco' : 'upload';
     const signed = audioBySubmission[sub.id] ?? null;
     const playlistHit = matchPlaylist(sub.user_id, sub.brief_id, signed?.name);
@@ -184,6 +187,9 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
         : playlistHit?.file_url ?? null,
       playlistHref: playlistHit ? `/briefs/${sub.brief_id}#playlist` : null,
       handoff: handoffFor(sub),
+      briefGenres: brief.genres,
+      briefMoods: brief.moods,
+      savedTags: readTrackTags(authUsers[sub.user_id]?.app_metadata)[sub.id] ?? null,
     };
   });
 
@@ -263,6 +269,9 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
               playlistHref={row.playlistHref}
               catalogId={row.catalogId}
               handoff={row.handoff}
+              briefGenres={row.briefGenres}
+              briefMoods={row.briefMoods}
+              savedTags={row.savedTags}
             />
           ))}
         </div>

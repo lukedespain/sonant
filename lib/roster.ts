@@ -3,6 +3,7 @@ import { SUBMISSION_BUCKET } from '@/lib/audio-upload';
 import { readHandoffs, readRights, type RightsInfo } from '@/lib/handoff';
 import { catalogPartnerById, catalogPartnerFromBrief } from '@/lib/partners';
 import { classifyBrief } from '@/lib/brief-kind';
+import { readTrackTags } from '@/lib/track-tags';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -14,8 +15,13 @@ export type RosterTrack = {
   kind: 'catalog' | 'client';
   catalogName: string;
   mode: string;
+  /** Admin tags when set, otherwise the brief's tags. */
   genres: string[];
   moods: string[];
+  /** True once an admin has tagged what this track nails. */
+  tagged: boolean;
+  briefGenres: string[];
+  briefMoods: string[];
   placedAt: string;
   signedOn: boolean;
   audioUrl: string | null;
@@ -112,6 +118,7 @@ export async function loadRoster(admin: AdminClient): Promise<RosterComposer[]> 
       const profile = profileMap.get(id);
       const authUser = userMap.get(id);
       const handoffs = readHandoffs(authUser?.app_metadata);
+      const trackTags = readTrackTags(authUser?.app_metadata);
       const tracks = accepted
         .filter((s) => s.user_id === id)
         .map((s): RosterTrack => {
@@ -122,6 +129,7 @@ export async function loadRoster(admin: AdminClient): Promise<RosterComposer[]> 
           const partner =
             catalogPartnerById(handoff?.catalogId) ?? catalogPartnerFromBrief(content) ?? catalogPartnerById('thought-collective');
           const file = fileMap.get(s.id);
+          const saved = trackTags[s.id];
           return {
             submissionId: s.id,
             trackName: file?.name ? stripExtension(file.name) : 'Untitled track',
@@ -130,8 +138,11 @@ export async function loadRoster(admin: AdminClient): Promise<RosterComposer[]> 
             kind: isClient ? 'client' : 'catalog',
             catalogName: isClient ? 'Client job' : partner?.name ?? 'Thought Collective',
             mode: brief?.mode ?? '',
-            genres: brief?.genres ?? [],
-            moods: brief?.moods ?? [],
+            genres: saved ? saved.genres : brief?.genres ?? [],
+            moods: saved ? saved.moods : brief?.moods ?? [],
+            tagged: !!saved,
+            briefGenres: brief?.genres ?? [],
+            briefMoods: brief?.moods ?? [],
             placedAt: handoff?.offeredAt || s.created_at,
             signedOn: !!handoff?.agreedAt,
             audioUrl: file?.url ?? null,

@@ -309,7 +309,7 @@ export default function ProfileView({
                 <span
                   className="absolute -right-1.5 -bottom-1.5 w-7 h-7 flex items-center justify-center bg-[var(--accent)] text-[var(--bg-base)]"
                   style={{ borderRadius: '2px' }}
-                  title="Verified composer. Three catalog placements."
+                  title="Verified composer. Placed in the Thought Collective catalogue."
                 >
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                     <path d="M2 6.2l2.6 2.6L10 3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />

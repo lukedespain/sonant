@@ -3,7 +3,7 @@ import type { createAdminClient } from '@/lib/supabase/admin';
 type AdminClient = ReturnType<typeof createAdminClient>;
 
 /** Accepted catalog placements a composer needs before paid client briefs unlock. */
-export const VERIFICATION_THRESHOLD = 3;
+export const VERIFICATION_THRESHOLD = 1;
 
 /**
  * Manual badge override on `profiles.verified_override`.

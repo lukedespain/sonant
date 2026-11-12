@@ -178,7 +178,7 @@ export default function AccountSettings({
               style={{ ...sans, borderRadius: '2px' }}
               role="tooltip"
             >
-              Place three tracks in the catalog to earn this badge. Verified composers get access to paid briefs.
+              Get one track accepted into the catalogue to earn this badge. Verified composers get access to paid client briefs.
             </div>
           </div>
           {verified ? (

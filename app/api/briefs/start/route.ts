@@ -4,10 +4,13 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { generateBrief } from '@/app/briefs/generate';
 import { attachImageIfAdmin } from '@/app/briefs/generateImage';
 import { NextResponse } from 'next/server';
+import { isSiteAdmin } from '@/lib/admin';
 
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  // Brief generation is an admin tool on the Thought Collective portal.
+  if (!isSiteAdmin(user)) return NextResponse.json({ error: 'Not authorized.' }, { status: 401 });
 
   const input = await req.json();
 

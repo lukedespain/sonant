@@ -28,7 +28,7 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'What is the roster?',
-    a: 'Composers with a track in our catalogue. When a brand job needs custom music, the roster is who we call first, matched on the genres and moods we have already placed from you. After three placements, paid client briefs open up here too.',
+    a: 'Every composer with a track in our catalogue. Your first accepted track puts you on it, verified for the genres and moods that track nails. When a brand job needs custom music, the roster is who we call first, and paid client briefs open up for you here.',
   },
   {
     q: 'Can I use AI?',

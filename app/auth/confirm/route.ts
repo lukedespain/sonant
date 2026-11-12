@@ -21,14 +21,11 @@ export async function GET(request: NextRequest) {
           typeof fullName === 'string' ? fullName.trim().split(/\s+/)[0] : undefined;
         await addSignupToResendList({ email: data.user.email, firstName });
       }
-      const accountType = data.user.user_metadata?.account_type;
       const fromMeta = safeInternalPath(data.user.user_metadata?.signup_next);
       const dest =
         type === 'recovery'
           ? '/update-password'
-          : accountType === 'business'
-            ? '/dashboard'
-            : fromMeta ?? '/briefs';
+          : fromMeta ?? '/briefs';
       return NextResponse.redirect(`${origin}${dest}`);
     }
   }

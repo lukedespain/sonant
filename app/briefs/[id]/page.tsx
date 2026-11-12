@@ -71,10 +71,10 @@ export default async function BrowseBriefPage({ params }: PageProps) {
           <p className="label text-[var(--accent)]">Verified composers only</p>
           <h1 className="mt-4 font-serif font-light text-4xl md:text-5xl tracking-tight">Paid client briefs.</h1>
           <p className="mt-4 text-[15px] text-[var(--text-muted)] leading-relaxed">
-            Get three tracks accepted into a catalog to unlock paid client work.
+            Get a track accepted into the catalogue to unlock paid client work.
           </p>
           <Link href="/briefs#catalog" className={btn('secondary', 'md', 'mt-8')}>
-            See catalog briefs
+            See catalogue briefs
           </Link>
         </div>
       </div>
@@ -112,8 +112,6 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
   const currentUserName = (currentProfile as { full_name?: string } | null)?.full_name ?? '';
   const submissionCredits = (currentProfile as { submission_credits?: number } | null)?.submission_credits ?? 0;
-  const isPro = isAdmin || user?.email?.endsWith('@sonant.ac') ||
-    (currentProfile as { tier?: string } | null)?.tier === 'pro';
 
   const communityTracks = visibleRaw.map((t) => ({
     id: t.id,
@@ -148,7 +146,6 @@ export default async function BrowseBriefPage({ params }: PageProps) {
             {!isClientBrief && (
               <ShareBriefButton briefId={briefRow.id} briefName={title} loggedIn={!!user} />
             )}
-            {isPro && !isAdmin && <SunoPromptModal brief={brief} />}
             {isAdmin && (
               <AdminMenu>
                 {(isClientBrief || isFeatured) && (

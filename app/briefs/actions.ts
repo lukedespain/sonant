@@ -10,6 +10,7 @@ import { ADMIN_USER_ID } from '@/lib/admin';
 import { announceNewBrief, briefDisplayName } from '@/lib/brief-announcements';
 import { catalogPartnerById, catalogPartnerFromBrief } from '@/lib/partners';
 import { readHandoffs } from '@/lib/handoff';
+import { normalizeTagList, tagProblem, withTrackTags } from '@/lib/track-tags';
 
 type Mode = 'brand' | 'film' | 'games';
 
@@ -414,8 +415,13 @@ export async function recordDecision(params: {
   decision: SubmissionDecision;
   feedback: string;
   catalogId?: string;
+  /** Genres and moods the track nails. Required when accepting. */
+  tags?: { genres: string[]; moods: string[] };
 }) {
   const { submissionId, decision, feedback } = params;
+  const tags = params.tags
+    ? { genres: normalizeTagList(params.tags.genres), moods: normalizeTagList(params.tags.moods) }
+    : null;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -424,6 +430,10 @@ export async function recordDecision(params: {
   }
   if (!feedback.trim()) {
     return { error: 'Write your feedback on the track first.' };
+  }
+  if (decision === 'accepted') {
+    const problem = tags ? tagProblem(tags) : 'Tag the genres and moods this track nails first.';
+    if (problem) return { error: problem };
   }
 
   const admin = createAdminClient();
@@ -467,6 +477,8 @@ export async function recordDecision(params: {
     catalogPartnerFromBrief(brief?.generated_content);
   const catalogName = partner?.name ?? 'Sonant';
 
+  // One write for the handoff and the tags, so neither overwrites the other.
+  let nextMeta: Record<string, unknown> | null = null;
   if (decision !== 'not_accepted' && composer?.user && !existing?.agreedAt) {
     const next = {
       ...existing,
@@ -475,11 +487,17 @@ export async function recordDecision(params: {
     };
     if (next.catalogId !== existing?.catalogId || next.offeredAt !== existing?.offeredAt) {
       handoffs[submissionId] = next;
-      const { error: offerError } = await admin.auth.admin.updateUserById(submission.user_id, {
-        app_metadata: { ...composer.user.app_metadata, handoffs },
-      });
-      if (offerError) console.error('Could not save the catalog for this submission:', offerError);
+      nextMeta = { ...composer.user.app_metadata, handoffs };
     }
+  }
+  if (decision === 'accepted' && tags && composer?.user) {
+    nextMeta = withTrackTags(nextMeta ?? composer.user.app_metadata, submissionId, tags);
+  }
+  if (nextMeta && composer?.user) {
+    const { error: metaError } = await admin.auth.admin.updateUserById(submission.user_id, {
+      app_metadata: nextMeta,
+    });
+    if (metaError) console.error('Could not save the catalog or tags for this submission:', metaError);
   }
   const composerEmail = composer?.user?.email;
 

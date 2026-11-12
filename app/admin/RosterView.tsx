@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { RosterComposer, RosterTrack } from '@/lib/roster';
+import TagPicker from '@/components/TagPicker';
 
 const MODE_LABELS: Record<string, string> = { brand: 'Brand', film: 'Film', games: 'Games' };
 
@@ -41,38 +42,103 @@ function Chip({ label, count, active, onClick }: { label: string; count?: number
   );
 }
 
-function TrackRow({ track, playingId, onToggle }: { track: RosterTrack; playingId: string | null; onToggle: (t: RosterTrack) => void }) {
+function TrackRow({
+  track,
+  playingId,
+  onToggle,
+  onTagsSaved,
+}: {
+  track: RosterTrack;
+  playingId: string | null;
+  onToggle: (t: RosterTrack) => void;
+  onTagsSaved: (submissionId: string, tags: { genres: string[]; moods: string[] }) => void;
+}) {
   const playing = playingId === track.submissionId;
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ genres: track.genres, moods: track.moods });
+  const [state, setState] = useState<'idle' | 'saving'>('idle');
+  const [error, setError] = useState<string | null>(null);
+
+  async function save() {
+    setState('saving');
+    setError(null);
+    const res = await fetch('/api/admin/roster/tags', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId: track.submissionId, ...draft }),
+    });
+    const json = await res.json().catch(() => ({}));
+    setState('idle');
+    if (!res.ok) return setError((json as { error?: string }).error ?? 'Could not save.');
+    onTagsSaved(track.submissionId, (json as { tags: { genres: string[]; moods: string[] } }).tags);
+    setEditing(false);
+  }
+
   return (
-    <li className="grid grid-cols-[36px_1fr] md:grid-cols-[36px_1.2fr_1fr_auto] gap-x-4 gap-y-1 items-center py-3 border-t border-[var(--border-base)]">
-      <button
-        type="button"
-        disabled={!track.audioUrl}
-        onClick={() => onToggle(track)}
-        aria-label={playing ? `Pause ${track.trackName}` : `Play ${track.trackName}`}
-        className="w-9 h-9 rounded-full border border-[var(--border-subtle)] flex items-center justify-center hover:border-[var(--text-primary)] disabled:opacity-30"
-      >
-        {playing ? (
-          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor" /></svg>
-        ) : (
-          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z" fill="currentColor" /></svg>
-        )}
-      </button>
-      <div className="min-w-0">
-        <p className="text-[15px] truncate">{track.trackName}</p>
-        <p className="text-[13px] text-[var(--text-muted)] truncate">
-          <Link href={`/briefs/${track.briefId}`} className="hover:text-[var(--text-primary)]">{track.briefTitle}</Link>
-          {' · '}
-          {track.catalogName}
+    <li className="py-3 border-t border-[var(--border-base)]">
+      <div className="grid grid-cols-[36px_1fr] md:grid-cols-[36px_1.2fr_1fr_auto] gap-x-4 gap-y-1 items-center">
+        <button
+          type="button"
+          disabled={!track.audioUrl}
+          onClick={() => onToggle(track)}
+          aria-label={playing ? `Pause ${track.trackName}` : `Play ${track.trackName}`}
+          className="w-9 h-9 rounded-full border border-[var(--border-subtle)] flex items-center justify-center hover:border-[var(--text-primary)] disabled:opacity-30"
+        >
+          {playing ? (
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor" /></svg>
+          ) : (
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z" fill="currentColor" /></svg>
+          )}
+        </button>
+        <div className="min-w-0">
+          <p className="text-[15px] truncate">{track.trackName}</p>
+          <p className="text-[13px] text-[var(--text-muted)] truncate">
+            <Link href={`/briefs/${track.briefId}`} className="hover:text-[var(--text-primary)]">{track.briefTitle}</Link>
+            {' · '}
+            {track.catalogName}
+          </p>
+        </div>
+        <div className="col-start-2 md:col-start-auto min-w-0">
+          <p className="text-[13px] text-[var(--text-secondary)] truncate">
+            {[...track.genres, ...track.moods].join(' · ') || 'No tags'}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setDraft({ genres: track.genres, moods: track.moods });
+              setEditing((v) => !v);
+            }}
+            className={`text-[12px] hover:text-[var(--text-primary)] ${track.tagged ? 'text-[var(--text-dimmer)]' : 'text-[var(--signal)]'}`}
+          >
+            {editing ? 'Cancel' : track.tagged ? 'Edit tags' : 'From the brief · tag it'}
+          </button>
+        </div>
+        <p className="col-start-2 md:col-start-auto text-[13px] text-[var(--text-dimmer)] whitespace-nowrap tabular-nums">
+          {formatDate(track.placedAt)}
+          {track.kind === 'catalog' && !track.signedOn && <span className="ml-2 text-[var(--signal)]">Not signed on</span>}
         </p>
       </div>
-      <p className="col-start-2 md:col-start-auto text-[13px] text-[var(--text-muted)] truncate">
-        {[MODE_LABELS[track.mode], ...track.genres.slice(0, 2), ...track.moods.slice(0, 2)].filter(Boolean).join(' · ')}
-      </p>
-      <p className="col-start-2 md:col-start-auto text-[13px] text-[var(--text-dimmer)] whitespace-nowrap tabular-nums">
-        {formatDate(track.placedAt)}
-        {track.kind === 'catalog' && !track.signedOn && <span className="ml-2 text-[var(--signal)]">Not signed on</span>}
-      </p>
+      {editing && (
+        <div className="mt-4 md:ml-[52px] p-4 border border-[var(--border-card)] rounded-[2px]">
+          <TagPicker
+            genreOptions={track.briefGenres}
+            moodOptions={track.briefMoods}
+            value={draft}
+            onChange={setDraft}
+          />
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={save}
+              disabled={state === 'saving'}
+              className="h-8 px-3 text-sm bg-[var(--text-primary)] text-[var(--bg-base)] rounded-[2px] disabled:opacity-50"
+            >
+              {state === 'saving' ? 'Saving…' : 'Save tags'}
+            </button>
+            {error && <span className="text-sm text-[var(--danger)]">{error}</span>}
+          </div>
+        </div>
+      )}
     </li>
   );
 }
@@ -125,7 +191,8 @@ function NoteField({ composer }: { composer: RosterComposer }) {
   );
 }
 
-export default function RosterView({ composers }: { composers: RosterComposer[] }) {
+export default function RosterView({ composers: initial }: { composers: RosterComposer[] }) {
+  const [composers, setComposers] = useState(initial);
   const [query, setQuery] = useState('');
   const [genres, setGenres] = useState<string[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
@@ -168,6 +235,19 @@ export default function RosterView({ composers }: { composers: RosterComposer[] 
     setPlayingId(track.submissionId);
   }
 
+  function updateTrackTags(composerId: string, submissionId: string, tags: { genres: string[]; moods: string[] }) {
+    setComposers((list) =>
+      list.map((c) =>
+        c.id !== composerId
+          ? c
+          : {
+              ...c,
+              tracks: c.tracks.map((t) => (t.submissionId === submissionId ? { ...t, ...tags, tagged: true } : t)),
+            },
+      ),
+    );
+  }
+
   async function copyEmails() {
     const emails = filtered.map((c) => c.email).filter(Boolean).join(', ');
     try {
@@ -184,7 +264,7 @@ export default function RosterView({ composers }: { composers: RosterComposer[] 
   return (
     <div>
       <p className="text-[17px] text-[var(--text-muted)] leading-relaxed max-w-2xl mb-10">
-        Every composer with a track accepted into the catalogue or placed on a client job. Genres and moods come from the briefs they wrote to. Pick tags to find who fits a new job, then copy their emails.
+        Every composer with an accepted track, verified for the genres and moods you tagged when you accepted it. Older tracks show the brief's tags until you tag them. Pick tags to find who fits a new job, then copy their emails.
       </p>
 
       <div className="space-y-5 mb-10">
@@ -308,6 +388,12 @@ export default function RosterView({ composers }: { composers: RosterComposer[] 
 
                 <div className="min-w-0">
                   {(topGenres.length > 0 || topMoods.length > 0) && (
+                    <p className="text-[13px] text-[var(--text-dimmer)] mb-2">
+                      Verified for
+                      {c.tracks.some((t) => !t.tagged) && ' · some tags still come from the brief'}
+                    </p>
+                  )}
+                  {(topGenres.length > 0 || topMoods.length > 0) && (
                     <div className="flex flex-wrap gap-1.5 mb-5">
                       {topGenres.map((g) => (
                         <span key={g} className="text-[13px] px-2.5 py-1 bg-[var(--bg-card)] text-[var(--text-secondary)] rounded-full">{g}</span>
@@ -320,7 +406,13 @@ export default function RosterView({ composers }: { composers: RosterComposer[] 
                   {c.tracks.length > 0 ? (
                     <ul className="border-b border-[var(--border-base)]">
                       {c.tracks.map((t) => (
-                        <TrackRow key={t.submissionId} track={t} playingId={playingId} onToggle={togglePlay} />
+                        <TrackRow
+                          key={t.submissionId}
+                          track={t}
+                          playingId={playingId}
+                          onToggle={togglePlay}
+                          onTagsSaved={(id, tags) => updateTrackTags(c.id, id, tags)}
+                        />
                       ))}
                     </ul>
                   ) : (
