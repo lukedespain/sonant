@@ -72,20 +72,20 @@ export default function CommunityTracksSection({
   return (
     <div id="playlist" className="mt-10 no-print scroll-mt-28">
       <div
-        className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-2"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-2"
+        style={{ fontFamily: "var(--brand-mono)" }}
       >
         ◆ Playlist
       </div>
       <p
         className="text-sm text-[var(--text-muted)] mb-5 max-w-xl leading-relaxed"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
+        style={{ fontFamily: "var(--brand-sans)" }}
       >
         Uploads attached to this brief. Public tracks show here and on the composer&apos;s profile. Private stays only on yours.
       </p>
 
       {tracks.length === 0 ? (
-        <p className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <p className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-sans)" }}>
           No takes on this playlist yet. Use Upload above to add one.
         </p>
       ) : (
@@ -98,7 +98,7 @@ export default function CommunityTracksSection({
               <div
                 key={track.id}
                 className={`border bg-[var(--bg-card)] px-4 py-3 flex items-center gap-3 transition-colors ${
-                  isFeatured ? 'border-[#E85D2F]/50' : 'border-[var(--border-card)]'
+                  isFeatured ? 'border-[var(--accent)]/50' : 'border-[var(--border-card)]'
                 }`}
                 style={{ borderRadius: '2px' }}
               >
@@ -106,8 +106,8 @@ export default function CommunityTracksSection({
                   onClick={() => handlePlay(track)}
                   className={`w-7 h-7 flex items-center justify-center shrink-0 transition-colors ${
                     isCurrentlyPlaying
-                      ? 'bg-[#E85D2F] text-[#0A0908]'
-                      : 'bg-[#0A0908] text-[#E85D2F]'
+                      ? 'bg-[var(--accent)] text-[#0A0908]'
+                      : 'bg-[#0A0908] text-[var(--accent)]'
                   }`}
                   style={{ borderRadius: '2px' }}
                   aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
@@ -118,7 +118,7 @@ export default function CommunityTracksSection({
                 <div className="flex-1 min-w-0">
                   <span
                     className="text-xs text-[var(--text-secondary)] truncate block"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                    style={{ fontFamily: "var(--brand-sans)" }}
                   >
                     {track.file_name}
                     {track.isOwner && !track.is_public && (
@@ -127,11 +127,11 @@ export default function CommunityTracksSection({
                   </span>
                   <span
                     className="text-[10px] text-[var(--text-dimmer)] truncate block"
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                    style={{ fontFamily: "var(--brand-mono)" }}
                   >
                     {track.uploader_name}
                     {isFeatured && (
-                      <span className="text-[#E85D2F] ml-2">· featured</span>
+                      <span className="text-[var(--accent)] ml-2">· featured</span>
                     )}
                   </span>
                 </div>
@@ -142,8 +142,8 @@ export default function CommunityTracksSection({
                       type="button"
                       onClick={() => handleVisibility(track.id, !track.is_public)}
                       disabled={isPending}
-                      className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors disabled:opacity-40"
-                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                      className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[var(--accent)] transition-colors disabled:opacity-40"
+                      style={{ fontFamily: "var(--brand-mono)" }}
                     >
                       {track.is_public ? 'Public' : 'Private'}
                     </button>
@@ -155,8 +155,8 @@ export default function CommunityTracksSection({
                       title={isFeatured ? 'Remove as featured track' : 'Set as featured track'}
                       className={`text-base leading-none transition-colors disabled:opacity-40 ${
                         isFeatured
-                          ? 'text-[#E85D2F]'
-                          : 'text-[var(--text-dimmer)] hover:text-[#E85D2F]'
+                          ? 'text-[var(--accent)]'
+                          : 'text-[var(--text-dimmer)] hover:text-[var(--accent)]'
                       }`}
                     >
                       {isFeatured ? '★' : '☆'}
@@ -167,7 +167,7 @@ export default function CommunityTracksSection({
                       onClick={() => handleDelete(track.id)}
                       disabled={isPending}
                       className="text-[9px] tracking-[0.2em] uppercase text-[#9A8A86] hover:text-[#C5564A] transition-colors disabled:opacity-40"
-                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                      style={{ fontFamily: "var(--brand-mono)" }}
                     >
                       Remove
                     </button>

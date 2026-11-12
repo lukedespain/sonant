@@ -13,7 +13,7 @@ import AlertsPanel from './AlertsPanel';
 import type { AppNotification } from '@/lib/notifications';
 
 const AVATAR_COLORS = [
-  '#E85D2F', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
+  'var(--accent)', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
   '#955251', '#B565A7', '#009473', '#DD4132', '#45B5AA',
 ];
 function avatarColor(id: string) {
@@ -25,9 +25,9 @@ function getInitials(name: string) {
   return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2) || '?';
 }
 
-const serif = { fontFamily: "'Fraunces', serif" } as const;
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+const serif = { fontFamily: "var(--brand-display)" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
 
 type TrackItem = {
   id: string;
@@ -166,7 +166,7 @@ export default function ProfileView({
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-transparent border-b border-[#E85D2F] focus:outline-none text-[var(--text-primary)] pb-1"
+                  className="w-full bg-transparent border-b border-[var(--accent)] focus:outline-none text-[var(--text-primary)] pb-1"
                   style={{ ...serif, fontWeight: 300, fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}
                   placeholder="Name"
                 />
@@ -175,23 +175,23 @@ export default function ProfileView({
                   onChange={(e) => setBio(e.target.value)}
                   rows={4}
                   placeholder="A short bio"
-                  className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none"
+                  className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none"
                   style={{ ...sans, borderRadius: '2px' }}
                 />
                 <input
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
                   placeholder="Portfolio link"
-                  className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none"
+                  className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none"
                   style={{ ...sans, borderRadius: '2px' }}
                 />
-                {error && <p className="text-[10px] text-[#FF8B6B]" style={mono}>× {error}</p>}
+                {error && <p className="text-[10px] text-[var(--danger)]" style={mono}>× {error}</p>}
                 <div className="flex items-center gap-4">
                   <button
                     type="button"
                     onClick={saveProfile}
                     disabled={saving}
-                    className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40"
+                    className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70 disabled:opacity-40"
                     style={mono}
                   >
                     {saving ? '…' : 'Save'}
@@ -221,7 +221,7 @@ export default function ProfileView({
                   {displayName}
                 </h1>
                 {verified && (
-                  <div className="text-[9px] tracking-[0.2em] uppercase text-[#E85D2F] mb-5" style={mono}>
+                  <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--accent)] mb-5" style={mono}>
                     Verified composer
                   </div>
                 )}
@@ -236,7 +236,7 @@ export default function ProfileView({
                       href={siteHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
+                      className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
                       style={mono}
                     >
                       Portfolio →
@@ -246,7 +246,7 @@ export default function ProfileView({
                     <button
                       type="button"
                       onClick={() => setEditing(true)}
-                      className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors"
+                      className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
                       style={mono}
                     >
                       Edit profile
@@ -307,7 +307,7 @@ export default function ProfileView({
               )}
               {verified && (
                 <span
-                  className="absolute -right-1.5 -bottom-1.5 w-7 h-7 flex items-center justify-center bg-[#E85D2F] text-[var(--bg-base)]"
+                  className="absolute -right-1.5 -bottom-1.5 w-7 h-7 flex items-center justify-center bg-[var(--accent)] text-[var(--bg-base)]"
                   style={{ borderRadius: '2px' }}
                   title="Verified composer. Three catalog placements."
                 >
@@ -362,7 +362,7 @@ export default function ProfileView({
                     </p>
                     <Link
                       href="/briefs"
-                      className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+                      className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"
                       style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
                     >
                       ◆ Open Briefs
@@ -384,8 +384,8 @@ export default function ProfileView({
                         onClick={() => handlePlay(track)}
                         className={`w-9 h-9 flex items-center justify-center shrink-0 transition-colors ${
                           isCurrentlyPlaying
-                            ? 'bg-[#E85D2F] text-[#0A0908]'
-                            : 'bg-[#0A0908] text-[#E85D2F]'
+                            ? 'bg-[var(--accent)] text-[#0A0908]'
+                            : 'bg-[#0A0908] text-[var(--accent)]'
                         }`}
                         style={{ borderRadius: '2px' }}
                         aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
@@ -402,7 +402,7 @@ export default function ProfileView({
                         {track.briefName.toLowerCase() !== track.fileName.replace(/\.[^/.]+$/, '').toLowerCase() && (
                           <Link
                             href={`/briefs/${track.briefId}`}
-                            className="text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors truncate block mt-0.5"
+                            className="text-[10px] tracking-[0.12em] uppercase text-[var(--text-dimmer)] hover:text-[var(--accent)] transition-colors truncate block mt-0.5"
                             style={mono}
                           >
                             {track.briefName}
@@ -419,7 +419,7 @@ export default function ProfileView({
                             });
                           }}
                           disabled={isPending}
-                          className="shrink-0 text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors disabled:opacity-40"
+                          className="shrink-0 text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[var(--accent)] transition-colors disabled:opacity-40"
                           style={mono}
                         >
                           {track.isPublic ? 'Public' : 'Private'}

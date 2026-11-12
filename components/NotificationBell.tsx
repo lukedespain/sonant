@@ -23,7 +23,7 @@ export default function NotificationBell({ profileHref }: { profileHref: string 
     <Link
       href={`${profileHref}#alerts`}
       aria-label={unread > 0 ? `${unread} unread alerts` : 'Alerts'}
-      className="relative h-10 w-10 flex items-center justify-center border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+      className="relative h-10 w-10 flex items-center justify-center border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
       style={{ borderRadius: '2px' }}
     >
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -32,8 +32,8 @@ export default function NotificationBell({ profileHref }: { profileHref: string 
       </svg>
       {unread > 0 && (
         <span
-          className="absolute -top-1 -right-1 min-w-4 h-4 px-1 flex items-center justify-center bg-[#E85D2F] text-[var(--bg-base)] text-[9px] leading-none"
-          style={{ borderRadius: '2px', fontFamily: "'JetBrains Mono', monospace" }}
+          className="absolute -top-1 -right-1 min-w-4 h-4 px-1 flex items-center justify-center bg-[var(--accent)] text-[var(--bg-base)] text-[9px] leading-none"
+          style={{ borderRadius: '2px', fontFamily: "var(--brand-mono)" }}
         >
           {unread > 9 ? '9+' : unread}
         </span>

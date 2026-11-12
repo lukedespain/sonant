@@ -47,10 +47,10 @@ export default function AdminVerificationControls({
       disabled={saving || active === id}
       className={`text-[9px] tracking-[0.2em] uppercase px-3 py-1.5 border transition-colors ${
         active === id
-          ? 'border-[#E85D2F] text-[#E85D2F]'
-          : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+          ? 'border-[var(--accent)] text-[var(--accent)]'
+          : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
       } disabled:opacity-50`}
-      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+      style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
     >
       {label}
     </button>
@@ -59,14 +59,14 @@ export default function AdminVerificationControls({
   return (
     <div className="mt-6 pt-5 border-t border-[var(--border-card)]">
       <div
-        className="text-[9px] tracking-[0.3em] uppercase text-[#E85D2F] mb-2"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        className="text-[9px] tracking-[0.3em] uppercase text-[var(--accent)] mb-2"
+        style={{ fontFamily: "var(--brand-mono)" }}
       >
         ◆ Admin · Verified badge
       </div>
       <p
         className="text-xs text-[var(--text-muted)] leading-relaxed mb-3"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
+        style={{ fontFamily: "var(--brand-sans)" }}
       >
         Automatic rule: {accepted} accepted catalog placement{accepted === 1 ? '' : 's'}.
       </p>
@@ -76,7 +76,7 @@ export default function AdminVerificationControls({
         {btn('revoke', 'Revoke')}
       </div>
       {error && (
-        <p className="text-[10px] text-[#FF8B6B] mt-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <p className="text-[10px] text-[var(--danger)] mt-2" style={{ fontFamily: "var(--brand-mono)" }}>
           × {error}
         </p>
       )}

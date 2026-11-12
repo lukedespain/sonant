@@ -20,10 +20,10 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
   const [error, setError] = useState<string | null>(null);
 
   const fieldClass =
-    'w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none';
+    'w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none';
   const labelClass = 'block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2';
-  const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
-  const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
+  const mono = { fontFamily: "var(--brand-mono)" } as const;
+  const sans = { fontFamily: "var(--brand-sans)" } as const;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -71,10 +71,10 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
           href="/admin?tab=briefs"
           className={`${kindLink} ${
             kind === 'client'
-              ? 'text-[var(--text-primary)] border-[#E85D2F]'
+              ? 'text-[var(--text-primary)] border-[var(--accent)]'
               : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
           }`}
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ fontFamily: "var(--brand-mono)" }}
         >
           Client
         </Link>
@@ -82,10 +82,10 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
           href="/admin?tab=briefs&kind=catalog"
           className={`${kindLink} ${
             kind === 'catalog'
-              ? 'text-[var(--text-primary)] border-[#E85D2F]'
+              ? 'text-[var(--text-primary)] border-[var(--accent)]'
               : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
           }`}
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ fontFamily: "var(--brand-mono)" }}
         >
           Catalog
         </Link>
@@ -196,7 +196,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="text-[10px] tracking-[0.2em] uppercase px-4 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+          className="text-[10px] tracking-[0.2em] uppercase px-4 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
           style={{ ...mono, borderRadius: '2px' }}
         >
           + Upload file
@@ -229,13 +229,13 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
       )}
 
       {error && (
-        <p className="text-[10px] text-[#FF8B6B] mb-4" style={mono}>× {error}</p>
+        <p className="text-[10px] text-[var(--danger)] mb-4" style={mono}>× {error}</p>
       )}
 
       <button
         type="submit"
         disabled={submitting}
-        className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50"
+        className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
         style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
       >
         {submitting ? '◆ Writing brief…' : '+ Add client brief'}

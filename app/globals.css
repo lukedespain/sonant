@@ -1,105 +1,121 @@
 @import "tailwindcss";
 
 /* ============================================================
-   SONANT DESIGN TOKENS
-   Dark mode is the default. Light mode overrides via
-   [data-theme="light"] on the <html> element (set by next-themes).
+   THOUGHT COLLECTIVE DESIGN TOKENS
+   Black and white, matched to wearethoughtcollective.com.
+   Dark is the default; [data-theme="light"] (next-themes) flips it.
+   The accent is the ink colour: white on dark, black on light.
+   Orange is kept as --signal for rare small markers only.
    ============================================================ */
 
 :root {
+  /* Type */
+  --brand-sans:    'Inter', ui-sans-serif, system-ui, sans-serif;
+  --brand-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --brand-mono:    'Inter', ui-sans-serif, system-ui, sans-serif;
+
   /* Backgrounds */
-  --bg-base:       #0A0908;
-  --bg-card:       #141312;
-  --bg-card-deep:  #0F0E0D;
-  --bg-card-hover: #181614;
+  --bg-base:       #0A0A0A;
+  --bg-card:       #121212;
+  --bg-card-deep:  #0E0E0E;
+  --bg-card-hover: #181818;
 
   /* Borders */
-  --border-base:   #1F1D1A;
-  --border-card:   #2A2826;
-  --border-subtle: #3A3835;
-  --border-hover:  #4A4642;
+  --border-base:   #1C1C1C;
+  --border-card:   #262626;
+  --border-subtle: #333333;
+  --border-hover:  #474747;
 
-  /* Accent */
-  --accent:        #E85D2F;
-  --accent-hover:  #FF6E3D;
-  --accent-soft:   rgba(232, 93, 47, 0.10);
-  --accent-line:   rgba(232, 93, 47, 0.35);
-  --positive:      #7A9A6E;
+  /* Accent (ink) */
+  --accent:        #FFFFFF;
+  --accent-hover:  #D6D6D6;
+  --accent-soft:   rgba(255, 255, 255, 0.06);
+  --accent-line:   rgba(255, 255, 255, 0.32);
+  --signal:        #E85D2F;
+  --positive:      #8FB283;
+  --danger:        #FF8B6B;
 
   /* Text */
-  --text-primary:   #F5F1E8;
-  --text-secondary: #C4BFB5;
-  --text-tertiary:  #A8A39A;
-  --text-muted:     #8A8680;
-  --text-dim:       #6A6660;
-  --text-dimmer:    #5A5650;
+  --text-primary:   #FFFFFF;
+  --text-secondary: #D4D4D4;
+  --text-tertiary:  #B0B0B0;
+  --text-muted:     #8F8F8F;
+  --text-dim:       #6E6E6E;
+  --text-dimmer:    #585858;
 
   /* Legacy aliases kept for the body rule below */
   --background: var(--bg-base);
   --foreground: var(--text-primary);
 
   /* Submission status card colors */
-  --status-accepted-bg:      #182A15;
-  --status-accepted-border:  #2C4528;
-  --status-pending-bg:       #26200B;
-  --status-pending-border:   #3D3210;
-  --status-reviewed-bg:      #1C1A17;
-  --status-reviewed-border:  #302D28;
+  --status-accepted-bg:      #142414;
+  --status-accepted-border:  #284028;
+  --status-pending-bg:       #241F0B;
+  --status-pending-border:   #3A3110;
+  --status-reviewed-bg:      #171717;
+  --status-reviewed-border:  #2A2A2A;
 
   /* Brief document — dark mode */
-  --brief-bg-from:       #1E1C19;
-  --brief-bg-to:         #1A1815;
-  --brief-text-h:        #EDE8DF;
-  --brief-text-body:     #C4BFB5;
-  --brief-text-meta:     #6A6660;
-  --brief-divider:       rgba(240, 235, 224, 0.09);
-  --brief-ref-border:    rgba(240, 235, 224, 0.13);
-  --brief-img-fade-from: rgba(30, 28, 25, 0);
-  --brief-img-fade-to:   #1E1C19;
-  --brief-arrow:         #E85D2F;
-  --brief-use-color:     #7A9A6E;
-  --brief-skip-color:    #B33A1A;
+  --brief-bg-from:       #151515;
+  --brief-bg-to:         #111111;
+  --brief-text-h:        #FFFFFF;
+  --brief-text-body:     #CFCFCF;
+  --brief-text-meta:     #6E6E6E;
+  --brief-divider:       rgba(255, 255, 255, 0.09);
+  --brief-ref-border:    rgba(255, 255, 255, 0.13);
+  --brief-img-fade-from: rgba(21, 21, 21, 0);
+  --brief-img-fade-to:   #151515;
+  --brief-arrow:         #FFFFFF;
+  --brief-use-color:     #8FB283;
+  --brief-skip-color:    #E06A4A;
 }
 
-/* Light mode — warm cream palette inspired by Sonant print materials */
 [data-theme="light"] {
-  --bg-base:       #F9F7F4;
-  --bg-card:       #FFFFFF;
-  --bg-card-deep:  #F5F3F0;
-  --bg-card-hover: #EDE9E3;
+  --bg-base:       #FFFFFF;
+  --bg-card:       #F7F7F7;
+  --bg-card-deep:  #F2F2F2;
+  --bg-card-hover: #EDEDED;
 
-  --border-base:   #E8E4DE;
-  --border-card:   #E0DCD6;
-  --border-subtle: #D5D0CA;
-  --border-hover:  #C8C4BE;
+  --border-base:   #EBEBEB;
+  --border-card:   #E0E0E0;
+  --border-subtle: #D0D0D0;
+  --border-hover:  #B8B8B8;
 
-  --text-primary:   #1A1815;
-  --text-secondary: #3A3630;
-  --text-tertiary:  #4A4640;
-  --text-muted:     #5A5650;
-  --text-dim:       #6A6660;
-  --text-dimmer:    #8A8680;
+  --accent:        #0A0A0A;
+  --accent-hover:  #333333;
+  --accent-soft:   rgba(0, 0, 0, 0.05);
+  --accent-line:   rgba(0, 0, 0, 0.28);
+  --signal:        #D9501F;
+  --positive:      #4E7A44;
+  --danger:        #C2410C;
+
+  --text-primary:   #0A0A0A;
+  --text-secondary: #262626;
+  --text-tertiary:  #3D3D3D;
+  --text-muted:     #595959;
+  --text-dim:       #6E6E6E;
+  --text-dimmer:    #8C8C8C;
 
   /* Submission status card colors */
-  --status-accepted-bg:      #ECF2E8;
-  --status-accepted-border:  #C8DEC0;
-  --status-pending-bg:       #F5EDD0;
-  --status-pending-border:   #DDD0A0;
-  --status-reviewed-bg:      #EDECEA;
-  --status-reviewed-border:  #D5D1CB;
+  --status-accepted-bg:      #EDF3EA;
+  --status-accepted-border:  #C8DCC0;
+  --status-pending-bg:       #F6F0DA;
+  --status-pending-border:   #DFD3A6;
+  --status-reviewed-bg:      #F2F2F2;
+  --status-reviewed-border:  #DADADA;
 
   /* Brief document — light/paper mode */
-  --brief-bg-from:       #F5EFE0;
-  --brief-bg-to:         #F2EBDA;
-  --brief-text-h:        #1A1815;
-  --brief-text-body:     #1A1815;
-  --brief-text-meta:     #8A8680;
-  --brief-divider:       rgba(42, 38, 32, 0.18);
-  --brief-ref-border:    rgba(42, 38, 32, 0.15);
-  --brief-img-fade-from: rgba(245, 239, 224, 0);
-  --brief-img-fade-to:   #F5EFE0;
-  --brief-arrow:         #E85D2F;
-  --brief-use-color:     #5A8A50;
+  --brief-bg-from:       #FFFFFF;
+  --brief-bg-to:         #FAFAFA;
+  --brief-text-h:        #0A0A0A;
+  --brief-text-body:     #1F1F1F;
+  --brief-text-meta:     #8C8C8C;
+  --brief-divider:       rgba(0, 0, 0, 0.12);
+  --brief-ref-border:    rgba(0, 0, 0, 0.12);
+  --brief-img-fade-from: rgba(255, 255, 255, 0);
+  --brief-img-fade-to:   #FFFFFF;
+  --brief-arrow:         #0A0A0A;
+  --brief-use-color:     #4E7A44;
   --brief-skip-color:    #B33A1A;
 }
 
@@ -107,17 +123,19 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Fraunces', ui-serif, Georgia, serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Small uppercase UI label: used sparingly for meta, never for body copy. */
 .label {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.18em;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
 }
 
 html {
@@ -128,7 +146,8 @@ html {
 body {
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--brand-sans);
+  font-optical-sizing: auto;
   transition: background-color 0.2s ease, color 0.2s ease;
   padding-bottom: 48px;
   overflow-x: clip;
@@ -178,7 +197,7 @@ body {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: #E85D2F;
+  background: var(--accent);
   border: none;
   cursor: pointer;
   margin-top: 0;
@@ -194,7 +213,7 @@ body {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: #E85D2F;
+  background: var(--accent);
   border: none;
   cursor: pointer;
 }
@@ -239,7 +258,7 @@ body {
 }
 
 @keyframes flash-target {
-  0%, 30% { background-color: rgba(232, 93, 47, 0.12); }
+  0%, 30% { background-color: var(--accent-soft); }
   100% { background-color: transparent; }
 }
 
@@ -248,7 +267,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flash-target { animation: none; outline: 1px solid #E85D2F; }
+  .flash-target { animation: none; outline: 1px solid var(--accent); }
 }
 
 /* The Thought Collective mark is black artwork: flip it to white on the dark theme. */

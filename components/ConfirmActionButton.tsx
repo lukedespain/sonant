@@ -21,7 +21,7 @@ export default function ConfirmActionButton({
 
   const accent = danger
     ? 'border-[#C5564A] text-[#C5564A]'
-    : 'border-[#E85D2F] text-[#E85D2F]';
+    : 'border-[var(--accent)] text-[var(--accent)]';
   const rest = danger
     ? 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#C5564A] hover:text-[#C5564A]'
     : 'border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent)] hover:text-[var(--accent)]';
@@ -72,8 +72,8 @@ export default function ConfirmActionButton({
       {error && (
         <p
           role="alert"
-          className="absolute right-0 top-full mt-2 w-72 z-10 p-3 text-xs leading-relaxed text-[#FF8B6B] bg-[var(--bg-card)] border border-[#4A3633]"
-          style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+          className="absolute right-0 top-full mt-2 w-72 z-10 p-3 text-xs leading-relaxed text-[var(--danger)] bg-[var(--bg-card)] border border-[#4A3633]"
+          style={{ fontFamily: "var(--brand-sans)", borderRadius: '2px' }}
         >
           {error}
         </p>

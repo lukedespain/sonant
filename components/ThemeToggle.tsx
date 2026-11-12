@@ -51,7 +51,7 @@ export default function ThemeToggle({
         type="button"
         onClick={toggle}
         aria-label={aria}
-        className="h-10 w-10 flex items-center justify-center border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+        className="h-10 w-10 flex items-center justify-center border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
         style={{ borderRadius: '2px' }}
       >
         {icon}
@@ -64,7 +64,7 @@ export default function ThemeToggle({
       return (
         <div
           className="flex items-center gap-3 h-8 text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)]"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ fontFamily: "var(--brand-mono)" }}
         >
           <span className="w-4 h-4" />
           {label}
@@ -77,7 +77,7 @@ export default function ThemeToggle({
         onClick={toggle}
         aria-label={aria}
         className="flex items-center gap-3 text-left text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        style={{ fontFamily: "var(--brand-mono)" }}
       >
         {icon}
         {label}

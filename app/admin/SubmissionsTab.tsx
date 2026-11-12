@@ -237,7 +237,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
           className="border border-[var(--border-card)] bg-[var(--bg-card)] p-12 text-center"
           style={{ borderRadius: '2px' }}
         >
-          <p className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-sans)" }}>
             {queue === 'client' ? 'No client submissions yet.' : 'No catalog submissions yet.'}
           </p>
         </div>
@@ -287,14 +287,14 @@ function QueueLink({
       href={href}
       className={`px-5 py-3 text-xs tracking-[0.2em] uppercase transition-colors -mb-px border-b-2 ${
         active
-          ? 'text-[var(--text-primary)] border-[#E85D2F]'
+          ? 'text-[var(--text-primary)] border-[var(--accent)]'
           : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
       }`}
-      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      style={{ fontFamily: "var(--brand-mono)" }}
     >
       {label}
       {pending > 0 && (
-        <span className="ml-2 text-[#E85D2F] tracking-[0.12em]">{pending}</span>
+        <span className="ml-2 text-[var(--accent)] tracking-[0.12em]">{pending}</span>
       )}
     </Link>
   );

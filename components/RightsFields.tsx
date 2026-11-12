@@ -3,11 +3,11 @@
 import { useId } from 'react';
 import { PRO_OPTIONS, type RightsInfo } from '@/lib/handoff';
 
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
 
 const inputClass =
-  'w-full px-3 py-2.5 bg-[var(--bg-base)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none';
+  'w-full px-3 py-2.5 bg-[var(--bg-base)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none';
 
 function Field({
   id,

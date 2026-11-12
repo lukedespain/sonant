@@ -110,43 +110,43 @@ export default function ShareBriefButton({
           >
             {done ? (
               <div className="text-center py-4">
-                <div className="text-3xl text-[#E85D2F] mb-4">◆</div>
-                <h2 className="text-2xl mb-3" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+                <div className="text-3xl text-[var(--accent)] mb-4">◆</div>
+                <h2 className="text-2xl mb-3" style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}>
                   Invite{sentCount === 1 ? '' : 's'} sent.
                 </h2>
-                <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
                   {sentCount === 1 ? 'They get' : 'They each get'} a link to this brief. If they create an account from your code, you earn a submission credit.
                 </p>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                  className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"
+                  style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                 >
                   ◆ Done
                 </button>
               </div>
             ) : !loggedIn ? (
               <>
-                <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
                   ◆ Share Brief
                 </div>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-8" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-8" style={{ fontFamily: "var(--brand-sans)" }}>
                   Sign in to send this brief and earn a submission credit when someone joins from your invite.
                 </p>
                 <div className="flex gap-3">
                   <Link
                     href={`/login?redirect=/briefs/${briefId}`}
-                    className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                    className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors text-center"
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                   >
                     ◆ Sign In
                   </Link>
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
                   >
                     Cancel
                   </button>
@@ -154,40 +154,40 @@ export default function ShareBriefButton({
               </>
             ) : (
               <form onSubmit={handleSend}>
-                <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
                   ◆ Share Brief
                 </div>
 
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
                       Brief
                     </label>
-                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "var(--brand-sans)" }}>
                       {briefName}
                     </p>
                   </div>
 
                   {codeLoading && !code && (
-                    <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <p className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={{ fontFamily: "var(--brand-mono)" }}>
                       Loading your invite code…
                     </p>
                   )}
 
                   {code && shareUrl && (
                     <div>
-                      <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
                         Your invite code
                       </div>
                       <div className="flex items-center justify-between gap-3 mb-2">
-                        <p className="text-lg tracking-[0.12em] text-[var(--text-primary)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                        <p className="text-lg tracking-[0.12em] text-[var(--text-primary)]" style={{ fontFamily: "var(--brand-mono)" }}>
                           {code}
                         </p>
                         <button
                           type="button"
                           onClick={() => copy('code', code)}
-                          className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
-                          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                          className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
+                          style={{ fontFamily: "var(--brand-mono)" }}
                         >
                           {copied === 'code' ? 'Copied' : 'Copy code'}
                         </button>
@@ -195,8 +195,8 @@ export default function ShareBriefButton({
                       <button
                         type="button"
                         onClick={() => copy('link', shareUrl)}
-                        className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
-                        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                        className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[var(--accent)] transition-colors"
+                        style={{ fontFamily: "var(--brand-mono)" }}
                       >
                         {copied === 'link' ? 'Link copied' : 'Copy unique link'}
                       </button>
@@ -207,7 +207,7 @@ export default function ShareBriefButton({
                     <label
                       htmlFor="share-emails"
                       className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
-                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                      style={{ fontFamily: "var(--brand-mono)" }}
                     >
                       Send to
                     </label>
@@ -218,17 +218,17 @@ export default function ShareBriefButton({
                       value={emails}
                       onChange={(e) => setEmails(e.target.value)}
                       placeholder="composer@email.com, another@email.com"
-                      className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] placeholder:text-[var(--text-dimmer)] focus:border-[#E85D2F] focus:outline-none transition-colors text-sm"
-                      style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+                      className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] placeholder:text-[var(--text-dimmer)] focus:border-[var(--accent)] focus:outline-none transition-colors text-sm"
+                      style={{ fontFamily: "var(--brand-sans)", borderRadius: '2px' }}
                     />
-                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5 leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5 leading-relaxed" style={{ fontFamily: "var(--brand-mono)" }}>
                       One or many emails. Each new signup from your code earns you a submission credit.
                     </p>
                   </div>
                 </div>
 
                 {error && (
-                  <p className="text-[10px] text-[#FF8B6B] mt-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  <p className="text-[10px] text-[var(--danger)] mt-4" style={{ fontFamily: "var(--brand-mono)" }}>
                     × {error}
                   </p>
                 )}
@@ -237,8 +237,8 @@ export default function ShareBriefButton({
                   <button
                     type="submit"
                     disabled={sending || !emails.trim()}
-                    className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                    className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                   >
                     {sending ? '◆ Sending…' : '◆ Send Invites'}
                   </button>
@@ -246,8 +246,8 @@ export default function ShareBriefButton({
                     type="button"
                     onClick={handleClose}
                     disabled={sending}
-                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
                   >
                     Cancel
                   </button>

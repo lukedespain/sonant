@@ -21,18 +21,18 @@ export default function OnboardingClient() {
     <div className="flex-1 flex items-center justify-center px-6 py-16 min-h-[calc(100vh-80px)]">
       <div className="w-full max-w-2xl">
 
-        <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-5"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-5"
+          style={{ fontFamily: "var(--brand-mono)" }}>
           ◆ You&apos;re in
         </div>
 
         <h1 className="text-4xl md:text-5xl tracking-tight leading-[1.1] mb-4"
-          style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+          style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}>
           One quick <span className="italic">thing.</span>
         </h1>
 
         <p className="text-base text-[var(--text-tertiary)] mb-12 max-w-md leading-relaxed"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          style={{ fontFamily: "var(--brand-sans)" }}>
           Tell us how you&apos;re using Sonant. We&apos;ll shape your experience around it.
         </p>
 
@@ -42,20 +42,20 @@ export default function OnboardingClient() {
           <button
             onClick={() => select('composer')}
             disabled={saving !== null}
-            className="text-left border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[#E85D2F] hover:bg-[var(--bg-card-hover)] transition-all p-8 group disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-left border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:bg-[var(--bg-card-hover)] transition-all p-8 group disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ borderRadius: '2px' }}
           >
-            <div className="text-2xl mb-5 text-[#E85D2F]" style={{ fontFamily: "'Fraunces', serif" }}>♩</div>
+            <div className="text-2xl mb-5 text-[var(--accent)]" style={{ fontFamily: "var(--brand-display)" }}>♩</div>
             <div className="text-lg tracking-tight mb-3 text-[var(--text-primary)]"
-              style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+              style={{ fontFamily: "var(--brand-display)", fontWeight: 400 }}>
               I make <span className="italic">music.</span>
             </div>
             <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              style={{ fontFamily: "var(--brand-sans)" }}>
               Composers, producers, musicians. Write to briefs, get written feedback on every submission, and build toward a spot in a partner catalog.
             </p>
-            <div className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] group-hover:translate-x-1 transition-transform"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] group-hover:translate-x-1 transition-transform"
+              style={{ fontFamily: "var(--brand-mono)" }}>
               {saving === 'composer' ? '◆ Setting up…' : '◆ Continue as music creator →'}
             </div>
           </button>
@@ -64,20 +64,20 @@ export default function OnboardingClient() {
           <button
             onClick={() => select('business')}
             disabled={saving !== null}
-            className="text-left border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[#E85D2F] hover:bg-[var(--bg-card-hover)] transition-all p-8 group disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-left border border-[var(--border-card)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:bg-[var(--bg-card-hover)] transition-all p-8 group disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ borderRadius: '2px' }}
           >
-            <div className="text-2xl mb-5 text-[#E85D2F]" style={{ fontFamily: "'Fraunces', serif" }}>◈</div>
+            <div className="text-2xl mb-5 text-[var(--accent)]" style={{ fontFamily: "var(--brand-display)" }}>◈</div>
             <div className="text-lg tracking-tight mb-3 text-[var(--text-primary)]"
-              style={{ fontFamily: "'Fraunces', serif", fontWeight: 400 }}>
+              style={{ fontFamily: "var(--brand-display)", fontWeight: 400 }}>
               I need <span className="italic">music.</span>
             </div>
             <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              style={{ fontFamily: "var(--brand-sans)" }}>
               Brands, music supervisors, studios, and filmmakers. Post briefs, receive pre-vetted submissions, and find exactly what your project needs.
             </p>
-            <div className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] group-hover:translate-x-1 transition-transform"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] group-hover:translate-x-1 transition-transform"
+              style={{ fontFamily: "var(--brand-mono)" }}>
               {saving === 'business' ? '◆ Setting up…' : '◆ Continue as music buyer →'}
             </div>
           </button>

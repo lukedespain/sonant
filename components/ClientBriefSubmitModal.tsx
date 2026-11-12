@@ -79,7 +79,7 @@ export default function ClientBriefSubmitModal({
         type="button"
         onClick={handleOpen}
         className={triggerClassName}
-        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+        style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
       >
         {triggerLabel}
       </button>
@@ -97,11 +97,11 @@ export default function ClientBriefSubmitModal({
           >
             {done ? (
               <div className="text-center py-4">
-                <div className="text-3xl text-[#E85D2F] mb-4">◆</div>
-                <h2 className="text-2xl mb-3" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+                <div className="text-3xl text-[var(--accent)] mb-4">◆</div>
+                <h2 className="text-2xl mb-3" style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}>
                   Disco is open.
                 </h2>
-                <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
                   Deliver the WAV there. Name the file{' '}
                   <span className="text-[var(--text-secondary)]">{filename}</span> so we can match it to you.
                 </p>
@@ -111,8 +111,8 @@ export default function ClientBriefSubmitModal({
                       href={discoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors text-center"
-                      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                      className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors text-center"
+                      style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                     >
                       ↗ Open inbox
                     </a>
@@ -120,8 +120,8 @@ export default function ClientBriefSubmitModal({
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="text-xs tracking-[0.2em] uppercase px-6 py-3 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                    className="text-xs tracking-[0.2em] uppercase px-6 py-3 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
                   >
                     Done
                   </button>
@@ -129,51 +129,51 @@ export default function ClientBriefSubmitModal({
               </div>
             ) : (
               <>
-                <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
                   ◆ Deliver on Disco
                 </div>
 
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
                       Brief
                     </label>
-                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "var(--brand-sans)" }}>
                       {briefName}
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
                       File name
                     </label>
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-[var(--text-secondary)] truncate flex-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                      <span className="text-xs text-[var(--text-secondary)] truncate flex-1" style={{ fontFamily: "var(--brand-mono)" }}>
                         {filename}
                       </span>
                       <button
                         type="button"
                         onClick={copyFilename}
-                        className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors shrink-0"
-                        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                        className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors shrink-0"
+                        style={{ fontFamily: "var(--brand-mono)" }}
                       >
                         Copy
                       </button>
                     </div>
-                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "var(--brand-mono)" }}>
                       WAV · no credit · send as many takes as you like
                     </p>
                   </div>
                 </div>
 
                 {error && (
-                  <p className="text-[10px] text-[#FF8B6B] mt-4" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  <p className="text-[10px] text-[var(--danger)] mt-4" style={{ fontFamily: "var(--brand-mono)" }}>
                     × {error}
                   </p>
                 )}
 
                 {!canDeliver && (
-                  <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
                     This brief does not have a Disco inbox yet. Tell the Sonant team.
                   </p>
                 )}
@@ -185,10 +185,10 @@ export default function ClientBriefSubmitModal({
                     rel="noopener noreferrer"
                     onClick={handleDeliver}
                     aria-disabled={!canDeliver || logging}
-                    className={`flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase text-center bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors ${
+                    className={`flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase text-center bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors ${
                       !canDeliver || logging ? 'opacity-40 pointer-events-none' : ''
                     }`}
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                   >
                     {logging ? '◆ Opening…' : '◆ Open Disco'}
                   </a>
@@ -196,8 +196,8 @@ export default function ClientBriefSubmitModal({
                     type="button"
                     onClick={handleClose}
                     disabled={logging}
-                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
                   >
                     Cancel
                   </button>

@@ -59,16 +59,16 @@ function LoginForm() {
           </div>
 
           {error && (
-            <div className="text-sm text-[#FF8B6B] border border-[#FF8B6B]/30 bg-[#FF8B6B]/5 p-3" style={{ borderRadius: '2px', fontFamily: "'DM Sans', sans-serif" }}>
+            <div className="text-sm text-[var(--danger)] border border-[var(--danger)]/30 bg-[var(--danger)]/5 p-3" style={{ borderRadius: '2px', fontFamily: "var(--brand-sans)" }}>
               {error}
             </div>
           )}
 
           <SubmitButton submitting={submitting} />
 
-          <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "var(--brand-sans)" }}>
             Don&apos;t have an account?{' '}
-            <Link href={`/signup${redirectTo !== '/briefs' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`} className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
+            <Link href={`/signup${redirectTo !== '/briefs' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`} className="text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
               Sign up
             </Link>
           </p>

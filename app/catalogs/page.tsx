@@ -82,7 +82,7 @@ function PartnerMark({ partner }: { partner: CatalogPartner }) {
   return (
     <div
       className="w-11 h-11 shrink-0 flex items-center justify-center text-lg"
-      style={{ background: 'var(--accent)', color: 'var(--bg-base)', borderRadius: '2px', fontFamily: 'var(--font-serif)', fontWeight: 600 }}
+      style={{ background: 'var(--accent)', color: 'var(--bg-base)', borderRadius: '2px', fontFamily: 'var(--brand-display)', fontWeight: 600 }}
       aria-hidden="true"
     >
       ◆

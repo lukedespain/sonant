@@ -300,7 +300,7 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
       className={embedded ? '' : 'min-h-screen'}
       style={{
         color: 'var(--text-primary)',
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "var(--brand-sans)",
       }}
     >
       <style>{`
@@ -446,9 +446,9 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
                 type="checkbox"
                 checked={announceFeatured}
                 onChange={(e) => setAnnounceFeatured(e.target.checked)}
-                className="mt-0.5 accent-[#E85D2F]"
+                className="mt-0.5 accent-[var(--accent)]"
               />
-              <span className="text-[11px] leading-relaxed text-[var(--text-muted)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              <span className="text-[11px] leading-relaxed text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-sans)" }}>
                 Email everyone that this brief is up. Leave unchecked while you iterate.
               </span>
             </label>
@@ -475,19 +475,19 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
 
       {loading && (
         <section className="max-w-2xl mx-auto px-6 py-16 fade-up">
-          <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-4 pulse-soft" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-4 pulse-soft" style={{ fontFamily: "var(--brand-mono)" }}>
             ◆ Working · this takes 30-60 seconds
           </div>
           <div
             key={loadingStep}
             className="text-2xl leading-relaxed text-[var(--text-primary)] fade-up"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+            style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}
           >
             {loadingMessages[loadingStep]}
           </div>
           <div className="mt-8 flex gap-1.5">
             {loadingMessages.map((_, i) => (
-              <div key={i} className={`h-px flex-1 transition-colors duration-300 ${i <= loadingStep ? 'bg-[#E85D2F]' : 'bg-[var(--border-card)]'}`} />
+              <div key={i} className={`h-px flex-1 transition-colors duration-300 ${i <= loadingStep ? 'bg-[var(--accent)]' : 'bg-[var(--border-card)]'}`} />
             ))}
           </div>
         </section>
@@ -497,15 +497,15 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
         <>
           <section ref={briefRef} className="max-w-5xl mx-auto px-6 md:px-10 py-16 fade-up overflow-x-hidden">
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-              <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-mono)" }}>
                 ◆ Brief Generated · {generated.briefId}
               </div>
               <div className="flex gap-3 flex-wrap">
                 {isAdmin && <SunoPromptModal brief={generated} />}
                 <button
                   onClick={handleGenerate}
-                  className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                  className="text-xs tracking-[0.2em] uppercase px-4 py-2 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                  style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
                 >
                   ↻ Regenerate
                 </button>
@@ -515,10 +515,10 @@ export default function BriefGenerator({ user, isAdmin = false, embedded = false
                       saveStatus === 'saved'
                         ? 'text-[#7A9A6E]'
                         : saveStatus === 'error'
-                        ? 'text-[#FF8B6B]'
+                        ? 'text-[var(--danger)]'
                         : 'text-[var(--text-muted)]'
                     }`}
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                    style={{ fontFamily: "var(--brand-mono)" }}
                   >
                     {saveStatus === 'saving' ? '◆ Saving…' :
                      saveStatus === 'saved' ? '✓ Saved' :

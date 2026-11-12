@@ -64,7 +64,7 @@ function Label({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase mb-3"
-      style={{ fontFamily: "'JetBrains Mono', monospace", color: '#E85D2F' }}
+      style={{ fontFamily: "var(--brand-mono)", color: 'var(--accent)' }}
     >
       <span>◆</span>
       <span>{children}</span>
@@ -91,7 +91,7 @@ function CatalogPartnerMark({
         display: 'block',
         fontSize: size,
         lineHeight: 1,
-        color: '#E85D2F',
+        color: 'var(--accent)',
         flexShrink: 0,
       }}
     >
@@ -105,13 +105,13 @@ function SonicItem({ label, value }: { label: string; value: string }) {
     <div>
       <div
         className="text-[10px] tracking-[0.2em] uppercase mb-1"
-        style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+        style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
       >
         {label}
       </div>
       <div
         className="text-sm leading-snug"
-        style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, color: 'var(--brief-text-h)' }}
+        style={{ fontFamily: "var(--brand-sans)", fontWeight: 500, color: 'var(--brief-text-h)' }}
       >
         {value}
       </div>
@@ -163,7 +163,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           <div className="mb-3 flex items-center justify-between gap-4">
             <div
               className="text-[10px] tracking-[0.3em] uppercase"
-              style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+              style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
             >
               Music Brief
             </div>
@@ -175,7 +175,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
                 <CatalogPartnerMark partner={partner} size={16} />
                 <span
                   className="text-[10px] tracking-[0.2em] uppercase"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+                  style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
                 >
                   {partner.name}
                 </span>
@@ -184,7 +184,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           </div>
           <h1
             className="text-4xl md:text-5xl tracking-tight leading-none mb-3"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300, color: 'var(--brief-text-h)' }}
+            style={{ fontFamily: "var(--brand-display)", fontWeight: 300, color: 'var(--brief-text-h)' }}
           >
             Project{' '}
             <span className="italic" style={{ fontWeight: 400 }}>
@@ -193,7 +193,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           </h1>
           <div
             className="text-xs tracking-wide"
-            style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+            style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
           >
             {brief.briefId} · {brief.client}
             {brief.kind === 'client' ? '' : brief.brandName && brief.brandName !== brief.client ? ` · ${brief.brandName}` : ''}
@@ -208,7 +208,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           <Label>The Scene</Label>
           <p
             className="text-xl md:text-2xl leading-relaxed"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 300, color: 'var(--brief-text-h)' }}
+            style={{ fontFamily: "var(--brand-display)", fontWeight: 300, color: 'var(--brief-text-h)' }}
           >
             {brief.story}
           </p>
@@ -217,7 +217,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
         {/* The Music */}
         <div className="mb-8">
           <Label>The Music</Label>
-          <p className="text-base leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
+          <p className="text-base leading-relaxed" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
             {brief.ask}
           </p>
         </div>
@@ -229,11 +229,11 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
             {brief.direction.map((d, i) => (
               <li key={i} className="flex gap-3 items-baseline">
                 <span
-                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-arrow)', flexShrink: 0 }}
+                  style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-arrow)', flexShrink: 0 }}
                 >
                   →
                 </span>
-                <span className="text-base leading-snug" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
+                <span className="text-base leading-snug" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
                   {d}
                 </span>
               </li>
@@ -256,15 +256,15 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-base font-medium mb-1.5 inline-block hover:text-[#E85D2F] transition-colors"
-                    style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}
+                    className="text-base font-medium mb-1.5 inline-block hover:text-[var(--accent)] transition-colors"
+                    style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-h)' }}
                   >
                     {r.track} ↗
                   </a>
                 ) : (
                   <div
                     className="text-base font-medium mb-1.5"
-                    style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}
+                    style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-h)' }}
                   >
                     {r.track}
                   </div>
@@ -272,14 +272,14 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
                 {(r.like || r.why) && (
                   <div
                     className="text-sm mb-1"
-                    style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}
+                    style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}
                   >
                     <span className="font-semibold" style={{ color: 'var(--brief-use-color)' }}>Use:</span>{' '}
                     {r.like ?? r.why}
                   </div>
                 )}
                 {r.avoid && (
-                  <div className="text-sm" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
+                  <div className="text-sm" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
                     <span className="font-semibold" style={{ color: 'var(--brief-skip-color)' }}>Skip:</span>{' '}
                     {r.avoid}
                   </div>
@@ -298,7 +298,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
               {brief.links.map((link) => (
                 <li key={link.url} className="flex gap-3 items-baseline">
                   <span
-                    style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-arrow)', flexShrink: 0 }}
+                    style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-arrow)', flexShrink: 0 }}
                   >
                     →
                   </span>
@@ -306,13 +306,13 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-base leading-snug hover:text-[#E85D2F] transition-colors break-all"
-                    style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-h)' }}
+                    className="text-base leading-snug hover:text-[var(--accent)] transition-colors break-all"
+                    style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-h)' }}
                   >
                     {link.label}
                     <span
                       className="ml-2 text-[10px] tracking-[0.15em] uppercase"
-                      style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+                      style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
                     >
                       Open ↗
                     </span>
@@ -346,19 +346,19 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
               <div>
                 <div
                   className="text-lg mb-1"
-                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 400, color: 'var(--brief-text-h)' }}
+                  style={{ fontFamily: "var(--brand-display)", fontWeight: 400, color: 'var(--brief-text-h)' }}
                 >
                   {partner.name}
                 </div>
                 <div
                   className="text-[10px] tracking-[0.2em] uppercase"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+                  style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
                 >
                   {partner.exclusive ? 'Exclusive' : 'Non-exclusive'} · {partner.split} split
                 </div>
               </div>
             </div>
-            <div className="space-y-3 text-sm leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
+            <div className="space-y-3 text-sm leading-relaxed" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
               <p>
                 Writing to this brief means you are writing for the {partner.name} catalog.
                 {partner.exclusive
@@ -382,7 +382,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
                 {brief.winFee && <SonicItem label="Win" value={brief.winFee} />}
               </div>
             )}
-            <div className="space-y-3 text-sm leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif", color: 'var(--brief-text-body)' }}>
+            <div className="space-y-3 text-sm leading-relaxed" style={{ fontFamily: "var(--brand-sans)", color: 'var(--brief-text-body)' }}>
               <p>Verified composers only. These are paying clients. Treat it like the job, not practice.</p>
               <p>
                 Sonant is the intermediary. You write to this brief. We review what you submit. If it is strong enough to send to the client, we secure you a demo fee. If they like it and want you on the back and forth to get it closer, that work is covered by the demo fee too.
@@ -399,20 +399,20 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
         <div className="mt-8 pt-6 flex items-center justify-between" style={{ borderTop: '1px solid var(--brief-divider)' }}>
           <div
             className="text-[10px] tracking-[0.2em] uppercase"
-            style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--brief-text-meta)' }}
+            style={{ fontFamily: "var(--brand-mono)", color: 'var(--brief-text-meta)' }}
           >
             {brief.briefId} · {houseLabel}
           </div>
           {brief.kind === 'client' ? (
-            <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
+            <div className="text-xs italic" style={{ fontFamily: "var(--brand-display)", color: 'var(--brief-text-meta)' }}>
               Be available. Move fast.
             </div>
           ) : partner ? (
-            <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
+            <div className="text-xs italic" style={{ fontFamily: "var(--brand-display)", color: 'var(--brief-text-meta)' }}>
               {partner.exclusive ? 'Exclusive' : 'Non-exclusive'} · {partner.split}
             </div>
           ) : isFeatured ? (
-            <div className="text-xs italic" style={{ fontFamily: "'Fraunces', serif", color: 'var(--brief-text-meta)' }}>
+            <div className="text-xs italic" style={{ fontFamily: "var(--brand-display)", color: 'var(--brief-text-meta)' }}>
               Write it. Submit it. Get placed.
             </div>
           ) : null}

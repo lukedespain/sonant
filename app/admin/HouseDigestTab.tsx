@@ -8,8 +8,8 @@ import {
   catalogPartnerById,
 } from '@/lib/partners';
 
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
 
 export default function HouseDigestTab() {
   const [partnerId, setPartnerId] = useState(DEFAULT_CATALOG_PARTNER_ID);
@@ -29,7 +29,7 @@ export default function HouseDigestTab() {
   const greeting = contactName ? `Hi ${contactName}` : '';
 
   const fieldClass =
-    'w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none';
+    'w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none';
   const labelClass = 'block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2';
 
   async function handleSend(testOnly: boolean) {
@@ -149,7 +149,7 @@ export default function HouseDigestTab() {
       />
 
       {error && (
-        <p className="text-[10px] text-[#FF8B6B] mb-4" style={mono}>× {error}</p>
+        <p className="text-[10px] text-[var(--danger)] mb-4" style={mono}>× {error}</p>
       )}
       {message && (
         <p className="text-[10px] text-[var(--text-dimmer)] mb-4" style={mono}>{message}</p>
@@ -160,7 +160,7 @@ export default function HouseDigestTab() {
           type="button"
           disabled={sending || !discoPlaylistUrl.trim()}
           onClick={() => handleSend(true)}
-          className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
+          className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
           style={{ ...mono, borderRadius: '2px' }}
         >
           {sending ? '◆ Sending…' : 'Send test to me'}
@@ -169,7 +169,7 @@ export default function HouseDigestTab() {
           type="button"
           disabled={sending || !to.trim() || !discoPlaylistUrl.trim()}
           onClick={() => handleSend(false)}
-          className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-50"
+          className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
           style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
         >
           {sending ? '◆ Sending…' : 'Send to house'}

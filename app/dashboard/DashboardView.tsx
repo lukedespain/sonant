@@ -10,8 +10,8 @@ import MyInfoPanel from './MyInfoPanel';
 import OfferCard, { type Offer } from './OfferCard';
 import type { AppNotification } from '@/lib/notifications';
 
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
 
 type Panel = 'name' | 'email' | 'password' | 'delete' | null;
 type Tab = 'submissions' | 'info' | 'settings';
@@ -355,10 +355,10 @@ export default function DashboardView({
         </div>
 
         {message && (
-          <p className="pt-5 text-[11px] text-[#E85D2F]" style={sans}>{message}</p>
+          <p className="pt-5 text-[11px] text-[var(--accent)]" style={sans}>{message}</p>
         )}
         {error && (
-          <p className="pt-5 text-[11px] text-[#FF8B6B]" style={sans}>× {error}</p>
+          <p className="pt-5 text-[11px] text-[var(--danger)]" style={sans}>× {error}</p>
         )}
 
         <div className="pt-8 flex items-center justify-between gap-4">
@@ -374,7 +374,7 @@ export default function DashboardView({
           <button
             type="button"
             onClick={() => open('delete')}
-            className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-dimmer)] hover:text-[#FF8B6B] transition-colors"
+            className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-dimmer)] hover:text-[var(--danger)] transition-colors"
             style={mono}
           >
             Delete account
@@ -404,7 +404,7 @@ export default function DashboardView({
             <button
               type="submit"
               disabled={saving}
-              className="text-[10px] tracking-[0.2em] uppercase text-[#FF8B6B] hover:opacity-70 disabled:opacity-40"
+              className="text-[10px] tracking-[0.2em] uppercase text-[var(--danger)] hover:opacity-70 disabled:opacity-40"
               style={mono}
             >
               {saving ? '…' : 'Delete my account'}
@@ -449,7 +449,7 @@ function SettingRow({
         <button
           type="button"
           onClick={onAction}
-          className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
+          className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
           style={mono}
         >
           {action}
@@ -461,7 +461,7 @@ function SettingRow({
 }
 
 const actionClass =
-  'text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40';
+  'text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70 disabled:opacity-40';
 
 function Field({
   label,
@@ -492,7 +492,7 @@ function Field({
         autoComplete={autoComplete}
         minLength={minLength}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2.5 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none"
+        className="w-full px-3 py-2.5 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none"
         style={{ ...sans, borderRadius: '2px' }}
       />
     </div>

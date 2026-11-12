@@ -4,8 +4,8 @@ import { useState } from 'react';
 import RightsFields from '@/components/RightsFields';
 import type { RightsInfo } from '@/lib/handoff';
 
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
 
 export default function MyInfoPanel({
   rights: initial,
@@ -50,13 +50,13 @@ export default function MyInfoPanel({
         <button
           type="submit"
           disabled={saving}
-          className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] disabled:opacity-50 disabled:cursor-wait transition-colors"
+          className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-wait transition-colors"
           style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
         >
           {saving ? 'Saving…' : '◆ Save my info'}
         </button>
         {message && <span className="text-[11px] text-[#7A9A6E]" style={sans}>{message}</span>}
-        {error && <span role="alert" className="text-[11px] text-[#FF8B6B]" style={sans}>{error}</span>}
+        {error && <span role="alert" className="text-[11px] text-[var(--danger)]" style={sans}>{error}</span>}
       </div>
     </form>
   );

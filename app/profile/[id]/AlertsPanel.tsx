@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { useState } from 'react';
 import type { AppNotification } from '@/lib/notifications';
 
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const serif = { fontFamily: "'Fraunces', serif" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
+const serif = { fontFamily: "var(--brand-display)" } as const;
 
 function timeAgo(iso: string) {
   const ms = Date.now() - new Date(iso).getTime();
@@ -47,7 +47,7 @@ export default function AlertsPanel({
           <button
             type="button"
             onClick={() => mark('all')}
-            className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
+            className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
             style={mono}
           >
             Mark all read
@@ -65,7 +65,7 @@ export default function AlertsPanel({
             const inner = (
               <>
                 <div className="flex items-start justify-between gap-4">
-                  <div className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F]" style={mono}>
+                  <div className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)]" style={mono}>
                     {item.title}
                   </div>
                   <div className="text-[9px] tracking-[0.15em] uppercase text-[var(--text-dimmer)]" style={mono}>

@@ -10,9 +10,11 @@ import { isSiteAdmin } from "@/lib/admin";
 import { ensureMonthlySubmissionCredit } from "@/lib/monthly-credit";
 
 
+// Preview build: keep it out of search until the Thought Collective cutover.
 export const metadata: Metadata = {
-  title: "Sonant",
-  description: "Build a catalog worth pitching. Practice writing to spec for brands, films and games.",
+  title: "Thought Collective · Composers",
+  description: "Briefs from Thought Collective, a London music and sound company. Write to spec, get written feedback, and get your best tracks into the catalogue.",
+  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
@@ -48,7 +50,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&display=swap"
           rel="stylesheet"
         />
       </head>

@@ -7,7 +7,7 @@ import { VERIFICATION_THRESHOLD, type VerifiedOverride } from '@/lib/verificatio
 import type { AdminPerson } from '@/lib/admin-people';
 
 const AVATAR_COLORS = [
-  '#E85D2F', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
+  'var(--accent)', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1',
   '#955251', '#B565A7', '#009473', '#DD4132', '#45B5AA',
 ];
 function avatarColor(id: string) {
@@ -19,9 +19,9 @@ function getInitials(name: string) {
   return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2) || '?';
 }
 
-const serif = { fontFamily: "'Fraunces', serif" } as const;
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+const serif = { fontFamily: "var(--brand-display)" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
 
 export default function PeopleTab() {
   const [query, setQuery] = useState('');
@@ -131,7 +131,7 @@ export default function PeopleTab() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Name or email"
-          className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none mb-4"
+          className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none mb-4"
           style={{ ...sans, borderRadius: '2px' }}
         />
         <div className="border border-[var(--border-card)] bg-[var(--bg-card)]" style={{ borderRadius: '2px' }}>
@@ -223,7 +223,7 @@ function PersonCard({
           className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center text-white text-sm shrink-0"
           style={{
             background: person.avatarUrl ? undefined : avatarColor(person.id),
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "var(--brand-sans)",
             fontWeight: 500,
           }}
         >
@@ -243,7 +243,7 @@ function PersonCard({
           </div>
           <Link
             href={`/profile/${person.id}`}
-            className="inline-block mt-3 text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
+            className="inline-block mt-3 text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
             style={mono}
           >
             View profile →
@@ -279,7 +279,7 @@ function PersonCard({
       />
 
       {error && (
-        <p className="text-[10px] text-[#FF8B6B] mt-4" style={mono}>
+        <p className="text-[10px] text-[var(--danger)] mt-4" style={mono}>
           × {error}
         </p>
       )}
@@ -312,7 +312,7 @@ function CreditRow({
   onChange: (delta: 1 | -1) => void;
 }) {
   const step =
-    'w-8 h-8 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F] disabled:opacity-40 disabled:hover:border-[var(--border-subtle)] disabled:hover:text-[var(--text-muted)] transition-colors';
+    'w-8 h-8 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-40 disabled:hover:border-[var(--border-subtle)] disabled:hover:text-[var(--text-muted)] transition-colors';
 
   return (
     <div className="py-4 border-t border-[var(--border-card)] first:border-t-0 first:pt-0">

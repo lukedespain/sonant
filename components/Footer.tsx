@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import ThoughtCollectiveMark from '@/components/ThoughtCollectiveMark';
 
 const GUMROAD_URL = 'https://sonant.gumroad.com/l/royalties';
 
 const COLUMNS: { title: string; links: { label: string; href: string; external?: boolean }[] }[] = [
   {
-    title: 'Sonant',
+    title: 'Composers',
     links: [
       { label: 'Generator', href: '/generator' },
       { label: 'Briefs', href: '/briefs' },
@@ -29,8 +30,9 @@ export default function Footer() {
     <footer className="no-print border-t border-[var(--border-base)] mt-auto">
       <div className="max-w-6xl mx-auto px-5 md:px-10 py-14 grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr] gap-10">
         <div className="col-span-2 md:col-span-1 max-w-xs">
-          <p className="font-serif text-lg tracking-tight">
-            Sonant<span className="text-[var(--accent)]">.</span>
+          <p className="flex items-center gap-2.5 text-[15px] font-medium tracking-[-0.01em]">
+            <ThoughtCollectiveMark size={20} />
+            Thought Collective
           </p>
           <p className="mt-2 text-sm text-[var(--text-muted)] leading-relaxed">
             Practice writing to spec. Get written feedback. Get your music into catalogs.

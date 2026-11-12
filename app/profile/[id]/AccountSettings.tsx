@@ -6,9 +6,9 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { signOut } from '@/app/auth/actions';
 import { VERIFICATION_THRESHOLD } from '@/lib/verification';
 
-const serif = { fontFamily: "'Fraunces', serif" } as const;
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+const serif = { fontFamily: "var(--brand-display)" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
 
 type Panel = 'email' | 'password' | 'delete' | null;
 
@@ -148,7 +148,7 @@ export default function AccountSettings({
                 type="button"
                 onClick={onAddCredits}
                 disabled={checkoutLoading}
-                className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40 mb-0.5"
+                className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70 disabled:opacity-40 mb-0.5"
                 style={mono}
               >
                 {checkoutLoading ? '…' : '+ Add'}
@@ -173,7 +173,7 @@ export default function AccountSettings({
                 onClick={onToggleBadgeInfo}
                 aria-expanded={badgeInfoOpen}
                 aria-label="About the verified composer badge"
-                className="relative shrink-0 w-3.5 h-3.5 flex items-center justify-center text-[var(--text-dimmer)] hover:text-[#E85D2F] transition-colors"
+                className="relative shrink-0 w-3.5 h-3.5 flex items-center justify-center text-[var(--text-dimmer)] hover:text-[var(--accent)] transition-colors"
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                   <circle cx="6" cy="6" r="5.25" stroke="currentColor" strokeWidth="1" />
@@ -193,14 +193,14 @@ export default function AccountSettings({
             </div>
           </div>
           {verified ? (
-            <div className="text-lg text-[#E85D2F]" style={{ ...serif, fontWeight: 400 }}>
+            <div className="text-lg text-[var(--accent)]" style={{ ...serif, fontWeight: 400 }}>
               Verified Composer
             </div>
           ) : (
             <div className="flex items-center gap-3">
               <div className="h-[2px] flex-1 bg-[var(--border-base)] overflow-hidden" style={{ borderRadius: '2px' }}>
                 <div
-                  className="h-full bg-[#E85D2F]"
+                  className="h-full bg-[var(--accent)]"
                   style={{ width: `${(placed / VERIFICATION_THRESHOLD) * 100}%` }}
                 />
               </div>
@@ -219,7 +219,7 @@ export default function AccountSettings({
             <button
               type="button"
               onClick={() => open('email')}
-              className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
+              className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
               style={mono}
             >
               {panel === 'email' ? 'Close' : 'Change'}
@@ -260,7 +260,7 @@ export default function AccountSettings({
             <button
               type="button"
               onClick={() => open('password')}
-              className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
+              className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
               style={mono}
             >
               {panel === 'password' ? 'Close' : 'Change'}
@@ -307,10 +307,10 @@ export default function AccountSettings({
         </div>
 
         {message && (
-          <p className="pt-4 text-[11px] text-[#E85D2F]" style={sans}>{message}</p>
+          <p className="pt-4 text-[11px] text-[var(--accent)]" style={sans}>{message}</p>
         )}
         {error && (
-          <p className="pt-4 text-[11px] text-[#FF8B6B]" style={sans}>× {error}</p>
+          <p className="pt-4 text-[11px] text-[var(--danger)]" style={sans}>× {error}</p>
         )}
 
         <div className="pt-5 flex items-center justify-between gap-4">
@@ -326,7 +326,7 @@ export default function AccountSettings({
           <button
             type="button"
             onClick={() => open('delete')}
-            className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-dimmer)] hover:text-[#FF8B6B] transition-colors"
+            className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-dimmer)] hover:text-[var(--danger)] transition-colors"
             style={mono}
           >
             Delete account
@@ -356,7 +356,7 @@ export default function AccountSettings({
             <button
               type="submit"
               disabled={saving}
-              className="text-[10px] tracking-[0.2em] uppercase text-[#FF8B6B] hover:opacity-70 disabled:opacity-40"
+              className="text-[10px] tracking-[0.2em] uppercase text-[var(--danger)] hover:opacity-70 disabled:opacity-40"
               style={mono}
             >
               {saving ? '…' : 'Delete my account'}
@@ -369,7 +369,7 @@ export default function AccountSettings({
 }
 
 const actionClass =
-  'text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70 disabled:opacity-40';
+  'text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70 disabled:opacity-40';
 
 function Field({
   label,
@@ -400,7 +400,7 @@ function Field({
         autoComplete={autoComplete}
         minLength={minLength}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2.5 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none"
+        className="w-full px-3 py-2.5 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none"
         style={{ ...sans, borderRadius: '2px' }}
       />
     </div>

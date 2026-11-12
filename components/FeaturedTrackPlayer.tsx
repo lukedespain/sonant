@@ -35,8 +35,8 @@ export default function FeaturedTrackPlayer({
         onClick={handleToggle}
         className={`w-7 h-7 flex items-center justify-center shrink-0 transition-colors ${
           isCurrentlyPlaying
-            ? 'bg-[#E85D2F] text-[#0A0908]'
-            : 'bg-[#0A0908] text-[#E85D2F]'
+            ? 'bg-[var(--accent)] text-[#0A0908]'
+            : 'bg-[#0A0908] text-[var(--accent)]'
         }`}
         style={{ borderRadius: '2px' }}
         aria-label={isCurrentlyPlaying ? 'Pause' : 'Play featured track'}
@@ -46,15 +46,15 @@ export default function FeaturedTrackPlayer({
 
       <div className="min-w-0">
         <div
-          className="text-[9px] tracking-[0.3em] uppercase text-[#E85D2F] mb-0.5"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          className="text-[9px] tracking-[0.3em] uppercase text-[var(--accent)] mb-0.5"
+          style={{ fontFamily: "var(--brand-mono)" }}
         >
           {isCurrentlyPlaying ? '◆ Currently Playing' : '◆ Featured Track'}
         </div>
         {fileName && (
           <div
             className="text-xs text-[var(--text-secondary)] truncate"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
+            style={{ fontFamily: "var(--brand-sans)" }}
           >
             {fileName}
           </div>

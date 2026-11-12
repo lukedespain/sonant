@@ -25,9 +25,9 @@ export type SubmissionItem = {
   createdAt: string;
 };
 
-const serif = { fontFamily: "'Fraunces', serif" } as const;
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+const serif = { fontFamily: "var(--brand-display)" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
 
 export default function SubmissionHistory({ items }: { items: SubmissionItem[] }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -49,7 +49,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
         </p>
         <Link
           href="/briefs"
-          className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
+          className="inline-block px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"
           style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
         >
           ◆ Open Briefs
@@ -72,7 +72,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
             ? { color: '#92A8D1', bg: '#92A8D115', border: '#92A8D130' }
             : kind === 'community'
               ? { color: 'var(--text-muted)', bg: 'transparent', border: 'var(--border-card)' }
-              : { color: '#E85D2F', bg: '#E85D2F15', border: '#E85D2F30' };
+              : { color: 'var(--accent)', bg: 'var(--accent)15', border: 'var(--accent)30' };
 
         return (
           <div key={sub.id} id={`submission-${sub.id}`} className="border-b border-[var(--border-base)] py-6 scroll-mt-28">
@@ -81,7 +81,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <Link
                     href={`/briefs/${sub.briefId}`}
-                    className="text-lg text-[var(--text-primary)] hover:text-[#E85D2F] transition-colors"
+                    className="text-lg text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
                     style={{ ...serif, fontWeight: 400 }}
                   >
                     {sub.briefCodename}
@@ -132,7 +132,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
                         return next;
                       });
                     }}
-                    className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors border border-[var(--border-card)] px-3 py-1.5"
+                    className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors border border-[var(--border-card)] px-3 py-1.5"
                     style={{ ...mono, borderRadius: '2px' }}
                   >
                     {open ? 'Hide notes' : 'Written feedback'}

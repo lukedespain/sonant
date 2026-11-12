@@ -43,12 +43,12 @@ function SignUpForm() {
     return (
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="border border-[#E85D2F]/40 bg-[#E85D2F]/5 p-6" style={{ borderRadius: '2px' }}>
-            <div className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2F] mb-3"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <div className="border border-[var(--accent)]/40 bg-[var(--accent)]/5 p-6" style={{ borderRadius: '2px' }}>
+            <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--accent)] mb-3"
+              style={{ fontFamily: "var(--brand-mono)" }}>
               ◆ Check your email
             </div>
-            <p className="text-base leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <p className="text-base leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
               We sent a confirmation link to verify your account. Click it and you&apos;ll be taken straight to the briefs.
             </p>
           </div>
@@ -80,8 +80,8 @@ function SignUpForm() {
           <Field label="Password" name="password" type="password" required minLength={8} autoComplete="new-password" hint="At least 8 characters." />
 
           {error && (
-            <div className="text-sm text-[#FF8B6B] border border-[#FF8B6B]/30 bg-[#FF8B6B]/5 p-3"
-              style={{ borderRadius: '2px', fontFamily: "'DM Sans', sans-serif" }}>
+            <div className="text-sm text-[var(--danger)] border border-[var(--danger)]/30 bg-[var(--danger)]/5 p-3"
+              style={{ borderRadius: '2px', fontFamily: "var(--brand-sans)" }}>
               {error}
             </div>
           )}
@@ -94,9 +94,9 @@ function SignUpForm() {
             {submitting ? '◆ Creating account…' : '◆ Create account'}
           </button>
 
-          <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "var(--brand-sans)" }}>
             Already have an account?{' '}
-            <Link href="/login" className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors">
+            <Link href="/login" className="text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
               Sign in
             </Link>
           </p>

@@ -51,12 +51,12 @@ export default function BriefImporter() {
 
   return (
     <div
-      className="border border-[#E85D2F]/30 bg-[#E85D2F]/5 p-4 mb-8"
+      className="border border-[var(--accent)]/30 bg-[var(--accent)]/5 p-4 mb-8"
       style={{ borderRadius: '2px' }}
     >
       <div
-        className="text-xs tracking-[0.2em] uppercase text-[#E85D2F]"
-        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        className="text-xs tracking-[0.2em] uppercase text-[var(--accent)]"
+        style={{ fontFamily: "var(--brand-mono)" }}
       >
         ◆ Importing your saved briefs…
       </div>

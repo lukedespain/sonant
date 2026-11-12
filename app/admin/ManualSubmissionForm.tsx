@@ -134,7 +134,7 @@ export default function ManualSubmissionForm({ composers }: { composers: Compose
           <button type="submit" disabled={saving} className={btn('primary', 'sm')}>
             {saving ? (progress !== null ? `Uploading ${progress}%` : 'Adding…') : 'Add to queue'}
           </button>
-          {error && <span role="alert" className="text-xs text-[#FF8B6B]">{error}</span>}
+          {error && <span role="alert" className="text-xs text-[var(--danger)]">{error}</span>}
           {done && <span className="text-xs text-[var(--positive)]">{done}</span>}
         </div>
       </form>

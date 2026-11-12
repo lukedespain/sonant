@@ -7,6 +7,7 @@ import type { User } from '@supabase/supabase-js'
 import { signOut } from '@/app/auth/actions'
 import ThemeToggle from '@/components/ThemeToggle'
 import { btn } from '@/components/ui'
+import ThoughtCollectiveMark from '@/components/ThoughtCollectiveMark'
 
 function SignInLabel() {
   const { pending } = useLinkStatus()
@@ -29,15 +30,8 @@ const LINKS = [
 function Wordmark({ onClick }: { onClick?: () => void }) {
   return (
     <Link href="/" className="flex items-center gap-2.5 shrink-0" onClick={onClick}>
-      <span
-        className="w-7 h-7 flex items-center justify-center bg-[var(--accent)] text-[var(--bg-base)] font-serif font-semibold text-xs rounded-[2px]"
-        aria-hidden="true"
-      >
-        ◆
-      </span>
-      <span className="font-serif text-[17px] tracking-tight font-medium">
-        Sonant<span className="text-[var(--accent)]">.</span>
-      </span>
+      <ThoughtCollectiveMark size={22} />
+      <span className="text-[15px] tracking-[-0.01em] font-medium">Thought Collective</span>
     </Link>
   )
 }

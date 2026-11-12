@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import RightsFields from '@/components/RightsFields';
 import { validateRights, type RightsInfo } from '@/lib/handoff';
 
-const serif = { fontFamily: "'Fraunces', serif" } as const;
-const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
-const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
+const serif = { fontFamily: "var(--brand-display)" } as const;
+const sans = { fontFamily: "var(--brand-sans)" } as const;
+const mono = { fontFamily: "var(--brand-mono)" } as const;
 
 export type Offer = {
   submissionId: string;
@@ -22,7 +22,7 @@ export type Offer = {
 function StepLabel({ n, children }: { n: number; children: React.ReactNode }) {
   return (
     <div className="flex items-baseline gap-3 mb-4">
-      <span className="text-[#E85D2F] text-sm" style={serif}>{n}</span>
+      <span className="text-[var(--accent)] text-sm" style={serif}>{n}</span>
       <span className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-secondary)]" style={mono}>{children}</span>
     </div>
   );
@@ -91,11 +91,11 @@ export default function OfferCard({
   return (
     <form
       onSubmit={send}
-      className="border border-[#E85D2F]/40 bg-[var(--bg-card)]"
+      className="border border-[var(--accent)]/40 bg-[var(--bg-card)]"
       style={{ borderRadius: '2px' }}
     >
       <div className="p-8 md:p-10 border-b border-[var(--border-card)]">
-        <div className="text-[10px] tracking-[0.25em] uppercase text-[#E85D2F] mb-4" style={mono}>
+        <div className="text-[10px] tracking-[0.25em] uppercase text-[var(--accent)] mb-4" style={mono}>
           ◆ Congratulations
         </div>
         <h2 className="text-3xl md:text-4xl tracking-tight leading-tight mb-3" style={{ ...serif, fontWeight: 300 }}>
@@ -112,7 +112,7 @@ export default function OfferCard({
           <ul className="space-y-2 mb-5">
             {offer.terms.map((term) => (
               <li key={term} className="flex gap-3 items-baseline text-sm text-[var(--text-secondary)]" style={sans}>
-                <span className="text-[#E85D2F]">·</span>
+                <span className="text-[var(--accent)]">·</span>
                 <span>{term}</span>
               </li>
             ))}
@@ -122,7 +122,7 @@ export default function OfferCard({
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-0.5 accent-[#E85D2F]"
+              className="mt-0.5 accent-[var(--accent)]"
             />
             <span className="text-sm text-[var(--text-primary)]" style={sans}>
               I agree to {offer.catalogName}&apos;s terms for this track.
@@ -157,7 +157,7 @@ export default function OfferCard({
               <button
                 type="button"
                 onClick={() => setEditingInfo(true)}
-                className="text-[10px] tracking-[0.2em] uppercase text-[#E85D2F] hover:opacity-70"
+                className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
                 style={mono}
               >
                 Edit
@@ -199,7 +199,7 @@ export default function OfferCard({
           <button
             type="submit"
             disabled={!ready || sending}
-            className="px-6 py-3.5 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-3.5 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
           >
             {sending ? 'Sending…' : `◆ Sign on with ${offer.catalogName}`}
@@ -209,7 +209,7 @@ export default function OfferCard({
               {agreed ? 'Confirm the track is human-made.' : 'Agree to the terms first.'}
             </span>
           )}
-          {error && <span role="alert" className="text-[11px] text-[#FF8B6B]" style={sans}>{error}</span>}
+          {error && <span role="alert" className="text-[11px] text-[var(--danger)]" style={sans}>{error}</span>}
         </div>
       </div>
     </form>

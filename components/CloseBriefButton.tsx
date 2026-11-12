@@ -27,7 +27,7 @@ export default function CloseBriefButton({ briefId, closed }: { briefId: string;
       >
         {pending ? 'Saving…' : closed ? 'Reopen brief' : 'Close brief'}
       </button>
-      {error && <p role="alert" className="text-xs text-[#FF8B6B] px-1">{error}</p>}
+      {error && <p role="alert" className="text-xs text-[var(--danger)] px-1">{error}</p>}
     </>
   );
 }

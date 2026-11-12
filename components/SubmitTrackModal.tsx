@@ -175,8 +175,8 @@ export default function SubmitTrackModal({
     <>
       <button
         onClick={handleOpen}
-        className={triggerClassName ?? "text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"}
-        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+        className={triggerClassName ?? "text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"}
+        style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
       >
         {triggerLabel}
       </button>
@@ -189,7 +189,7 @@ export default function SubmitTrackModal({
         >
           {dragging && (
             <div
-              className="pointer-events-none absolute inset-4 border-2 border-dashed border-[#E85D2F]"
+              className="pointer-events-none absolute inset-4 border-2 border-dashed border-[var(--accent)]"
               style={{ borderRadius: '2px' }}
               aria-hidden
             />
@@ -202,43 +202,43 @@ export default function SubmitTrackModal({
             {done ? (
               /* Success state */
               <div className="text-center py-4">
-                <div className="text-3xl text-[#E85D2F] mb-4">◆</div>
-                <h2 className="text-2xl mb-3" style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}>
+                <div className="text-3xl text-[var(--accent)] mb-4">◆</div>
+                <h2 className="text-2xl mb-3" style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}>
                   Track submitted.
                 </h2>
-                <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
                   Your track is in. You&apos;ll receive written feedback regardless of outcome.
                 </p>
                 <button
                   onClick={() => setOpen(false)}
-                  className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                  className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"
+                  style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                 >
                   ◆ Done
                 </button>
               </div>
             ) : (
               <>
-                <div className="text-[10px] tracking-[0.4em] uppercase text-[#E85D2F] mb-6" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
                   ◆ Submit Track
                 </div>
 
                 <div className="space-y-5">
                   {/* Brief name (read-only) */}
                   <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
                       Brief
                     </label>
-                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "var(--brand-sans)" }}>
                       {projectName}
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
                       Credits
                     </label>
-                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "var(--brand-sans)" }}>
                       {isAdmin
                         ? 'Sonant team · no credit used'
                         : `${submissionCredits} ${submissionCredits === 1 ? 'credit' : 'credits'} remaining · this uses 1`}
@@ -247,7 +247,7 @@ export default function SubmitTrackModal({
 
                   {/* File picker */}
                   <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
                       Track File
                     </label>
                     <input
@@ -259,13 +259,13 @@ export default function SubmitTrackModal({
                     />
                     {pendingFile ? (
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-[var(--text-secondary)] truncate flex-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                        <span className="text-xs text-[var(--text-secondary)] truncate flex-1" style={{ fontFamily: "var(--brand-mono)" }}>
                           {pendingFile.name}
                         </span>
                         <button
                           onClick={() => fileInputRef.current?.click()}
-                          className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[#E85D2F] transition-colors shrink-0"
-                          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                          className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors shrink-0"
+                          style={{ fontFamily: "var(--brand-mono)" }}
                         >
                           Change
                         </button>
@@ -276,15 +276,15 @@ export default function SubmitTrackModal({
                         onClick={() => fileInputRef.current?.click()}
                         className={`w-full px-4 py-3 border border-dashed transition-colors text-xs tracking-[0.2em] uppercase text-center ${
                           dragging
-                            ? 'border-[#E85D2F] text-[#E85D2F]'
-                            : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#E85D2F] hover:text-[#E85D2F]'
+                            ? 'border-[var(--accent)] text-[var(--accent)]'
+                            : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
                         }`}
-                        style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                        style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
                       >
                         {dragging ? 'Drop MP3 or WAV' : 'Drop or choose file'}
                       </button>
                     )}
-                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "var(--brand-mono)" }}>
                       MP3 or WAV · max {MAX_AUDIO_LABEL}
                     </p>
                   </div>
@@ -295,7 +295,7 @@ export default function SubmitTrackModal({
                       <label
                         htmlFor="submission-track-name"
                         className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
-                        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                        style={{ fontFamily: "var(--brand-mono)" }}
                       >
                         Track Name
                       </label>
@@ -304,15 +304,15 @@ export default function SubmitTrackModal({
                         type="text"
                         value={trackName}
                         onChange={(e) => setTrackName(e.target.value)}
-                        className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none transition-colors text-sm"
-                        style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+                        className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none transition-colors text-sm"
+                        style={{ fontFamily: "var(--brand-sans)", borderRadius: '2px' }}
                       />
                     </div>
                   )}
 
                   {/* Already submitted notice */}
                   {alreadySubmitted && (
-                    <div className="text-xs text-[var(--text-muted)] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 leading-relaxed" style={{ borderRadius: '2px', fontFamily: "'DM Sans', sans-serif" }}>
+                    <div className="text-xs text-[var(--text-muted)] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 leading-relaxed" style={{ borderRadius: '2px', fontFamily: "var(--brand-sans)" }}>
                       You&apos;ve already submitted to this brief. This will be reviewed as a separate entry.
                     </div>
                   )}
@@ -328,7 +328,7 @@ export default function SubmitTrackModal({
                       />
                       <div
                         className={`w-4 h-4 border flex items-center justify-center transition-colors ${
-                          confirmed ? 'bg-[#E85D2F] border-[#E85D2F]' : 'border-[var(--border-subtle)] group-hover:border-[#E85D2F]'
+                          confirmed ? 'bg-[var(--accent)] border-[var(--accent)]' : 'border-[var(--border-subtle)] group-hover:border-[var(--accent)]'
                         }`}
                         style={{ borderRadius: '2px' }}
                       >
@@ -339,14 +339,14 @@ export default function SubmitTrackModal({
                         )}
                       </div>
                     </div>
-                    <span className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <span className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
                       I understand this uses 1 submission credit. This goes privately to the Sonant team.
                     </span>
                   </label>
                 </div>
 
                 {!hasCredit && (
-                  <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
                     You need a submission credit to send this in.{' '}
                     <button
                       type="button"
@@ -361,7 +361,7 @@ export default function SubmitTrackModal({
                           window.location.href = url;
                         }
                       }}
-                      className="text-[#E85D2F] hover:opacity-70"
+                      className="text-[var(--accent)] hover:opacity-70"
                     >
                       Buy a credit
                     </button>
@@ -370,7 +370,7 @@ export default function SubmitTrackModal({
                 )}
 
                 {error && (
-                  <p className="text-[10px] text-[#FF8B6B] mt-4 leading-relaxed" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  <p className="text-[10px] text-[var(--danger)] mt-4 leading-relaxed" style={{ fontFamily: "var(--brand-mono)" }}>
                     × {error}
                   </p>
                 )}
@@ -379,11 +379,11 @@ export default function SubmitTrackModal({
                   <div className="mt-5">
                     <div className="h-[3px] w-full bg-[var(--bg-card)]" style={{ borderRadius: '2px' }}>
                       <div
-                        className="h-full bg-[#E85D2F] transition-[width] duration-200"
+                        className="h-full bg-[var(--accent)] transition-[width] duration-200"
                         style={{ width: `${progress}%`, borderRadius: '2px' }}
                       />
                     </div>
-                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "var(--brand-mono)" }}>
                       {progress < 100 ? `Uploading ${progress}%` : 'Finishing up…'}
                     </p>
                   </div>
@@ -393,8 +393,8 @@ export default function SubmitTrackModal({
                   <button
                     onClick={handleSubmit}
                     disabled={!canSubmit || uploading}
-                    className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                    className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                   >
                     {uploading
                       ? progress < 100
@@ -405,8 +405,8 @@ export default function SubmitTrackModal({
                   <button
                     onClick={handleClose}
                     disabled={uploading}
-                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
                   >
                     Cancel
                   </button>

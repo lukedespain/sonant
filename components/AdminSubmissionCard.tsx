@@ -156,8 +156,8 @@ export default function AdminSubmissionCard({
             onClick={handlePlay}
             className={`mt-0.5 w-9 h-9 flex items-center justify-center shrink-0 transition-colors ${
               isCurrentlyPlaying
-                ? 'bg-[#E85D2F] text-[#0A0908]'
-                : 'bg-[#0A0908] text-[#E85D2F]'
+                ? 'bg-[var(--accent)] text-[#0A0908]'
+                : 'bg-[#0A0908] text-[var(--accent)]'
             }`}
             style={{ borderRadius: '2px' }}
             aria-label={isCurrentlyPlaying ? 'Pause' : 'Play submission'}
@@ -175,7 +175,7 @@ export default function AdminSubmissionCard({
             <h3 className="font-serif italic text-xl tracking-tight mb-1">{projectName}</h3>
             <div
               className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)]"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              style={{ fontFamily: "var(--brand-mono)" }}
             >
               {briefType === 'client' ? 'Client' : 'Catalog'}
               {isDisco ? ' · Disco' : ''} · {composerEmail} · {submittedAt}
@@ -185,7 +185,7 @@ export default function AdminSubmissionCard({
             <span
               className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5"
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "var(--brand-mono)",
                 borderRadius: '2px',
                 background:
                   statusTone === 'accepted'
@@ -272,8 +272,8 @@ export default function AdminSubmissionCard({
                 onClick={handlePlay}
                 className={`w-9 h-9 flex items-center justify-center shrink-0 transition-colors ${
                   isCurrentlyPlaying
-                    ? 'bg-[#E85D2F] text-[#0A0908]'
-                    : 'bg-[#0A0908] text-[#E85D2F]'
+                    ? 'bg-[var(--accent)] text-[#0A0908]'
+                    : 'bg-[#0A0908] text-[var(--accent)]'
                 }`}
                 style={{ borderRadius: '2px' }}
                 aria-label={isCurrentlyPlaying ? 'Pause' : 'Play submission'}
@@ -283,13 +283,13 @@ export default function AdminSubmissionCard({
               <div className="min-w-0">
                 <div
                   className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-1"
-                  style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                  style={{ fontFamily: "var(--brand-mono)" }}
                 >
                   Submission
                 </div>
                 <div
                   className="text-sm text-[var(--text-primary)] truncate"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  style={{ fontFamily: "var(--brand-sans)" }}
                 >
                   {audioName?.replace(/\.[^/.]+$/, '') || 'Submitted track'}
                 </div>
@@ -299,7 +299,7 @@ export default function AdminSubmissionCard({
           {!isDisco && !audioUrl && (
             <p
               className="text-sm text-[var(--text-muted)] mb-4"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              style={{ fontFamily: "var(--brand-sans)" }}
             >
               No audio on this submission.
               {playlistHref ? ' Open the brief playlist to hear their upload.' : ''}
@@ -310,14 +310,14 @@ export default function AdminSubmissionCard({
             <>
               <p
                 className="text-sm text-[var(--text-muted)] leading-relaxed mb-4"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
+                style={{ fontFamily: "var(--brand-sans)" }}
               >
                 This is a click-through to Disco, not an uploaded file. Mark it delivered once you see the track in the inbox.
               </p>
               {error && (
                 <div
-                  className="text-sm text-[#FF8B6B] mb-3"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  className="text-sm text-[var(--danger)] mb-3"
+                  style={{ fontFamily: "var(--brand-sans)" }}
                 >
                   {error}
                 </div>
@@ -328,8 +328,8 @@ export default function AdminSubmissionCard({
                     type="button"
                     onClick={() => handleDelivered(false)}
                     disabled={submitting}
-                    className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors disabled:opacity-50"
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px' }}
+                    className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
                   >
                     Undo delivered
                   </button>
@@ -343,7 +343,7 @@ export default function AdminSubmissionCard({
                         ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
                         : 'bg-[#7A9A6E] text-[var(--bg-base)] hover:bg-[#8BAB7E]'
                     }`}
-                    style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: 500 }}
+                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
                   >
                     ◆ Mark delivered
                   </button>
@@ -359,14 +359,14 @@ export default function AdminSubmissionCard({
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="Your written feedback on the track. Every email to the composer ends with it."
                 rows={4}
-                className="w-full px-4 py-3 bg-[var(--bg-base)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[#E85D2F] focus:outline-none transition-colors text-sm mb-3"
-                style={{ fontFamily: "'DM Sans', sans-serif", borderRadius: '2px' }}
+                className="w-full px-4 py-3 bg-[var(--bg-base)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none transition-colors text-sm mb-3"
+                style={{ fontFamily: "var(--brand-sans)", borderRadius: '2px' }}
               />
 
               {error && (
                 <div
-                  className="text-sm text-[#FF8B6B] mb-3"
-                  style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  className="text-sm text-[var(--danger)] mb-3"
+                  style={{ fontFamily: "var(--brand-sans)" }}
                 >
                   {error}
                 </div>
@@ -375,7 +375,7 @@ export default function AdminSubmissionCard({
               {!isDecided && (
               <p
                 className="text-[11px] text-[var(--text-muted)] leading-relaxed mb-3"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
+                style={{ fontFamily: "var(--brand-sans)" }}
               >
                 {isSent
                   ? `With ${catalogName}. Once they reply, mark Accepted or Not accepted. Add their reason to the notes first if you have it.`
@@ -432,7 +432,7 @@ export default function AdminSubmissionCard({
                 {(isDecided || isSent) && (
                   <span
                     className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-dimmer)] self-center"
-                    style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                    style={{ fontFamily: "var(--brand-mono)" }}
                   >
                     Each change emails the composer
                   </span>
@@ -447,9 +447,9 @@ export default function AdminSubmissionCard({
 }
 
 const TONES = {
-  send: { solid: 'bg-[#E85D2F] text-[var(--bg-base)] hover:bg-[#FF6E3D]', hover: 'hover:border-[#E85D2F] hover:text-[#E85D2F]' },
+  send: { solid: 'bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)]', hover: 'hover:border-[var(--accent)] hover:text-[var(--accent)]' },
   accept: { solid: 'bg-[#7A9A6E] text-[var(--bg-base)] hover:bg-[#8BAB7E]', hover: 'hover:border-[#7A9A6E] hover:text-[#7A9A6E]' },
-  reject: { solid: '', hover: 'hover:border-[#FF8B6B] hover:text-[#FF8B6B]' },
+  reject: { solid: '', hover: 'hover:border-[var(--danger)] hover:text-[var(--danger)]' },
 } as const;
 
 function DecisionButton({
@@ -476,7 +476,7 @@ function DecisionButton({
       onClick={onClick}
       disabled={disabled}
       className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 transition-colors ${style}`}
-      style={{ fontFamily: "'JetBrains Mono', monospace", borderRadius: '2px', fontWeight: primary ? 500 : 400 }}
+      style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: primary ? 500 : 400 }}
     >
       {label}
     </button>
@@ -484,8 +484,8 @@ function DecisionButton({
 }
 
 function HandoffPanel({ handoff, catalogName }: { handoff: AdminHandoff; catalogName: string }) {
-  const mono = { fontFamily: "'JetBrains Mono', monospace" } as const;
-  const sans = { fontFamily: "'DM Sans', sans-serif" } as const;
+  const mono = { fontFamily: "var(--brand-mono)" } as const;
+  const sans = { fontFamily: "var(--brand-sans)" } as const;
   if (!handoff.agreedAt) {
     return (
       <div className="mb-4 p-4 border border-[var(--border-card)] bg-[var(--bg-base)]" style={{ borderRadius: '2px' }}>
@@ -525,7 +525,7 @@ function HandoffPanel({ handoff, catalogName }: { handoff: AdminHandoff; catalog
           href={handoff.stemsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+          className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
           style={{ ...mono, borderRadius: '2px' }}
         >
           ↗ Open stems

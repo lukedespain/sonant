@@ -5,17 +5,17 @@ export default function AuthErrorPage() {
     <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="max-w-md w-full">
         <div
-          className="text-[10px] tracking-[0.3em] uppercase text-[#E85D2F] mb-4"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          className="text-[10px] tracking-[0.3em] uppercase text-[var(--accent)] mb-4"
+          style={{ fontFamily: "var(--brand-mono)" }}
         >
           ◆ Verification link expired
         </div>
 
         <h2
           className="text-4xl mb-6 leading-tight"
-          style={{ fontFamily: "'Fraunces', serif", fontWeight: 300 }}
+          style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}
         >
-          Let&apos;s try that <span className="italic text-[#E85D2F]" style={{ fontWeight: 400 }}>again</span>.
+          Let&apos;s try that <span className="italic text-[var(--accent)]" style={{ fontWeight: 400 }}>again</span>.
         </h2>
 
         <p className="text-base text-[var(--text-tertiary)] mb-10 leading-relaxed">
@@ -27,9 +27,9 @@ export default function AuthErrorPage() {
             href="/login"
             className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center transition-all"
             style={{
-              background: '#E85D2F',
+              background: 'var(--accent)',
               color: 'var(--bg-base)',
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--brand-mono)",
               fontWeight: 500,
               borderRadius: '2px',
             }}
@@ -38,9 +38,9 @@ export default function AuthErrorPage() {
           </Link>
           <Link
             href="/forgot-password"
-            className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center border border-[var(--border-subtle)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center border border-[var(--border-subtle)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--brand-mono)",
               fontWeight: 500,
               borderRadius: '2px',
             }}
@@ -49,9 +49,9 @@ export default function AuthErrorPage() {
           </Link>
           <Link
             href="/signup"
-            className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center border border-[var(--border-subtle)] hover:border-[#E85D2F] hover:text-[#E85D2F] transition-colors"
+            className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center border border-[var(--border-subtle)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: "var(--brand-mono)",
               fontWeight: 500,
               borderRadius: '2px',
             }}
@@ -62,12 +62,12 @@ export default function AuthErrorPage() {
 
         <p
           className="text-xs text-[var(--text-dim)] text-center pt-8"
-          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          style={{ fontFamily: "var(--brand-sans)" }}
         >
           Trouble?{' '}
           <Link
             href="/"
-            className="text-[#E85D2F] hover:text-[#FF6E3D] transition-colors"
+            className="text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors"
           >
             Back to home
           </Link>
