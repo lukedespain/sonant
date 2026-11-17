@@ -42,21 +42,21 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
 
 export default function AboutQuestions() {
   return (
-    <div className="border-t border-[var(--border-base)]">
+    <div className="rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] divide-y divide-[var(--border-base)] overflow-hidden">
       {QUESTIONS.map((item) => (
-        <details key={item.q} className="group border-b border-[var(--border-base)]">
-          <summary className="flex items-center justify-between gap-6 py-6 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-            <span className="text-[21px] md:text-[24px] font-medium tracking-[-0.025em] text-[var(--text-secondary)] group-open:text-[var(--text-primary)] transition-colors">
+        <details key={item.q} className="group">
+          <summary className="flex items-center justify-between gap-6 px-5 md:px-6 py-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-[var(--bg-card-hover)] transition-colors">
+            <span className="text-[15px] font-medium tracking-[-0.01em] text-[var(--text-secondary)] group-open:text-[var(--text-primary)] transition-colors">
               {item.q}
             </span>
             <span
-              className="shrink-0 text-[var(--text-dimmer)] group-open:text-[var(--text-primary)] transition-transform group-open:rotate-45 text-2xl leading-none font-light"
+              className="shrink-0 w-6 h-6 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-dim)] group-open:rotate-45 group-open:text-[var(--text-primary)] transition-transform text-[15px] leading-none"
               aria-hidden="true"
             >
               +
             </span>
           </summary>
-          <p className="pb-7 pr-10 text-[17px] text-[var(--text-muted)] leading-relaxed max-w-2xl">{item.a}</p>
+          <p className="px-5 md:px-6 pb-5 -mt-1 pr-14 text-[14px] text-[var(--text-muted)] leading-relaxed max-w-3xl">{item.a}</p>
         </details>
       ))}
     </div>

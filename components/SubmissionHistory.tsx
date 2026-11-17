@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { EmptyState, StatusPill, btn, type Tone } from '@/components/ui';
+import { EmptyState, StatusPill, btn } from '@/components/ui';
 import {
   IconBriefs,
   IconCheck,
@@ -32,29 +32,9 @@ type Filter = 'all' | 'review' | 'accepted' | 'closed';
 
 const REVIEW = new Set(['received', 'pending', 'in_review', 'feedback_ready', 'sent_to_catalog']);
 
-export function isProject(sub: Pick<SubmissionItem, 'briefType'>) {
-  return sub.briefType === 'client';
-}
+import { composerStatus, isProject } from '@/lib/submission-status';
 
-export function composerStatus(
-  sub: Pick<SubmissionItem, 'status' | 'needsSignature'> & { briefType?: string },
-): { label: string; tone: Tone; pulse?: boolean } {
-  if (sub.briefType === 'client') {
-    if (sub.status === 'accepted') return { label: 'Picked by the client', tone: 'positive' };
-    if (sub.status === 'not_accepted') return { label: 'Not picked', tone: 'muted' };
-    if (sub.status === 'sent_to_catalog') return { label: 'Sent to the client', tone: 'info' };
-    return { label: 'With our team', tone: 'warning' };
-  }
-  if (sub.status === 'accepted') {
-    return sub.needsSignature
-      ? { label: 'Sign to finish', tone: 'signal', pulse: true }
-      : { label: 'Accepted', tone: 'positive' };
-  }
-  if (sub.status === 'not_accepted') return { label: 'Not selected', tone: 'muted' };
-  if (sub.status === 'sent_to_catalog') return { label: 'Shortlisted', tone: 'info' };
-  if (sub.status === 'feedback_ready') return { label: 'Feedback ready', tone: 'info' };
-  return { label: 'In review', tone: 'warning' };
-}
+export { composerStatus, isProject };
 
 function trackTitle(sub: SubmissionItem) {
   if (sub.trackName) return sub.trackName.replace(/\.[^/.]+$/, '');

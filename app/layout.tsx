@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import Nav from "@/components/Nav";
 import AudioPlayerBar from "@/components/AudioPlayerBar";
-import Footer from "@/components/Footer";
 import { Providers } from "./providers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -113,7 +111,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col overflow-x-clip">
         <Providers>
-          <SiteFrame shell={shell} nav={<Nav user={user} isSiteAdmin={isAdmin} />} footer={<Footer />}>
+          <SiteFrame shell={shell}>
             {children}
           </SiteFrame>
           <AudioPlayerBar />

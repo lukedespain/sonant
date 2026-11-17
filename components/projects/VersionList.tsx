@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
 import { StatusPill, btn } from '@/components/ui';
-import { composerStatus } from '@/components/SubmissionHistory';
+import { composerStatus } from '@/lib/submission-status';
 import { IconDownload } from '@/components/shell/icons';
 import type { ProjectVersion } from '@/lib/projects';
 

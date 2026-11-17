@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { isAdminView } from '@/lib/admin-view';
 import { composerHasClientAccess } from '@/lib/verification';
 import { loadProjects, readThread, unreadFor, type ProjectSummary } from '@/lib/projects';
-import { composerStatus } from '@/components/SubmissionHistory';
+import { composerStatus } from '@/lib/submission-status';
 import { AppHeader, AppPage, StatusPill, btn, type Tone } from '@/components/ui';
 import { IconLock, IconMessage, IconPlus, IconStar, IconWaveform } from '@/components/shell/icons';
 

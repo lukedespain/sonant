@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { StatusPill } from '@/components/ui';
-import { composerStatus } from '@/components/SubmissionHistory';
+import { composerStatus } from '@/lib/submission-status';
 import { IconArrowUpRight, IconBriefs, IconClose } from '@/components/shell/icons';
 import HomeStarButton from '@/components/HomeStarButton';
 

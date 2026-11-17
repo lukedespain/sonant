@@ -14,7 +14,7 @@ import DeleteBriefButton from '@/components/DeleteBriefButton';
 import MoveToPracticeButton from '@/components/MoveToPracticeButton';
 import CommunityTracksSection from '@/components/CommunityTracksSection';
 import BriefPanel, { BriefPrimaryAction, type BriefPanelProps } from '@/components/BriefPanel';
-import { composerStatus } from '@/components/SubmissionHistory';
+import { composerStatus } from '@/lib/submission-status';
 import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
 import { readHandoffs } from '@/lib/handoff';
 import BriefImageUpload from '@/components/BriefImageUpload';

@@ -59,7 +59,7 @@ function composerItems(data: ShellData): NavItem[] {
       match: (p) => p === '/briefs' || p.startsWith('/briefs/'),
     },
   ];
-  if (data.signedIn) {
+  {
     items.push(
       {
         href: '/projects',
@@ -198,15 +198,32 @@ function ViewSwitch({ asComposer, compact = false }: { asComposer: boolean; comp
   );
 }
 
+/** The logo is the Home item: it lights up on the portal homepage. */
+function HomeLink({ onNavigate }: { onNavigate?: () => void }) {
+  const active = usePathname() === '/';
+  return (
+    <Link
+      href="/"
+      onClick={onNavigate}
+      aria-current={active ? 'page' : undefined}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-colors ${
+        active ? 'bg-[var(--bg-elevated)] shadow-[inset_0_0_0_1px_var(--border-card)]' : 'hover:bg-[var(--accent-soft)]'
+      }`}
+    >
+      <ThoughtCollectiveMark size={22} />
+      <span className="min-w-0">
+        <span className="block text-[15px] font-semibold tracking-[-0.02em] leading-tight">Thought Collective</span>
+        <span className={`block text-[12px] leading-tight ${active ? 'text-[var(--signal)]' : 'text-[var(--text-dim)]'}`}>Composer portal</span>
+      </span>
+    </Link>
+  );
+}
+
 function SidebarContent({ data, onNavigate }: { data: ShellData; onNavigate?: () => void }) {
   return (
     <div className="flex flex-col h-full">
-      <div className="px-5 pt-6 pb-7">
-        <Link href="/" onClick={onNavigate} className="flex items-center gap-2.5">
-          <ThoughtCollectiveMark size={22} />
-          <span className="text-[15px] font-semibold tracking-[-0.02em]">Thought Collective</span>
-        </Link>
-        <p className="mt-1 pl-[32px] text-[12px] text-[var(--text-dim)]">Composers</p>
+      <div className="px-3 pt-4 pb-6">
+        <HomeLink onNavigate={onNavigate} />
       </div>
 
       <nav className="flex-1 overflow-y-auto app-scroll px-3 flex flex-col gap-7" aria-label="Main">
@@ -263,7 +280,7 @@ function SidebarContent({ data, onNavigate }: { data: ShellData; onNavigate?: ()
           </div>
         )}
         <div className="px-2 flex items-center gap-4 text-[12px] text-[var(--text-dimmer)]">
-          <Link href="/faq" onClick={onNavigate} className="hover:text-[var(--text-secondary)] transition-colors">
+          <Link href="/#faq" onClick={onNavigate} className="hover:text-[var(--text-secondary)] transition-colors">
             FAQ
           </Link>
           <a href={THOUGHT_COLLECTIVE_SITE} className="inline-flex items-center gap-1 hover:text-[var(--text-secondary)] transition-colors">
