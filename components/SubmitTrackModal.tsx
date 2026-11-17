@@ -19,7 +19,7 @@ import { useWindowFileDrop } from '@/lib/use-window-file-drop';
  * What one attempt at a submission is holding. The submission id doubles as the
  * primary key of the eventual row, so keeping the same ticket across a retry is
  * what makes the retry free: the server recognises the id and does not charge a
- * second credit. Minting a fresh one would look like a second submission.
+ * second submission. Minting a fresh one would look like a second track.
  */
 type Ticket = {
   submissionId: string;
@@ -37,8 +37,6 @@ type Props = {
   alreadySubmitted: boolean;
   triggerClassName?: string;
   triggerLabel?: string;
-  submissionCredits?: number;
-  isAdmin?: boolean;
   /** Project uploads are free versions for a client project, not catalogue submissions. */
   mode?: 'catalog' | 'project';
 };
@@ -49,8 +47,6 @@ export default function SubmitTrackModal({
   alreadySubmitted,
   triggerClassName,
   triggerLabel = 'Submit track',
-  submissionCredits = 0,
-  isAdmin = false,
   mode = 'catalog',
 }: Props) {
   const isProject = mode === 'project';
@@ -178,7 +174,6 @@ export default function SubmitTrackModal({
     }
   }
 
-  const hasCredit = isProject || isAdmin || submissionCredits > 0;
   const agreements: { id: string; label: string }[] = isProject
     ? [
         { id: 'original', label: 'This is my own original work, written for this project.' },
@@ -187,16 +182,11 @@ export default function SubmitTrackModal({
     : [
         { id: 'original', label: 'Original music, start to finish. Not a cover.' },
         { id: 'human', label: 'Human-made. No AI-generated music, stems, or vocals.' },
-        {
-          id: 'credit',
-          label: isAdmin
-            ? 'Submitting as Thought Collective. No credit used.'
-            : `This uses 1 of my ${submissionCredits} free ${submissionCredits === 1 ? 'submission' : 'submissions'}. It goes privately to Thought Collective.`,
-        },
+        { id: 'private', label: 'It goes privately to Thought Collective. You will hear from us if it is picked.' },
       ];
   const confirmed = agreements.every((a) => checks[a.id]);
   const trackReady = !!pendingFile && trackName.trim().length > 0;
-  const canSubmit = trackReady && confirmed && hasCredit;
+  const canSubmit = trackReady && confirmed;
   const STEPS = ['Track', 'Confirm', 'Review'] as const;
 
   return (
@@ -371,11 +361,6 @@ export default function SubmitTrackModal({
                           <span className="text-[14px] leading-relaxed">{a.label}</span>
                         </label>
                       ))}
-                      {!hasCredit && (
-                        <p className="mt-2 rounded-xl bg-[var(--warning-soft)] px-4 py-3 text-[13px] text-[var(--warning)] leading-relaxed">
-                          You have used your free submissions for now. A new one arrives every week, and unused ones stack up, so check back in a few days.
-                        </p>
-                      )}
                     </div>
                   )}
 
@@ -394,7 +379,6 @@ export default function SubmitTrackModal({
                         {[
                           [isProject ? 'Project' : 'Brief', projectName],
                           ['File', `${pendingFile.name} · ${(pendingFile.size / 1_048_576).toFixed(1)} MB`],
-                          ['Cost', isProject || isAdmin ? 'Free' : `1 free submission · ${submissionCredits - 1} left after`],
                         ].map(([k, v]) => (
                           <div key={k} className="flex items-baseline justify-between gap-4 px-5 py-3">
                             <dt className="text-[var(--text-muted)] shrink-0">{k}</dt>
@@ -444,7 +428,7 @@ export default function SubmitTrackModal({
                     </button>
                   )}
                   {step === 2 && (
-                    <button type="button" onClick={() => setStep(3)} disabled={!confirmed || !hasCredit} className={btn('primary', 'lg', 'flex-1')}>
+                    <button type="button" onClick={() => setStep(3)} disabled={!confirmed} className={btn('primary', 'lg', 'flex-1')}>
                       Review
                     </button>
                   )}

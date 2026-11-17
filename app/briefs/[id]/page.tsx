@@ -15,7 +15,6 @@ import MoveToPracticeButton from '@/components/MoveToPracticeButton';
 import CommunityTracksSection from '@/components/CommunityTracksSection';
 import BriefPanel, { BriefPrimaryAction, type BriefPanelProps } from '@/components/BriefPanel';
 import { composerStatus } from '@/lib/submission-status';
-import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
 import { readHandoffs } from '@/lib/handoff';
 import BriefImageUpload from '@/components/BriefImageUpload';
 import RegenerateImageButton from '@/components/RegenerateImageButton';
@@ -105,7 +104,6 @@ export default async function BrowseBriefPage({ params }: PageProps) {
       ? admin.from('profiles').select('full_name, tier, submission_credits').eq('id', user.id).single()
       : Promise.resolve({ data: null }),
   ]);
-  const credit = user ? await ensureMonthlySubmissionCredit(admin, user).catch(() => null) : null;
 
   const visibleRaw = (data ?? []).filter(
     (t) => isTrackPublic(privacyMap, t.id) || t.user_id === user?.id
@@ -118,8 +116,6 @@ export default async function BrowseBriefPage({ params }: PageProps) {
   const profileMap = Object.fromEntries((profiles ?? []).map((p: { id: string; full_name: string }) => [p.id, p.full_name]));
 
   const currentUserName = (currentProfile as { full_name?: string } | null)?.full_name ?? '';
-  const submissionCredits =
-    credit?.credits ?? (currentProfile as { submission_credits?: number } | null)?.submission_credits ?? 0;
 
   const communityTracks = visibleRaw.map((t) => ({
     id: t.id,
@@ -160,8 +156,6 @@ export default async function BrowseBriefPage({ params }: PageProps) {
     signedIn: !!user,
     isAdmin,
     submission: submissionState,
-    credits: submissionCredits,
-    daysUntilNextCredit: credit?.daysUntilNext ?? null,
     deadline: brief.deadline,
     catalog: catalogPartner
       ? {

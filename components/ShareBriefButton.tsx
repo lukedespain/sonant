@@ -132,7 +132,7 @@ export default function ShareBriefButton({
             <ModalDone
               icon={<IconCheck size={20} strokeWidth={2} />}
               title={sentCount === 1 ? 'Invite sent' : 'Invites sent'}
-              body={`${sentCount === 1 ? 'They get' : 'They each get'} a link to this brief. If they create an account from your code, you earn a free submission.`}
+              body={`${sentCount === 1 ? 'They get' : 'They each get'} a link to this brief.`}
               actions={
                 <button type="button" onClick={() => setOpen(false)} className={btn('primary', 'md')}>
                   Done
@@ -141,7 +141,7 @@ export default function ShareBriefButton({
             />
           ) : !loggedIn ? (
             <p className="px-6 py-6 text-[14px] text-[var(--text-muted)] leading-relaxed">
-              Sign in to send this brief and earn a free submission when someone joins from your invite.
+              Sign in to send this brief to other composers.
             </p>
           ) : (
             <form id="share-brief-form" onSubmit={handleSend} className="px-6 py-6 flex flex-col gap-5">
@@ -180,7 +180,7 @@ export default function ShareBriefButton({
                   className={textareaClass}
                 />
                 <p className="mt-1.5 text-[12px] text-[var(--text-dim)] leading-relaxed">
-                  One or many emails. Each new signup from your code earns you a free submission.
+                  One or many emails, separated by commas.
                 </p>
               </div>
 

@@ -12,8 +12,6 @@ export type BriefPanelProps = {
   signedIn: boolean;
   isAdmin: boolean;
   submission: { label: string; tone: Tone; pulse?: boolean } | null;
-  credits: number;
-  daysUntilNextCredit: number | null;
   deadline?: string;
   catalog?: { name: string; exclusive: boolean; split: string; humanMadeOnly: boolean } | null;
   client?: { demoFee?: string; winFee?: string } | null;
@@ -34,7 +32,7 @@ function Fact({ label, value }: { label: string; value?: ReactNode }) {
 
 /** The primary action for a brief, used in the side panel and the phone action bar. */
 export function BriefPrimaryAction(props: BriefPanelProps & { size?: 'md' | 'lg'; full?: boolean; compact?: boolean }) {
-  const { briefId, title, variant, signedIn, isAdmin, submission, credits, closed, currentUserName, discoUrl } = props;
+  const { briefId, title, variant, signedIn, submission, closed, currentUserName, discoUrl } = props;
   const cls = btn('accent', props.size ?? 'lg', props.full === false ? '' : 'w-full');
   const signUp = `/signup?redirect=/briefs/${briefId}`;
 
@@ -73,8 +71,6 @@ export function BriefPrimaryAction(props: BriefPanelProps & { size?: 'md' | 'lg'
       briefId={briefId}
       projectName={title}
       alreadySubmitted={!!submission}
-      submissionCredits={credits}
-      isAdmin={isAdmin}
       triggerLabel={submission ? (props.compact ? 'Submit again' : 'Submit another track') : props.compact ? 'Submit' : 'Submit your track'}
       triggerClassName={submission ? btn('secondary', props.size ?? 'lg', props.full === false ? '' : 'w-full') : cls}
     />
@@ -82,7 +78,7 @@ export function BriefPrimaryAction(props: BriefPanelProps & { size?: 'md' | 'lg'
 }
 
 export default function BriefPanel(props: BriefPanelProps) {
-  const { variant, signedIn, isAdmin, submission, credits, daysUntilNextCredit, catalog, client, deadline, closed } = props;
+  const { variant, submission, catalog, client, deadline, closed } = props;
 
   return (
     <div className="flex flex-col gap-3">
@@ -134,18 +130,6 @@ export default function BriefPanel(props: BriefPanelProps) {
         )}
       </div>
 
-      {variant === 'catalog' && signedIn && !isAdmin && (
-        <div className={`${card} px-5 py-4 flex items-center justify-between gap-4`}>
-          <div>
-            <p className="text-[13px] text-[var(--text-muted)]">Free submissions</p>
-            <p className="text-[12px] text-[var(--text-dim)]">
-              {daysUntilNextCredit != null ? `+1 in ${daysUntilNextCredit} ${daysUntilNextCredit === 1 ? 'day' : 'days'}` : 'One a week'}
-              {' · they stack'}
-            </p>
-          </div>
-          <p className="text-[24px] font-semibold tracking-[-0.03em] tabular-nums">{credits}</p>
-        </div>
-      )}
 
       {catalog?.humanMadeOnly && (
         <p className="px-2 text-[12px] text-[var(--text-dim)] leading-relaxed">

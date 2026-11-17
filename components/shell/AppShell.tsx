@@ -32,8 +32,6 @@ export type ShellData = {
   canSwitchView: boolean;
   name: string;
   email: string;
-  credits: number | null;
-  daysUntilNextCredit: number | null;
   offersWaiting: number;
   reviewQueue: number;
   /** Unread project messages for this person (composer side or admin side). */
@@ -48,7 +46,6 @@ type NavItem = {
   match: (path: string, tab: string | null) => boolean;
 };
 
-const CREDIT_PERIOD_DAYS = 7;
 
 function composerItems(data: ShellData): NavItem[] {
   const items: NavItem[] = [
@@ -139,24 +136,6 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
   );
 }
 
-function CreditMeter({ credits, days }: { credits: number; days: number | null }) {
-  const elapsed = days == null ? 0 : Math.min(1, Math.max(0, (CREDIT_PERIOD_DAYS - days) / CREDIT_PERIOD_DAYS));
-  return (
-    <div className="rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-4">
-      <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[13px] text-[var(--text-muted)]">Free submissions</p>
-        <p className="text-[20px] font-semibold tracking-[-0.02em] tabular-nums">{credits}</p>
-      </div>
-      <div className="mt-3 h-1 rounded-full bg-[var(--border-card)] overflow-hidden" aria-hidden="true">
-        <div className="h-full rounded-full bg-[var(--signal)]" style={{ width: `${Math.max(6, elapsed * 100)}%` }} />
-      </div>
-      <p className="mt-2.5 text-[12px] text-[var(--text-dim)] leading-snug">
-        {days != null ? `+1 in ${days} ${days === 1 ? 'day' : 'days'}. ` : ''}Unused ones stack.
-      </p>
-    </div>
-  );
-}
-
 function initials(name: string, email: string) {
   const source = name.trim() || email;
   const parts = source.split(/[\s@._-]+/).filter(Boolean);
@@ -241,9 +220,6 @@ function SidebarContent({ data, onNavigate }: { data: ShellData; onNavigate?: ()
       <div className="px-3 pb-4 pt-4 flex flex-col gap-3">
         {data.signedIn ? (
           <>
-            {!data.isAdmin && data.credits != null && (
-              <CreditMeter credits={data.credits} days={data.daysUntilNextCredit} />
-            )}
             <div className="flex items-center gap-3 px-2 py-1.5">
               <span className="w-8 h-8 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-subtle)] flex items-center justify-center text-[11px] font-semibold text-[var(--text-secondary)] shrink-0">
                 {initials(data.name, data.email)}
@@ -268,7 +244,7 @@ function SidebarContent({ data, onNavigate }: { data: ShellData; onNavigate?: ()
         ) : (
           <div className="rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-4">
             <p className="text-[14px] font-medium tracking-[-0.01em]">Write for Thought Collective</p>
-            <p className="mt-1 text-[12px] text-[var(--text-dim)] leading-snug">Free to join. One free submission a week.</p>
+            <p className="mt-1 text-[12px] text-[var(--text-dim)] leading-snug">Free to join. Write to our briefs and get your music into our catalogue.</p>
             <div className="mt-3.5 flex flex-col gap-2">
               <Link href="/signup" onClick={onNavigate} className={btn('primary', 'sm', 'w-full')}>
                 Create an account

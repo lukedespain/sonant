@@ -72,11 +72,10 @@ export default function ManualSubmissionForm({ composers }: { composers: Compose
           <span className="w-6 h-6 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-muted)] group-open:rotate-45 transition-transform">+</span>
           Add a track that came in by email or WhatsApp
         </span>
-        <span className="hidden sm:inline text-[12px] text-[var(--text-dimmer)]">No credit used</span>
       </summary>
       <form onSubmit={submit} className="px-5 pb-6 pt-1 grid gap-4">
         <p className="text-sm text-[var(--text-muted)] leading-relaxed max-w-2xl">
-          The composer needs an account here. Paste the link to any brief they wrote to, practice briefs included, and pick the catalog it is going to. This adds the track to the queue with no credit used. Then use Send or Accepted as usual, and they get the emails and that catalog&apos;s sign-on.
+          The composer needs an account here. Paste the link to any brief they wrote to, practice briefs included, and pick the catalog it is going to. This adds the track to the queue. Then use Send or Accepted as usual, and they get the emails and that catalog&apos;s sign-on.
         </p>
         <div className="grid sm:grid-cols-2 gap-4">
           <label className="grid gap-2">

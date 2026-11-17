@@ -243,8 +243,8 @@ function stepsFor(sub: SubmissionItem): Step[] {
   const steps: Step[] = [
     { label: 'Submitted', detail: shortDate(sub.createdAt), state: 'done' },
     {
-      label: 'Listened to against the brief',
-      detail: decided || sub.status === 'sent_to_catalog' ? 'Done' : 'We listen to every track. This usually takes a week or two.',
+      label: 'With our team',
+      detail: decided || sub.status === 'sent_to_catalog' ? 'Done' : 'With our team. We email you if it is picked.',
       state: decided || sub.status === 'sent_to_catalog' ? 'done' : 'current',
     },
   ];

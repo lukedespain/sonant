@@ -59,7 +59,7 @@ function SignUpForm() {
       description={
         invited
           ? 'A composer shared a brief with you. Create a free account to open it and submit your track.'
-          : 'Write to real briefs and get your best work into our catalogue. Placed composers join our roster for paid client projects. Free, with one submission a week.'
+          : 'Write to real briefs and get your best work into our catalogue. Placed composers join our roster for paid client projects. Free to join.'
       }
       footer={
         <>

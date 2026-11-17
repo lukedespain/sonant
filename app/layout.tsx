@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSiteAdmin } from "@/lib/admin";
 import { isAdminView } from "@/lib/admin-view";
-import { ensureMonthlySubmissionCredit } from "@/lib/monthly-credit";
 import { readHandoffs } from "@/lib/handoff";
 import { loadProjects, readThread, unreadFor } from "@/lib/projects";
 import SiteFrame from "@/components/shell/SiteFrame";
@@ -43,8 +42,6 @@ export default async function RootLayout({
     canSwitchView: realAdmin,
     name: '',
     email: user?.email ?? '',
-    credits: null,
-    daysUntilNextCredit: null,
     offersWaiting: 0,
     reviewQueue: 0,
     projectUnread: 0,
@@ -52,22 +49,14 @@ export default async function RootLayout({
 
   if (user) {
     const admin = createAdminClient();
-    try {
-      const monthly = await ensureMonthlySubmissionCredit(admin, user);
-      shell.credits = monthly?.credits ?? null;
-      shell.daysUntilNextCredit = monthly?.daysUntilNext ?? null;
-    } catch (error) {
-      console.error('Monthly credit check failed', error);
-    }
     const [{ data: profile }, queue] = await Promise.all([
-      admin.from('profiles').select('full_name, submission_credits').eq('id', user.id).maybeSingle(),
+      admin.from('profiles').select('full_name').eq('id', user.id).maybeSingle(),
       isAdmin
         ? admin.from('submissions').select('brief_id').in('status', ['received', 'pending', 'in_review'])
         : Promise.resolve({ data: [] }),
     ]);
-    const p = profile as { full_name?: string | null; submission_credits?: number | null } | null;
+    const p = profile as { full_name?: string | null } | null;
     shell.name = p?.full_name?.trim() ?? '';
-    if (shell.credits == null && typeof p?.submission_credits === 'number') shell.credits = p.submission_credits;
     shell.offersWaiting = Object.values(readHandoffs(user.app_metadata)).filter((h) => h.offeredAt && !h.agreedAt).length;
     // The review queue is catalogue submissions; project uploads live on each project.
     const pending = ((queue.data ?? []) as { brief_id: string }[]).map((r) => r.brief_id);

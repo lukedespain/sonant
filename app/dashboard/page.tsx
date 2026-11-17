@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isAdminView } from '@/lib/admin-view';
-import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
 import { listNotifications } from '@/lib/notifications';
 import { classifyBrief } from '@/lib/brief-kind';
 import {
@@ -30,10 +29,9 @@ export default async function DashboardPage({
   const { tab } = await searchParams;
   const admin = createAdminClient();
   const isAdmin = await isAdminView(user);
-  const monthly = await ensureMonthlySubmissionCredit(admin, user);
 
   const [{ data: profile }, notifications, { data: rawSubmissions }, acceptedCount, override] = await Promise.all([
-    admin.from('profiles').select('full_name, email, submission_credits').eq('id', user.id).single(),
+    admin.from('profiles').select('full_name, email').eq('id', user.id).single(),
     listNotifications(admin, user.id),
     admin
       .from('submissions')
@@ -96,7 +94,7 @@ export default async function DashboardPage({
       };
     });
 
-  const p = profile as { full_name?: string; email?: string | null; submission_credits?: number } | null;
+  const p = profile as { full_name?: string; email?: string | null } | null;
 
   return (
     <DashboardView
@@ -106,8 +104,6 @@ export default async function DashboardPage({
       name={p?.full_name ?? ''}
       email={p?.email ?? user.email ?? ''}
       isAdmin={isAdmin}
-      submissionCredits={monthly?.credits ?? p?.submission_credits ?? 0}
-      daysUntilNextCredit={monthly?.daysUntilNext ?? null}
       notifications={notifications}
       submissions={submissions}
       inReview={submissions.filter((s) => s.status === 'received' || s.status === 'pending' || s.status === 'sent_to_catalog').length}

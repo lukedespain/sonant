@@ -8,7 +8,6 @@ import { isClientBriefRecord } from '@/lib/disco';
 import { isInvited } from '@/lib/projects';
 import { sendProjectUploadEmail } from '@/lib/email';
 import { siteUrl } from '@/lib/site-url';
-import { refundSubmissionCredit, spendSubmissionCredit } from '@/lib/credits';
 import { MAX_AUDIO_BYTES, SUBMISSION_BUCKET, tooLargeMessage } from '@/lib/audio-upload';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -16,7 +15,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /**
  * Step two of a submission. The browser has already uploaded the audio to the
  * signed URL from /api/submissions/upload-url, so this only confirms the file
- * arrived, records the row, and spends the credit.
+ * arrived and records the row. Submissions are free and unlimited.
  */
 export async function POST(req: Request) {
   // A tab opened before this shipped still posts the file itself, which Netlify
@@ -104,24 +103,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'This project is not open to you.', uploadGone: true }, { status: 403 });
   }
 
-  // Spend the credit before recording the submission, and only in a way that
-  // can fail. Reading the balance and then debiting it separately let two
-  // confirms both spend the last credit, and a debit that only logged its
-  // error handed out free submissions.
-  const skipCredits = isProject || isSiteAdmin(user);
-  if (!skipCredits) {
-    const spend = await spendSubmissionCredit(admin, user.id);
-    if (!spend.ok) {
-      await admin.storage.from(SUBMISSION_BUCKET).remove([storagePath]);
-      return spend.reason === 'insufficient'
-        ? NextResponse.json(
-            { error: 'No free submissions left this week. A new one arrives every week.', uploadGone: true },
-            { status: 402 }
-          )
-        : NextResponse.json({ error: spend.message, uploadGone: true }, { status: 500 });
-    }
-  }
-
   const { data: submission, error: dbError } = await admin
     .from('submissions')
     .insert({
@@ -134,8 +115,6 @@ export async function POST(req: Request) {
     .single();
 
   if (dbError || !submission) {
-    // Nothing was recorded under this credit, so give it back either way.
-    if (!skipCredits) await refundSubmissionCredit(admin, user.id);
     // A duplicate means a concurrent request won the race and owns the audio.
     if (dbError?.code === '23505') return NextResponse.json({ success: true });
     await admin.storage.from(SUBMISSION_BUCKET).remove([storagePath]);
@@ -168,9 +147,8 @@ export async function POST(req: Request) {
       (brief.generated_content as { codename?: string })?.codename ?? 'your brief';
     const sendReceipt = () => sendSubmissionReceivedEmail({ to, projectName });
     try {
-      // The credit is already spent by this point, so a slow email provider
-      // must not be able to time the response out: the composer would see a
-      // failure and submit again, paying twice for one track.
+      // A slow email provider must not time the response out: the composer
+      // would see a failure and submit the same track twice.
       after(sendReceipt);
     } catch (afterUnavailable) {
       // No waitUntil here. Still better to let the response go than to wait.

@@ -4,7 +4,6 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { isSiteAdmin } from '@/lib/admin';
 import { isClientBriefRecord } from '@/lib/disco';
 import { isInvited } from '@/lib/projects';
-import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
 import {
   MAX_AUDIO_BYTES,
   SUBMISSION_BUCKET,
@@ -67,25 +66,6 @@ export async function POST(req: Request) {
   if (isProject && !isSiteAdmin(user) && !isInvited(brief.generated_content, user.id)) {
     return NextResponse.json({ error: 'This project is not open to you.' }, { status: 403 });
   }
-
-  // Checked again when the submission is recorded; this is just to fail before
-  // the composer sits through an upload they cannot spend.
-  if (!isProject && !isSiteAdmin(user)) {
-    const monthly = await ensureMonthlySubmissionCredit(admin, user);
-    let credits = monthly?.credits;
-    if (credits == null) {
-      const { data: profile } = await admin
-        .from('profiles')
-        .select('submission_credits')
-        .eq('id', user.id)
-        .single();
-      credits = (profile as { submission_credits?: number } | null)?.submission_credits ?? 0;
-    }
-    if (credits < 1) {
-      return NextResponse.json({ error: 'No free submissions left this week. A new one arrives every week.' }, { status: 402 });
-    }
-  }
-
 
   // The id is minted here so the storage key and the eventual row agree, which
   // also makes recording the submission idempotent if the request is retried.

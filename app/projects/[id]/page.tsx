@@ -326,7 +326,7 @@ export default async function ProjectPage({
             <div className={`${card} p-5`}>
               <p className="text-[14px] font-medium">How projects work</p>
               <ul className="mt-3 flex flex-col gap-2.5 text-[13px] text-[var(--text-muted)] leading-relaxed">
-                <li>Upload as many versions as you like. No credits used.</li>
+                <li>Upload as many versions as you like.</li>
                 <li>Our team replies here with notes, fast.</li>
                 <li>Strong versions go to the client with a demo fee. If one wins, we split 70/30 your way.</li>
                 <li>Not picked? It is still your track. Submit it to a catalogue brief if it fits one.</li>

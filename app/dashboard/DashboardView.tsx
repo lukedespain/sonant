@@ -23,8 +23,6 @@ export default function DashboardView({
   name: initialName,
   email: initialEmail,
   isAdmin,
-  submissionCredits,
-  daysUntilNextCredit = null,
   notifications = [],
   submissions,
   inReview,
@@ -38,8 +36,6 @@ export default function DashboardView({
   name: string;
   email: string;
   isAdmin: boolean;
-  submissionCredits: number;
-  daysUntilNextCredit?: number | null;
   notifications?: AppNotification[];
   submissions: SubmissionItem[];
   inReview: number;
@@ -305,19 +301,8 @@ export default function DashboardView({
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-        <Stat
-          label="Free submissions"
-          value={isAdmin ? '∞' : String(submissionCredits)}
-          hint={
-            isAdmin
-              ? 'Admins submit freely'
-              : daysUntilNextCredit != null
-                ? `+1 in ${daysUntilNextCredit} ${daysUntilNextCredit === 1 ? 'day' : 'days'}`
-                : 'One a week, and they stack'
-          }
-          highlight={!isAdmin && submissionCredits > 0}
-        />
-        <Stat label="In review" value={String(inReview)} hint="Waiting on a decision" />
+        <Stat label="Submitted" value={String(submissions.length)} hint="Tracks you have sent us" />
+        <Stat label="In review" value={String(inReview)} hint="With our team" />
         <Stat label="Accepted" value={String(acceptedCount)} hint="In the catalogue" />
         <div className={`${card} p-4 md:p-5 flex flex-col justify-between gap-3`}>
           <p className="text-[13px] text-[var(--text-muted)]">Roster</p>

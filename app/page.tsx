@@ -15,7 +15,7 @@ const PARTS: { icon: (p: { size?: number }) => ReactNode; title: string; href: s
     title: 'Briefs',
     href: '/briefs',
     who: 'Open to everyone',
-    body: 'The tracks our clients keep asking for, written up as briefs for the Thought Collective catalogue. Pick one, download it, write to it, and submit. One free submission a week, and unused ones stack.',
+    body: 'The tracks our clients keep asking for, written up as briefs for the Thought Collective catalogue. Pick one, download it, write to it, and submit.',
   },
   {
     icon: IconFolder,

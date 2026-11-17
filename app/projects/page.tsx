@@ -147,7 +147,7 @@ export default async function ProjectsPage() {
           </div>
           <ol className="flex flex-col gap-3">
             {[
-              { icon: IconWaveform, title: 'Write to a catalogue brief', body: 'One free submission a week. They stack.' },
+              { icon: IconWaveform, title: 'Write to a catalogue brief', body: 'Download it, write the track, and submit it.' },
               { icon: IconStar, title: 'Get a track accepted', body: 'You join the roster, tagged by what your track nails.' },
               { icon: IconMessage, title: 'Get invited to projects', body: 'Paid client work in your lane, with notes from our team.' },
             ].map((step) => (

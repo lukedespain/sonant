@@ -141,7 +141,7 @@ export default function ClientBriefSubmitModal({
                     Copy
                   </button>
                 </div>
-                <p className="mt-1.5 text-[12px] text-[var(--text-dim)]">WAV · no credit used · send as many takes as you like</p>
+                <p className="mt-1.5 text-[12px] text-[var(--text-dim)]">WAV · send as many takes as you like</p>
               </div>
 
               {error && (

@@ -33,8 +33,8 @@ export async function sendSubmissionReceivedEmail(params: {
           <h2 style="font-weight: 500;">Submission received</h2>
           <p>Thanks for submitting a track for <strong>${projectName}</strong>.</p>
           <p>
-            We listen to every track against the brief, and we will email you
-            when there is a decision.
+            It is with our team now. If it is picked for the catalogue, we will
+            email you straight away.
           </p>
           <p style="color: var(--text-muted); font-size: 13px; margin-top: 32px;">
             Sonant

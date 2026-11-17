@@ -1,7 +1,7 @@
 import { type EmailOtpType } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { applyReferralCredit, safeInternalPath } from '@/lib/referrals';
+import { safeInternalPath } from '@/lib/referrals';
 import { addSignupToResendList } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.verifyOtp({ type, token_hash });
 
     if (!error && data.user) {
-      await applyReferralCredit(data.user);
       if (data.user.email) {
         const fullName = data.user.user_metadata?.full_name;
         const firstName =

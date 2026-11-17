@@ -20,7 +20,7 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'What happens after I submit?',
-    a: 'We listen to every track against the brief and email you when there is a decision. You can follow its status in Submissions. Catalogue briefs get a decision, not written notes. Client projects are where we work closely with you, with notes and back and forth.',
+    a: 'Your track goes privately to our team, and you can follow its status in Submissions. We cannot promise to reply to every submission, but if yours is picked for the catalogue, we email you straight away. Catalogue briefs get a decision, not written notes. Client projects are where we work closely with you, with notes and back and forth.',
   },
   {
     q: 'What are the terms if my track is accepted?',
@@ -36,7 +36,7 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'Does it cost anything?',
-    a: 'No. Submitting is free. Every account gets one submission a week, and unused ones stack, so you can save them up for a brief that fits you.',
+    a: 'No. Joining and submitting are free. Send your best track for any brief that fits you.',
   },
 ];
 
