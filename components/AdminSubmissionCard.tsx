@@ -10,6 +10,7 @@ import { IconArrowUpRight, IconChevronRight, IconDownload } from '@/components/s
 import { catalogPartnerById } from '@/lib/partners';
 import TagPicker from '@/components/TagPicker';
 import Link from 'next/link';
+import Modal from '@/components/Modal';
 
 export type AdminHandoff = {
   agreedAt: string | null;
@@ -56,7 +57,6 @@ export default function AdminSubmissionCard({
   status,
   existingFeedback,
   submittedAt,
-  briefType = 'catalog',
   delivery = 'upload',
   discoInboxUrl = null,
   deliveryConfirmedAt = null,
@@ -78,17 +78,20 @@ export default function AdminSubmissionCard({
   const catalogName = catalogPartnerById(catalogId)?.name ?? 'Sonant';
   const selectedCatalog = catalogId;
   const canSend = selectedCatalog !== 'sonant';
-  const [open, setOpen] = useState(isDisco ? !deliveryConfirmedAt : !isDecided && !isSent);
+  const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState(existingFeedback ?? '');
   // Starts with everything on the brief ticked; untick what the track does not nail.
   const [tags, setTags] = useState(savedTags ?? { genres: briefGenres, moods: briefMoods });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [accepting, setAccepting] = useState(false);
+  const [confirmPass, setConfirmPass] = useState(false);
 
-  async function handleDecision(decision: SubmissionDecision) {
+
+  async function handleDecision(decision: SubmissionDecision): Promise<boolean> {
     if (decision === 'accepted' && (tags.genres.length === 0 || tags.moods.length === 0)) {
       setError('Tag at least one genre and one mood this track nails.');
-      return;
+      return false;
     }
     setSubmitting(true);
     setError(null);
@@ -103,10 +106,11 @@ export default function AdminSubmissionCard({
 
     if (result.error) {
       setError(result.error);
-      return;
+      return false;
     }
     setOpen(false);
     router.refresh();
+    return true;
   }
 
   async function handleDelivered(confirmed: boolean) {
@@ -145,16 +149,29 @@ export default function AdminSubmissionCard({
     ? composerEmail.split(' · ')
     : ['', composerEmail];
   const trackTitle = audioName?.replace(/\.[^/.]+$/, '') || (isDisco ? 'Disco delivery' : 'Untitled track');
+  const undecided = !isDisco && !isDecided;
+
+  async function pass() {
+    if (!confirmPass) {
+      setConfirmPass(true);
+      window.setTimeout(() => setConfirmPass(false), 3000);
+      return;
+    }
+    setConfirmPass(false);
+    await handleDecision('not_accepted');
+  }
 
   return (
     <div
-      className={`rounded-2xl border bg-[var(--bg-card)] overflow-hidden transition-colors ${
+      data-queue-row
+      className={`rounded-2xl border bg-[var(--bg-card)] overflow-hidden transition-colors outline-none data-[active=true]:border-[var(--signal-line)] data-[active=true]:shadow-[0_0_0_3px_var(--signal-soft)] ${
         open ? 'border-[var(--border-subtle)]' : 'border-[var(--border-card)]'
       }`}
     >
-      <div className="flex items-center gap-3 md:gap-4 pl-3 pr-4 md:pl-4 py-3">
+      <div className="flex items-center gap-3 md:gap-4 pl-3 pr-3 md:pl-4 py-3">
         <button
           type="button"
+          data-action="play"
           onClick={handlePlay}
           disabled={!audioUrl}
           className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 ${
@@ -162,81 +179,66 @@ export default function AdminSubmissionCard({
               ? 'bg-[var(--signal)] text-[#0A0A0A]'
               : 'bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-hover)]'
           }`}
-          aria-label={isCurrentlyPlaying ? 'Pause' : 'Play submission'}
+          aria-label={isCurrentlyPlaying ? 'Pause' : `Play ${trackTitle}`}
         >
           <PlayPauseIcon playing={isCurrentlyPlaying} size={11} />
         </button>
         <button
           type="button"
+          data-action="toggle"
           onClick={() => setOpen((o) => !o)}
-          className="min-w-0 flex-1 grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_100px_190px] gap-x-4 items-center text-left"
+          className="min-w-0 flex-1 grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_96px_150px] gap-x-4 items-center text-left"
           aria-expanded={open}
         >
           <span className="min-w-0">
             <span className="block text-[14px] font-medium truncate">{trackTitle}</span>
             <span className="block text-[12px] text-[var(--text-dim)] truncate">{composerName || composerAddress}</span>
           </span>
-          <span className="hidden md:block min-w-0">
-            <span className="block text-[14px] text-[var(--text-secondary)] truncate">{projectName}</span>
-            {(briefType === 'client' || isDisco) && (
-              <span className="block text-[12px] text-[var(--text-dim)]">
-                {briefType === 'client' ? 'Client project' : ''}
-                {isDisco ? ' · Disco' : ''}
-              </span>
-            )}
-          </span>
+          <span className="hidden md:block min-w-0 text-[14px] text-[var(--text-secondary)] truncate">{projectName}</span>
           <span className="hidden md:block text-[13px] text-[var(--text-muted)] tabular-nums">{submittedAt}</span>
           <span className="justify-self-end md:justify-self-start">
             <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
           </span>
         </button>
-        <span
-          className={`hidden sm:block text-[var(--text-dimmer)] transition-transform ${open ? 'rotate-90' : ''}`}
-          aria-hidden="true"
-        >
-          <IconChevronRight size={14} />
-        </span>
+        {undecided ? (
+          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+            <button type="button" data-action="pass" onClick={pass} disabled={submitting} className={btn(confirmPass ? 'danger' : 'ghost', 'sm', 'px-3')}>
+              {confirmPass ? 'Confirm pass' : 'Pass'}
+            </button>
+            <button type="button" data-action="accept" onClick={() => setAccepting(true)} disabled={submitting} className={btn('accent', 'sm')}>
+              Accept
+            </button>
+          </div>
+        ) : (
+          <span className={`hidden sm:block text-[var(--text-dimmer)] transition-transform ${open ? 'rotate-90' : ''}`} aria-hidden="true">
+            <IconChevronRight size={14} />
+          </span>
+        )}
       </div>
 
       {open && (
-        <div className="border-t border-[var(--border-base)] grid lg:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="p-4 md:p-6 flex flex-col gap-5 min-w-0">
+        <div className="border-t border-[var(--border-base)] grid lg:grid-cols-[minmax(0,1fr)_260px]">
+          <div className="p-4 md:p-5 flex flex-col gap-4 min-w-0">
             {isDisco ? (
-              <p className="text-[14px] text-[var(--text-muted)] leading-relaxed">
-                This is a click-through to Disco, not an uploaded file. Mark it delivered once you see the track in the inbox.
-              </p>
+              <p className="text-[14px] text-[var(--text-muted)]">A click-through to Disco. Mark it delivered once it is in the inbox.</p>
             ) : (
               <>
                 {handoff && <HandoffPanel handoff={handoff} catalogName={catalogName} />}
-
-                <div>
-                  <label htmlFor={`notes-${submissionId}`} className="block text-[13px] text-[var(--text-muted)] mb-1.5">
-                    Notes for the composer <span className="text-[var(--text-dimmer)]">(optional)</span>
-                  </label>
+                <label className="block">
+                  <span className="block text-[13px] text-[var(--text-muted)] mb-1.5">Note to the composer (optional)</span>
                   <textarea
-                    id={`notes-${submissionId}`}
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="Leave blank to send the decision on its own."
-                    rows={3}
+                    placeholder="Sent with the decision email."
+                    rows={2}
                     className={textareaClass}
                   />
-                </div>
-
-                {!isDecided && (
-                  <div className="rounded-xl border border-[var(--border-card)] bg-[var(--bg-base)] p-4">
-                    <p className="text-[14px] font-medium">If it&apos;s accepted, what does it nail?</p>
-                    <p className="mt-0.5 mb-3 text-[12px] text-[var(--text-dim)] leading-relaxed">
-                      Untick what this track doesn&apos;t do, or add your own. The composer is verified for these on the roster. Only admins see them.
-                    </p>
-                    <TagPicker genreOptions={briefGenres} moodOptions={briefMoods} value={tags} onChange={setTags} />
-                  </div>
-                )}
+                </label>
                 {status === 'accepted' && (
                   <p className="text-[13px] text-[var(--text-muted)]">
-                    {savedTags ? <>Verified for {[...savedTags.genres, ...savedTags.moods].join(' · ')}. </> : <>Not tagged yet. </>}
+                    {savedTags ? <>Tagged {[...savedTags.genres, ...savedTags.moods].join(' · ')}. </> : <>Not tagged yet. </>}
                     <Link href="/admin?tab=roster" className="underline underline-offset-4 hover:text-[var(--text-primary)]">
-                      Edit in Roster
+                      Edit in roster
                     </Link>
                   </p>
                 )}
@@ -252,76 +254,57 @@ export default function AdminSubmissionCard({
             <div className="flex gap-2 flex-wrap items-center">
               {isDisco ? (
                 deliveryConfirmedAt ? (
-                  <button type="button" onClick={() => handleDelivered(false)} disabled={submitting} className={btn('secondary', 'md')}>
+                  <button type="button" onClick={() => handleDelivered(false)} disabled={submitting} className={btn('secondary', 'sm')}>
                     Undo delivered
                   </button>
                 ) : (
-                  <button type="button" onClick={() => handleDelivered(true)} disabled={submitting} className={btn('accent', 'md')}>
+                  <button type="button" onClick={() => handleDelivered(true)} disabled={submitting} className={btn('accent', 'sm')}>
                     Mark delivered
                   </button>
                 )
               ) : (
                 <>
-                  {canSend && (
-                    <button
-                      type="button"
-                      onClick={() => handleDecision('sent_to_catalog')}
-                      disabled={submitting}
-                      className={btn(!isSent && !isDecided ? 'primary' : 'secondary', 'md')}
-                    >
+                  {undecided && canSend && !isSent && (
+                    <button type="button" onClick={() => handleDecision('sent_to_catalog')} disabled={submitting} className={btn('secondary', 'sm')}>
                       Shortlist
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => handleDecision('accepted')}
-                    disabled={submitting}
-                    className={btn(isSent || !canSend ? 'accent' : 'secondary', 'md')}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDecision('not_accepted')}
-                    disabled={submitting}
-                    className={btn('secondary', 'md', 'hover:!border-[var(--danger)] hover:!text-[var(--danger)]')}
-                  >
-                    Not this time
-                  </button>
-                  {(isDecided || isSent) && (
-                    <span className="text-[12px] text-[var(--text-dimmer)]">Each change emails the composer</span>
+                  {undecided && (
+                    <>
+                      <button type="button" onClick={pass} disabled={submitting} className={btn(confirmPass ? 'danger' : 'secondary', 'sm', 'sm:hidden')}>
+                        {confirmPass ? 'Confirm pass' : 'Pass'}
+                      </button>
+                      <button type="button" onClick={() => setAccepting(true)} disabled={submitting} className={btn('accent', 'sm', 'sm:hidden')}>
+                        Accept
+                      </button>
+                    </>
+                  )}
+                  {isDecided && (
+                    <>
+                      <span className="text-[12px] text-[var(--text-dim)]">Change the decision:</span>
+                      {status !== 'accepted' && (
+                        <button type="button" onClick={() => setAccepting(true)} disabled={submitting} className={btn('secondary', 'sm')}>
+                          Accept
+                        </button>
+                      )}
+                      {status !== 'not_accepted' && (
+                        <button type="button" onClick={pass} disabled={submitting} className={btn(confirmPass ? 'danger' : 'secondary', 'sm')}>
+                          {confirmPass ? 'Confirm pass' : 'Pass'}
+                        </button>
+                      )}
+                    </>
                   )}
                 </>
               )}
             </div>
-            {!isDisco && !isDecided && (
-              <p className="-mt-2 text-[12px] text-[var(--text-dim)] leading-relaxed">
-                {isSent
-                  ? 'Shortlisted. Accept it or pass once the final call is made.'
-                  : canSend
-                    ? 'Shortlist it if it needs a second listen before the final call. Every change emails the composer.'
-                    : 'You make the call. The composer gets an email either way.'}
-              </p>
-            )}
           </div>
 
-          <aside className="border-t lg:border-t-0 lg:border-l border-[var(--border-base)] p-4 md:p-6 flex flex-col gap-4 bg-[var(--bg-card-deep)]">
-            <dl className="flex flex-col gap-3 text-[13px]">
-              <div>
-                <dt className="text-[var(--text-dim)]">Composer</dt>
-                <dd className="mt-0.5 break-words">{composerName ? `${composerName}` : composerAddress}</dd>
-                {composerName && <dd className="text-[var(--text-muted)] break-all">{composerAddress}</dd>}
-              </div>
-              <div>
-                <dt className="text-[var(--text-dim)]">Brief</dt>
-                <dd className="mt-0.5">{projectName}</dd>
-              </div>
-              <div>
-                <dt className="text-[var(--text-dim)]">Submitted</dt>
-                <dd className="mt-0.5 tabular-nums">{submittedAt}</dd>
-              </div>
-            </dl>
-
+          <aside className="border-t lg:border-t-0 lg:border-l border-[var(--border-base)] p-4 md:p-5 flex flex-col gap-3 bg-[var(--bg-card-deep)] text-[13px]">
+            <div>
+              <p className="text-[var(--text-dim)]">Composer</p>
+              <p className="mt-0.5 break-words">{composerName || composerAddress}</p>
+              {composerName && <p className="text-[var(--text-muted)] break-all">{composerAddress}</p>}
+            </div>
             <div className="flex flex-col gap-1.5">
               <a href={`/briefs/${briefId}`} target="_blank" rel="noopener noreferrer" className={btn('secondary', 'sm', 'justify-between')}>
                 View brief <IconArrowUpRight size={12} />
@@ -342,13 +325,48 @@ export default function AdminSubmissionCard({
                 </a>
               )}
             </div>
-            {!isDisco && !audioUrl && (
-              <p className="text-[12px] text-[var(--text-dim)]">
-                No audio on this submission.{playlistHref ? ' Open the brief playlist to hear their upload.' : ''}
-              </p>
-            )}
           </aside>
         </div>
+      )}
+
+      {accepting && (
+        <Modal title="Accept this track" subtitle={`${trackTitle} · ${composerName || composerAddress}`} onClose={() => setAccepting(false)} locked={submitting}
+          footer={
+            <>
+              <button
+                type="button"
+                onClick={async () => {
+                  const ok = await handleDecision('accepted');
+                  if (ok) setAccepting(false);
+                }}
+                disabled={submitting || tags.genres.length === 0 || tags.moods.length === 0}
+                className={btn('accent', 'lg', 'flex-1')}
+              >
+                {submitting ? 'Accepting…' : 'Accept and email them'}
+              </button>
+              <button type="button" onClick={() => setAccepting(false)} disabled={submitting} className={btn('secondary', 'lg')}>
+                Cancel
+              </button>
+            </>
+          }
+        >
+          <div className="px-6 py-6 flex flex-col gap-5">
+            <div>
+              <p className="text-[14px] font-medium">What does it nail?</p>
+              <p className="mt-0.5 mb-3 text-[13px] text-[var(--text-muted)]">These tag the composer on the roster. Only admins see them.</p>
+              <TagPicker genreOptions={briefGenres} moodOptions={briefMoods} value={tags} onChange={setTags} />
+            </div>
+            <label className="block">
+              <span className="block text-[13px] text-[var(--text-muted)] mb-1.5">Note to the composer (optional)</span>
+              <textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={2} className={textareaClass} />
+            </label>
+            {error && (
+              <p role="alert" className="text-[13px] text-[var(--danger)]">
+                {error}
+              </p>
+            )}
+          </div>
+        </Modal>
       )}
     </div>
   );

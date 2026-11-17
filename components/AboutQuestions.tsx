@@ -3,40 +3,36 @@ import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 
 const QUESTIONS: { q: string; a: ReactNode }[] = [
   {
-    q: 'What is this?',
-    a: 'The composer side of Thought Collective. We post briefs for the tracks our clients keep asking for, you write to them, and the strongest submissions go into our catalogue. Composers with a track in the catalogue join our roster and get invited to paid client projects.',
+    q: 'What happens after I submit?',
+    a: 'Your track goes privately to our team. Follow it in Submissions. If it is accepted, we email you.',
+  },
+  {
+    q: 'What are the terms if my track is accepted?',
+    a: 'Exclusive to our catalogue, with sync fees split 50/50. We pitch it to agencies and brands. You confirm the terms, your PRO and IPI, and send stems.',
+  },
+  {
+    q: 'How do I get invited to projects?',
+    a: 'Get a track accepted. You join our roster, tagged for the genres and moods it nails, and we invite you when a client needs that sound.',
+  },
+  {
+    q: 'Can I use AI?',
+    a: 'No. Every track is human-made: no AI-generated music, stems, or vocals.',
+  },
+  {
+    q: 'Does it cost anything?',
+    a: 'No. Joining and submitting are free.',
   },
   {
     q: 'Who is Thought Collective?',
     a: (
       <>
-        A London music and sound company. We make original music and sound for advertising, film, and television, and run a boutique catalogue alongside. See our work at{' '}
+        A London music and sound company making music for advertising, film, and TV.{' '}
         <a href={THOUGHT_COLLECTIVE_SITE} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:opacity-70">
-          wearethoughtcollective.com
+          See our work
         </a>
         .
       </>
     ),
-  },
-  {
-    q: 'What happens after I submit?',
-    a: 'Your track goes privately to our team, and you can follow its status in Submissions. We cannot promise to reply to every submission, but if yours is picked for the catalogue, we email you straight away. Catalogue briefs get a decision, not written notes. Client projects are where we work closely with you, with notes and back and forth.',
-  },
-  {
-    q: 'What are the terms if my track is accepted?',
-    a: 'Exclusive to the Thought Collective catalogue, with sync fees split 50/50. We pitch it to agencies and brands. You sign on from your Dashboard with your PRO and IPI details and a link to the stems.',
-  },
-  {
-    q: 'What is the roster, and what are projects?',
-    a: 'Every composer with a track in our catalogue. Your first accepted track puts you on it, tagged for the genres and moods that track nails. When a client project needs that sound, we invite you to it, and it shows up in your Projects.',
-  },
-  {
-    q: 'Can I use AI?',
-    a: 'No. The catalogue is human-made only: no AI-generated music, stems, or vocals. You confirm it when you sign on.',
-  },
-  {
-    q: 'Does it cost anything?',
-    a: 'No. Joining and submitting are free. Send your best track for any brief that fits you.',
   },
 ];
 

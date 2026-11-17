@@ -44,7 +44,7 @@ function SignUpForm() {
     return (
       <AuthCard
         title="Check your email"
-        description="We sent you a confirmation link. Click it and you will land straight on the briefs."
+        description="Click the link we sent to finish signing up."
       >
         <Link href="/briefs" className={btn('secondary', 'lg', 'w-full')}>
           Browse briefs while you wait
@@ -58,8 +58,8 @@ function SignUpForm() {
       title={invited ? 'You were sent a brief' : 'Write for Thought Collective'}
       description={
         invited
-          ? 'A composer shared a brief with you. Create a free account to open it and submit your track.'
-          : 'Write to real briefs and get your best work into our catalogue. Placed composers join our roster for paid client projects. Free to join.'
+          ? 'Create a free account to open it and submit your track.'
+          : 'Write to our briefs. The best tracks join our catalogue. Free to join.'
       }
       footer={
         <>

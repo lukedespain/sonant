@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { isSiteAdmin } from '@/lib/admin';
 import { isClientBriefRecord } from '@/lib/disco';
 import { isInvited } from '@/lib/projects';
+import { readRights, validateRights } from '@/lib/handoff';
 import {
   MAX_AUDIO_BYTES,
   SUBMISSION_BUCKET,
@@ -65,6 +66,10 @@ export async function POST(req: Request) {
   const isProject = isClientBriefRecord(brief);
   if (isProject && !isSiteAdmin(user) && !isInvited(brief.generated_content, user.id)) {
     return NextResponse.json({ error: 'This project is not open to you.' }, { status: 403 });
+  }
+  // Catalogue submissions need rights details on file, so an accepted track can be registered.
+  if (!isProject && !isSiteAdmin(user) && validateRights(readRights(user.user_metadata)) !== null) {
+    return NextResponse.json({ error: 'Finish your profile first: your PRO and IPI.' }, { status: 400 });
   }
 
   // The id is minted here so the storage key and the eventual row agree, which

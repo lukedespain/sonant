@@ -8,6 +8,8 @@ import AlertsPanel from '@/app/profile/[id]/AlertsPanel';
 import SubmissionHistory, { type SubmissionItem } from '@/components/SubmissionHistory';
 import type { RightsInfo } from '@/lib/handoff';
 import MyInfoPanel from './MyInfoPanel';
+import SoundPicker from '@/components/SoundPicker';
+import type { Sound } from '@/lib/sound';
 import OfferCard, { type Offer } from './OfferCard';
 import type { AppNotification } from '@/lib/notifications';
 import { AppHeader, AppPage, StatusPill, btn, card, fieldLabel, inputClass } from '@/components/ui';
@@ -29,6 +31,9 @@ export default function DashboardView({
   acceptedCount,
   verified,
   verificationThreshold,
+  sound,
+  genreOptions,
+  moodOptions,
 }: {
   initialTab: Tab;
   rights: RightsInfo;
@@ -42,6 +47,9 @@ export default function DashboardView({
   acceptedCount: number;
   verified: boolean;
   verificationThreshold: number;
+  sound: Sound;
+  genreOptions: string[];
+  moodOptions: string[];
 }) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
@@ -174,18 +182,21 @@ export default function DashboardView({
   if (tab === 'profile') {
     return (
       <AppPage width="narrow">
-        <AppHeader
-          title="Profile"
-          description="Your rights details, so we can register your music and pay you, and how you sign in. Only Thought Collective sees this."
-        />
+        <AppHeader title="Profile" description="Only Thought Collective sees this." />
 
-        <section className="mb-10">
+        <section className="mb-10" id="rights">
           <h2 className="text-[15px] font-semibold tracking-[-0.01em] mb-1">Rights and royalties</h2>
-          <p className="text-[13px] text-[var(--text-muted)] mb-4">
-            Fill it in once. When a track is accepted, it is ready to go.
-          </p>
+          <p className="text-[13px] text-[var(--text-muted)] mb-4">Needed before you submit, so we can register and pay you.</p>
           <div className={`${card} p-6 md:p-8`}>
             <MyInfoPanel rights={rights} onSaved={setRights} />
+          </div>
+        </section>
+
+        <section className="mb-10" id="sound">
+          <h2 className="text-[15px] font-semibold tracking-[-0.01em] mb-1">Your sound</h2>
+          <p className="text-[13px] text-[var(--text-muted)] mb-4">What you usually write. Briefs shows the best fits first.</p>
+          <div className={`${card} p-6 md:p-8`}>
+            <SoundPicker initial={sound} genreOptions={genreOptions} moodOptions={moodOptions} />
           </div>
         </section>
 
@@ -292,7 +303,7 @@ export default function DashboardView({
       <AppHeader
         eyebrow={firstName ? `Hi ${firstName}` : undefined}
         title="Submissions"
-        description="Every track you have sent us and where it stands."
+        description="Everything you have sent, and where it stands."
         actions={
           <Link href="/briefs" className={btn('primary', 'md')}>
             Find a brief

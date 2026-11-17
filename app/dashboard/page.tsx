@@ -15,6 +15,7 @@ import { readHandoffs, readRights } from '@/lib/handoff';
 import { catalogPartnerById } from '@/lib/partners';
 import { submissionFileName } from '@/lib/submission-files';
 import DashboardView from './DashboardView';
+import { GENRE_OPTIONS, MOOD_OPTIONS, mergeOptions, readSound } from '@/lib/sound';
 import type { Offer } from './OfferCard';
 
 export default async function DashboardPage({
@@ -110,6 +111,9 @@ export default async function DashboardPage({
       acceptedCount={acceptedCount}
       verified={isAdmin || isVerifiedComposer(acceptedCount, override)}
       verificationThreshold={VERIFICATION_THRESHOLD}
+      sound={readSound(user.user_metadata)}
+      genreOptions={mergeOptions(GENRE_OPTIONS, readSound(user.user_metadata).genres)}
+      moodOptions={mergeOptions(MOOD_OPTIONS, readSound(user.user_metadata).moods)}
     />
   );
 }

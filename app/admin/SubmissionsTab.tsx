@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import QueueKeys from '@/components/QueueKeys';
 import { EmptyState, SectionHeader } from '@/components/ui';
 import { createAdminClient } from '@/lib/supabase/admin';
 import AdminSubmissionCard from '@/components/AdminSubmissionCard';
@@ -220,8 +221,8 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   ).length;
 
   const groups = [
-    { stage: 0, title: 'To review', description: 'Newest first. Play it, then accept or pass. Notes are optional.' },
-    { stage: 1, title: 'With the catalogue', description: 'Sent on. Mark them once the catalogue replies.' },
+    { stage: 0, title: 'To review', description: undefined },
+    { stage: 1, title: 'Shortlisted', description: undefined },
     { stage: 2, title: 'Decided', description: undefined },
   ];
 
@@ -273,6 +274,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
           body="New tracks land here the moment a composer submits."
         />
       ) : (
+        <QueueKeys>
         <div className="flex flex-col gap-10">
           {groups.map((group) => {
             const rows = ordered.filter((row) => stage(row) === group.stage);
@@ -285,6 +287,7 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
             );
           })}
         </div>
+        </QueueKeys>
       )}
     </div>
   );

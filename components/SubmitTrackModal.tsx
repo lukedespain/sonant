@@ -39,6 +39,10 @@ type Props = {
   triggerLabel?: string;
   /** Project uploads are free versions for a client project, not catalogue submissions. */
   mode?: 'catalog' | 'project';
+  /** Catalogue terms that apply if the track is accepted. */
+  terms?: string[];
+  /** The composer's rights details: required before a catalogue submission. */
+  profile?: { ready: boolean; summary: string; bypass?: boolean };
 };
 
 export default function SubmitTrackModal({
@@ -48,6 +52,8 @@ export default function SubmitTrackModal({
   triggerClassName,
   triggerLabel = 'Submit track',
   mode = 'catalog',
+  terms = [],
+  profile,
 }: Props) {
   const isProject = mode === 'project';
   const router = useRouter();
@@ -184,7 +190,8 @@ export default function SubmitTrackModal({
         { id: 'human', label: 'Human-made. No AI-generated music, stems, or vocals.' },
         { id: 'private', label: 'It goes privately to Thought Collective. You will hear from us if it is picked.' },
       ];
-  const confirmed = agreements.every((a) => checks[a.id]);
+  const profileBlocked = !isProject && !!profile && !profile.ready && !profile.bypass;
+  const confirmed = agreements.every((a) => checks[a.id]) && !profileBlocked;
   const trackReady = !!pendingFile && trackName.trim().length > 0;
   const canSubmit = trackReady && confirmed;
   const STEPS = ['Track', 'Confirm', 'Review'] as const;
@@ -342,7 +349,42 @@ export default function SubmitTrackModal({
 
                   {step === 2 && (
                     <div className="flex flex-col gap-2">
-                      <p className="text-[14px] text-[var(--text-muted)] mb-1">A few things to confirm before it goes in.</p>
+                      {!isProject && profile && (
+                        profile.ready ? (
+                          <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] px-4 py-3">
+                            <span className="min-w-0">
+                              <span className="flex items-center gap-1.5 text-[13px] text-[var(--positive)]">
+                                <IconCheck size={12} strokeWidth={2} /> Profile ready
+                              </span>
+                              <span className="block text-[13px] text-[var(--text-muted)] truncate">{profile.summary}</span>
+                            </span>
+                            <Link href="/dashboard?tab=profile#rights" className={btn('ghost', 'sm', 'px-3 shrink-0')}>
+                              Edit
+                            </Link>
+                          </div>
+                        ) : (
+                          <div className="rounded-2xl border border-[var(--signal-line)] bg-[var(--signal-soft)] px-4 py-3.5">
+                            <p className="text-[14px] font-medium">{profile.bypass ? 'Your profile is not finished' : 'Finish your profile first'}</p>
+                            <p className="mt-0.5 text-[13px] text-[var(--text-muted)]">Your PRO and IPI, so we can register and pay you if it is accepted.</p>
+                            <Link href="/dashboard?tab=profile#rights" className={btn('accent', 'sm', 'mt-3')}>
+                              Finish profile
+                            </Link>
+                          </div>
+                        )
+                      )}
+                      {!isProject && terms.length > 0 && (
+                        <div className="rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] px-4 py-3.5">
+                          <p className="text-[13px] text-[var(--text-muted)] mb-2">If it is accepted</p>
+                          <ul className="flex flex-col gap-1.5">
+                            {terms.map((t) => (
+                              <li key={t} className="flex gap-2.5 text-[13px] text-[var(--text-secondary)] leading-relaxed">
+                                <span className="mt-[8px] w-1 h-1 rounded-full bg-[var(--text-dim)] shrink-0" />
+                                <span>{t}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                       {agreements.map((a) => (
                         <label
                           key={a.id}

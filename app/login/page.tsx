@@ -34,7 +34,7 @@ function LoginForm() {
   return (
     <AuthCard
       title="Welcome back"
-      description="Sign in to track your submissions and pick up the next brief."
+      description="Sign in to your composer portal."
       footer={
         <>
           New here?{' '}

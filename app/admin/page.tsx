@@ -47,19 +47,19 @@ async function RecentProjects() {
 const HEADERS = {
   submissions: {
     title: 'Review queue',
-    description: 'Catalogue submissions waiting on a call. Accepting one puts the composer on the roster, tagged for what the track nails.',
+    description: 'Catalogue submissions waiting on a decision.',
   },
   roster: {
     title: 'Composer roster',
-    description: 'Everyone with an account. Placed composers come first, tagged by the genres and moods their accepted tracks nail.',
+    description: 'Who to call for what.',
   },
   briefs: {
     title: 'Create brief',
-    description: 'A catalogue brief goes on the Briefs page for every composer. Star one there to feature it.',
+    description: 'Posts to the Briefs page for every composer.',
   },
   projects: {
     title: 'Add project',
-    description: 'Turn a client brief into a private project, then invite the roster composers who fit it.',
+    description: 'A private client brief, sent only to composers you invite.',
   },
   people: { title: 'People', description: 'Everyone with an account, newest first.' },
   houses: { title: 'Houses', description: 'Send a music house a curated note with your Disco playlist.' },

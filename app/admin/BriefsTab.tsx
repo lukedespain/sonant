@@ -63,7 +63,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
       {kind === 'catalog' ? <CatalogBriefsForm /> : (
     <form onSubmit={handleSubmit} className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
-        Paste the client document, or upload a photo, PDF, or Word file, then set the client, title, and fees. We write it up as a project brief, then you pick the roster composers who fit. Only invited composers ever see it.
+        Paste the client brief or upload a file. Next, you pick who to invite.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">

@@ -119,8 +119,8 @@ export default async function ProjectsPage() {
         title="Projects"
         description={
           isAdmin
-            ? 'Every client project. Open one to invite composers, listen to versions, and reply.'
-            : 'This is where custom client projects you are invited to live. We send them to you when your catalogue tracks fit what a client needs. Upload versions, get notes from our team, and turn it around fast.'
+            ? 'Every client project, with who is invited.'
+            : 'Client work you have been invited to.'
         }
         actions={
           isAdmin ? (

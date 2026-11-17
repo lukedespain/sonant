@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { isAdminView } from '@/lib/admin-view';
 import { readHandoffs } from '@/lib/handoff';
+import { readSound, soundMatches } from '@/lib/sound';
 import { loadCatalogueBriefs } from '@/lib/tc-briefs';
 import { AppHeader, AppPage, btn } from '@/components/ui';
 import BriefGrid, { type BriefCard } from '@/components/BriefGrid';
@@ -35,13 +36,15 @@ export default async function BriefsPage() {
       needsSignature: row.status === 'accepted' && !!handoffs[row.id] && !handoffs[row.id].agreedAt,
     });
   }
-  const withStatus = (list: BriefCard[]) => list.map((b) => ({ ...b, submission: byBrief.get(b.id) ?? null }));
+  const sound = user ? readSound(user.user_metadata) : null;
+  const withStatus = (list: BriefCard[]) =>
+    list.map((b) => ({ ...b, submission: byBrief.get(b.id) ?? null, fit: sound ? soundMatches(sound, b) : [] }));
 
   return (
     <AppPage>
       <AppHeader
         title="Briefs"
-        description="The tracks our clients keep asking for. Write to one and submit it. Accepted tracks go into the Thought Collective catalogue, and you join our roster."
+        description="Write to a brief. The best tracks join our catalogue."
         actions={
           isAdmin ? (
             <Link href="/admin?tab=briefs" className={btn('secondary', 'md')}>
@@ -55,7 +58,7 @@ export default async function BriefsPage() {
         }
       />
 
-      <BriefGrid briefs={withStatus(catalogue)} feature filters admin={isAdmin} />
+      <BriefGrid briefs={withStatus(catalogue)} feature filters admin={isAdmin} sound={sound} />
     </AppPage>
   );
 }

@@ -291,7 +291,7 @@ export default async function ProjectPage({
               />
             </section>
             <section>
-              <SectionHeader title="Conversation" description="Straight to the Thought Collective team." />
+              <SectionHeader title="Conversation" />
               <ProjectThread
                 projectId={id}
                 composerName="you"

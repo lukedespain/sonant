@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isAdminView } from '@/lib/admin-view';
+import { isSiteAdmin } from '@/lib/admin';
 import { classifyBrief } from '@/lib/brief-kind';
 import { composerHasClientAccess } from '@/lib/verification';
 import { resolveDiscoInboxUrl } from '@/lib/disco';
@@ -15,7 +16,7 @@ import MoveToPracticeButton from '@/components/MoveToPracticeButton';
 import CommunityTracksSection from '@/components/CommunityTracksSection';
 import BriefPanel, { BriefPrimaryAction, type BriefPanelProps } from '@/components/BriefPanel';
 import { composerStatus } from '@/lib/submission-status';
-import { readHandoffs } from '@/lib/handoff';
+import { readHandoffs, readRights, validateRights } from '@/lib/handoff';
 import BriefImageUpload from '@/components/BriefImageUpload';
 import RegenerateImageButton from '@/components/RegenerateImageButton';
 import AnnounceBriefButton from '@/components/AnnounceBriefButton';
@@ -166,6 +167,17 @@ export default async function BrowseBriefPage({ params }: PageProps) {
         }
       : null,
     client: isClientBrief ? { demoFee: brief.demoFee, winFee: brief.winFee } : null,
+    catalogTerms: catalogPartner?.terms ?? [],
+    profile: user
+      ? (() => {
+          const rights = readRights(user.user_metadata);
+          return {
+            ready: validateRights(rights) === null,
+            summary: [rights.legalName, rights.pro, rights.composerIpi && `IPI ${rights.composerIpi}`].filter(Boolean).join(' · '),
+            bypass: isSiteAdmin(user),
+          };
+        })()
+      : undefined,
     closed,
     currentUserName,
     discoUrl,

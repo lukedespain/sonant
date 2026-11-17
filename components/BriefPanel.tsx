@@ -14,8 +14,11 @@ export type BriefPanelProps = {
   submission: { label: string; tone: Tone; pulse?: boolean } | null;
   deadline?: string;
   catalog?: { name: string; exclusive: boolean; split: string; humanMadeOnly: boolean } | null;
+  catalogTerms?: string[];
   client?: { demoFee?: string; winFee?: string } | null;
   closed: boolean;
+  /** Rights details, required before a catalogue submission. */
+  profile?: { ready: boolean; summary: string; bypass?: boolean };
   currentUserName: string;
   discoUrl: string | null;
 };
@@ -71,6 +74,8 @@ export function BriefPrimaryAction(props: BriefPanelProps & { size?: 'md' | 'lg'
       briefId={briefId}
       projectName={title}
       alreadySubmitted={!!submission}
+      terms={props.catalog ? props.catalogTerms ?? [] : []}
+      profile={props.profile}
       triggerLabel={submission ? (props.compact ? 'Submit again' : 'Submit another track') : props.compact ? 'Submit' : 'Submit your track'}
       triggerClassName={submission ? btn('secondary', props.size ?? 'lg', props.full === false ? '' : 'w-full') : cls}
     />

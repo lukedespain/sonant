@@ -65,10 +65,10 @@ export function briefKindLabel(brief: Pick<Brief, 'kind' | 'catalogId'>, isCatal
 }
 
 /** One row of the spec sheet: label on the left, content on the right. */
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({ label, children, printOnly = false }: { label: string; children: React.ReactNode; printOnly?: boolean }) {
   return (
     <section
-      className="grid md:grid-cols-[150px_minmax(0,1fr)] gap-x-8 gap-y-3 py-8 md:py-9"
+      className={`${printOnly ? 'hidden print:grid' : ''} grid md:grid-cols-[150px_minmax(0,1fr)] gap-x-8 gap-y-3 py-8 md:py-9`}
       style={{ borderTop: '1px solid var(--brief-divider)' }}
     >
       <h2 className="text-[14px] tracking-[-0.01em] md:pt-1" style={{ color: 'var(--brief-text-meta)' }}>
@@ -127,9 +127,68 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
         </p>
       </header>
 
+      <dl className="print:hidden grid grid-cols-2 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border border-[var(--border-card)] bg-[var(--border-base)] mb-6">
+        {(
+          [
+            ['Genre', brief.genrePalette],
+            ['Mood', brief.emotionalArc],
+            ['Tempo', brief.tempo],
+            ['Key', brief.key],
+            ['Length', brief.length],
+            ['Vocals', brief.vocals],
+          ] as const
+        )
+          .filter(([, v]) => !!v)
+          .map(([label, value]) => (
+            <div key={label} className="bg-[var(--bg-card)] px-4 py-3.5 min-w-0">
+              <dt className="text-[12px] text-[var(--text-dim)]">{label}</dt>
+              <dd className="mt-1 text-[14px] leading-snug text-[var(--text-primary)] line-clamp-3" title={value}>
+                {value}
+              </dd>
+            </div>
+          ))}
+      </dl>
+
       {brief.imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={brief.imageUrl} alt="" className="w-full aspect-[16/9] md:aspect-[2/1] object-cover mb-6 rounded-2xl print:rounded-none" style={{ display: 'block' }} />
+      )}
+
+      {brief.references.length > 0 && (
+        <Row label="References">
+          <ul className="grid sm:grid-cols-2 gap-x-10 gap-y-8 max-w-4xl">
+            {brief.references.map((r, i) => {
+              const href = partner ? youtubeSearchUrlForTrack(r.track) : r.url;
+              return (
+                <li key={i}>
+                  {href ? (
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-3 text-[17px] font-medium tracking-[-0.01em]">
+                      <span className="print:hidden w-9 h-9 shrink-0 rounded-full bg-[var(--accent)] text-[#0A0A0A] flex items-center justify-center transition-transform group-hover:scale-105" aria-hidden="true">
+                        <svg width="11" height="12" viewBox="0 0 11 12" fill="currentColor"><path d="M1 1.2v9.6c0 .6.6.9 1.1.6l7.8-4.8a.7.7 0 0 0 0-1.2L2.1.6C1.6.3 1 .6 1 1.2Z" /></svg>
+                      </span>
+                      <span className="group-hover:opacity-70 transition-opacity">{r.track}</span>
+                    </a>
+                  ) : (
+                    <p className="text-[17px] font-medium tracking-[-0.01em]">{r.track}</p>
+                  )}
+                  {(r.like || r.why) && (
+                    <p className="mt-2 text-[15px] leading-relaxed" style={{ color: 'var(--brief-text-body)' }}>
+                      <span style={{ color: 'var(--brief-text-h)' }}>Use</span>
+                      <span style={{ color: 'var(--brief-text-meta)' }}> · </span>
+                      {r.like ?? r.why}
+                    </p>
+                  )}
+                  {r.avoid && (
+                    <p className="mt-1 text-[15px] leading-relaxed" style={{ color: 'var(--brief-text-meta)' }}>
+                      <span>Skip · </span>
+                      {r.avoid}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </Row>
       )}
 
       <Row label="The scene">
@@ -157,39 +216,6 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
         </Row>
       )}
 
-      {brief.references.length > 0 && (
-        <Row label="References">
-          <ul className="grid sm:grid-cols-2 gap-x-10 gap-y-8 max-w-4xl">
-            {brief.references.map((r, i) => {
-              const href = partner ? youtubeSearchUrlForTrack(r.track) : r.url;
-              return (
-                <li key={i}>
-                  {href ? (
-                    <a href={href} target="_blank" rel="noopener noreferrer" className="text-[17px] font-medium tracking-[-0.01em] hover:opacity-70 transition-opacity">
-                      {r.track} ↗
-                    </a>
-                  ) : (
-                    <p className="text-[17px] font-medium tracking-[-0.01em]">{r.track}</p>
-                  )}
-                  {(r.like || r.why) && (
-                    <p className="mt-2 text-[15px] leading-relaxed" style={{ color: 'var(--brief-text-body)' }}>
-                      <span style={{ color: 'var(--brief-text-h)' }}>Use</span>
-                      <span style={{ color: 'var(--brief-text-meta)' }}> · </span>
-                      {r.like ?? r.why}
-                    </p>
-                  )}
-                  {r.avoid && (
-                    <p className="mt-1 text-[15px] leading-relaxed" style={{ color: 'var(--brief-text-meta)' }}>
-                      <span>Skip · </span>
-                      {r.avoid}
-                    </p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </Row>
-      )}
 
       {!partner && brief.links && brief.links.length > 0 && (
         <Row label="Files and links">
@@ -205,7 +231,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
         </Row>
       )}
 
-      <Row label="Sound">
+      <Row label="Sound" printOnly>
         <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-6 max-w-4xl">
           <Spec label="Genre" value={brief.genrePalette} />
           <Spec label="Mood" value={brief.emotionalArc} />

@@ -18,10 +18,22 @@ type Row = {
     project?: string;
     imageUrl?: string;
     homeFeatured?: boolean;
+    vocals?: string;
+    references?: { track?: string }[];
   } | null;
 };
 
 const FIELDS = 'id, mode, genres, moods, created_at, generated_content';
+
+/** Briefs describe vocals in free text; boil it down for the filter. */
+function vocalKind(raw: string | undefined): 'Instrumental' | 'Vocals' | 'Either' | null {
+  if (!raw) return null;
+  const t = raw.toLowerCase();
+  if (/instrumental or vocal|either|optional/.test(t)) return 'Either';
+  if (t.startsWith('instrumental') || /no (vocals|singing)/.test(t)) return 'Instrumental';
+  if (/vocal|sung|singing|lyric/.test(t)) return 'Vocals';
+  return null;
+}
 
 function toCard(row: Row, closed = false): BriefCard {
   const c = row.generated_content ?? {};
@@ -36,6 +48,8 @@ function toCard(row: Row, closed = false): BriefCard {
     createdAt: row.created_at,
     closed,
     featured: !!c.homeFeatured,
+    vocals: vocalKind(c.vocals),
+    references: (c.references ?? []).map((r) => r.track ?? '').filter(Boolean),
   };
 }
 

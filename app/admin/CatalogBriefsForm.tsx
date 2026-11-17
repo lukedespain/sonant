@@ -56,7 +56,7 @@ export default function CatalogBriefsForm() {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
-        Paste the catalogue notes or upload a file. We write it up as a brief and make the cover image. Check it on the Briefs page, then use Email everyone in its admin tools when you want it to go out.
+        Paste the notes or upload a file. We write the brief and make the cover image.
       </p>
 
       <div className="mb-4">
@@ -79,7 +79,7 @@ export default function CatalogBriefsForm() {
         value={sourceText}
         onChange={(e) => setSourceText(e.target.value)}
         rows={10}
-        placeholder="Paste the brief here. Groovy, playful, boom bap energy, references, whatever Jack sent."
+        placeholder="Paste the notes: the sound, the mood, references, anything from the client."
         className={`${fieldClass} mb-4`}
         style={{ ...sans }}
       />
