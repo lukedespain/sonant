@@ -187,7 +187,7 @@ export default function AdminSubmissionCard({
           type="button"
           data-action="toggle"
           onClick={() => setOpen((o) => !o)}
-          className="min-w-0 flex-1 grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_96px_150px] gap-x-4 items-center text-left"
+          className="min-w-0 flex-1 grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_96px_150px] gap-x-4 items-center text-left"
           aria-expanded={open}
         >
           <span className="min-w-0">
@@ -195,7 +195,7 @@ export default function AdminSubmissionCard({
             <span className="block text-[12px] text-[var(--text-dim)] truncate">{composerName || composerAddress}</span>
           </span>
           <span className="hidden md:block min-w-0 text-[14px] text-[var(--text-secondary)] truncate">{projectName}</span>
-          <span className="hidden md:block text-[13px] text-[var(--text-muted)] tabular-nums">{submittedAt}</span>
+          <span className="hidden xl:block text-[13px] text-[var(--text-muted)] tabular-nums">{submittedAt}</span>
           <span className="justify-self-end md:justify-self-start">
             <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
           </span>
