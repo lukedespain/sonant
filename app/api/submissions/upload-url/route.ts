@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isSiteAdmin } from '@/lib/admin';
 import { isClientBriefRecord } from '@/lib/disco';
+import { isInvited } from '@/lib/projects';
 import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
 import {
   MAX_AUDIO_BYTES,
@@ -55,9 +56,21 @@ export async function POST(req: Request) {
 
   const admin = createAdminClient();
 
+  const { data: brief } = await admin
+    .from('briefs')
+    .select('id, brief_type, generated_content')
+    .eq('id', briefId)
+    .single();
+  if (!brief) return NextResponse.json({ error: 'Brief not found' }, { status: 404 });
+  // Client projects: open to invited composers and admins, and free.
+  const isProject = isClientBriefRecord(brief);
+  if (isProject && !isSiteAdmin(user) && !isInvited(brief.generated_content, user.id)) {
+    return NextResponse.json({ error: 'This project is not open to you.' }, { status: 403 });
+  }
+
   // Checked again when the submission is recorded; this is just to fail before
   // the composer sits through an upload they cannot spend.
-  if (!isSiteAdmin(user)) {
+  if (!isProject && !isSiteAdmin(user)) {
     const monthly = await ensureMonthlySubmissionCredit(admin, user);
     let credits = monthly?.credits;
     if (credits == null) {
@@ -73,18 +86,6 @@ export async function POST(req: Request) {
     }
   }
 
-  const { data: brief } = await admin
-    .from('briefs')
-    .select('id, brief_type, generated_content')
-    .eq('id', briefId)
-    .single();
-  if (!brief) return NextResponse.json({ error: 'Brief not found' }, { status: 404 });
-  if (isClientBriefRecord(brief)) {
-    return NextResponse.json(
-      { error: 'Client briefs are delivered through Disco, not uploaded here.' },
-      { status: 400 }
-    );
-  }
 
   // The id is minted here so the storage key and the eventual row agree, which
   // also makes recording the submission idempotent if the request is retried.

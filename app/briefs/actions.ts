@@ -428,9 +428,6 @@ export async function recordDecision(params: {
   if (!isSiteAdmin(user)) {
     return { error: 'Not authorized.' };
   }
-  if (!feedback.trim()) {
-    return { error: 'Write your feedback on the track first.' };
-  }
   if (decision === 'accepted') {
     const problem = tags ? tagProblem(tags) : 'Tag the genres and moods this track nails first.';
     if (problem) return { error: problem };
@@ -465,8 +462,8 @@ export async function recordDecision(params: {
 
   const { data: composer } = await admin.auth.admin.getUserById(submission.user_id);
 
-  const projectName =
-    (brief?.generated_content as { codename?: string })?.codename ?? 'your brief';
+  const content = brief?.generated_content as { codename?: string; projectTitle?: string } | null;
+  const projectName = content?.projectTitle || content?.codename || 'your brief';
   // The catalog comes from the admin's pick, then any earlier pick stored on the
   // composer's handoff, then the brief itself. It can differ from the brief.
   const handoffs = readHandoffs(composer?.user?.app_metadata);
@@ -517,7 +514,11 @@ export async function recordDecision(params: {
       ? { type: 'catalog_sent' as const, title: `Sent to ${catalogName}`, body: `${projectName} is with ${catalogName} for a decision.` }
       : decision === 'accepted'
         ? { type: 'catalog_accepted' as const, title: `Accepted by ${catalogName}`, body: `${projectName} was accepted by ${catalogName}.` }
-        : { type: 'catalog_reviewed' as const, title: 'Catalog review', body: `Written feedback is ready for ${projectName}.` };
+        : {
+            type: 'catalog_reviewed' as const,
+            title: 'Not selected this time',
+            body: feedback.trim() ? `Notes are ready on your track for ${projectName}.` : `Your track for ${projectName} was not selected this time.`,
+          };
 
   try {
     await addNotification(admin, submission.user_id, { ...notification, href: decision === 'accepted' ? '/dashboard#offers' : `/dashboard#submission-${submissionId}` });

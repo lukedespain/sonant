@@ -117,7 +117,7 @@ export default function BriefPanel(props: BriefPanelProps) {
             </>
           )}
           <Fact label="Due" value={deadline} />
-          <Fact label="Feedback" value={variant === 'practice' ? undefined : 'Written, on every track'} />
+          <Fact label="Joins the roster" value={variant === 'catalog' ? 'When accepted' : undefined} />
         </dl>
 
         <div className="mt-5 flex flex-col gap-2">

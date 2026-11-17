@@ -5,6 +5,9 @@ import { revalidatePath } from 'next/cache';
 import { sendSubmissionReceivedEmail } from '@/lib/email';
 import { isSiteAdmin } from '@/lib/admin';
 import { isClientBriefRecord } from '@/lib/disco';
+import { isInvited } from '@/lib/projects';
+import { sendProjectUploadEmail } from '@/lib/email';
+import { siteUrl } from '@/lib/site-url';
 import { refundSubmissionCredit, spendSubmissionCredit } from '@/lib/credits';
 import { MAX_AUDIO_BYTES, SUBMISSION_BUCKET, tooLargeMessage } from '@/lib/audio-upload';
 
@@ -95,19 +98,17 @@ export async function POST(req: Request) {
     await admin.storage.from(SUBMISSION_BUCKET).remove([storagePath]);
     return NextResponse.json({ error: 'Brief not found', uploadGone: true }, { status: 404 });
   }
-  if (isClientBriefRecord(brief)) {
+  const isProject = isClientBriefRecord(brief);
+  if (isProject && !isSiteAdmin(user) && !isInvited(brief.generated_content, user.id)) {
     await admin.storage.from(SUBMISSION_BUCKET).remove([storagePath]);
-    return NextResponse.json(
-      { error: 'Client briefs are delivered through Disco, not uploaded here.', uploadGone: true },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'This project is not open to you.', uploadGone: true }, { status: 403 });
   }
 
   // Spend the credit before recording the submission, and only in a way that
   // can fail. Reading the balance and then debiting it separately let two
   // confirms both spend the last credit, and a debit that only logged its
   // error handed out free submissions.
-  const skipCredits = isSiteAdmin(user);
+  const skipCredits = isProject || isSiteAdmin(user);
   if (!skipCredits) {
     const spend = await spendSubmissionCredit(admin, user.id);
     if (!spend.ok) {
@@ -144,7 +145,24 @@ export async function POST(req: Request) {
     );
   }
 
-  if (user.email) {
+  if (isProject) {
+    const content = brief.generated_content as { projectTitle?: string; codename?: string } | null;
+    const projectName = content?.projectTitle || content?.codename || 'a project';
+    const { data: me } = await admin.from('profiles').select('full_name').eq('id', user.id).maybeSingle();
+    const composerName = (me as { full_name?: string | null } | null)?.full_name?.trim() || user.email || 'A composer';
+    const notify = () =>
+      sendProjectUploadEmail({
+        composerName,
+        projectName,
+        projectUrl: `${siteUrl()}/projects/${briefId}?composer=${user.id}`,
+        trackName: objectName.replace(/\.[^/.]+$/, ''),
+      });
+    try {
+      after(notify);
+    } catch {
+      void notify();
+    }
+  } else if (user.email) {
     const to = user.email;
     const projectName =
       (brief.generated_content as { codename?: string })?.codename ?? 'your brief';
@@ -162,6 +180,7 @@ export async function POST(req: Request) {
   }
 
   revalidatePath(`/briefs/${briefId}`);
+  revalidatePath(`/projects/${briefId}`);
   revalidatePath('/dashboard');
   revalidatePath('/music');
   revalidatePath('/submissions');

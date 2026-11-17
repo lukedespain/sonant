@@ -87,10 +87,6 @@ export default function AdminSubmissionCard({
   const [error, setError] = useState<string | null>(null);
 
   async function handleDecision(decision: SubmissionDecision) {
-    if (!feedback.trim()) {
-      setError('Write your feedback on the track first.');
-      return;
-    }
     if (decision === 'accepted' && (tags.genres.length === 0 || tags.moods.length === 0)) {
       setError('Tag at least one genre and one mood this track nails.');
       return;
@@ -214,14 +210,14 @@ export default function AdminSubmissionCard({
 
                 <div>
                   <label htmlFor={`notes-${submissionId}`} className="block text-[13px] text-[var(--text-muted)] mb-1.5">
-                    Your notes to the composer
+                    Notes for the composer <span className="text-[var(--text-dimmer)]">(optional)</span>
                   </label>
                   <textarea
                     id={`notes-${submissionId}`}
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="What works, what to change. Every email to the composer ends with this."
-                    rows={5}
+                    placeholder="Leave blank to send the decision on its own."
+                    rows={3}
                     className={textareaClass}
                   />
                 </div>
@@ -302,8 +298,8 @@ export default function AdminSubmissionCard({
                 {isSent
                   ? `With ${catalogName}. Once they reply, mark it. Add their reason to the notes first if you have it.`
                   : canSend
-                    ? `Send to ${selectedName} when it is worth pitching. The composer gets your notes either way.`
-                    : 'You make the call. The composer gets your notes either way.'}
+                    ? `Send to ${selectedName} when it is worth pitching. The composer gets an email either way.`
+                    : 'You make the call. The composer gets an email either way.'}
               </p>
             )}
           </div>

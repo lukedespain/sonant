@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -53,6 +53,8 @@ export default async function BrowseBriefPage({ params }: PageProps) {
   const briefName = brief.codename ?? 'Untitled';
   const kind = classifyBrief(briefRow);
   const isClientBrief = kind === 'client';
+  // Client briefs are projects now, with their own workspace.
+  if (isClientBrief) redirect(`/projects/${id}`);
   const isFeatured = kind === 'catalog';
   const isAdmin = isSiteAdmin(user);
   const catalogPartner = isFeatured ? catalogPartnerFromBrief(brief) ?? CATALOG_PARTNERS.sonant : null;

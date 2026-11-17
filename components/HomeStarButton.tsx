@@ -27,12 +27,12 @@ export default function HomeStarButton({
     });
   }
 
-  const label = featured ? 'On the homepage. Click to remove.' : 'Feature on the homepage';
+  const label = featured ? 'Featured. Click to unfeature.' : 'Make this the featured brief';
 
   if (variant === 'menu') {
     return (
       <button type="button" onClick={toggle} disabled={pending} className={btn('secondary', 'sm')}>
-        {pending ? 'Saving…' : featured ? '★ On homepage' : '☆ Feature on homepage'}
+        {pending ? 'Saving…' : featured ? '★ Featured brief' : '☆ Make featured brief'}
       </button>
     );
   }
@@ -45,10 +45,10 @@ export default function HomeStarButton({
       title={label}
       aria-label={label}
       aria-pressed={featured}
-      className={`w-8 h-8 flex items-center justify-center rounded-xl border backdrop-blur-sm transition-colors disabled:opacity-50 ${
+      className={`w-9 h-9 flex items-center justify-center rounded-full border backdrop-blur-md text-[15px] transition-colors disabled:opacity-50 ${
         featured
-          ? 'bg-[var(--accent)] border-[var(--accent)] text-[var(--bg-base)]'
-          : 'bg-[var(--bg-base)]/70 border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]'
+          ? 'bg-[var(--signal)] border-[var(--signal)] text-[#0A0A0A]'
+          : 'bg-black/55 border-white/20 text-white hover:bg-black/75 hover:border-white/50'
       }`}
     >
       {featured ? '★' : '☆'}

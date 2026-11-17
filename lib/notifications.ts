@@ -8,7 +8,10 @@ export type NotificationType =
   | 'brief_upload'
   | 'catalog_sent'
   | 'catalog_accepted'
-  | 'catalog_reviewed';
+  | 'catalog_reviewed'
+  | 'project_invite'
+  | 'project_message'
+  | 'project_update';
 
 export type AppNotification = {
   id: string;

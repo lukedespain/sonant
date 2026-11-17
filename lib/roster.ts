@@ -37,6 +37,10 @@ export type RosterComposer = {
   /** Placements recorded by hand, with no track on file here. */
   outsidePlacements: number;
   lastPlacedAt: string | null;
+  /** On the roster: at least one accepted catalogue track or outside placement. */
+  placed: boolean;
+  submissionCount: number;
+  joinedAt: string | null;
 };
 
 type SubmissionRow = { id: string; user_id: string; brief_id: string; created_at: string };
@@ -69,18 +73,35 @@ async function trackFile(admin: AdminClient, submissionId: string) {
   return { name: file.name, url: data?.signedUrl ?? null };
 }
 
+async function allAuthUsers(admin: AdminClient) {
+  const users = new Map<string, { app_metadata?: unknown; user_metadata?: unknown; email?: string; created_at?: string }>();
+  for (let page = 1; page <= 20; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error || !data) break;
+    for (const u of data.users) users.set(u.id, u);
+    if (data.users.length < 1000) break;
+  }
+  return users;
+}
+
 /**
- * Every composer with an accepted track, newest placement first within each
- * composer. Genres and moods come from the brief the track was written to.
+ * Everyone with an account. Placed composers (accepted catalogue tracks or
+ * outside placements) come first, most placements first. Track tags come from
+ * what an admin tagged on accept, or the brief until then.
  */
 export async function loadRoster(admin: AdminClient): Promise<RosterComposer[]> {
-  const { data: subs } = await admin
-    .from('submissions')
-    .select('id, user_id, brief_id, created_at')
-    .eq('status', 'accepted')
-    .order('created_at', { ascending: false })
-    .returns<SubmissionRow[]>();
-  const accepted = subs ?? [];
+  const [{ data: subs }, { data: allSubs }, users, { data: profileRows }] = await Promise.all([
+    admin
+      .from('submissions')
+      .select('id, user_id, brief_id, created_at')
+      .eq('status', 'accepted')
+      .order('created_at', { ascending: false })
+      .returns<SubmissionRow[]>(),
+    admin.from('submissions').select('user_id'),
+    allAuthUsers(admin),
+    admin.from('profiles').select('id, full_name, email, created_at'),
+  ]);
+  const acceptedAll = subs ?? [];
 
   const manual = await admin
     .from('profiles')
@@ -88,12 +109,12 @@ export async function loadRoster(admin: AdminClient): Promise<RosterComposer[]> 
     .gt('manual_catalog_placements', 0);
   const manualRows = (manual.error ? [] : manual.data ?? []) as { id: string; manual_catalog_placements: number }[];
 
-  const userIds = [...new Set([...accepted.map((s) => s.user_id), ...manualRows.map((m) => m.id)])];
-  const briefIds = [...new Set(accepted.map((s) => s.brief_id))];
+  const profiles = (profileRows ?? []) as { id: string; full_name: string | null; email: string | null; created_at?: string | null }[];
+  const userIds = [...new Set([...profiles.map((p) => p.id), ...acceptedAll.map((s) => s.user_id)])];
   if (userIds.length === 0) return [];
 
-  const [{ data: profiles }, { data: briefs }, users, files] = await Promise.all([
-    admin.from('profiles').select('id, full_name, email').in('id', userIds),
+  const briefIds = [...new Set(acceptedAll.map((s) => s.brief_id))];
+  const [{ data: briefs }, files] = await Promise.all([
     briefIds.length
       ? admin
           .from('briefs')
@@ -101,18 +122,25 @@ export async function loadRoster(admin: AdminClient): Promise<RosterComposer[]> 
           .in('id', briefIds)
           .returns<BriefRow[]>()
       : Promise.resolve({ data: [] as BriefRow[] }),
-    Promise.all(userIds.map(async (id) => [id, (await admin.auth.admin.getUserById(id)).data?.user ?? null] as const)),
-    Promise.all(accepted.map(async (s) => [s.id, await trackFile(admin, s.id)] as const)),
+    Promise.all(acceptedAll.map(async (s) => [s.id, await trackFile(admin, s.id)] as const)),
   ]);
 
-  const profileMap = new Map(
-    (profiles ?? []).map((p: { id: string; full_name: string | null; email: string | null }) => [p.id, p]),
-  );
-  const briefMap = new Map((briefs ?? []).map((b) => [b.id, b]));
-  const userMap = new Map(users);
+  const briefMapAll = new Map((briefs ?? []).map((b) => [b.id, b]));
+  // Client project wins are not catalogue placements.
+  const accepted = acceptedAll.filter((s) => {
+    const b = briefMapAll.get(s.brief_id);
+    return !b || classifyBrief(b) !== 'client';
+  });
+  const submissionCounts = new Map<string, number>();
+  for (const row of (allSubs ?? []) as { user_id: string }[]) {
+    submissionCounts.set(row.user_id, (submissionCounts.get(row.user_id) ?? 0) + 1);
+  }
+
+  const profileMap = new Map(profiles.map((p) => [p.id, p]));
+  const briefMap = briefMapAll;
+  const userMap = users;
   const fileMap = new Map(files);
   const manualMap = new Map(manualRows.map((m) => [m.id, Math.floor(m.manual_catalog_placements)]));
-
   return userIds
     .map((id): RosterComposer => {
       const profile = profileMap.get(id);
@@ -158,11 +186,16 @@ export async function loadRoster(admin: AdminClient): Promise<RosterComposer[]> 
         tracks,
         outsidePlacements: manualMap.get(id) ?? 0,
         lastPlacedAt: tracks[0]?.placedAt ?? null,
+        placed: tracks.length + (manualMap.get(id) ?? 0) > 0,
+        submissionCount: submissionCounts.get(id) ?? 0,
+        joinedAt: profile?.created_at ?? authUser?.created_at ?? null,
       };
     })
     .sort(
       (a, b) =>
         b.tracks.length + b.outsidePlacements - (a.tracks.length + a.outsidePlacements) ||
-        (b.lastPlacedAt ?? '').localeCompare(a.lastPlacedAt ?? ''),
+        (b.lastPlacedAt ?? '').localeCompare(a.lastPlacedAt ?? '') ||
+        b.submissionCount - a.submissionCount ||
+        (b.joinedAt ?? '').localeCompare(a.joinedAt ?? ''),
     );
 }

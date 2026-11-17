@@ -4,6 +4,6 @@ import { createClient } from '@/lib/supabase/server';
 export default async function ProfileIndexPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login?redirect=/dashboard');
-  redirect('/dashboard');
+  if (!user) redirect('/login?redirect=/dashboard?tab=profile');
+  redirect('/dashboard?tab=profile');
 }

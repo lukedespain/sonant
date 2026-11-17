@@ -1,4 +1,4 @@
-import Segmented from '@/components/Segmented';
+import Link from 'next/link';
 import { EmptyState, SectionHeader } from '@/components/ui';
 import { createAdminClient } from '@/lib/supabase/admin';
 import AdminSubmissionCard from '@/components/AdminSubmissionCard';
@@ -215,13 +215,12 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
   };
   const ordered = [...visible].sort((a, b) => stage(a) - stage(b));
 
-  const catalogPending = catalogCards.filter((row) => stage(row) === 0).length;
   const clientPending = clientCards.filter((row) =>
     row.delivery === 'disco' ? !row.deliveryConfirmedAt : row.status !== 'accepted' && row.status !== 'not_accepted'
   ).length;
 
   const groups = [
-    { stage: 0, title: queue === 'client' ? 'Waiting on delivery' : 'To review', description: 'Newest first. Play, write notes, decide.' },
+    { stage: 0, title: 'To review', description: 'Newest first. Play it, then accept or pass. Notes are optional.' },
     { stage: 1, title: 'With the catalogue', description: 'Sent on. Mark them once the catalogue replies.' },
     { stage: 2, title: 'Decided', description: undefined },
   ];
@@ -254,24 +253,23 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <Segmented
-          className=""
-          items={[
-            { href: '/admin', label: 'Catalogue', active: queue === 'catalog', count: catalogPending },
-            { href: '/admin?queue=client', label: 'Client', active: queue === 'client', count: clientPending },
-          ]}
-        />
-        <p className="text-[13px] text-[var(--text-dim)]">
-          {ordered.length} {ordered.length === 1 ? 'submission' : 'submissions'}
-        </p>
-      </div>
+      {clientPending > 0 && (
+        <Link
+          href="/projects"
+          className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-[var(--signal-line)] bg-[var(--signal-soft)] px-5 py-3.5 text-[14px] hover:border-[var(--signal)] transition-colors"
+        >
+          <span>
+            {clientPending} project {clientPending === 1 ? 'version is' : 'versions are'} waiting for you
+          </span>
+          <span className="text-[var(--signal)]">Open projects →</span>
+        </Link>
+      )}
 
       {queue === 'catalog' && <ManualSubmissionForm composers={composers} />}
 
       {ordered.length === 0 ? (
         <EmptyState
-          title={queue === 'client' ? 'No client submissions yet' : 'No catalogue submissions yet'}
+          title="Nothing to review" 
           body="New tracks land here the moment a composer submits."
         />
       ) : (

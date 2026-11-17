@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { btn, fieldLabel, inputClass } from '@/components/ui';
@@ -38,6 +39,8 @@ type Props = {
   triggerLabel?: string;
   submissionCredits?: number;
   isAdmin?: boolean;
+  /** Project uploads are free versions for a client project, not catalogue submissions. */
+  mode?: 'catalog' | 'project';
 };
 
 export default function SubmitTrackModal({
@@ -48,7 +51,9 @@ export default function SubmitTrackModal({
   triggerLabel = 'Submit track',
   submissionCredits = 0,
   isAdmin = false,
+  mode = 'catalog',
 }: Props) {
+  const isProject = mode === 'project';
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const ticketRef = useRef<Ticket | null>(null);
@@ -171,7 +176,7 @@ export default function SubmitTrackModal({
     }
   }
 
-  const hasCredit = isAdmin || submissionCredits > 0;
+  const hasCredit = isProject || isAdmin || submissionCredits > 0;
   const canSubmit = !!pendingFile && confirmed && trackName.trim().length > 0 && hasCredit;
 
   return (
@@ -180,9 +185,9 @@ export default function SubmitTrackModal({
         {triggerLabel}
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-6 bg-black/75 animate-fade"
+          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-6 bg-black/75 animate-fade"
           onClick={handleClose}
           role="dialog"
           aria-modal="true"
@@ -195,7 +200,7 @@ export default function SubmitTrackModal({
             />
           )}
           <div
-            className="relative w-full sm:max-w-[460px] bg-[var(--bg-sidebar)] border border-[var(--border-card)] rounded-t-3xl sm:rounded-3xl shadow-2xl animate-rise"
+            className="relative w-full sm:max-w-[460px] max-h-[92vh] overflow-y-auto bg-[var(--bg-sidebar)] border border-[var(--border-card)] rounded-t-3xl sm:rounded-3xl shadow-2xl animate-rise"
             onClick={(e) => e.stopPropagation()}
           >
             {done ? (
@@ -203,14 +208,18 @@ export default function SubmitTrackModal({
                 <div className="mx-auto w-12 h-12 rounded-full bg-[var(--positive-soft)] text-[var(--positive)] flex items-center justify-center mb-5">
                   <IconCheck size={20} strokeWidth={2} />
                 </div>
-                <h2 className="text-[22px] font-semibold tracking-[-0.02em]">Track submitted</h2>
+                <h2 className="text-[22px] font-semibold tracking-[-0.02em]">{isProject ? 'Version uploaded' : 'Track submitted'}</h2>
                 <p className="mt-2 text-[14px] text-[var(--text-muted)] leading-relaxed max-w-xs mx-auto">
-                  It is in. You will get written feedback whatever happens. Track it from Submissions.
+                  {isProject
+                    ? 'Our team has it. Notes come back in the project thread, usually fast.'
+                    : 'It is in. We will email you when there is a decision. Track it from Submissions.'}
                 </p>
                 <div className="mt-8 flex gap-2 justify-center">
-                  <Link href="/dashboard" className={btn('primary', 'md')}>
-                    See my submissions
-                  </Link>
+                  {!isProject && (
+                    <Link href="/dashboard" className={btn('primary', 'md')}>
+                      See my submissions
+                    </Link>
+                  )}
                   <button type="button" onClick={() => setOpen(false)} className={btn('secondary', 'md')}>
                     Done
                   </button>
@@ -220,7 +229,7 @@ export default function SubmitTrackModal({
               <>
                 <div className="px-6 pt-6 pb-5 border-b border-[var(--border-base)] flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 className="text-[19px] font-semibold tracking-[-0.02em]">Submit your track</h2>
+                    <h2 className="text-[19px] font-semibold tracking-[-0.02em]">{isProject ? 'Upload a version' : 'Submit your track'}</h2>
                     <p className="mt-0.5 text-[13px] text-[var(--text-muted)] truncate">{projectName}</p>
                   </div>
                   <button
@@ -294,7 +303,7 @@ export default function SubmitTrackModal({
                     </div>
                   )}
 
-                  {alreadySubmitted && (
+                  {alreadySubmitted && !isProject && (
                     <p className="rounded-xl bg-[var(--accent-soft)] px-4 py-3 text-[13px] text-[var(--text-muted)] leading-relaxed">
                       You have already submitted to this brief. This one is reviewed as a separate entry.
                     </p>
@@ -308,7 +317,9 @@ export default function SubmitTrackModal({
                       className="mt-0.5 w-4 h-4 shrink-0 accent-[var(--signal)]"
                     />
                     <span>
-                      {isAdmin
+                      {isProject
+                        ? 'This is my own work, written for this project. It goes privately to Thought Collective.'
+                        : isAdmin
                         ? 'Submitting as Thought Collective. No credit used.'
                         : `This uses 1 of your ${submissionCredits} free ${submissionCredits === 1 ? 'submission' : 'submissions'}. It goes privately to Thought Collective.`}
                     </span>
@@ -348,7 +359,7 @@ export default function SubmitTrackModal({
                     disabled={!canSubmit || uploading}
                     className={btn('accent', 'lg', 'flex-1')}
                   >
-                    {uploading ? (progress < 100 ? `Uploading ${progress}%` : 'Finishing…') : 'Submit track'}
+                    {uploading ? (progress < 100 ? `Uploading ${progress}%` : 'Finishing…') : isProject ? 'Upload version' : 'Submit track'}
                   </button>
                   <button type="button" onClick={handleClose} disabled={uploading} className={btn('secondary', 'lg')}>
                     Cancel
@@ -357,7 +368,8 @@ export default function SubmitTrackModal({
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

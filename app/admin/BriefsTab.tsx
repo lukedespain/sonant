@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Segmented from '@/components/Segmented';
 import { useRouter } from 'next/navigation';
 import CatalogBriefsForm from './CatalogBriefsForm';
 
@@ -15,7 +14,6 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
   const [winFee, setWinFee] = useState('');
   const [demoFee, setDemoFee] = useState('');
   const [files, setFiles] = useState<File[]>([]);
-  const [discoInboxUrl, setDiscoInboxUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +43,6 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
     body.set('dueDate', dueDate);
     body.set('winFee', winFee);
     body.set('demoFee', demoFee);
-    body.set('discoInboxUrl', discoInboxUrl);
     files.forEach((file) => body.append('files', file));
 
     const res = await fetch('/api/admin/client-briefs', { method: 'POST', body });
@@ -57,23 +54,16 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
       return;
     }
     const json = await res.json();
-    router.push(`/briefs/${json.briefId}`);
+    router.push(`/projects/${json.briefId}?view=invite`);
     router.refresh();
   }
 
   return (
     <>
-      <Segmented
-        items={[
-          { href: '/admin?tab=briefs&kind=catalog', label: 'Catalogue brief', active: kind === 'catalog' },
-          { href: '/admin?tab=briefs', label: 'Client brief', active: kind === 'client' },
-        ]}
-      />
-
       {kind === 'catalog' ? <CatalogBriefsForm /> : (
     <form onSubmit={handleSubmit} className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
-        Paste the client document, upload a photo, PDF, or Word file, then set the client, project title, and fees. Add client brief publishes it for verified composers. Check it, then use Email verified when you want it to go out. Links in the paste become clickable on the published brief.
+        Paste the client document, or upload a photo, PDF, or Word file, then set the client, title, and fees. We write it up as a project brief, then you pick the roster composers who fit. Only invited composers ever see it.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -128,17 +118,6 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
             value={winFee}
             onChange={(e) => setWinFee(e.target.value)}
             placeholder="e.g. $5,000 · 70/30 composer"
-            className={fieldClass}
-            style={{ ...sans }}
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label htmlFor="disco-inbox" className={labelClass} style={mono}>Disco inbox (optional)</label>
-          <input
-            id="disco-inbox"
-            value={discoInboxUrl}
-            onChange={(e) => setDiscoInboxUrl(e.target.value)}
-            placeholder="https://s.disco.ac/… · blank uses the default inbox"
             className={fieldClass}
             style={{ ...sans }}
           />
@@ -217,7 +196,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
         className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full text-[14px] font-medium bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         style={{ ...mono, fontWeight: 500 }}
       >
-        {submitting ? 'Writing brief…' : '+ Add client brief'}
+        {submitting ? 'Writing the project…' : 'Create project and pick composers'}
       </button>
     </form>
       )}

@@ -33,8 +33,8 @@ export async function sendSubmissionReceivedEmail(params: {
           <h2 style="font-weight: 500;">Submission received</h2>
           <p>Thanks for submitting a track for <strong>${projectName}</strong>.</p>
           <p>
-            Every submission gets an individual review with written feedback.
-            We will be in touch once yours has been reviewed.
+            We listen to every track against the brief, and we will email you
+            when there is a decision.
           </p>
           <p style="color: var(--text-muted); font-size: 13px; margin-top: 32px;">
             Sonant
@@ -60,7 +60,7 @@ export async function sendDecisionEmail(params: {
 }) {
   const { to, projectName, catalogName, decision, wasSent } = params;
   const notes = params.feedback.trim();
-  const notesLine = ' Here is my written feedback on the track.';
+  const notesLine = notes ? ' Here are my notes on the track.' : '';
 
   const copy = {
     sent_to_catalog: {
@@ -97,7 +97,7 @@ export async function sendDecisionEmail(params: {
         <div style="font-family: sans-serif; color: #1A1815; line-height: 1.6;">
           <h2 style="font-weight: 500;">${heading}</h2>
           <p>${intro}</p>
-          <div style="border-left: 2px solid #E85D2F; padding-left: 16px; margin: 24px 0; color: #1A1815;">${escapeHtml(notes).replace(/\n/g, '<br>')}</div>
+          ${notes ? `<div style="border-left: 2px solid #E85D2F; padding-left: 16px; margin: 24px 0; color: #1A1815;">${escapeHtml(notes).replace(/\n/g, '<br>')}</div>` : ''}
           ${decision === 'accepted' ? `<p><a href="${siteUrl()}/dashboard" style="color: #E85D2F;">Open your dashboard</a></p>` : ''}
           <p style="color: var(--text-muted); font-size: 13px; margin-top: 32px;">
             Sonant
@@ -576,3 +576,111 @@ export async function sendReferralCreditEmail(params: {
     return { error: 'Email failed to send.' };
   }
 }
+/* ---------------- Client projects ---------------- */
+
+function projectEmailHtml(params: { heading: string; body: string; quote?: string; url: string; button: string }) {
+  return `
+    <div style="font-family: Inter, Helvetica, Arial, sans-serif; color: #0A0A0A; line-height: 1.6; max-width: 520px;">
+      <p style="font-size: 13px; color: #6E6E6E; margin: 0 0 16px;">Thought Collective · Client project</p>
+      <h2 style="font-weight: 600; font-size: 22px; letter-spacing: -0.02em; margin: 0 0 12px;">${params.heading}</h2>
+      <p style="margin: 0 0 16px;">${params.body}</p>
+      ${
+        params.quote
+          ? `<div style="border-left: 2px solid #F4632A; padding-left: 16px; margin: 20px 0; color: #1F1F1F;">${escapeHtml(params.quote).replace(/\n/g, '<br>')}</div>`
+          : ''
+      }
+      <p style="margin: 24px 0;"><a href="${params.url}" style="display: inline-block; background: #0A0A0A; color: #FFFFFF; text-decoration: none; padding: 12px 20px; border-radius: 999px; font-weight: 500;">${params.button}</a></p>
+    </div>
+  `;
+}
+
+export async function sendProjectInviteEmail(params: { to: string; projectName: string; projectUrl: string; due?: string | null }) {
+  const name = escapeHtml(params.projectName);
+  try {
+    return await sendResend({
+      from: FROM,
+      replyTo: LUKE,
+      to: params.to,
+      subject: `You are invited to a client project: ${params.projectName}`,
+      html: projectEmailHtml({
+        heading: 'You are on this one.',
+        body: `We picked you for <strong>${name}</strong> because your catalogue tracks fit what the client needs.${
+          params.due ? ` It is due ${escapeHtml(params.due)}.` : ''
+        } Open the project to read the brief, upload versions, and talk to our team.`,
+        url: escapeHtml(params.projectUrl),
+        button: 'Open the project',
+      }),
+    });
+  } catch (error) {
+    console.error('sendProjectInviteEmail failed:', error);
+    return { error: 'Email failed to send.' };
+  }
+}
+
+export async function sendProjectMessageEmail(params: {
+  to: string;
+  projectName: string;
+  projectUrl: string;
+  fromName: string;
+  body: string;
+}) {
+  try {
+    return await sendResend({
+      from: FROM,
+      replyTo: LUKE,
+      to: params.to,
+      subject: `${params.fromName} on ${params.projectName}`,
+      html: projectEmailHtml({
+        heading: `New message on ${escapeHtml(params.projectName)}`,
+        body: `${escapeHtml(params.fromName)} wrote:`,
+        quote: params.body,
+        url: escapeHtml(params.projectUrl),
+        button: 'Reply in the project',
+      }),
+    });
+  } catch (error) {
+    console.error('sendProjectMessageEmail failed:', error);
+    return { error: 'Email failed to send.' };
+  }
+}
+
+export async function sendProjectUploadEmail(params: { composerName: string; projectName: string; projectUrl: string; trackName: string }) {
+  try {
+    return await sendResend({
+      from: FROM,
+      to: LUKE,
+      subject: `New version on ${params.projectName} from ${params.composerName}`,
+      html: projectEmailHtml({
+        heading: 'New version uploaded',
+        body: `${escapeHtml(params.composerName)} uploaded <strong>${escapeHtml(params.trackName)}</strong> to ${escapeHtml(params.projectName)}.`,
+        url: escapeHtml(params.projectUrl),
+        button: 'Listen and reply',
+      }),
+    });
+  } catch (error) {
+    console.error('sendProjectUploadEmail failed:', error);
+    return { error: 'Email failed to send.' };
+  }
+}
+
+export async function sendProjectStatusEmail(params: { to: string; projectName: string; projectUrl: string; heading: string; body: string }) {
+  try {
+    return await sendResend({
+      from: FROM,
+      replyTo: LUKE,
+      to: params.to,
+      subject: `${params.projectName}: ${params.heading}`,
+      html: projectEmailHtml({
+        heading: escapeHtml(params.heading),
+        body: escapeHtml(params.body),
+        url: escapeHtml(params.projectUrl),
+        button: 'Open the project',
+      }),
+    });
+  } catch (error) {
+    console.error('sendProjectStatusEmail failed:', error);
+    return { error: 'Email failed to send.' };
+  }
+}
+
+export const ADMIN_INBOX = LUKE;

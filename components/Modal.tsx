@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { IconClose } from '@/components/shell/icons';
 
 /** Centred dialog on desktop, bottom sheet on phones. */
@@ -28,9 +29,11 @@ export default function Modal({
     return () => document.removeEventListener('keydown', onKey);
   }, [locked, onClose]);
 
-  return (
+  // Portalled to <body>: a blurred or transformed ancestor (the sticky action
+  // bar) would otherwise trap a fixed overlay inside its own box.
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-6 bg-black/75 animate-fade"
+      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-6 bg-black/75 animate-fade"
       onClick={() => !locked && onClose()}
       role="dialog"
       aria-modal="true"
@@ -59,7 +62,8 @@ export default function Modal({
         <div className="overflow-y-auto app-scroll">{children}</div>
         {footer && <div className="px-6 pb-6 pt-1 flex gap-2 shrink-0">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

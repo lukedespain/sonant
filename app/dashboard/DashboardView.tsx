@@ -13,7 +13,7 @@ import type { AppNotification } from '@/lib/notifications';
 import { AppHeader, AppPage, StatusPill, btn, card, fieldLabel, inputClass } from '@/components/ui';
 
 type Panel = 'name' | 'email' | 'password' | 'delete' | null;
-type Tab = 'submissions' | 'info' | 'settings';
+type Tab = 'submissions' | 'profile';
 
 
 export default function DashboardView({
@@ -52,7 +52,12 @@ export default function DashboardView({
   const [email, setEmail] = useState(initialEmail);
   const [panel, setPanel] = useState<Panel>(null);
   const tabParam = useSearchParams().get('tab');
-  const tab: Tab = tabParam === 'info' || tabParam === 'settings' ? tabParam : tabParam === null ? initialTab : 'submissions';
+  const tab: Tab =
+    tabParam === 'profile' || tabParam === 'info' || tabParam === 'settings'
+      ? 'profile'
+      : tabParam === null
+        ? initialTab
+        : 'submissions';
   const [rights, setRights] = useState(initialRights);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -170,25 +175,25 @@ export default function DashboardView({
 
   const firstName = name.trim().split(/\s+/)[0];
 
-  if (tab === 'info') {
+  if (tab === 'profile') {
     return (
       <AppPage width="narrow">
         <AppHeader
-          title="Rights & IPI"
-          description="When we take one of your tracks, we need this to register it and pay you. Fill it in once and it is ready when you need it. Only Thought Collective sees it."
+          title="Profile"
+          description="Your rights details, so we can register your music and pay you, and how you sign in. Only Thought Collective sees this."
         />
-        <div className={`${card} p-6 md:p-8`}>
-          <MyInfoPanel rights={rights} onSaved={setRights} />
-        </div>
-      </AppPage>
-    );
-  }
 
-  if (tab === 'settings') {
-    return (
-      <AppPage width="narrow">
-        <AppHeader title="Settings" description="Your sign-in details." />
+        <section className="mb-10">
+          <h2 className="text-[15px] font-semibold tracking-[-0.01em] mb-1">Rights and royalties</h2>
+          <p className="text-[13px] text-[var(--text-muted)] mb-4">
+            Fill it in once. When a track is accepted, it is ready to go.
+          </p>
+          <div className={`${card} p-6 md:p-8`}>
+            <MyInfoPanel rights={rights} onSaved={setRights} />
+          </div>
+        </section>
 
+        <h2 className="text-[15px] font-semibold tracking-[-0.01em] mb-4">Account</h2>
         <div className={`${card} divide-y divide-[var(--border-base)]`}>
           <SettingRow label="Name" value={displayName} open={panel === 'name'} onToggle={() => open('name')}>
             <form onSubmit={saveName} className="flex flex-col gap-3">
@@ -291,7 +296,7 @@ export default function DashboardView({
       <AppHeader
         eyebrow={firstName ? `Hi ${firstName}` : undefined}
         title="Submissions"
-        description="Every track you have sent us, where it is, and what we thought."
+        description="Every track you have sent us and where it stands."
         actions={
           <Link href="/briefs" className={btn('primary', 'md')}>
             Find a brief
@@ -312,7 +317,7 @@ export default function DashboardView({
           }
           highlight={!isAdmin && submissionCredits > 0}
         />
-        <Stat label="In review" value={String(inReview)} hint="Waiting on our notes" />
+        <Stat label="In review" value={String(inReview)} hint="Waiting on a decision" />
         <Stat label="Accepted" value={String(acceptedCount)} hint="In the catalogue" />
         <div className={`${card} p-4 md:p-5 flex flex-col justify-between gap-3`}>
           <p className="text-[13px] text-[var(--text-muted)]">Roster</p>
@@ -324,7 +329,7 @@ export default function DashboardView({
             )}
             <p className="mt-2 text-[12px] text-[var(--text-dim)] leading-snug">
               {verified
-                ? 'You are on our shortlist for brand work.'
+                ? 'You get invited to client projects that fit your sound.'
                 : `${verificationThreshold === 1 ? 'Your first accepted track' : `${verificationThreshold} accepted tracks`} puts you on it.`}
             </p>
           </div>

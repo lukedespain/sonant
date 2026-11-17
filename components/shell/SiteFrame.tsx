@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import AppShell, { type ShellData } from './AppShell';
 
-const APP_ROUTES = ['/briefs', '/dashboard', '/admin'];
+const APP_ROUTES = ['/briefs', '/projects', '/dashboard', '/admin'];
 
 export function isAppRoute(pathname: string | null) {
   if (!pathname) return false;

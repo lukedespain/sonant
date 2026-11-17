@@ -10,16 +10,15 @@ import { btn } from '@/components/ui';
 import {
   IconArrowUpRight,
   IconBriefs,
-  IconBuilding,
   IconClose,
-  IconId,
+  IconFolder,
   IconInbox,
   IconMenu,
   IconPen,
-  IconSettings,
+  IconPlus,
   IconSignOut,
   IconStar,
-  IconUsers,
+  IconUser,
   IconWaveform,
 } from './icons';
 
@@ -32,6 +31,8 @@ export type ShellData = {
   daysUntilNextCredit: number | null;
   offersWaiting: number;
   reviewQueue: number;
+  /** Unread project messages for this person (composer side or admin side). */
+  projectUnread: number;
 };
 
 type NavItem = {
@@ -56,23 +57,24 @@ function composerItems(data: ShellData): NavItem[] {
   if (data.signedIn) {
     items.push(
       {
+        href: '/projects',
+        label: 'Projects',
+        icon: IconFolder,
+        badge: data.projectUnread,
+        match: (p) => p === '/projects' || p.startsWith('/projects/'),
+      },
+      {
         href: '/dashboard',
         label: 'Submissions',
         icon: IconWaveform,
         badge: data.offersWaiting,
-        match: (p, tab) => p === '/dashboard' && (!tab || tab === 'submissions'),
+        match: (p, tab) => p === '/dashboard' && tab !== 'profile' && tab !== 'info' && tab !== 'settings',
       },
       {
-        href: '/dashboard?tab=info',
-        label: 'Rights & IPI',
-        icon: IconId,
-        match: (p, tab) => p === '/dashboard' && tab === 'info',
-      },
-      {
-        href: '/dashboard?tab=settings',
-        label: 'Settings',
-        icon: IconSettings,
-        match: (p, tab) => p === '/dashboard' && tab === 'settings',
+        href: '/dashboard?tab=profile',
+        label: 'Profile',
+        icon: IconUser,
+        match: (p, tab) => p === '/dashboard' && (tab === 'profile' || tab === 'info' || tab === 'settings'),
       },
     );
   }
@@ -82,6 +84,8 @@ function composerItems(data: ShellData): NavItem[] {
 function adminItems(data: ShellData): NavItem[] {
   const tabIs = (id: string) => (p: string, tab: string | null) => p === '/admin' && tab === id;
   return [
+    { href: '/admin?tab=briefs', label: 'Create brief', icon: IconPen, match: tabIs('briefs') },
+    { href: '/admin?tab=projects', label: 'Add project', icon: IconPlus, match: tabIs('projects') },
     {
       href: '/admin',
       label: 'Review queue',
@@ -89,10 +93,7 @@ function adminItems(data: ShellData): NavItem[] {
       badge: data.reviewQueue,
       match: (p, tab) => p === '/admin' && !tab,
     },
-    { href: '/admin?tab=roster', label: 'Roster', icon: IconStar, match: tabIs('roster') },
-    { href: '/admin?tab=briefs', label: 'Write briefs', icon: IconPen, match: tabIs('briefs') },
-    { href: '/admin?tab=people', label: 'People', icon: IconUsers, match: tabIs('people') },
-    { href: '/admin?tab=houses', label: 'Houses', icon: IconBuilding, match: tabIs('houses') },
+    { href: '/admin?tab=roster', label: 'Composer roster', icon: IconStar, match: tabIs('roster') },
   ];
 }
 
@@ -268,7 +269,7 @@ export default function AppShell({ data, children }: { data: ShellData; children
             className="relative w-10 h-10 -mr-2 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--accent-soft)]"
           >
             <IconMenu size={18} />
-            {(data.offersWaiting > 0 || (data.isAdmin && data.reviewQueue > 0)) && (
+            {(data.offersWaiting > 0 || data.projectUnread > 0 || (data.isAdmin && data.reviewQueue > 0)) && (
               <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[var(--signal)]" />
             )}
           </button>

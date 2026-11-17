@@ -1,7 +1,6 @@
 import type { createAdminClient } from '@/lib/supabase/admin';
 import { ADMIN_USER_ID } from '@/lib/admin-ids';
 import { catalogPartnerFromBrief } from '@/lib/partners';
-import { isBriefClosed } from '@/lib/brief-status';
 import type { BriefCard } from '@/components/BriefGrid';
 
 type AdminClient = ReturnType<typeof createAdminClient>;
@@ -53,17 +52,4 @@ export async function loadCatalogueBriefs(admin: AdminClient): Promise<BriefCard
   const rows = (data ?? []).filter((r) => catalogPartnerFromBrief(r.generated_content)?.id !== 'sonant');
   const starred = rows.filter((r) => r.generated_content?.homeFeatured);
   return [...starred, ...rows.filter((r) => !r.generated_content?.homeFeatured)].map((r) => toCard(r));
-}
-
-/** Paid client briefs. Only call this for verified composers and admins. */
-export async function loadClientBriefs(admin: AdminClient): Promise<BriefCard[]> {
-  const { data } = await admin
-    .from('briefs')
-    .select(FIELDS)
-    .eq('brief_type', 'client')
-    .order('created_at', { ascending: false })
-    .returns<Row[]>();
-  return (data ?? [])
-    .map((r) => toCard(r, isBriefClosed(r.generated_content)))
-    .sort((a, b) => Number(a.closed) - Number(b.closed));
 }

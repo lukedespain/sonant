@@ -4,7 +4,7 @@ import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 const QUESTIONS: { q: string; a: ReactNode }[] = [
   {
     q: 'What is this?',
-    a: 'The composer side of Thought Collective. We post briefs for the tracks our clients keep asking for, you write to them, and the strongest submissions go into our catalogue.',
+    a: 'The composer side of Thought Collective. We post briefs for the tracks our clients keep asking for, you write to them, and the strongest submissions go into our catalogue. Composers with a track in the catalogue join our roster and get invited to paid client projects.',
   },
   {
     q: 'Who is Thought Collective?',
@@ -20,15 +20,15 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'What happens after I submit?',
-    a: 'We listen to every track against the brief and send written feedback by email and in your Dashboard, whether it goes into the catalogue or not.',
+    a: 'We listen to every track against the brief and email you when there is a decision. You can follow its status in Submissions. Catalogue briefs get a decision, not written notes. Client projects are where we work closely with you, with notes and back and forth.',
   },
   {
     q: 'What are the terms if my track is accepted?',
     a: 'Exclusive to the Thought Collective catalogue, with sync fees split 50/50. We pitch it to agencies and brands. You sign on from your Dashboard with your PRO and IPI details and a link to the stems.',
   },
   {
-    q: 'What is the roster?',
-    a: 'Every composer with a track in our catalogue. Your first accepted track puts you on it, verified for the genres and moods that track nails. When a brand job needs custom music, the roster is who we call first, and paid client briefs open up for you here.',
+    q: 'What is the roster, and what are projects?',
+    a: 'Every composer with a track in our catalogue. Your first accepted track puts you on it, tagged for the genres and moods that track nails. When a client project needs that sound, we invite you to it, and it shows up in your Projects.',
   },
   {
     q: 'Can I use AI?',

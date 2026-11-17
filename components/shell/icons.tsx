@@ -171,3 +171,16 @@ export const IconSpark = (p: IconProps) => (
     <path d="M8 2v3M8 11v3M2 8h3M11 8h3M3.75 3.75l2 2M10.25 10.25l2 2M12.25 3.75l-2 2M5.75 10.25l-2 2" />
   </Svg>
 );
+
+export const IconFolder = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M2 4.5A1.5 1.5 0 0 1 3.5 3h2.6l1.4 1.5h5A1.5 1.5 0 0 1 14 6v5.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11.5v-7Z" />
+  </Svg>
+);
+
+export const IconUser = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="8" cy="5.5" r="2.75" />
+    <path d="M2.75 14c.7-2.6 2.6-4 5.25-4s4.55 1.4 5.25 4" />
+  </Svg>
+);

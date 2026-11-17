@@ -100,7 +100,7 @@ export default async function DashboardPage({
 
   return (
     <DashboardView
-      initialTab={tab === 'settings' || tab === 'info' ? tab : 'submissions'}
+      initialTab={tab === 'settings' || tab === 'info' || tab === 'profile' ? 'profile' : 'submissions'}
       rights={readRights(user.user_metadata)}
       offers={offers}
       name={p?.full_name ?? ''}

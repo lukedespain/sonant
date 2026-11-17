@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { BRIEF_KIND_LABEL, type BriefKind } from '@/lib/brief-kind';
 import { EmptyState, StatusPill, btn, type Tone } from '@/components/ui';
@@ -32,7 +33,19 @@ type Filter = 'all' | 'review' | 'accepted' | 'closed';
 
 const REVIEW = new Set(['received', 'pending', 'in_review', 'feedback_ready', 'sent_to_catalog']);
 
-export function composerStatus(sub: Pick<SubmissionItem, 'status' | 'needsSignature'>): { label: string; tone: Tone; pulse?: boolean } {
+export function isProject(sub: Pick<SubmissionItem, 'briefType'>) {
+  return sub.briefType === 'client';
+}
+
+export function composerStatus(
+  sub: Pick<SubmissionItem, 'status' | 'needsSignature'> & { briefType?: string },
+): { label: string; tone: Tone; pulse?: boolean } {
+  if (sub.briefType === 'client') {
+    if (sub.status === 'accepted') return { label: 'Picked by the client', tone: 'positive' };
+    if (sub.status === 'not_accepted') return { label: 'Not picked', tone: 'muted' };
+    if (sub.status === 'sent_to_catalog') return { label: 'Sent to the client', tone: 'info' };
+    return { label: 'With our team', tone: 'warning' };
+  }
   if (sub.status === 'accepted') {
     return sub.needsSignature
       ? { label: 'Sign to finish', tone: 'signal', pulse: true }
@@ -118,7 +131,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
       <EmptyState
         icon={<IconWaveform size={18} />}
         title="No submissions yet"
-        body="Pick a brief, write to it, and submit your track. It shows up here with its status and our written feedback."
+        body="Pick a brief, write to it, and submit your track. It shows up here with its status and our feedback."
         action={
           <Link href="/briefs" className={btn('primary', 'md')}>
             Browse briefs
@@ -229,6 +242,27 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
 type Step = { label: string; detail?: string; state: 'done' | 'current' | 'upcoming' | 'stopped' };
 
 function stepsFor(sub: SubmissionItem): Step[] {
+  if (isProject(sub)) {
+    const sent = sub.status === 'sent_to_catalog' || sub.status === 'accepted' || sub.status === 'not_accepted';
+    return [
+      { label: 'Uploaded', detail: shortDate(sub.createdAt), state: 'done' },
+      {
+        label: 'Our team listens',
+        detail: sent ? 'Done' : 'Notes come back in the project thread.',
+        state: sent ? 'done' : 'current',
+      },
+      {
+        label: 'Sent to the client',
+        state: sent ? (sub.status === 'sent_to_catalog' ? 'current' : 'done') : 'upcoming',
+        detail: sub.status === 'sent_to_catalog' ? 'Waiting on their call.' : undefined,
+      },
+      sub.status === 'accepted'
+        ? { label: 'Picked by the client', state: 'done' }
+        : sub.status === 'not_accepted'
+          ? { label: 'Not picked this time', state: 'stopped' }
+          : { label: 'Client decision', state: 'upcoming' },
+    ];
+  }
   const decided = sub.status === 'accepted' || sub.status === 'not_accepted';
   const steps: Step[] = [
     { label: 'Submitted', detail: shortDate(sub.createdAt), state: 'done' },
@@ -281,8 +315,8 @@ function SubmissionSheet({ sub, onClose }: { sub: SubmissionItem; onClose: () =>
     }, 60);
   }
 
-  return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label={trackTitle(sub)}>
+  return createPortal(
+    <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label={trackTitle(sub)}>
       <button type="button" aria-label="Close" onClick={onClose} className="absolute inset-0 bg-black/70 animate-fade" />
       <div className="absolute inset-y-0 right-0 w-full sm:w-[460px] bg-[var(--bg-sidebar)] border-l border-[var(--border-card)] flex flex-col animate-sheet">
         <div className="flex items-center justify-between px-6 h-16 border-b border-[var(--border-base)] shrink-0">
@@ -357,20 +391,28 @@ function SubmissionSheet({ sub, onClose }: { sub: SubmissionItem; onClose: () =>
             })}
           </ol>
 
-          <div className="mt-9">
-            <p className="text-[13px] text-[var(--text-muted)] mb-2.5 flex items-center gap-1.5">
-              <IconMessage size={13} /> Written feedback
-            </p>
-            {sub.feedback ? (
+          {sub.feedback && (
+            <div className="mt-9">
+              <p className="text-[13px] text-[var(--text-muted)] mb-2.5 flex items-center gap-1.5">
+                <IconMessage size={13} /> Notes from Thought Collective
+              </p>
               <div className="rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-5">
                 <p className="text-[14px] text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">{sub.feedback}</p>
               </div>
-            ) : (
-              <p className="rounded-2xl border border-dashed border-[var(--border-subtle)] p-5 text-[14px] text-[var(--text-dim)] leading-relaxed">
-                Your notes arrive with the decision. We email you the moment they are ready.
+            </div>
+          )}
+
+          {isProject(sub) && sub.status === 'not_accepted' && (
+            <div className="mt-9 rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-5">
+              <p className="text-[14px] font-medium">Give it another life</p>
+              <p className="mt-1 text-[13px] text-[var(--text-muted)] leading-relaxed">
+                The client went another way, but the track is still yours. If it fits one of our catalogue briefs, submit it there. It might be right for the next project.
               </p>
-            )}
-          </div>
+              <Link href="/briefs" className={btn('secondary', 'sm', 'mt-4')}>
+                Browse catalogue briefs
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="px-6 py-4 border-t border-[var(--border-base)] flex gap-2 shrink-0">
@@ -378,16 +420,23 @@ function SubmissionSheet({ sub, onClose }: { sub: SubmissionItem; onClose: () =>
             <button type="button" onClick={goToOffer} className={btn('accent', 'md', 'flex-1')}>
               Sign on to finish
             </button>
+          ) : isProject(sub) ? (
+            <Link href={`/projects/${sub.briefId}`} className={btn('primary', 'md', 'flex-1')}>
+              Open project
+            </Link>
           ) : (
             <Link href="/briefs" className={btn('primary', 'md', 'flex-1')}>
               Find the next brief
             </Link>
           )}
-          <Link href={`/briefs/${sub.briefId}`} className={btn('secondary', 'md')}>
-            Open brief
-          </Link>
+          {!isProject(sub) && (
+            <Link href={`/briefs/${sub.briefId}`} className={btn('secondary', 'md')}>
+              Open brief
+            </Link>
+          )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -193,6 +193,7 @@ function NoteField({ composer }: { composer: RosterComposer }) {
 export default function RosterView({ composers: initial }: { composers: RosterComposer[] }) {
   const [composers, setComposers] = useState(initial);
   const [query, setQuery] = useState('');
+  const [status, setStatus] = useState<'placed' | 'unplaced' | 'all'>('placed');
   const [genres, setGenres] = useState<string[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
   const [showAllTags, setShowAllTags] = useState(false);
@@ -207,12 +208,15 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return composers.filter((c) => {
+      if (status === 'placed' && !c.placed) return false;
+      if (status === 'unplaced' && c.placed) return false;
       if (q && !`${c.name} ${c.email} ${c.note}`.toLowerCase().includes(q)) return false;
       const g = new Set(c.tracks.flatMap((t) => t.genres));
       const m = new Set(c.tracks.flatMap((t) => t.moods));
       return genres.every((x) => g.has(x)) && moods.every((x) => m.has(x));
     });
-  }, [composers, query, genres, moods]);
+  }, [composers, query, genres, moods, status]);
+  const placedCount = composers.filter((c) => c.placed).length;
 
   const toggle = (list: string[], set: (v: string[]) => void, value: string) =>
     set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
@@ -296,6 +300,29 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
         )}
       </div>
 
+      <div className="inline-flex items-center gap-1 p-1 mb-4 rounded-full border border-[var(--border-card)] bg-[var(--bg-card)]">
+        {(
+          [
+            ['placed', 'On the roster', placedCount],
+            ['unplaced', 'Not placed yet', composers.length - placedCount],
+            ['all', 'Everyone', composers.length],
+          ] as const
+        ).map(([id, label, n]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setStatus(id)}
+            aria-pressed={status === id}
+            className={`h-8 px-3.5 rounded-full text-[13px] flex items-center gap-1.5 transition-colors ${
+              status === id ? 'bg-[var(--accent)] text-[#0A0A0A] font-medium' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+            }`}
+          >
+            {label}
+            <span className={`tabular-nums ${status === id ? 'text-[#0A0A0A]/55' : 'text-[var(--text-dimmer)]'}`}>{n}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
         <p className="text-[15px]">
           <span className="tabular-nums">{filtered.length}</span>{' '}
@@ -331,12 +358,31 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
 
       {filtered.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-[var(--border-subtle)] px-6 py-14 text-center text-[14px] text-[var(--text-muted)]">
-          {composers.length === 0 ? 'No placements yet. Composers show up here once a track is accepted.' : 'Nobody matches all of those tags. Try fewer.'}
+          {status === 'placed' && placedCount === 0
+            ? 'No placements yet. Composers join the roster once a catalogue track is accepted.'
+            : 'Nobody matches that. Try fewer tags or another tab.'}
         </p>
       ) : (
         <ul className="flex flex-col gap-3">
           {filtered.map((c) => {
             const placements = c.tracks.length + c.outsidePlacements;
+            if (!c.placed) {
+              return (
+                <li key={c.id} className="rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] px-5 py-3.5 flex flex-wrap items-center gap-x-6 gap-y-1">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[14px] font-medium truncate">{c.name}</p>
+                    <a href={`mailto:${c.email}`} className="block text-[12px] text-[var(--text-dim)] hover:text-[var(--text-primary)] truncate">
+                      {c.email}
+                    </a>
+                  </div>
+                  <span className="text-[12px] text-[var(--text-dim)] tabular-nums">
+                    {c.submissionCount} {c.submissionCount === 1 ? 'submission' : 'submissions'}
+                  </span>
+                  <span className="text-[12px] text-[var(--text-dim)] tabular-nums">Joined {formatDate(c.joinedAt) || 'n/a'}</span>
+                  <StatusPill tone="muted">Not placed</StatusPill>
+                </li>
+              );
+            }
             const topGenres = composerTags(c, 'genres').slice(0, 6);
             const topMoods = composerTags(c, 'moods').slice(0, 6);
             return (
@@ -344,7 +390,9 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
                 <div className="min-w-0">
                   <div className="flex items-center gap-2.5 flex-wrap">
                     <p className="text-[20px] md:text-[22px] font-semibold tracking-[-0.025em] leading-tight">{c.name}</p>
-                    <StatusPill tone="positive">Verified</StatusPill>
+                    <StatusPill tone="positive">
+                      {placements} {placements === 1 ? 'placement' : 'placements'}
+                    </StatusPill>
                   </div>
                   <a href={`mailto:${c.email}`} className="block mt-1 text-[14px] text-[var(--text-muted)] hover:text-[var(--text-primary)] truncate">
                     {c.email}

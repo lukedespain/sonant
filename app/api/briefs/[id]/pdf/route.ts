@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isSiteAdmin } from '@/lib/admin';
 import { classifyBrief } from '@/lib/brief-kind';
-import { composerHasClientAccess } from '@/lib/verification';
+import { isInvited } from '@/lib/projects';
 import { CATALOG_PARTNERS, catalogPartnerFromBrief } from '@/lib/partners';
 import { readFile } from 'node:fs/promises';
 import { briefKindLabel, type Brief } from '@/components/BriefDocument';
@@ -44,8 +44,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   if (kind === 'client') {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    const allowed = !!user && (isSiteAdmin(user) || (await composerHasClientAccess(admin, user.id, false)));
-    if (!allowed) return new Response('Verified composers only.', { status: 403 });
+    const allowed = !!user && (isSiteAdmin(user) || isInvited(row.generated_content, user.id));
+    if (!allowed) return new Response('Invited composers only.', { status: 403 });
   }
 
   const brief = row.generated_content as Brief;

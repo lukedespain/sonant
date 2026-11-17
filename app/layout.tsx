@@ -9,6 +9,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isSiteAdmin } from "@/lib/admin";
 import { ensureMonthlySubmissionCredit } from "@/lib/monthly-credit";
 import { readHandoffs } from "@/lib/handoff";
+import { loadProjects, readThread, unreadFor } from "@/lib/projects";
 import SiteFrame from "@/components/shell/SiteFrame";
 import type { ShellData } from "@/components/shell/AppShell";
 
@@ -16,7 +17,7 @@ import type { ShellData } from "@/components/shell/AppShell";
 // Preview build: keep it out of search until the Thought Collective cutover.
 export const metadata: Metadata = {
   title: "Thought Collective · Composers",
-  description: "Briefs from Thought Collective, a London music and sound company. Write to spec, get written feedback, and get your best tracks into the catalogue.",
+  description: "Briefs from Thought Collective, a London music and sound company. Write to spec and get your best tracks into the catalogue.",
   robots: { index: false, follow: false },
 };
 
@@ -45,6 +46,7 @@ export default async function RootLayout({
     daysUntilNextCredit: null,
     offersWaiting: 0,
     reviewQueue: 0,
+    projectUnread: 0,
   };
 
   if (user) {
@@ -59,14 +61,37 @@ export default async function RootLayout({
     const [{ data: profile }, queue] = await Promise.all([
       admin.from('profiles').select('full_name, submission_credits').eq('id', user.id).maybeSingle(),
       isAdmin
-        ? admin.from('submissions').select('id', { count: 'exact', head: true }).in('status', ['received', 'pending', 'in_review'])
-        : Promise.resolve({ count: 0 }),
+        ? admin.from('submissions').select('brief_id').in('status', ['received', 'pending', 'in_review'])
+        : Promise.resolve({ data: [] }),
     ]);
     const p = profile as { full_name?: string | null; submission_credits?: number | null } | null;
     shell.name = p?.full_name?.trim() ?? '';
     if (shell.credits == null && typeof p?.submission_credits === 'number') shell.credits = p.submission_credits;
     shell.offersWaiting = Object.values(readHandoffs(user.app_metadata)).filter((h) => h.offeredAt && !h.agreedAt).length;
-    shell.reviewQueue = queue.count ?? 0;
+    // The review queue is catalogue submissions; project uploads live on each project.
+    const pending = ((queue.data ?? []) as { brief_id: string }[]).map((r) => r.brief_id);
+    if (pending.length) {
+      const { data: clientBriefs } = await admin
+        .from('briefs')
+        .select('id')
+        .in('id', [...new Set(pending)])
+        .eq('brief_type', 'client');
+      const client = new Set(((clientBriefs ?? []) as { id: string }[]).map((b) => b.id));
+      shell.reviewQueue = pending.filter((id) => !client.has(id)).length;
+    }
+    try {
+      const projects = (await loadProjects(admin, isAdmin ? undefined : user.id)).filter((p) => !p.closed);
+      const counts = await Promise.all(
+        projects.flatMap((p) =>
+          isAdmin
+            ? p.invites.map(async (i) => unreadFor(await readThread(admin, p.id, i.composerId), 'admin'))
+            : [readThread(admin, p.id, user.id).then((t) => unreadFor(t, 'composer'))],
+        ),
+      );
+      shell.projectUnread = counts.reduce((a, b) => a + b, 0);
+    } catch (error) {
+      console.error('Project unread count failed', error);
+    }
   }
 
   return (

@@ -11,12 +11,12 @@ const STEPS = [
     body: 'Each brief is built from what agencies and brands are asking us for right now. Download it, write the track, and submit it here.',
   },
   {
-    title: 'Get written feedback',
-    body: 'Every submission is listened to against the brief and gets written notes, whether it makes the catalogue or not.',
+    title: 'Join the roster',
+    body: 'Accepted tracks go into the Thought Collective catalogue, and you join our roster, tagged for the genres and moods your music nails.',
   },
   {
-    title: 'Join the roster',
-    body: 'Accepted tracks go into the Thought Collective catalogue. Composers we place become the people we call first when a brand job needs custom music.',
+    title: 'Work on client projects',
+    body: 'When a brand or agency needs custom music in your lane, we invite you. Upload versions, get notes from our team, and turn it around fast.',
   },
 ];
 
