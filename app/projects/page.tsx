@@ -82,11 +82,14 @@ export default async function ProjectsPage() {
   const { data: subs } = ids.length
     ? await admin
         .from('submissions')
-        .select('brief_id, user_id, status, created_at')
+        .select('brief_id, user_id, status, created_at, delivery')
         .in('brief_id', ids)
         .order('created_at', { ascending: false })
     : { data: [] };
-  const rows = (subs ?? []) as { brief_id: string; user_id: string; status: string; created_at: string }[];
+  // Old Disco click-throughs are not uploaded versions.
+  const rows = ((subs ?? []) as { brief_id: string; user_id: string; status: string; created_at: string; delivery?: string | null }[]).filter(
+    (r) => r.delivery !== 'disco',
+  );
 
   const activity = new Map<string, Activity>();
   await Promise.all(
