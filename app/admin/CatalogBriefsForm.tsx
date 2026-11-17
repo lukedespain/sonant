@@ -2,19 +2,15 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  CATALOG_PARTNERS,
-  DEFAULT_CATALOG_PARTNER_ID,
-} from '@/lib/partners';
 
-const partners = Object.values(CATALOG_PARTNERS);
+// This site only writes briefs for the Thought Collective catalogue.
+const CATALOG_ID = 'thought-collective';
 
 export default function CatalogBriefsForm() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [sourceText, setSourceText] = useState('');
   const [projectTitle, setProjectTitle] = useState('');
-  const [catalogId, setCatalogId] = useState(DEFAULT_CATALOG_PARTNER_ID);
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +37,7 @@ export default function CatalogBriefsForm() {
     const body = new FormData();
     body.set('sourceText', sourceText);
     body.set('projectTitle', projectTitle);
-    body.set('catalogId', catalogId);
+    body.set('catalogId', CATALOG_ID);
     files.forEach((file) => body.append('files', file));
 
     const res = await fetch('/api/admin/catalog-briefs', { method: 'POST', body });
@@ -60,41 +56,23 @@ export default function CatalogBriefsForm() {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl">
       <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8" style={sans}>
-        Paste the catalog notes or upload a PDF. Add catalog brief writes it into the Sonant format and generates an image. Check the brief, then use Email everyone when you want it to go out.
+        Paste the catalogue notes or upload a file. We write it up as a brief and make the cover image. Check it on the Briefs page, then use Email everyone in its admin tools when you want it to go out.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label htmlFor="catalog-house" className={labelClass} style={mono}>Catalog</label>
-          <select
-            id="catalog-house"
-            value={catalogId}
-            onChange={(e) => setCatalogId(e.target.value)}
-            className={fieldClass}
-            style={{ ...sans }}
-          >
-            {partners.map((partner) => (
-              <option key={partner.id} value={partner.id}>
-                {partner.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="catalog-title" className={labelClass} style={mono}>Brief title</label>
-          <input
-            id="catalog-title"
-            value={projectTitle}
-            onChange={(e) => setProjectTitle(e.target.value)}
-            placeholder="e.g. Tribe Type Beat"
-            className={fieldClass}
-            style={{ ...sans }}
-          />
-        </div>
+      <div className="mb-4">
+        <label htmlFor="catalog-title" className={labelClass} style={mono}>Brief title</label>
+        <input
+          id="catalog-title"
+          value={projectTitle}
+          onChange={(e) => setProjectTitle(e.target.value)}
+          placeholder="e.g. Tribe Type Beat"
+          className={fieldClass}
+          style={{ ...sans }}
+        />
       </div>
 
       <label htmlFor="catalog-brief-source" className={labelClass} style={mono}>
-        Catalog notes
+        Catalogue notes
       </label>
       <textarea
         id="catalog-brief-source"
@@ -165,7 +143,7 @@ export default function CatalogBriefsForm() {
         className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full text-[14px] font-medium bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         style={{ ...mono, fontWeight: 500 }}
       >
-        {submitting ? 'Writing brief…' : '+ Add catalog brief'}
+        {submitting ? 'Writing brief…' : 'Create brief'}
       </button>
     </form>
   );

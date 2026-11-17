@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Suspense, useEffect, useState, type ReactNode } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState, useTransition, type ReactNode } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { setSiteView } from '@/app/auth/view-actions';
 import { signOut } from '@/app/auth/actions';
 import ThoughtCollectiveMark from '@/components/ThoughtCollectiveMark';
 import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
@@ -11,6 +12,7 @@ import {
   IconArrowUpRight,
   IconBriefs,
   IconClose,
+  IconEye,
   IconFolder,
   IconInbox,
   IconMenu,
@@ -24,7 +26,10 @@ import {
 
 export type ShellData = {
   signedIn: boolean;
+  /** Admin UI is showing (a real admin who has not switched to the composer view). */
   isAdmin: boolean;
+  /** A real admin, who can switch between the admin and composer views. */
+  canSwitchView: boolean;
   name: string;
   email: string;
   credits: number | null;
@@ -158,6 +163,41 @@ function initials(name: string, email: string) {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || 'TC';
 }
 
+function ViewSwitch({ asComposer, compact = false }: { asComposer: boolean; compact?: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const label = asComposer ? 'Switch to admin view' : 'View as a composer';
+  function toggle() {
+    start(async () => {
+      await setSiteView(asComposer ? 'admin' : 'composer');
+      router.refresh();
+    });
+  }
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        disabled={pending}
+        title={label}
+        aria-label={label}
+        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors disabled:opacity-50 ${
+          asComposer
+            ? 'bg-[var(--signal-soft)] text-[var(--signal)]'
+            : 'text-[var(--text-dim)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)]'
+        }`}
+      >
+        <IconEye size={15} />
+      </button>
+    );
+  }
+  return (
+    <button type="button" onClick={toggle} disabled={pending} className={btn('secondary', 'sm', 'shrink-0')}>
+      {pending ? 'Switching…' : 'Back to admin'}
+    </button>
+  );
+}
+
 function SidebarContent({ data, onNavigate }: { data: ShellData; onNavigate?: () => void }) {
   return (
     <div className="flex flex-col h-full">
@@ -195,6 +235,7 @@ function SidebarContent({ data, onNavigate }: { data: ShellData; onNavigate?: ()
                 <p className="text-[13px] font-medium truncate">{data.name || 'Composer'}</p>
                 <p className="text-[12px] text-[var(--text-dim)] truncate">{data.email}</p>
               </div>
+              {data.canSwitchView && <ViewSwitch asComposer={!data.isAdmin} compact />}
               <form action={signOut}>
                 <button
                   type="submit"
@@ -275,6 +316,14 @@ export default function AppShell({ data, children }: { data: ShellData; children
           </button>
         </header>
 
+        {data.canSwitchView && !data.isAdmin && (
+          <div className="no-print sticky top-14 lg:top-0 z-30 flex items-center justify-between gap-3 px-5 md:px-10 py-2.5 bg-[var(--signal-soft)] border-b border-[var(--signal-line)] backdrop-blur-md">
+            <p className="text-[13px] text-[var(--signal)] flex items-center gap-2">
+              <IconEye size={14} /> You are seeing the site as a composer. Admin tools are hidden.
+            </p>
+            <ViewSwitch asComposer />
+          </div>
+        )}
         <main className="flex-1 min-w-0">{children}</main>
       </div>
 

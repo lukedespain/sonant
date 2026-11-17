@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { BRIEF_KIND_LABEL, type BriefKind } from '@/lib/brief-kind';
 import { EmptyState, StatusPill, btn, type Tone } from '@/components/ui';
 import {
   IconBriefs,
@@ -67,9 +66,6 @@ function shortDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-function kindOf(sub: SubmissionItem): BriefKind {
-  return sub.briefType === 'client' || sub.briefType === 'community' ? sub.briefType : 'catalog';
-}
 
 function Artwork({ sub, size = 40 }: { sub: SubmissionItem; size?: number }) {
   return (
@@ -213,7 +209,7 @@ export default function SubmissionHistory({ items }: { items: SubmissionItem[] }
                     </span>
                     <span className="hidden md:block min-w-0">
                       <span className="block text-[14px] text-[var(--text-secondary)] truncate">{sub.briefCodename}</span>
-                      <span className="block text-[12px] text-[var(--text-dim)]">{BRIEF_KIND_LABEL[kindOf(sub)]}</span>
+                      {isProject(sub) && <span className="block text-[12px] text-[var(--text-dim)]">Client project</span>}
                     </span>
                     <span className="hidden md:block text-[13px] text-[var(--text-muted)] tabular-nums">
                       {shortDate(sub.createdAt)}

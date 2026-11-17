@@ -105,7 +105,6 @@ export default function BriefPanel(props: BriefPanelProps) {
         <dl className="mt-3 divide-y divide-[var(--border-base)] border-y border-[var(--border-base)]">
           {catalog && (
             <>
-              <Fact label="Catalogue" value={catalog.name} />
               <Fact label="Rights" value={catalog.exclusive ? 'Exclusive' : 'Non-exclusive'} />
               <Fact label="Sync fees" value={`${catalog.split} split`} />
             </>

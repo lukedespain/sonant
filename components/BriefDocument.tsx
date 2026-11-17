@@ -218,13 +218,12 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
 
       {partner && (
         <Row label="The deal">
-          <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-6 max-w-4xl mb-6">
-            <Spec label="Catalogue" value={partner.name} />
+          <dl className="grid grid-cols-2 gap-x-8 gap-y-6 max-w-xl mb-6">
             <Spec label="Rights" value={partner.exclusive ? 'Exclusive' : 'Non-exclusive'} />
             <Spec label="Sync fees" value={`${partner.split} split`} />
           </dl>
           <p className="text-[15px] leading-relaxed max-w-2xl" style={{ color: 'var(--brief-text-body)' }}>
-            Accepted tracks go into the {partner.name} catalogue{partner.exclusive ? ' exclusively' : ''}, and we pitch them to agencies and brands. If one places, the sync fee splits {partner.split}.
+            Accepted tracks go into our catalogue{partner.exclusive ? ' exclusively' : ''}, and we pitch them to agencies and brands. If one places, the sync fee splits {partner.split}.
             {partner.humanMadeOnly ? ' Human-made only: no AI-generated music, stems, or vocals.' : ''}
           </p>
         </Row>

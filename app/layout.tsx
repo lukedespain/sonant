@@ -7,6 +7,7 @@ import { Providers } from "./providers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSiteAdmin } from "@/lib/admin";
+import { isAdminView } from "@/lib/admin-view";
 import { ensureMonthlySubmissionCredit } from "@/lib/monthly-credit";
 import { readHandoffs } from "@/lib/handoff";
 import { loadProjects, readThread, unreadFor } from "@/lib/projects";
@@ -36,10 +37,12 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAdmin = isSiteAdmin(user);
+  const realAdmin = isSiteAdmin(user);
+  const isAdmin = await isAdminView(user);
   const shell: ShellData = {
     signedIn: !!user,
     isAdmin,
+    canSwitchView: realAdmin,
     name: '',
     email: user?.email ?? '',
     credits: null,

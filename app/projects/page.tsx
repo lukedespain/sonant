@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { isSiteAdmin } from '@/lib/admin';
+import { isAdminView } from '@/lib/admin-view';
 import { composerHasClientAccess } from '@/lib/verification';
 import { loadProjects, readThread, unreadFor, type ProjectSummary } from '@/lib/projects';
 import { composerStatus } from '@/components/SubmissionHistory';
@@ -72,7 +72,7 @@ export default async function ProjectsPage() {
   if (!user) redirect('/login?redirect=/projects');
 
   const admin = createAdminClient();
-  const isAdmin = isSiteAdmin(user);
+  const isAdmin = await isAdminView(user);
   const [projects, onRoster] = await Promise.all([
     loadProjects(admin, isAdmin ? undefined : user.id),
     composerHasClientAccess(admin, user.id, isAdmin),

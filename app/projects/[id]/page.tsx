@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { isSiteAdmin } from '@/lib/admin';
+import { isAdminView } from '@/lib/admin-view';
 import { classifyBrief } from '@/lib/brief-kind';
 import {
   loadVersions,
@@ -62,7 +62,7 @@ export default async function ProjectPage({
   if (!row) notFound();
   if (classifyBrief(row) !== 'client') redirect(`/briefs/${id}`);
 
-  const isAdmin = isSiteAdmin(user);
+  const isAdmin = await isAdminView(user);
   const project = toProjectSummary(row);
   const invites = readInvites(row.generated_content);
   const invited = invites.some((i) => i.composerId === user.id);

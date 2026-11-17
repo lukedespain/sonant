@@ -184,3 +184,10 @@ export const IconUser = (p: IconProps) => (
     <path d="M2.75 14c.7-2.6 2.6-4 5.25-4s4.55 1.4 5.25 4" />
   </Svg>
 );
+
+export const IconEye = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8Z" />
+    <circle cx="8" cy="8" r="2" />
+  </Svg>
+);

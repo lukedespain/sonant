@@ -222,12 +222,11 @@ export default function BriefPdf({
           {partner && (
             <Row label="The deal">
               <View style={s.specGrid}>
-                <Spec label="Catalogue" value={partner.name} />
                 <Spec label="Rights" value={partner.exclusive ? 'Exclusive' : 'Non-exclusive'} />
                 <Spec label="Sync fees" value={`${partner.split} split`} />
               </View>
               <Text style={s.text}>
-                Accepted tracks go into the {partner.name} catalogue{partner.exclusive ? ' exclusively' : ''}, and we pitch them to agencies and brands. If one places, the sync fee splits {partner.split}.
+                Accepted tracks go into our catalogue{partner.exclusive ? ' exclusively' : ''}, and we pitch them to agencies and brands. If one places, the sync fee splits {partner.split}.
                 {partner.humanMadeOnly ? ' Human-made only: no AI-generated music, stems, or vocals.' : ''}
               </Text>
             </Row>

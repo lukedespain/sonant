@@ -61,7 +61,8 @@ export default function SubmitTrackModal({
   const [open, setOpen] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [trackName, setTrackName] = useState('');
-  const [confirmed, setConfirmed] = useState(false);
+  const [checks, setChecks] = useState<Record<string, boolean>>({});
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +72,8 @@ export default function SubmitTrackModal({
     setOpen(true);
     setPendingFile(null);
     setTrackName('');
-    setConfirmed(false);
+    setChecks({});
+    setStep(1);
     setError(null);
     setProgress(0);
     setDone(false);
@@ -177,7 +179,25 @@ export default function SubmitTrackModal({
   }
 
   const hasCredit = isProject || isAdmin || submissionCredits > 0;
-  const canSubmit = !!pendingFile && confirmed && trackName.trim().length > 0 && hasCredit;
+  const agreements: { id: string; label: string }[] = isProject
+    ? [
+        { id: 'original', label: 'This is my own original work, written for this project.' },
+        { id: 'private', label: 'I will keep the brief, the references, and this project private.' },
+      ]
+    : [
+        { id: 'original', label: 'Original music, start to finish. Not a cover.' },
+        { id: 'human', label: 'Human-made. No AI-generated music, stems, or vocals.' },
+        {
+          id: 'credit',
+          label: isAdmin
+            ? 'Submitting as Thought Collective. No credit used.'
+            : `This uses 1 of my ${submissionCredits} free ${submissionCredits === 1 ? 'submission' : 'submissions'}. It goes privately to Thought Collective.`,
+        },
+      ];
+  const confirmed = agreements.every((a) => checks[a.id]);
+  const trackReady = !!pendingFile && trackName.trim().length > 0;
+  const canSubmit = trackReady && confirmed && hasCredit;
+  const STEPS = ['Track', 'Confirm', 'Review'] as const;
 
   return (
     <>
@@ -191,16 +211,13 @@ export default function SubmitTrackModal({
           onClick={handleClose}
           role="dialog"
           aria-modal="true"
-          aria-label="Submit your track"
+          aria-label={isProject ? 'Upload a version' : 'Submit your track'}
         >
           {dragging && (
-            <div
-              className="pointer-events-none absolute inset-4 rounded-3xl border-2 border-dashed border-[var(--signal)]"
-              aria-hidden
-            />
+            <div className="pointer-events-none absolute inset-4 rounded-3xl border-2 border-dashed border-[var(--signal)]" aria-hidden />
           )}
           <div
-            className="relative w-full sm:max-w-[460px] max-h-[92vh] overflow-y-auto bg-[var(--bg-sidebar)] border border-[var(--border-card)] rounded-t-3xl sm:rounded-3xl shadow-2xl animate-rise"
+            className="relative w-full sm:max-w-[500px] max-h-[92vh] flex flex-col bg-[var(--bg-sidebar)] border border-[var(--border-card)] rounded-t-3xl sm:rounded-3xl shadow-2xl animate-rise"
             onClick={(e) => e.stopPropagation()}
           >
             {done ? (
@@ -211,8 +228,8 @@ export default function SubmitTrackModal({
                 <h2 className="text-[22px] font-semibold tracking-[-0.02em]">{isProject ? 'Version uploaded' : 'Track submitted'}</h2>
                 <p className="mt-2 text-[14px] text-[var(--text-muted)] leading-relaxed max-w-xs mx-auto">
                   {isProject
-                    ? 'Our team has it. Notes come back in the project thread, usually fast.'
-                    : 'It is in. We will email you when there is a decision. Track it from Submissions.'}
+                    ? 'Our team has it. Notes come back in the project thread.'
+                    : 'It is in. We will email you when there is a decision. Follow it in Submissions.'}
                 </p>
                 <div className="mt-8 flex gap-2 justify-center">
                   {!isProject && (
@@ -227,23 +244,50 @@ export default function SubmitTrackModal({
               </div>
             ) : (
               <>
-                <div className="px-6 pt-6 pb-5 border-b border-[var(--border-base)] flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <h2 className="text-[19px] font-semibold tracking-[-0.02em]">{isProject ? 'Upload a version' : 'Submit your track'}</h2>
-                    <p className="mt-0.5 text-[13px] text-[var(--text-muted)] truncate">{projectName}</p>
+                <div className="px-6 pt-6 pb-5 border-b border-[var(--border-base)] shrink-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h2 className="text-[19px] font-semibold tracking-[-0.02em]">{isProject ? 'Upload a version' : 'Submit your track'}</h2>
+                      <p className="mt-0.5 text-[13px] text-[var(--text-muted)] truncate">{projectName}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      disabled={uploading}
+                      aria-label="Close"
+                      className="w-9 h-9 -mr-2 -mt-1 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)] disabled:opacity-40"
+                    >
+                      <IconClose size={16} />
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    disabled={uploading}
-                    aria-label="Close"
-                    className="w-9 h-9 -mr-2 -mt-1 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)] disabled:opacity-40"
-                  >
-                    <IconClose size={16} />
-                  </button>
+                  <ol className="mt-5 flex items-center gap-2" aria-label="Steps">
+                    {STEPS.map((label, i) => {
+                      const n = (i + 1) as 1 | 2 | 3;
+                      const doneStep = n < step;
+                      const current = n === step;
+                      return (
+                        <li key={label} className="flex items-center gap-2 flex-1 last:flex-none">
+                          <span
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-semibold shrink-0 transition-colors ${
+                              doneStep
+                                ? 'bg-[var(--accent)] text-[#0A0A0A]'
+                                : current
+                                  ? 'bg-[var(--signal)] text-[#0A0A0A]'
+                                  : 'border border-[var(--border-subtle)] text-[var(--text-dim)]'
+                            }`}
+                            aria-current={current ? 'step' : undefined}
+                          >
+                            {doneStep ? <IconCheck size={11} strokeWidth={2.2} /> : n}
+                          </span>
+                          <span className={`text-[13px] ${current ? 'text-[var(--text-primary)]' : 'text-[var(--text-dim)]'}`}>{label}</span>
+                          {i < STEPS.length - 1 && <span className="flex-1 h-px bg-[var(--border-card)] mx-1" aria-hidden="true" />}
+                        </li>
+                      );
+                    })}
+                  </ol>
                 </div>
 
-                <div className="px-6 py-6 flex flex-col gap-5">
+                <div className="px-6 py-6 flex flex-col gap-5 overflow-y-auto app-scroll">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -251,84 +295,114 @@ export default function SubmitTrackModal({
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  {pendingFile ? (
-                    <div className="flex items-center gap-3 rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-3">
-                      <span className="w-10 h-10 rounded-xl bg-[var(--signal-soft)] text-[var(--signal)] flex items-center justify-center shrink-0">
-                        <IconWaveform size={16} />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[14px] truncate">{pendingFile.name}</span>
-                        <span className="block text-[12px] text-[var(--text-dim)]">
-                          {(pendingFile.size / 1_048_576).toFixed(1)} MB
+
+                  {step === 1 && (
+                    <>
+                      {pendingFile ? (
+                        <div className="flex items-center gap-3 rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-3">
+                          <span className="w-10 h-10 rounded-xl bg-[var(--signal-soft)] text-[var(--signal)] flex items-center justify-center shrink-0">
+                            <IconWaveform size={16} />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-[14px] truncate">{pendingFile.name}</span>
+                            <span className="block text-[12px] text-[var(--text-dim)]">{(pendingFile.size / 1_048_576).toFixed(1)} MB</span>
+                          </span>
+                          <button type="button" onClick={() => fileInputRef.current?.click()} className={btn('ghost', 'sm', 'px-3')}>
+                            Change
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className={`w-full rounded-2xl border border-dashed px-6 py-10 flex flex-col items-center gap-3 transition-colors ${
+                            dragging
+                              ? 'border-[var(--signal)] bg-[var(--signal-soft)]'
+                              : 'border-[var(--border-subtle)] hover:border-[var(--border-hover)] hover:bg-[var(--bg-card)]'
+                          }`}
+                        >
+                          <span className="w-11 h-11 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-card)] flex items-center justify-center text-[var(--text-secondary)]">
+                            <IconUpload size={17} />
+                          </span>
+                          <span className="text-[14px] font-medium">{dragging ? 'Drop it here' : 'Drop your track or choose a file'}</span>
+                          <span className="text-[12px] text-[var(--text-dim)]">MP3 or WAV · up to {MAX_AUDIO_LABEL}</span>
+                        </button>
+                      )}
+                      {pendingFile && (
+                        <div>
+                          <label htmlFor="submission-track-name" className={fieldLabel}>
+                            Track name
+                          </label>
+                          <input
+                            id="submission-track-name"
+                            type="text"
+                            value={trackName}
+                            onChange={(e) => setTrackName(e.target.value)}
+                            className={inputClass}
+                          />
+                        </div>
+                      )}
+                      {alreadySubmitted && !isProject && (
+                        <p className="rounded-xl bg-[var(--accent-soft)] px-4 py-3 text-[13px] text-[var(--text-muted)] leading-relaxed">
+                          You have already submitted to this brief. This one is reviewed as a separate entry.
+                        </p>
+                      )}
+                    </>
+                  )}
+
+                  {step === 2 && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-[14px] text-[var(--text-muted)] mb-1">A few things to confirm before it goes in.</p>
+                      {agreements.map((a) => (
+                        <label
+                          key={a.id}
+                          className={`flex items-start gap-3 rounded-2xl border px-4 py-3.5 cursor-pointer transition-colors ${
+                            checks[a.id]
+                              ? 'border-[var(--border-hover)] bg-[var(--bg-card)]'
+                              : 'border-[var(--border-card)] hover:border-[var(--border-subtle)]'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={!!checks[a.id]}
+                            onChange={(e) => setChecks((c) => ({ ...c, [a.id]: e.target.checked }))}
+                            className="mt-0.5 w-4 h-4 shrink-0 accent-[var(--signal)]"
+                          />
+                          <span className="text-[14px] leading-relaxed">{a.label}</span>
+                        </label>
+                      ))}
+                      {!hasCredit && (
+                        <p className="mt-2 rounded-xl bg-[var(--warning-soft)] px-4 py-3 text-[13px] text-[var(--warning)] leading-relaxed">
+                          You have used your free submissions for now. A new one arrives every week, and unused ones stack up, so check back in a few days.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {step === 3 && pendingFile && (
+                    <div className="rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] overflow-hidden">
+                      <div className="p-5 flex items-center gap-4 bg-[radial-gradient(120%_160%_at_0%_0%,var(--signal-soft),transparent_60%)]">
+                        <span className="w-12 h-12 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--signal)] shrink-0">
+                          <IconWaveform size={18} />
                         </span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className={btn('ghost', 'sm', 'px-3')}
-                      >
-                        Change
-                      </button>
+                        <div className="min-w-0">
+                          <p className="text-[12px] text-[var(--text-dim)]">{isProject ? 'New version' : 'New submission'}</p>
+                          <p className="text-[17px] font-semibold tracking-[-0.02em] truncate">{trackName.trim() || pendingFile.name}</p>
+                        </div>
+                      </div>
+                      <dl className="divide-y divide-[var(--border-base)] border-t border-[var(--border-base)] text-[13px]">
+                        {[
+                          [isProject ? 'Project' : 'Brief', projectName],
+                          ['File', `${pendingFile.name} · ${(pendingFile.size / 1_048_576).toFixed(1)} MB`],
+                          ['Cost', isProject || isAdmin ? 'Free' : `1 free submission · ${submissionCredits - 1} left after`],
+                        ].map(([k, v]) => (
+                          <div key={k} className="flex items-baseline justify-between gap-4 px-5 py-3">
+                            <dt className="text-[var(--text-muted)] shrink-0">{k}</dt>
+                            <dd className="text-right truncate">{v}</dd>
+                          </div>
+                        ))}
+                      </dl>
                     </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className={`w-full rounded-2xl border border-dashed px-6 py-9 flex flex-col items-center gap-3 transition-colors ${
-                        dragging
-                          ? 'border-[var(--signal)] bg-[var(--signal-soft)]'
-                          : 'border-[var(--border-subtle)] hover:border-[var(--border-hover)] hover:bg-[var(--bg-card)]'
-                      }`}
-                    >
-                      <span className="w-11 h-11 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-card)] flex items-center justify-center text-[var(--text-secondary)]">
-                        <IconUpload size={17} />
-                      </span>
-                      <span className="text-[14px] font-medium">{dragging ? 'Drop it here' : 'Drop your track or choose a file'}</span>
-                      <span className="text-[12px] text-[var(--text-dim)]">MP3 or WAV · up to {MAX_AUDIO_LABEL}</span>
-                    </button>
-                  )}
-
-                  {pendingFile && (
-                    <div>
-                      <label htmlFor="submission-track-name" className={fieldLabel}>
-                        Track name
-                      </label>
-                      <input
-                        id="submission-track-name"
-                        type="text"
-                        value={trackName}
-                        onChange={(e) => setTrackName(e.target.value)}
-                        className={inputClass}
-                      />
-                    </div>
-                  )}
-
-                  {alreadySubmitted && !isProject && (
-                    <p className="rounded-xl bg-[var(--accent-soft)] px-4 py-3 text-[13px] text-[var(--text-muted)] leading-relaxed">
-                      You have already submitted to this brief. This one is reviewed as a separate entry.
-                    </p>
-                  )}
-
-                  <label className="flex items-start gap-3 cursor-pointer text-[13px] text-[var(--text-muted)] leading-relaxed">
-                    <input
-                      type="checkbox"
-                      checked={confirmed}
-                      onChange={(e) => setConfirmed(e.target.checked)}
-                      className="mt-0.5 w-4 h-4 shrink-0 accent-[var(--signal)]"
-                    />
-                    <span>
-                      {isProject
-                        ? 'This is my own work, written for this project. It goes privately to Thought Collective.'
-                        : isAdmin
-                        ? 'Submitting as Thought Collective. No credit used.'
-                        : `This uses 1 of your ${submissionCredits} free ${submissionCredits === 1 ? 'submission' : 'submissions'}. It goes privately to Thought Collective.`}
-                    </span>
-                  </label>
-
-                  {!hasCredit && (
-                    <p className="rounded-xl bg-[var(--warning-soft)] px-4 py-3 text-[13px] text-[var(--warning)] leading-relaxed">
-                      You have used your free submissions for now. A new one arrives every week, and unused ones stack up, so check back in a few days.
-                    </p>
                   )}
 
                   {error && (
@@ -340,10 +414,7 @@ export default function SubmitTrackModal({
                   {uploading && (
                     <div>
                       <div className="h-1.5 w-full rounded-full bg-[var(--border-card)] overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-[var(--signal)] transition-[width] duration-200"
-                          style={{ width: `${progress}%` }}
-                        />
+                        <div className="h-full rounded-full bg-[var(--signal)] transition-[width] duration-200" style={{ width: `${progress}%` }} />
                       </div>
                       <p className="mt-2 text-[12px] text-[var(--text-dim)] tabular-nums">
                         {progress < 100 ? `Uploading ${progress}%` : 'Finishing up…'}
@@ -352,18 +423,36 @@ export default function SubmitTrackModal({
                   )}
                 </div>
 
-                <div className="px-6 pb-6 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={!canSubmit || uploading}
-                    className={btn('accent', 'lg', 'flex-1')}
-                  >
-                    {uploading ? (progress < 100 ? `Uploading ${progress}%` : 'Finishing…') : isProject ? 'Upload version' : 'Submit track'}
-                  </button>
-                  <button type="button" onClick={handleClose} disabled={uploading} className={btn('secondary', 'lg')}>
-                    Cancel
-                  </button>
+                <div className="px-6 pb-6 pt-1 flex gap-2 shrink-0">
+                  {step > 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => setStep((s) => (s - 1) as 1 | 2)}
+                      disabled={uploading}
+                      className={btn('secondary', 'lg')}
+                    >
+                      Back
+                    </button>
+                  ) : (
+                    <button type="button" onClick={handleClose} className={btn('secondary', 'lg')}>
+                      Cancel
+                    </button>
+                  )}
+                  {step === 1 && (
+                    <button type="button" onClick={() => setStep(2)} disabled={!trackReady} className={btn('primary', 'lg', 'flex-1')}>
+                      Continue
+                    </button>
+                  )}
+                  {step === 2 && (
+                    <button type="button" onClick={() => setStep(3)} disabled={!confirmed || !hasCredit} className={btn('primary', 'lg', 'flex-1')}>
+                      Review
+                    </button>
+                  )}
+                  {step === 3 && (
+                    <button type="button" onClick={handleSubmit} disabled={!canSubmit || uploading} className={btn('accent', 'lg', 'flex-1')}>
+                      {uploading ? (progress < 100 ? `Uploading ${progress}%` : 'Finishing…') : isProject ? 'Upload version' : 'Submit track'}
+                    </button>
+                  )}
                 </div>
               </>
             )}

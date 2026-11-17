@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
-import { isSiteAdmin } from '@/lib/admin';
+import { isAdminView } from '@/lib/admin-view';
 import { readHandoffs } from '@/lib/handoff';
 import { loadCatalogueBriefs } from '@/lib/tc-briefs';
 import { AppHeader, AppPage, btn } from '@/components/ui';
@@ -12,7 +12,7 @@ export default async function BriefsPage() {
   const admin = createAdminClient();
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const isAdmin = isSiteAdmin(user);
+  const isAdmin = await isAdminView(user);
 
   const [catalogue, mine] = await Promise.all([
     loadCatalogueBriefs(admin),

@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { isSiteAdmin } from '@/lib/admin';
+import { isAdminView } from '@/lib/admin-view';
 import { classifyBrief } from '@/lib/brief-kind';
 import { composerHasClientAccess } from '@/lib/verification';
 import { resolveDiscoInboxUrl } from '@/lib/disco';
@@ -56,7 +56,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
   // Client briefs are projects now, with their own workspace.
   if (isClientBrief) redirect(`/projects/${id}`);
   const isFeatured = kind === 'catalog';
-  const isAdmin = isSiteAdmin(user);
+  const isAdmin = await isAdminView(user);
   const catalogPartner = isFeatured ? catalogPartnerFromBrief(brief) ?? CATALOG_PARTNERS.sonant : null;
 
   let canViewClient = isAdmin;

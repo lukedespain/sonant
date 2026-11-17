@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { isSiteAdmin } from '@/lib/admin';
+import { isAdminView } from '@/lib/admin-view';
 import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
 import { listNotifications } from '@/lib/notifications';
 import { classifyBrief } from '@/lib/brief-kind';
@@ -29,7 +29,7 @@ export default async function DashboardPage({
 
   const { tab } = await searchParams;
   const admin = createAdminClient();
-  const isAdmin = isSiteAdmin(user);
+  const isAdmin = await isAdminView(user);
   const monthly = await ensureMonthlySubmissionCredit(admin, user);
 
   const [{ data: profile }, notifications, { data: rawSubmissions }, acceptedCount, override] = await Promise.all([

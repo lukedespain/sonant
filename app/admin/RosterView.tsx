@@ -93,8 +93,6 @@ function TrackRow({
           <p className="text-[15px] truncate">{track.trackName}</p>
           <p className="text-[13px] text-[var(--text-muted)] truncate">
             <Link href={`/briefs/${track.briefId}`} className="hover:text-[var(--text-primary)]">{track.briefTitle}</Link>
-            {' · '}
-            {track.catalogName}
           </p>
         </div>
         <div className="col-start-2 md:col-start-auto min-w-0">

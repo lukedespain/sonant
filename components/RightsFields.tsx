@@ -3,6 +3,7 @@
 import { useId } from 'react';
 import { PRO_OPTIONS, type RightsInfo } from '@/lib/handoff';
 import { fieldLabel, inputClass } from '@/components/ui';
+import ComboField from '@/components/ComboField';
 
 function Field({
   id,
@@ -60,12 +61,15 @@ export default function RightsFields({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
       <Field id={`${base}-legal`} label="Legal name" value={value.legalName} onChange={set('legalName')} autoComplete="name" hint="As it appears with your PRO." />
-      <Field id={`${base}-pro`} label="PRO" value={value.pro} onChange={set('pro')} list={`${base}-pros`} hint="ASCAP, BMI, PRS, or yours." />
-      <datalist id={`${base}-pros`}>
-        {PRO_OPTIONS.map((pro) => (
-          <option key={pro} value={pro} />
-        ))}
-      </datalist>
+      <ComboField
+        id={`${base}-pro`}
+        label="PRO"
+        value={value.pro}
+        onChange={set('pro')}
+        options={PRO_OPTIONS}
+        placeholder="Choose or type yours"
+        hint="Not listed? Type it in."
+      />
       <Field id={`${base}-ipi`} label="Composer IPI" value={value.composerIpi} onChange={set('composerIpi')} inputMode="numeric" hint="9 to 11 digits. Find it in your PRO account." />
       <div className="hidden sm:block" />
       <Field id={`${base}-pub`} label="Publisher name" value={value.publisherName} onChange={set('publisherName')} hint="Leave blank if you are not with a publisher." />

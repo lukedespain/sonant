@@ -7,7 +7,7 @@ import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
 import { StatusPill, btn, textareaClass, type Tone } from '@/components/ui';
 import { IconArrowUpRight, IconChevronRight, IconDownload } from '@/components/shell/icons';
-import { CATALOG_PARTNER_LIST, catalogPartnerById } from '@/lib/partners';
+import { catalogPartnerById } from '@/lib/partners';
 import TagPicker from '@/components/TagPicker';
 import Link from 'next/link';
 
@@ -76,8 +76,7 @@ export default function AdminSubmissionCard({
   const isDecided = status === 'accepted' || status === 'not_accepted';
   const isSent = status === 'sent_to_catalog';
   const catalogName = catalogPartnerById(catalogId)?.name ?? 'Sonant';
-  const [selectedCatalog, setSelectedCatalog] = useState(catalogId);
-  const selectedName = catalogPartnerById(selectedCatalog)?.name ?? 'Sonant';
+  const selectedCatalog = catalogId;
   const canSend = selectedCatalog !== 'sonant';
   const [open, setOpen] = useState(isDisco ? !deliveryConfirmedAt : !isDecided && !isSent);
   const [feedback, setFeedback] = useState(existingFeedback ?? '');
@@ -179,10 +178,12 @@ export default function AdminSubmissionCard({
           </span>
           <span className="hidden md:block min-w-0">
             <span className="block text-[14px] text-[var(--text-secondary)] truncate">{projectName}</span>
-            <span className="block text-[12px] text-[var(--text-dim)]">
-              {briefType === 'client' ? 'Client brief' : 'Catalogue brief'}
-              {isDisco ? ' · Disco' : ''}
-            </span>
+            {(briefType === 'client' || isDisco) && (
+              <span className="block text-[12px] text-[var(--text-dim)]">
+                {briefType === 'client' ? 'Client project' : ''}
+                {isDisco ? ' · Disco' : ''}
+              </span>
+            )}
           </span>
           <span className="hidden md:block text-[13px] text-[var(--text-muted)] tabular-nums">{submittedAt}</span>
           <span className="justify-self-end md:justify-self-start">
@@ -268,7 +269,7 @@ export default function AdminSubmissionCard({
                       disabled={submitting}
                       className={btn(!isSent && !isDecided ? 'primary' : 'secondary', 'md')}
                     >
-                      Send to {selectedName}
+                      Shortlist
                     </button>
                   )}
                   <button
@@ -296,9 +297,9 @@ export default function AdminSubmissionCard({
             {!isDisco && !isDecided && (
               <p className="-mt-2 text-[12px] text-[var(--text-dim)] leading-relaxed">
                 {isSent
-                  ? `With ${catalogName}. Once they reply, mark it. Add their reason to the notes first if you have it.`
+                  ? 'Shortlisted. Accept it or pass once the final call is made.'
                   : canSend
-                    ? `Send to ${selectedName} when it is worth pitching. The composer gets an email either way.`
+                    ? 'Shortlist it if it needs a second listen before the final call. Every change emails the composer.'
                     : 'You make the call. The composer gets an email either way.'}
               </p>
             )}
@@ -320,26 +321,6 @@ export default function AdminSubmissionCard({
                 <dd className="mt-0.5 tabular-nums">{submittedAt}</dd>
               </div>
             </dl>
-
-            {!isDisco && !handoff?.agreedAt && (
-              <label className="block">
-                <span className="block text-[13px] text-[var(--text-dim)] mb-1.5">Catalogue</span>
-                <select
-                  value={selectedCatalog}
-                  onChange={(e) => setSelectedCatalog(e.target.value)}
-                  className="w-full h-9 pl-3 pr-8 text-[13px] bg-[var(--bg-input)] border border-[var(--border-card)] text-[var(--text-primary)] rounded-xl focus:border-[var(--signal-line)] focus:outline-none"
-                >
-                  {CATALOG_PARTNER_LIST.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-                {selectedCatalog !== catalogId && (
-                  <span className="mt-1 block text-[12px] text-[var(--text-dim)]">Brief was for {catalogName}</span>
-                )}
-              </label>
-            )}
 
             <div className="flex flex-col gap-1.5">
               <a href={`/briefs/${briefId}`} target="_blank" rel="noopener noreferrer" className={btn('secondary', 'sm', 'justify-between')}>
@@ -384,7 +365,7 @@ function status_(
     return { label: 'Accepted', tone: 'positive' };
   }
   if (status === 'not_accepted') return { label: 'Not accepted', tone: 'muted' };
-  if (isSent) return { label: `With ${catalogName}`, tone: 'info' };
+  if (isSent) return { label: 'Shortlisted', tone: 'info' };
   return { label: 'To review', tone: 'warning' };
 }
 
