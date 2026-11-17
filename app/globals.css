@@ -339,3 +339,47 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-sheet, .animate-drawer, .animate-fade, .animate-rise { animation: none; }
 }
+
+/* ============================================================
+   HOW-IT-WORKS FLOW: a light that travels around a step card and
+   its sidebar item while the step is hovered (desktop only).
+   ============================================================ */
+@property --flow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes flow-spin { to { --flow-angle: 360deg; } }
+@keyframes flow-march { to { stroke-dashoffset: -24; } }
+@keyframes flow-draw { from { stroke-dashoffset: var(--flow-len, 600); } to { stroke-dashoffset: 0; } }
+
+.flow-ring { position: relative; }
+.flow-ring::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--flow-angle), transparent 0deg, var(--signal) 70deg, rgba(244, 99, 42, 0.15) 140deg, transparent 220deg, var(--signal) 290deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.flow-ring[data-flow-on="true"]::after {
+  opacity: 1;
+  animation: flow-spin 2.2s linear infinite;
+}
+.flow-ring[data-flow-on="true"] { background-color: var(--bg-elevated); }
+
+.flow-line {
+  stroke-dasharray: 6 6;
+  animation: flow-march 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-ring[data-flow-on="true"]::after { animation: none; background: var(--signal); }
+  .flow-line { animation: none; }
+}

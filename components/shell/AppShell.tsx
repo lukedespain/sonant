@@ -43,44 +43,47 @@ type NavItem = {
   label: string;
   icon: (p: { size?: number }) => ReactNode;
   badge?: number;
+  /** Ties the item to a "How it works" step on the homepage. */
+  flow?: string;
   match: (path: string, tab: string | null) => boolean;
 };
 
 
+// Ordered the way a composer moves: write to a brief, follow the submission,
+// get invited to projects. Profile is set once, so it sits last.
 function composerItems(data: ShellData): NavItem[] {
-  const items: NavItem[] = [
+  return [
     {
       href: '/briefs',
       label: 'Briefs',
       icon: IconBriefs,
+      flow: 'briefs',
       match: (p) => p === '/briefs' || p.startsWith('/briefs/'),
     },
+    {
+      href: '/dashboard',
+      label: 'Submissions',
+      icon: IconWaveform,
+      badge: data.offersWaiting,
+      flow: 'submissions',
+      match: (p, tab) => p === '/dashboard' && tab !== 'profile' && tab !== 'info' && tab !== 'settings',
+    },
+    {
+      href: '/projects',
+      label: 'Projects',
+      icon: IconFolder,
+      badge: data.projectUnread,
+      flow: 'projects',
+      match: (p) => p === '/projects' || p.startsWith('/projects/'),
+    },
+    {
+      href: '/dashboard?tab=profile',
+      label: 'Profile',
+      icon: IconUser,
+      flow: 'profile',
+      match: (p, tab) => p === '/dashboard' && (tab === 'profile' || tab === 'info' || tab === 'settings'),
+    },
   ];
-  {
-    items.push(
-      {
-        href: '/projects',
-        label: 'Projects',
-        icon: IconFolder,
-        badge: data.projectUnread,
-        match: (p) => p === '/projects' || p.startsWith('/projects/'),
-      },
-      {
-        href: '/dashboard',
-        label: 'Submissions',
-        icon: IconWaveform,
-        badge: data.offersWaiting,
-        match: (p, tab) => p === '/dashboard' && tab !== 'profile' && tab !== 'info' && tab !== 'settings',
-      },
-      {
-        href: '/dashboard?tab=profile',
-        label: 'Profile',
-        icon: IconUser,
-        match: (p, tab) => p === '/dashboard' && (tab === 'profile' || tab === 'info' || tab === 'settings'),
-      },
-    );
-  }
-  return items;
 }
 
 function adminItems(data: ShellData): NavItem[] {
@@ -113,7 +116,8 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
               href={item.href}
               onClick={onNavigate}
               aria-current={active ? 'page' : undefined}
-              className={`group flex items-center gap-3 h-9 px-3 rounded-xl text-[14px] transition-colors ${
+              data-flow-target={item.flow}
+              className={`flow-ring group flex items-center gap-3 h-9 px-3 rounded-xl text-[14px] transition-colors ${
                 active
                   ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-[inset_0_0_0_1px_var(--border-card)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)]'

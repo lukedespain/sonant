@@ -7,14 +7,15 @@ import { readRights, validateRights } from '@/lib/handoff';
 import { readSound, soundMatches } from '@/lib/sound';
 import BriefGrid from '@/components/BriefGrid';
 import AboutQuestions from '@/components/AboutQuestions';
+import FlowSteps from '@/components/FlowSteps';
 import { AppPage, btn } from '@/components/ui';
 import { IconArrowUpRight } from '@/components/shell/icons';
 
 const STEPS = [
-  { title: 'Set up your profile', body: 'Your PRO and IPI, so we can register and pay you.' },
-  { title: 'Write to a brief', body: 'Pick one that fits your sound and submit your track.' },
-  { title: 'Get accepted', body: 'The best tracks join our catalogue, and we pitch them to brands.' },
-  { title: 'Get invited to projects', body: 'Paid client work in your lane, with notes from our team.' },
+  { title: 'Set up your profile', body: 'Your PRO and IPI, so we can register and pay you.', flow: 'profile' },
+  { title: 'Write to a brief', body: 'Pick one that fits your sound and submit your track.', flow: 'briefs' },
+  { title: 'Get accepted', body: 'Follow it in Submissions. The best tracks join our catalogue.', flow: 'submissions' },
+  { title: 'Get invited to projects', body: 'Paid client work in your lane, with notes from our team.', flow: 'projects' },
 ];
 
 const DEAL = [
@@ -67,15 +68,7 @@ export default async function HomePage() {
 
       <section className="mt-14">
         <h2 className="text-[20px] font-semibold tracking-[-0.02em] mb-5">How it works</h2>
-        <ol className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
-          {STEPS.map((step, i) => (
-            <li key={step.title} className="rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-5 md:p-6 flex flex-col gap-2.5">
-              <span className="text-[13px] text-[var(--text-dim)] tabular-nums">{String(i + 1).padStart(2, '0')}</span>
-              <span className="text-[17px] font-semibold tracking-[-0.02em]">{step.title}</span>
-              <span className="text-[14px] text-[var(--text-muted)] leading-relaxed">{step.body}</span>
-            </li>
-          ))}
-        </ol>
+        <FlowSteps steps={STEPS} />
       </section>
 
       <section className="mt-3 grid sm:grid-cols-3 rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] divide-y sm:divide-y-0 sm:divide-x divide-[var(--border-base)]">
