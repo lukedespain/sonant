@@ -13,16 +13,18 @@ import SunoPromptModal from '@/components/SunoPromptModal';
 import DeleteBriefButton from '@/components/DeleteBriefButton';
 import MoveToPracticeButton from '@/components/MoveToPracticeButton';
 import CommunityTracksSection from '@/components/CommunityTracksSection';
-import BriefNextSteps from '@/components/BriefNextSteps';
+import BriefPanel, { BriefPrimaryAction, type BriefPanelProps } from '@/components/BriefPanel';
+import { composerStatus } from '@/components/SubmissionHistory';
+import { ensureMonthlySubmissionCredit } from '@/lib/monthly-credit';
+import { readHandoffs } from '@/lib/handoff';
 import BriefImageUpload from '@/components/BriefImageUpload';
 import RegenerateImageButton from '@/components/RegenerateImageButton';
 import AnnounceBriefButton from '@/components/AnnounceBriefButton';
 import CloseBriefButton from '@/components/CloseBriefButton';
 import HomeStarButton from '@/components/HomeStarButton';
-import SubmitTrackModal from '@/components/SubmitTrackModal';
-import ClientBriefSubmitModal from '@/components/ClientBriefSubmitModal';
-import { AdminMenu, DownloadBriefButton } from '@/components/BriefActions';
-import { btn } from '@/components/ui';
+import { AdminMenu } from '@/components/BriefActions';
+import { AppPage, btn } from '@/components/ui';
+import { IconChevronLeft, IconLock } from '@/components/shell/icons';
 import { isBriefClosed } from '@/lib/brief-status';
 import { getSubmissionStatus } from '@/app/briefs/actions';
 import { getTrackPrivacyMap, isTrackPublic } from '@/lib/track-privacy';
@@ -66,23 +68,25 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
   if (isClientBrief && !canViewClient) {
     return (
-      <div className="flex-1 pt-24 pb-24">
-        <div className="max-w-xl mx-auto px-5 text-center">
-          <p className="label text-[var(--accent)]">Verified composers only</p>
-          <h1 className="mt-4 font-serif font-light text-4xl md:text-5xl tracking-tight">Paid client briefs.</h1>
-          <p className="mt-4 text-[15px] text-[var(--text-muted)] leading-relaxed">
-            Get a track accepted into the catalogue to unlock paid client work.
+      <AppPage width="narrow">
+        <div className="mt-10 rounded-3xl border border-[var(--border-card)] bg-[var(--bg-card)] px-6 py-14 md:py-20 text-center">
+          <div className="mx-auto mb-6 w-12 h-12 rounded-full bg-[var(--signal-soft)] text-[var(--signal)] flex items-center justify-center">
+            <IconLock size={18} />
+          </div>
+          <p className="text-[13px] text-[var(--signal)] font-medium">Roster only</p>
+          <h1 className="mt-2 text-[28px] md:text-[34px] font-semibold tracking-[-0.03em]">Paid client briefs</h1>
+          <p className="mt-3 text-[15px] text-[var(--text-muted)] leading-relaxed max-w-sm mx-auto">
+            Get a track accepted into the catalogue and you join the roster. Paid client work opens up from there.
           </p>
-          <Link href="/briefs#catalog" className={btn('secondary', 'md', 'mt-8')}>
+          <Link href="/briefs" className={btn('primary', 'md', 'mt-8')}>
             See catalogue briefs
           </Link>
         </div>
-      </div>
+      </AppPage>
     );
   }
 
   const submission = await getSubmissionStatus(briefRow.id);
-  const alreadySubmitted = submission !== null;
 
   type CommunityTrackRaw = { id: string; user_id: string; file_name: string; file_url: string; created_at: string };
   const [{ data }, privacyMap, { data: currentProfile }] = await Promise.all([
@@ -99,6 +103,7 @@ export default async function BrowseBriefPage({ params }: PageProps) {
       ? admin.from('profiles').select('full_name, tier, submission_credits').eq('id', user.id).single()
       : Promise.resolve({ data: null }),
   ]);
+  const credit = user ? await ensureMonthlySubmissionCredit(admin, user).catch(() => null) : null;
 
   const visibleRaw = (data ?? []).filter(
     (t) => isTrackPublic(privacyMap, t.id) || t.user_id === user?.id
@@ -111,7 +116,8 @@ export default async function BrowseBriefPage({ params }: PageProps) {
   const profileMap = Object.fromEntries((profiles ?? []).map((p: { id: string; full_name: string }) => [p.id, p.full_name]));
 
   const currentUserName = (currentProfile as { full_name?: string } | null)?.full_name ?? '';
-  const submissionCredits = (currentProfile as { submission_credits?: number } | null)?.submission_credits ?? 0;
+  const submissionCredits =
+    credit?.credits ?? (currentProfile as { submission_credits?: number } | null)?.submission_credits ?? 0;
 
   const communityTracks = visibleRaw.map((t) => ({
     id: t.id,
@@ -129,124 +135,134 @@ export default async function BrowseBriefPage({ params }: PageProps) {
 
   const closed = isClientBrief && isBriefClosed(brief);
   const title = brief.projectTitle || brief.codename;
-  const kindLabel = isClientBrief
-    ? 'Paid client brief'
-    : isFeatured
-      ? 'Catalogue brief'
-      : 'Practice brief';
+
+  let submissionState: BriefPanelProps['submission'] = null;
+  if (submission) {
+    const latest = await admin
+      .from('submissions')
+      .select('id')
+      .eq('brief_id', briefRow.id)
+      .eq('user_id', user!.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const handoff = latest.data ? readHandoffs(user!.app_metadata)[latest.data.id as string] : undefined;
+    const s = composerStatus({ status: submission.status, needsSignature: submission.status === 'accepted' && !!handoff && !handoff.agreedAt });
+    submissionState = { label: s.label === 'In review' ? 'Submitted · in review' : s.label, tone: s.tone, pulse: s.pulse };
+  }
+
+  const panel: BriefPanelProps = {
+    briefId: briefRow.id,
+    title,
+    variant: isClientBrief ? 'client' : isFeatured ? 'catalog' : 'practice',
+    signedIn: !!user,
+    isAdmin,
+    submission: submissionState,
+    credits: submissionCredits,
+    daysUntilNextCredit: credit?.daysUntilNext ?? null,
+    deadline: brief.deadline,
+    catalog: catalogPartner
+      ? {
+          name: catalogPartner.name,
+          exclusive: catalogPartner.exclusive,
+          split: catalogPartner.split,
+          humanMadeOnly: catalogPartner.humanMadeOnly,
+        }
+      : null,
+    client: isClientBrief ? { demoFee: brief.demoFee, winFee: brief.winFee } : null,
+    closed,
+    currentUserName,
+    discoUrl,
+  };
 
   return (
-    <div className="flex-1 min-w-0 pt-8 md:pt-10 pb-24 overflow-x-clip">
-      <div className="max-w-[1440px] mx-auto px-5 md:px-[60px]">
-        <div className="no-print flex items-center justify-between gap-3 mb-6">
-          <Link href="/briefs" className={btn('ghost', 'sm')}>
-            ← Briefs
-          </Link>
-          <div className="flex items-center gap-2">
-            {!isClientBrief && (
-              <ShareBriefButton briefId={briefRow.id} briefName={title} loggedIn={!!user} />
-            )}
-            {isAdmin && (
-              <AdminMenu>
-                {(isClientBrief || isFeatured) && (
-                  <AnnounceBriefButton briefId={briefRow.id} kind={isClientBrief ? 'client' : 'featured'} />
-                )}
-                {isClientBrief && <CloseBriefButton briefId={briefRow.id} closed={!!brief.closedAt} />}
-                {isFeatured && <HomeStarButton briefId={briefRow.id} featured={!!brief.homeFeatured} variant="menu" />}
-                <SunoPromptModal brief={brief} />
-                <RegenerateImageButton briefId={briefRow.id} />
-                <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />
-                {isFeatured && <MoveToPracticeButton briefId={briefRow.id} />}
-                <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" canMoveToPractice={isFeatured} />
-              </AdminMenu>
-            )}
-            {!isAdmin && !!user && user.id === briefRow.user_id && (
-              <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" />
-            )}
-          </div>
+    <div className="w-full max-w-[1320px] mx-auto px-5 md:px-10 pt-5 md:pt-8 pb-36 xl:pb-24">
+      <div className="no-print flex items-center justify-between gap-3 mb-6 md:mb-8">
+        <Link
+          href="/briefs"
+          className="inline-flex items-center gap-1.5 h-8 pl-2 pr-3 -ml-2 rounded-full text-[13px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)] transition-colors"
+        >
+          <IconChevronLeft size={14} /> All briefs
+        </Link>
+        <div className="flex items-center gap-2">
+          {!isClientBrief && <ShareBriefButton briefId={briefRow.id} briefName={title} loggedIn={!!user} />}
+          {isAdmin && (
+            <AdminMenu>
+              {(isClientBrief || isFeatured) && (
+                <AnnounceBriefButton briefId={briefRow.id} kind={isClientBrief ? 'client' : 'featured'} />
+              )}
+              {isClientBrief && <CloseBriefButton briefId={briefRow.id} closed={!!brief.closedAt} />}
+              {isFeatured && <HomeStarButton briefId={briefRow.id} featured={!!brief.homeFeatured} variant="menu" />}
+              <SunoPromptModal brief={brief} />
+              <RegenerateImageButton briefId={briefRow.id} />
+              <BriefImageUpload briefId={briefRow.id} hasImage={!!brief.imageUrl} />
+              {isFeatured && <MoveToPracticeButton briefId={briefRow.id} />}
+              <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" canMoveToPractice={isFeatured} />
+            </AdminMenu>
+          )}
+          {!isAdmin && !!user && user.id === briefRow.user_id && (
+            <DeleteBriefButton briefId={briefRow.id} redirectPath="/briefs" />
+          )}
         </div>
-
-        <div className="no-print sticky top-20 md:top-24 z-20 -mx-5 md:mx-0 px-5 md:px-0 py-3 mb-6 bg-[var(--bg-base)]/90 backdrop-blur-md border-b border-[var(--border-base)] flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className={`label ${closed ? 'text-[var(--text-dimmer)]' : 'text-[var(--accent)]'}`}>
-              {closed ? 'Closed · ' : ''}
-              {kindLabel}
-            </p>
-            <p className="text-lg font-medium tracking-[-0.02em] truncate">{title}</p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <DownloadBriefButton briefId={briefRow.id} className="hidden sm:inline-flex" />
-            {isFeatured &&
-              (user ? (
-                <SubmitTrackModal
-                  briefId={briefRow.id}
-                  projectName={title}
-                  alreadySubmitted={alreadySubmitted}
-                  submissionCredits={submissionCredits}
-                  isAdmin={isAdmin}
-                  triggerLabel="Submit"
-                  triggerClassName={btn('primary', 'sm')}
-                />
-              ) : (
-                <Link href={`/signup?redirect=/briefs/${briefRow.id}`} className={btn('primary', 'sm')}>
-                  Submit
-                </Link>
-              ))}
-            {isClientBrief && !closed && user && (
-              <ClientBriefSubmitModal
-                briefId={briefRow.id}
-                briefName={title}
-                composerName={currentUserName}
-                discoUrl={discoUrl}
-                triggerLabel="Deliver"
-                triggerClassName={btn('primary', 'sm')}
-              />
-            )}
-            {!isFeatured && !isClientBrief && <DownloadBriefButton briefId={briefRow.id} className="sm:hidden" />}
-          </div>
-        </div>
-
-        {isClientBrief && (
-          <div className="no-print mb-6 text-sm text-[var(--text-muted)] leading-relaxed">
-            <span className="text-[var(--text-primary)]">Private.</span> Paid client work stays between you and Thought Collective. Please do not forward this page, the PDF, or the references.
-            {isAdmin && (
-              <DiscoInboxInput
-                briefId={briefRow.id}
-                currentUrl={(briefRow as { disco_inbox_url?: string | null }).disco_inbox_url ?? null}
-              />
-            )}
-          </div>
-        )}
-
-        <BriefDocument brief={brief} isFeatured={isFeatured} />
-
-        <BriefNextSteps
-          briefId={briefRow.id}
-          briefName={title}
-          variant={isClientBrief ? 'client' : isFeatured ? 'catalog' : 'practice'}
-          catalogExclusive={catalogPartner?.exclusive}
-          catalogName={catalogPartner?.name}
-          catalogSplit={catalogPartner?.split}
-          humanMadeOnly={catalogPartner?.humanMadeOnly}
-          loggedIn={!!user}
-          alreadySubmitted={alreadySubmitted}
-          submissionCredits={submissionCredits}
-          isAdmin={isAdmin}
-          currentUserName={currentUserName}
-          discoUrl={discoUrl}
-          closed={closed}
-        />
-
-        {isAdmin && !isClientBrief && communityTracks.length > 0 && (
-          <CommunityTracksSection
-            briefId={briefRow.id}
-            briefName={briefName}
-            tracks={communityTracks}
-            isAdmin={isAdmin}
-            featuredTrackId={featuredTrackId}
-          />
-        )}
       </div>
+
+      <div className="grid xl:grid-cols-[minmax(0,1fr)_320px] gap-10 xl:gap-14 items-start">
+        <div className="min-w-0">
+          {isClientBrief && (
+            <div className="no-print mb-6 rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] px-5 py-4 text-[14px] text-[var(--text-muted)] leading-relaxed flex gap-3">
+              <span className="mt-0.5 text-[var(--signal)] shrink-0">
+                <IconLock size={15} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <span className="text-[var(--text-primary)] font-medium">Private.</span> Paid client work stays between you and
+                Thought Collective. Please do not forward this page, the PDF, or the references.
+                {isAdmin && (
+                  <DiscoInboxInput
+                    briefId={briefRow.id}
+                    currentUrl={(briefRow as { disco_inbox_url?: string | null }).disco_inbox_url ?? null}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          <BriefDocument brief={brief} isFeatured={isFeatured} />
+
+          <div className="no-print xl:hidden mt-12">
+            <BriefPanel {...panel} />
+          </div>
+
+          {isAdmin && !isClientBrief && communityTracks.length > 0 && (
+            <CommunityTracksSection
+              briefId={briefRow.id}
+              briefName={briefName}
+              tracks={communityTracks}
+              isAdmin={isAdmin}
+              featuredTrackId={featuredTrackId}
+            />
+          )}
+        </div>
+
+        <aside className="no-print hidden xl:block sticky top-8">
+          <BriefPanel {...panel} />
+        </aside>
+      </div>
+
+      {!(isClientBrief && closed) && (
+        <div className="no-print xl:hidden fixed bottom-0 inset-x-0 z-30 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] bg-[var(--bg-base)]/90 backdrop-blur-md border-t border-[var(--border-base)]">
+          <div className="max-w-xl mx-auto flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[14px] font-medium truncate">{title}</p>
+              <p className="text-[12px] text-[var(--text-dim)] truncate">
+                {submissionState ? submissionState.label : isClientBrief ? 'Paid client brief' : 'Catalogue brief'}
+              </p>
+            </div>
+            <div className="shrink-0">
+              <BriefPrimaryAction {...panel} size="md" full={false} compact />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

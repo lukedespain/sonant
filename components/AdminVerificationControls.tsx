@@ -45,12 +45,12 @@ export default function AdminVerificationControls({
       type="button"
       onClick={() => setOverride(id === 'auto' ? null : id === 'grant')}
       disabled={saving || active === id}
-      className={`text-[9px] tracking-[0.2em] uppercase px-3 py-1.5 border transition-colors ${
+      className={`text-[12px] px-3 py-1.5 border transition-colors ${
         active === id
           ? 'border-[var(--accent)] text-[var(--accent)]'
-          : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
+          : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--text-primary)]'
       } disabled:opacity-50`}
-      style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
+      style={{ fontFamily: "var(--brand-mono)" }}
     >
       {label}
     </button>
@@ -59,7 +59,7 @@ export default function AdminVerificationControls({
   return (
     <div className="mt-6 pt-5 border-t border-[var(--border-card)]">
       <div
-        className="text-[9px] tracking-[0.3em] uppercase text-[var(--accent)] mb-2"
+        className="text-[12px] text-[var(--accent)] mb-2"
         style={{ fontFamily: "var(--brand-mono)" }}
       >
         Admin · Verified badge
@@ -76,7 +76,7 @@ export default function AdminVerificationControls({
         {btn('revoke', 'Revoke')}
       </div>
       {error && (
-        <p className="text-[10px] text-[var(--danger)] mt-2" style={{ fontFamily: "var(--brand-mono)" }}>
+        <p className="text-[12px] text-[var(--danger)] mt-2" style={{ fontFamily: "var(--brand-mono)" }}>
           × {error}
         </p>
       )}

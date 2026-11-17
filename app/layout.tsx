@@ -8,6 +8,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSiteAdmin } from "@/lib/admin";
 import { ensureMonthlySubmissionCredit } from "@/lib/monthly-credit";
+import { readHandoffs } from "@/lib/handoff";
+import SiteFrame from "@/components/shell/SiteFrame";
+import type { ShellData } from "@/components/shell/AppShell";
 
 
 // Preview build: keep it out of search until the Thought Collective cutover.
@@ -32,12 +35,38 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
+  const isAdmin = isSiteAdmin(user);
+  const shell: ShellData = {
+    signedIn: !!user,
+    isAdmin,
+    name: '',
+    email: user?.email ?? '',
+    credits: null,
+    daysUntilNextCredit: null,
+    offersWaiting: 0,
+    reviewQueue: 0,
+  };
+
   if (user) {
+    const admin = createAdminClient();
     try {
-      await ensureMonthlySubmissionCredit(createAdminClient(), user);
+      const monthly = await ensureMonthlySubmissionCredit(admin, user);
+      shell.credits = monthly?.credits ?? null;
+      shell.daysUntilNextCredit = monthly?.daysUntilNext ?? null;
     } catch (error) {
       console.error('Monthly credit check failed', error);
     }
+    const [{ data: profile }, queue] = await Promise.all([
+      admin.from('profiles').select('full_name, submission_credits').eq('id', user.id).maybeSingle(),
+      isAdmin
+        ? admin.from('submissions').select('id', { count: 'exact', head: true }).in('status', ['received', 'pending', 'in_review'])
+        : Promise.resolve({ count: 0 }),
+    ]);
+    const p = profile as { full_name?: string | null; submission_credits?: number | null } | null;
+    shell.name = p?.full_name?.trim() ?? '';
+    if (shell.credits == null && typeof p?.submission_credits === 'number') shell.credits = p.submission_credits;
+    shell.offersWaiting = Object.values(readHandoffs(user.app_metadata)).filter((h) => h.offeredAt && !h.agreedAt).length;
+    shell.reviewQueue = queue.count ?? 0;
   }
 
   return (
@@ -56,12 +85,9 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col overflow-x-clip">
         <Providers>
-          <Nav
-            user={user}
-            isSiteAdmin={isSiteAdmin(user)}
-          />
-          {children}
-          <Footer />
+          <SiteFrame shell={shell} nav={<Nav user={user} isSiteAdmin={isAdmin} />} footer={<Footer />}>
+            {children}
+          </SiteFrame>
           <AudioPlayerBar />
         </Providers>
       </body>

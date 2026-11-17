@@ -121,7 +121,7 @@ export default function PeopleTab() {
       <div>
         <label
           htmlFor="people-search"
-          className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
+          className="block text-[12px] text-[var(--text-muted)] mb-2"
           style={mono}
         >
           Search composers
@@ -131,10 +131,10 @@ export default function PeopleTab() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Name or email"
-          className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none mb-4"
-          style={{ ...sans, borderRadius: '2px' }}
+          className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--signal-line)] focus:outline-none mb-4"
+          style={{ ...sans }}
         />
-        <div className="border border-[var(--border-card)] bg-[var(--bg-card)]" style={{ borderRadius: '2px' }}>
+        <div className="border border-[var(--border-card)] bg-[var(--bg-card)]" >
           {loading && people.length === 0 ? (
             <p className="px-4 py-6 text-sm text-[var(--text-muted)]" style={sans}>
               Looking up composers…
@@ -160,7 +160,7 @@ export default function PeopleTab() {
                         {person.name}
                       </div>
                       <div
-                        className="text-[10px] tracking-[0.12em] uppercase text-[var(--text-muted)] truncate mt-0.5"
+                        className="text-[12px] text-[var(--text-muted)] truncate mt-0.5"
                         style={mono}
                       >
                         {person.email || 'No email'}
@@ -217,7 +217,7 @@ function PersonCard({
   onOverride: (override: VerifiedOverride) => void;
 }) {
   return (
-    <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-6" style={{ borderRadius: '2px' }}>
+    <div className="border border-[var(--border-card)] bg-[var(--bg-card)] p-6" >
       <div className="flex items-start gap-4 mb-6">
         <div
           className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center text-white text-sm shrink-0"
@@ -237,13 +237,13 @@ function PersonCard({
           <h2 className="text-2xl tracking-tight text-[var(--text-primary)]" style={{ ...serif, fontWeight: 300 }}>
             {person.name}
           </h2>
-          <div className="text-[10px] tracking-[0.16em] uppercase text-[var(--text-muted)] mt-1" style={mono}>
+          <div className="text-[12px] text-[var(--text-muted)] mt-1" style={mono}>
             {person.email || 'No email on file'}
             {person.verified ? ' · Verified composer' : ''}
           </div>
           <Link
             href={`/profile/${person.id}`}
-            className="inline-block mt-3 text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
+            className="inline-block mt-3 text-[12px] text-[var(--accent)] hover:opacity-70"
             style={mono}
           >
             View profile →
@@ -279,7 +279,7 @@ function PersonCard({
       />
 
       {error && (
-        <p className="text-[10px] text-[var(--danger)] mt-4" style={mono}>
+        <p className="text-[12px] text-[var(--danger)] mt-4" style={mono}>
           × {error}
         </p>
       )}
@@ -312,13 +312,13 @@ function CreditRow({
   onChange: (delta: 1 | -1) => void;
 }) {
   const step =
-    'w-8 h-8 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-40 disabled:hover:border-[var(--border-subtle)] disabled:hover:text-[var(--text-muted)] transition-colors';
+    'w-8 h-8 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--text-primary)] disabled:opacity-40 disabled:hover:border-[var(--border-subtle)] disabled:hover:text-[var(--text-muted)] transition-colors';
 
   return (
     <div className="py-4 border-t border-[var(--border-card)] first:border-t-0 first:pt-0">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-1" style={mono}>
+          <div className="text-[12px] text-[var(--text-dimmer)] mb-1" style={mono}>
             {label}
           </div>
           <div className="text-2xl text-[var(--text-primary)] leading-none" style={{ ...serif, fontWeight: 300 }}>
@@ -332,7 +332,7 @@ function CreditRow({
             disabled={disabled || !canRemove}
             title={removeTitle}
             className={step}
-            style={{ ...mono, borderRadius: '2px' }}
+            style={{ ...mono }}
             aria-label={`Remove ${label.toLowerCase()}`}
           >
             −
@@ -342,7 +342,7 @@ function CreditRow({
             onClick={() => onChange(1)}
             disabled={disabled}
             className={step}
-            style={{ ...mono, borderRadius: '2px' }}
+            style={{ ...mono }}
             aria-label={`Add ${label.toLowerCase()}`}
           >
             +

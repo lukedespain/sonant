@@ -3,7 +3,8 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { btn } from '@/components/ui';
+import { btn, fieldLabel, inputClass } from '@/components/ui';
+import AuthCard, { AuthError } from '@/components/AuthCard';
 import { signIn } from '@/app/auth/actions';
 
 export default function LoginPage() {
@@ -31,50 +32,38 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex-1 flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md">
-        <p className="label text-[var(--accent)] mb-4">Welcome back</p>
-
-        <h1 className="font-serif font-light text-4xl md:text-5xl tracking-tight leading-tight mb-3">
-          Sign <span className="italic">in</span>.
-        </h1>
-
-        <p className="text-[15px] text-[var(--text-tertiary)] mb-10">
-          Pick up where you left off.
-        </p>
-
-        <form action={handleSubmit} className="space-y-5">
-          <input type="hidden" name="redirectTo" value={redirectTo} />
-          <Field label="Email" name="email" type="email" required autoComplete="email" />
-          <div>
-            <Field label="Password" name="password" type="password" required autoComplete="current-password" />
-            <div className="mt-2 text-right">
-              <Link
-                href="/forgot-password"
-                className="text-xs text-[var(--text-dim)] hover:text-[var(--accent)] transition-colors"
-              >
-                Forgot password?
-              </Link>
-            </div>
-          </div>
-
-          {error && (
-            <div className="text-sm text-[var(--danger)] border border-[var(--danger)]/30 bg-[var(--danger)]/5 p-3" style={{ borderRadius: '2px', fontFamily: "var(--brand-sans)" }}>
-              {error}
-            </div>
-          )}
-
-          <SubmitButton submitting={submitting} />
-
-          <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "var(--brand-sans)" }}>
-            Don&apos;t have an account?{' '}
-            <Link href={`/signup${redirectTo !== '/briefs' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`} className="text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
-              Sign up
+    <AuthCard
+      title="Welcome back"
+      description="Sign in to track your submissions and pick up the next brief."
+      footer={
+        <>
+          New here?{' '}
+          <Link
+            href={`/signup${redirectTo !== '/briefs' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
+            className="text-[var(--text-primary)] hover:text-[var(--signal)] transition-colors"
+          >
+            Create a free account
+          </Link>
+        </>
+      }
+    >
+      <form action={handleSubmit} className="flex flex-col gap-4">
+        <input type="hidden" name="redirectTo" value={redirectTo} />
+        <Field label="Email" name="email" type="email" required autoComplete="email" />
+        <div>
+          <Field label="Password" name="password" type="password" required autoComplete="current-password" />
+          <div className="mt-2 text-right">
+            <Link href="/forgot-password" className="text-[13px] text-[var(--text-dim)] hover:text-[var(--text-primary)] transition-colors">
+              Forgot password?
             </Link>
-          </p>
-        </form>
-      </div>
-    </div>
+          </div>
+        </div>
+
+        {error && <AuthError>{error}</AuthError>}
+
+        <SubmitButton submitting={submitting} />
+      </form>
+    </AuthCard>
   );
 }
 function SubmitButton({ submitting }: { submitting: boolean }) {
@@ -82,7 +71,7 @@ function SubmitButton({ submitting }: { submitting: boolean }) {
     <button
       type="submit"
       disabled={submitting}
-      className={btn('primary', 'md', 'w-full h-12 mt-2')}
+      className={btn('primary', 'lg', 'w-full mt-1')}
     >
       {submitting ? 'Signing in…' : 'Sign in'}
     </button>
@@ -91,7 +80,7 @@ function SubmitButton({ submitting }: { submitting: boolean }) {
 function Field({ label, name, type, required, autoComplete }: { label: string; name: string; type: string; required?: boolean; autoComplete?: string }) {
   return (
     <div>
-      <label htmlFor={name} className="block label text-[var(--text-muted)] mb-2">
+      <label htmlFor={name} className={fieldLabel}>
         {label}
       </label>
       <input
@@ -100,7 +89,7 @@ function Field({ label, name, type, required, autoComplete }: { label: string; n
         type={type}
         required={required}
         autoComplete={autoComplete}
-        className="w-full h-12 px-4 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] rounded-[2px] focus:border-[var(--accent)] focus:outline-none transition-colors"
+        className={`${inputClass} h-11`}
       />
     </div>
   );

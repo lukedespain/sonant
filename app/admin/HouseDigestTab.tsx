@@ -29,8 +29,8 @@ export default function HouseDigestTab() {
   const greeting = contactName ? `Hi ${contactName}` : '';
 
   const fieldClass =
-    'w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none';
-  const labelClass = 'block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2';
+    'w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-card)] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-dimmer)] hover:border-[var(--border-subtle)] focus:border-[var(--signal-line)] focus:outline-none focus:ring-4 focus:ring-[var(--signal-soft)] transition-colors';
+  const labelClass = 'block text-[13px] text-[var(--text-muted)] mb-1.5';
 
   async function handleSend(testOnly: boolean) {
     if (sending) return;
@@ -80,7 +80,7 @@ export default function HouseDigestTab() {
               setTo(catalogPartnerById(nextId)?.digestContactEmail ?? '');
             }}
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           >
             {CATALOG_PARTNER_LIST.filter((p) => p.id !== 'sonant').map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -96,7 +96,7 @@ export default function HouseDigestTab() {
             onChange={(e) => setTo(e.target.value)}
             placeholder={partner?.digestContactEmail || 'jack@…'}
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           />
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function HouseDigestTab() {
         onChange={(e) => setDiscoPlaylistUrl(e.target.value)}
         placeholder="https://….disco.ac/playlist/…"
         className={`${fieldClass} mb-4`}
-        style={{ ...sans, borderRadius: '2px' }}
+        style={{ ...sans }}
       />
 
       <label htmlFor="digest-intro" className={labelClass} style={mono}>
@@ -120,7 +120,7 @@ export default function HouseDigestTab() {
         onChange={(e) => setIntro(e.target.value)}
         rows={5}
         className={`${fieldClass} mb-4`}
-        style={{ ...sans, borderRadius: '2px' }}
+        style={{ ...sans }}
       />
 
       <label htmlFor="digest-tracks" className={labelClass} style={mono}>
@@ -133,7 +133,7 @@ export default function HouseDigestTab() {
         rows={10}
         placeholder={'Competence by Szymon is a great electronic rock track...\n\nWhat Was Felt by Szymon is a felt piano track...'}
         className={`${fieldClass} mb-4`}
-        style={{ ...sans, borderRadius: '2px' }}
+        style={{ ...sans }}
       />
 
       <label htmlFor="digest-closing" className={labelClass} style={mono}>
@@ -145,14 +145,14 @@ export default function HouseDigestTab() {
         onChange={(e) => setClosing(e.target.value)}
         rows={5}
         className={`${fieldClass} mb-6`}
-        style={{ ...sans, borderRadius: '2px' }}
+        style={{ ...sans }}
       />
 
       {error && (
-        <p className="text-[10px] text-[var(--danger)] mb-4" style={mono}>× {error}</p>
+        <p className="text-[12px] text-[var(--danger)] mb-4" style={mono}>× {error}</p>
       )}
       {message && (
-        <p className="text-[10px] text-[var(--text-dimmer)] mb-4" style={mono}>{message}</p>
+        <p className="text-[12px] text-[var(--text-dimmer)] mb-4" style={mono}>{message}</p>
       )}
 
       <div className="flex flex-wrap gap-3">
@@ -160,8 +160,8 @@ export default function HouseDigestTab() {
           type="button"
           disabled={sending || !discoPlaylistUrl.trim()}
           onClick={() => handleSend(true)}
-          className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
-          style={{ ...mono, borderRadius: '2px' }}
+          className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full text-[13px] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors disabled:opacity-40"
+          style={{ ...mono }}
         >
           {sending ? 'Sending…' : 'Send test to me'}
         </button>
@@ -169,8 +169,8 @@ export default function HouseDigestTab() {
           type="button"
           disabled={sending || !to.trim() || !discoPlaylistUrl.trim()}
           onClick={() => handleSend(false)}
-          className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
-          style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
+          className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full text-[14px] font-medium bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ ...mono, fontWeight: 500 }}
         >
           {sending ? 'Sending…' : 'Send to house'}
         </button>

@@ -10,6 +10,7 @@ type Row = {
   id: string;
   mode: string | null;
   genres: string[] | null;
+  moods: string[] | null;
   created_at: string;
   generated_content: {
     projectTitle?: string;
@@ -21,7 +22,7 @@ type Row = {
   } | null;
 };
 
-const FIELDS = 'id, mode, genres, created_at, generated_content';
+const FIELDS = 'id, mode, genres, moods, created_at, generated_content';
 
 function toCard(row: Row, closed = false): BriefCard {
   const c = row.generated_content ?? {};
@@ -32,8 +33,10 @@ function toCard(row: Row, closed = false): BriefCard {
     imageUrl: c.imageUrl ?? null,
     mode: row.mode ?? '',
     genres: row.genres ?? [],
+    moods: row.moods ?? [],
     createdAt: row.created_at,
     closed,
+    featured: !!c.homeFeatured,
   };
 }
 

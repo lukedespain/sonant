@@ -1,6 +1,4 @@
-import { Suspense } from 'react';
 import { requireSiteAdmin } from '@/lib/admin';
-import AdminTabs from './AdminTabs';
 import SubmissionsTab from './SubmissionsTab';
 import BriefsTab from './BriefsTab';
 import PeopleTab from './PeopleTab';
@@ -9,6 +7,24 @@ import UsageMeters from './UsageMeters';
 import RosterView from './RosterView';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { loadRoster } from '@/lib/roster';
+import { AppHeader, AppPage } from '@/components/ui';
+
+const HEADERS = {
+  submissions: {
+    title: 'Review queue',
+    description: 'Listen, write notes, and make the call. Every decision emails the composer with your notes.',
+  },
+  roster: {
+    title: 'Roster',
+    description: 'Composers with a placement, tagged by the genres and moods their tracks nail. Pick people for brand jobs here.',
+  },
+  briefs: {
+    title: 'Write briefs',
+    description: 'Create catalogue briefs for the open board, or paid client briefs for the roster.',
+  },
+  people: { title: 'People', description: 'Everyone with an account, newest first.' },
+  houses: { title: 'Houses', description: 'Send a music house a curated note with your Disco playlist.' },
+} as const;
 
 export default async function AdminPage({
   searchParams,
@@ -17,34 +33,29 @@ export default async function AdminPage({
 }) {
   await requireSiteAdmin();
   const { tab, queue, kind } = await searchParams;
-  const active =
+  const active: keyof typeof HEADERS =
     tab === 'briefs' || tab === 'people' || tab === 'houses' || tab === 'roster' ? tab : 'submissions';
   const submissionQueue = queue === 'client' ? 'client' : 'catalog';
   const briefKind = kind === 'catalog' ? 'catalog' : 'client';
+  const header = HEADERS[active];
 
   return (
-    <div className="flex-1 min-w-0 pt-12 md:pt-16 pb-24">
-      <div className="max-w-[1440px] mx-auto px-5 md:px-[60px]">
-        <h1 className="display-title mb-10">Admin</h1>
+    <AppPage width={active === 'briefs' || active === 'houses' ? 'narrow' : 'wide'}>
+      <AppHeader eyebrow="Admin" title={header.title} description={header.description} />
 
-        <Suspense fallback={null}>
-          <AdminTabs />
-        </Suspense>
+      {active === 'roster' ? (
+        <RosterView composers={await loadRoster(createAdminClient())} />
+      ) : active === 'briefs' ? (
+        <BriefsTab kind={briefKind} />
+      ) : active === 'houses' ? (
+        <HouseDigestTab />
+      ) : active === 'people' ? (
+        <PeopleTab />
+      ) : (
+        <SubmissionsTab queue={submissionQueue} />
+      )}
 
-        {active === 'roster' ? (
-          <RosterView composers={await loadRoster(createAdminClient())} />
-        ) : active === 'briefs' ? (
-          <BriefsTab kind={briefKind} />
-        ) : active === 'houses' ? (
-          <HouseDigestTab />
-        ) : active === 'people' ? (
-          <PeopleTab />
-        ) : (
-          <SubmissionsTab queue={submissionQueue} />
-        )}
-
-        <UsageMeters />
-      </div>
-    </div>
+      <UsageMeters />
+    </AppPage>
   );
 }

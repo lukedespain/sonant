@@ -20,7 +20,7 @@ export default function UpdatePasswordPage() {
     <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
         <div
-          className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-4"
+          className="text-[12px] text-[var(--accent)] mb-4"
           style={{ fontFamily: "var(--brand-mono)" }}
         >
           Account
@@ -44,7 +44,7 @@ export default function UpdatePasswordPage() {
           {error && (
             <div
               className="text-sm text-[var(--danger)] border border-[var(--danger)]/30 bg-[var(--danger)]/5 p-3"
-              style={{ borderRadius: '2px', fontFamily: "var(--brand-sans)" }}
+              style={{ fontFamily: "var(--brand-sans)" }}
             >
               {error}
               {error.includes('invalid or expired') && (
@@ -60,12 +60,12 @@ export default function UpdatePasswordPage() {
           <button
             type="submit"
             disabled={submitting}
-            className={`w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase transition-all mt-2 ${
+            className={`w-full px-6 py-3.5 text-sm transition-all mt-2 ${
               submitting
                 ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
                 : 'bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)]'
             }`}
-            style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
+            style={{ fontFamily: "var(--brand-mono)", fontWeight: 500 }}
           >
             {submitting ? 'Saving…' : 'Update Password'}
           </button>
@@ -80,7 +80,7 @@ function Field({ label, name, type }: { label: string; name: string; type: strin
     <div>
       <label
         htmlFor={name}
-        className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
+        className="block text-[12px] text-[var(--text-muted)] mb-2"
         style={{ fontFamily: "var(--brand-mono)" }}
       >
         {label}
@@ -91,8 +91,8 @@ function Field({ label, name, type }: { label: string; name: string; type: strin
         type={type}
         required
         minLength={8}
-        className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none transition-colors"
-        style={{ fontFamily: "var(--brand-sans)", borderRadius: '2px' }}
+        className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[var(--signal-line)] focus:outline-none transition-colors"
+        style={{ fontFamily: "var(--brand-sans)" }}
       />
     </div>
   );

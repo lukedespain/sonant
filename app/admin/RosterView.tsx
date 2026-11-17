@@ -4,8 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { RosterComposer, RosterTrack } from '@/lib/roster';
 import TagPicker from '@/components/TagPicker';
-
-const MODE_LABELS: Record<string, string> = { brand: 'Brand', film: 'Film', games: 'Games' };
+import { StatusPill, btn, inputClass } from '@/components/ui';
 
 function tally(composers: RosterComposer[], key: 'genres' | 'moods') {
   const counts = new Map<string, number>();
@@ -119,7 +118,7 @@ function TrackRow({
         </p>
       </div>
       {editing && (
-        <div className="mt-4 md:ml-[52px] p-4 border border-[var(--border-card)] rounded-[2px]">
+        <div className="mt-4 md:ml-[52px] p-4 border border-[var(--border-card)] rounded-xl">
           <TagPicker
             genreOptions={track.briefGenres}
             moodOptions={track.briefMoods}
@@ -131,7 +130,7 @@ function TrackRow({
               type="button"
               onClick={save}
               disabled={state === 'saving'}
-              className="h-8 px-3 text-sm bg-[var(--text-primary)] text-[var(--bg-base)] rounded-[2px] disabled:opacity-50"
+              className="h-8 px-3 text-sm bg-[var(--text-primary)] text-[var(--bg-base)] rounded-xl disabled:opacity-50"
             >
               {state === 'saving' ? 'Saving…' : 'Save tags'}
             </button>
@@ -172,7 +171,7 @@ function NoteField({ composer }: { composer: RosterComposer }) {
         onChange={(e) => setNote(e.target.value)}
         rows={2}
         placeholder="Fast turnaround, great with orchestral builds, wants more brand work…"
-        className="mt-2 w-full px-3 py-2.5 text-sm bg-[var(--bg-card-deep)] border border-[var(--border-card)] rounded-[2px] focus:border-[var(--text-primary)] focus:outline-none"
+        className="mt-2 w-full px-3 py-2.5 text-sm bg-[var(--bg-card-deep)] border border-[var(--border-card)] rounded-xl focus:border-[var(--text-primary)] focus:outline-none"
       />
       {(dirty || state === 'error') && (
         <div className="mt-2 flex items-center gap-3">
@@ -180,7 +179,7 @@ function NoteField({ composer }: { composer: RosterComposer }) {
             type="button"
             onClick={save}
             disabled={state === 'saving'}
-            className="h-8 px-3 text-sm bg-[var(--text-primary)] text-[var(--bg-base)] rounded-[2px] disabled:opacity-50"
+            className="h-8 px-3 text-sm bg-[var(--text-primary)] text-[var(--bg-base)] rounded-xl disabled:opacity-50"
           >
             {state === 'saving' ? 'Saving…' : 'Save note'}
           </button>
@@ -263,16 +262,12 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
 
   return (
     <div>
-      <p className="text-[17px] text-[var(--text-muted)] leading-relaxed max-w-2xl mb-10">
-        Every composer with an accepted track, verified for the genres and moods you tagged when you accepted it. Older tracks show the brief's tags until you tag them. Pick tags to find who fits a new job, then copy their emails.
-      </p>
-
-      <div className="space-y-5 mb-10">
+      <div className="space-y-5 mb-6 rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-5">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search name, email, or note"
-          className="w-full h-11 px-4 text-[15px] bg-[var(--bg-card)] border border-[var(--border-card)] rounded-[2px] focus:border-[var(--text-primary)] focus:outline-none"
+          className={inputClass}
         />
         {genreTally.length > 0 && (
           <div>
@@ -301,7 +296,7 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[var(--border-card)]">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
         <p className="text-[15px]">
           <span className="tabular-nums">{filtered.length}</span>{' '}
           <span className="text-[var(--text-muted)]">
@@ -327,7 +322,7 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
             type="button"
             onClick={copyEmails}
             disabled={filtered.length === 0}
-            className="h-9 px-4 text-sm border border-[var(--border-subtle)] rounded-[2px] hover:border-[var(--text-primary)] disabled:opacity-40"
+            className={btn('secondary', 'sm')}
           >
             {copied ? 'Copied' : `Copy ${filtered.length} ${filtered.length === 1 ? 'email' : 'emails'}`}
           </button>
@@ -335,26 +330,29 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
       </div>
 
       {filtered.length === 0 ? (
-        <p className="py-16 text-[17px] text-[var(--text-muted)]">
+        <p className="rounded-2xl border border-dashed border-[var(--border-subtle)] px-6 py-14 text-center text-[14px] text-[var(--text-muted)]">
           {composers.length === 0 ? 'No placements yet. Composers show up here once a track is accepted.' : 'Nobody matches all of those tags. Try fewer.'}
         </p>
       ) : (
-        <ul>
+        <ul className="flex flex-col gap-3">
           {filtered.map((c) => {
             const placements = c.tracks.length + c.outsidePlacements;
             const topGenres = composerTags(c, 'genres').slice(0, 6);
             const topMoods = composerTags(c, 'moods').slice(0, 6);
             return (
-              <li key={c.id} className="py-10 border-b border-[var(--border-card)] grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-8 lg:gap-14">
+              <li key={c.id} className="rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-5 md:p-7 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-8 lg:gap-12">
                 <div className="min-w-0">
-                  <p className="text-[26px] md:text-[30px] font-medium tracking-[-0.03em] leading-tight">{c.name}</p>
-                  <a href={`mailto:${c.email}`} className="block mt-1 text-[15px] text-[var(--text-muted)] hover:text-[var(--text-primary)] truncate">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <p className="text-[20px] md:text-[22px] font-semibold tracking-[-0.025em] leading-tight">{c.name}</p>
+                    <StatusPill tone="positive">Verified</StatusPill>
+                  </div>
+                  <a href={`mailto:${c.email}`} className="block mt-1 text-[14px] text-[var(--text-muted)] hover:text-[var(--text-primary)] truncate">
                     {c.email}
                   </a>
                   <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-[13px]">
                     <div>
                       <dt className="text-[var(--text-dimmer)]">Placements</dt>
-                      <dd className="mt-0.5 text-[15px] tabular-nums">
+                      <dd className="mt-0.5 text-[14px] tabular-nums">
                         {placements}
                         {c.outsidePlacements > 0 && (
                           <span className="text-[var(--text-muted)] text-[13px]"> ({c.outsidePlacements} outside)</span>
@@ -363,20 +361,20 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
                     </div>
                     <div>
                       <dt className="text-[var(--text-dimmer)]">Last placed</dt>
-                      <dd className="mt-0.5 text-[15px]">{formatDate(c.lastPlacedAt) || 'n/a'}</dd>
+                      <dd className="mt-0.5 text-[14px]">{formatDate(c.lastPlacedAt) || 'n/a'}</dd>
                     </div>
                     <div>
                       <dt className="text-[var(--text-dimmer)]">PRO</dt>
-                      <dd className="mt-0.5 text-[15px]">{c.rights.pro || 'Not given'}</dd>
+                      <dd className="mt-0.5 text-[14px]">{c.rights.pro || 'Not given'}</dd>
                     </div>
                     <div>
                       <dt className="text-[var(--text-dimmer)]">IPI</dt>
-                      <dd className="mt-0.5 text-[15px] tabular-nums">{c.rights.composerIpi || 'Not given'}</dd>
+                      <dd className="mt-0.5 text-[14px] tabular-nums">{c.rights.composerIpi || 'Not given'}</dd>
                     </div>
                     {c.rights.publisherName && (
                       <div className="col-span-2">
                         <dt className="text-[var(--text-dimmer)]">Publisher</dt>
-                        <dd className="mt-0.5 text-[15px]">
+                        <dd className="mt-0.5 text-[14px]">
                           {c.rights.publisherName}
                           {c.rights.publisherIpi && <span className="text-[var(--text-muted)]"> · IPI {c.rights.publisherIpi}</span>}
                         </dd>
@@ -396,10 +394,10 @@ export default function RosterView({ composers: initial }: { composers: RosterCo
                   {(topGenres.length > 0 || topMoods.length > 0) && (
                     <div className="flex flex-wrap gap-1.5 mb-5">
                       {topGenres.map((g) => (
-                        <span key={g} className="text-[13px] px-2.5 py-1 bg-[var(--bg-card)] text-[var(--text-secondary)] rounded-full">{g}</span>
+                        <span key={g} className="text-[12px] h-6 px-2.5 inline-flex items-center bg-[var(--accent-soft)] text-[var(--text-secondary)] rounded-full">{g}</span>
                       ))}
                       {topMoods.map((m) => (
-                        <span key={m} className="text-[13px] px-2.5 py-1 border border-[var(--border-card)] text-[var(--text-muted)] rounded-full">{m}</span>
+                        <span key={m} className="text-[12px] h-6 px-2.5 inline-flex items-center border border-[var(--border-card)] text-[var(--text-muted)] rounded-full">{m}</span>
                       ))}
                     </div>
                   )}

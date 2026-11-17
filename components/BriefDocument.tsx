@@ -68,10 +68,10 @@ export function briefKindLabel(brief: Pick<Brief, 'kind' | 'catalogId'>, isCatal
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <section
-      className="grid md:grid-cols-[200px_minmax(0,1fr)] gap-x-10 gap-y-3 py-8 md:py-10"
+      className="grid md:grid-cols-[150px_minmax(0,1fr)] gap-x-8 gap-y-3 py-8 md:py-9"
       style={{ borderTop: '1px solid var(--brief-divider)' }}
     >
-      <h2 className="text-[15px] tracking-[-0.01em]" style={{ color: 'var(--brief-text-meta)' }}>
+      <h2 className="text-[14px] tracking-[-0.01em] md:pt-1" style={{ color: 'var(--brief-text-meta)' }}>
         {label}
       </h2>
       <div className="min-w-0">{children}</div>
@@ -103,7 +103,7 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
   return (
     <article className="brief-document w-full" style={{ color: 'var(--brief-text-h)' }}>
       {/* Masthead */}
-      <header className="pt-6 md:pt-10 pb-10 md:pb-14">
+      <header className="pb-8 md:pb-10">
         <div className="hidden print:flex items-center justify-between gap-4 mb-10 text-[15px]">
           <span className="flex items-center gap-2.5">
             <ThoughtCollectiveMark size={20} />
@@ -112,28 +112,28 @@ export default function BriefDocument({ brief, isFeatured = false }: { brief: Br
           <span style={{ color: 'var(--brief-text-meta)' }}>{kindLabel}</span>
         </div>
         <h1
-          className="font-medium tracking-[-0.045em] leading-[0.95] text-[2.75rem] sm:text-6xl md:text-[5.5rem] text-balance"
+          className="font-semibold tracking-[-0.04em] leading-[1] text-[2.5rem] sm:text-[3.25rem] 2xl:text-[4rem] text-balance"
           style={{ fontFamily: 'var(--brand-display)' }}
         >
           {title}
         </h1>
         {!isClient && brief.project && (
-          <p className="mt-6 text-[19px] md:text-[21px] leading-[1.45] tracking-[-0.01em] max-w-3xl" style={{ color: 'var(--brief-text-body)' }}>
+          <p className="mt-5 text-[18px] md:text-[19px] leading-[1.5] tracking-[-0.01em] max-w-3xl" style={{ color: 'var(--brief-text-body)' }}>
             {brief.project}
           </p>
         )}
-        <p className="mt-5 text-[15px] tabular-nums" style={{ color: 'var(--brief-text-meta)' }}>
+        <p className="mt-4 text-[14px] tabular-nums" style={{ color: 'var(--brief-text-meta)' }}>
           {[brief.client && isClient ? brief.client : null, ...meta].filter(Boolean).join(' · ')}
         </p>
       </header>
 
       {brief.imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={brief.imageUrl} alt="" className="w-full aspect-[16/9] md:aspect-[21/9] object-cover mb-4" style={{ display: 'block' }} />
+        <img src={brief.imageUrl} alt="" className="w-full aspect-[16/9] md:aspect-[2/1] object-cover mb-6 rounded-2xl print:rounded-none" style={{ display: 'block' }} />
       )}
 
       <Row label="The scene">
-        <p className="text-[21px] md:text-[26px] leading-[1.4] tracking-[-0.02em] max-w-3xl">{brief.story}</p>
+        <p className="text-[20px] md:text-[23px] leading-[1.45] tracking-[-0.02em] max-w-3xl">{brief.story}</p>
       </Row>
 
       <Row label="The music">

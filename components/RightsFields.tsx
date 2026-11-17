@@ -2,12 +2,7 @@
 
 import { useId } from 'react';
 import { PRO_OPTIONS, type RightsInfo } from '@/lib/handoff';
-
-const sans = { fontFamily: "var(--brand-sans)" } as const;
-const mono = { fontFamily: "var(--brand-mono)" } as const;
-
-const inputClass =
-  'w-full px-3 py-2.5 bg-[var(--bg-base)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none';
+import { fieldLabel, inputClass } from '@/components/ui';
 
 function Field({
   id,
@@ -30,7 +25,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-2" style={mono}>
+      <label htmlFor={id} className={fieldLabel}>
         {label}
       </label>
       <input
@@ -42,10 +37,9 @@ function Field({
         autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)}
         className={inputClass}
-        style={{ ...sans, borderRadius: '2px' }}
       />
       {hint && (
-        <p className="mt-1.5 text-[11px] text-[var(--text-dimmer)]" style={sans}>
+        <p className="mt-1.5 text-[12px] text-[var(--text-dim)]">
           {hint}
         </p>
       )}

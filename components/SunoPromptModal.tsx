@@ -156,13 +156,12 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
             style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--border-card)',
-              borderRadius: '2px',
             }}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-card)]">
               <div>
-                <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--accent)] mb-0.5" style={{ fontFamily: "var(--brand-mono)" }}>
+                <div className="text-[12px] text-[var(--accent)] mb-0.5" style={{ fontFamily: "var(--brand-mono)" }}>
                   AI Music Prompt
                 </div>
                 <div className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-mono)" }}>
@@ -181,13 +180,13 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
 
             <div className="px-6 py-5">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-mono)" }}>
+                <div className="text-[12px] text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-mono)" }}>
                   Style: paste into Suno&apos;s Style field. Leave lyrics blank.
                 </div>
                 <button
                   onClick={copyStyle}
-                  className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors shrink-0 ml-3"
-                  style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
+                  className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full text-[13px] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors disabled:opacity-40 shrink-0 ml-3"
+                  style={{ fontFamily: "var(--brand-mono)" }}
                 >
                   {copied ? '✓ Copied' : '⎘ Copy'}
                 </button>
@@ -198,7 +197,6 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
                   fontFamily: "var(--brand-mono)",
                   background: 'var(--bg-base)',
                   border: '1px solid var(--border-subtle)',
-                  borderRadius: '2px',
                   color: 'var(--text-primary)',
                 }}
               >
@@ -207,7 +205,7 @@ export default function SunoPromptModal({ brief }: { brief: Brief }) {
             </div>
 
             <div className="px-6 pb-5">
-              <p className="text-[10px] text-[var(--text-dimmer)] leading-relaxed" style={{ fontFamily: "var(--brand-mono)" }}>
+              <p className="text-[12px] text-[var(--text-dimmer)] leading-relaxed" style={{ fontFamily: "var(--brand-mono)" }}>
                 Paste this into Suno&apos;s &quot;Style of Music&quot; box only. Leave the lyrics field empty. Suno will generate an instrumental based on the style tags alone.
               </p>
             </div>

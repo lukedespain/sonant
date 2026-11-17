@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signOut } from '@/app/auth/actions';
 import AlertsPanel from '@/app/profile/[id]/AlertsPanel';
 import SubmissionHistory, { type SubmissionItem } from '@/components/SubmissionHistory';
@@ -9,14 +10,11 @@ import type { RightsInfo } from '@/lib/handoff';
 import MyInfoPanel from './MyInfoPanel';
 import OfferCard, { type Offer } from './OfferCard';
 import type { AppNotification } from '@/lib/notifications';
-
-const sans = { fontFamily: "var(--brand-sans)" } as const;
-const mono = { fontFamily: "var(--brand-mono)" } as const;
+import { AppHeader, AppPage, StatusPill, btn, card, fieldLabel, inputClass } from '@/components/ui';
 
 type Panel = 'name' | 'email' | 'password' | 'delete' | null;
 type Tab = 'submissions' | 'info' | 'settings';
 
-const TAB_LABEL: Record<Tab, string> = { submissions: 'Submissions', info: 'My info', settings: 'Settings' };
 
 export default function DashboardView({
   initialTab,
@@ -53,7 +51,8 @@ export default function DashboardView({
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState(initialEmail);
   const [panel, setPanel] = useState<Panel>(null);
-  const [tab, setTab] = useState<Tab>(initialTab);
+  const tabParam = useSearchParams().get('tab');
+  const tab: Tab = tabParam === 'info' || tabParam === 'settings' ? tabParam : tabParam === null ? initialTab : 'submissions';
   const [rights, setRights] = useState(initialRights);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -69,12 +68,6 @@ export default function DashboardView({
   const [deleteConfirm, setDeleteConfirm] = useState('');
 
   const displayName = name || 'Composer';
-
-  function selectTab(next: Tab) {
-    setTab(next);
-    const url = next === 'submissions' ? '/dashboard' : `/dashboard?tab=${next}`;
-    window.history.replaceState(null, '', url);
-  }
 
   function open(next: Panel) {
     setPanel((cur) => (cur === next ? null : next));
@@ -175,202 +168,105 @@ export default function DashboardView({
   }
 
 
-  return (
-    <div className="flex-1 min-w-0 pt-14 md:pt-20 pb-24 overflow-x-clip">
-      <div className="max-w-4xl mx-auto px-5 md:px-10">
-        <p className="label text-[var(--text-dimmer)] mb-4">Dashboard</p>
-        <h1 className="font-serif font-light tracking-tight leading-[1.02] text-[2.5rem] md:text-6xl mb-10">{displayName}</h1>
+  const firstName = name.trim().split(/\s+/)[0];
 
-        <div className="grid grid-cols-3 border-y border-[var(--border-base)] divide-x divide-[var(--border-base)]">
-          <Stat label={isAdmin ? 'Reviews' : 'Credits'} value={isAdmin ? '∞' : String(submissionCredits)}>
-            {!isAdmin && (
-              <>
-                {daysUntilNextCredit != null && (
-                  <span className="text-xs text-[var(--text-dimmer)]">
-                    +1 free in {daysUntilNextCredit} {daysUntilNextCredit === 1 ? 'day' : 'days'}
-                  </span>
-                )}
-              </>
-            )}
-          </Stat>
-          <Stat label="In review" value={String(inReview)}>
-            <span className="hidden md:inline text-xs text-[var(--text-dimmer)]">Waiting on feedback or a catalog</span>
-          </Stat>
-          <Stat label="Accepted" value={`${acceptedCount}`}>
-            <span className={`hidden md:inline text-xs ${verified ? 'text-[var(--accent)]' : 'text-[var(--text-dimmer)]'}`}>
-              {verified ? 'Verified · client briefs open' : 'Get a track accepted to unlock client briefs'}
-            </span>
-          </Stat>
+  if (tab === 'info') {
+    return (
+      <AppPage width="narrow">
+        <AppHeader
+          title="Rights & IPI"
+          description="When we take one of your tracks, we need this to register it and pay you. Fill it in once and it is ready when you need it. Only Thought Collective sees it."
+        />
+        <div className={`${card} p-6 md:p-8`}>
+          <MyInfoPanel rights={rights} onSaved={setRights} />
         </div>
-        <p className={`md:hidden mt-3 text-xs ${verified ? 'text-[var(--accent)]' : 'text-[var(--text-dimmer)]'}`}>
-          {verified ? 'Verified · client briefs open' : 'Your first accepted track unlocks paid client briefs'}
-        </p>
+      </AppPage>
+    );
+  }
 
-        <div className="mt-12 flex items-end mb-8 border-b border-[var(--border-base)]" role="tablist">
-          {(['submissions', 'info', 'settings'] as const).map((key) => (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={tab === key}
-              onClick={() => selectTab(key)}
-              className={`px-4 md:px-5 py-3 label transition-colors -mb-px border-b-2 whitespace-nowrap ${
-                tab === key
-                  ? 'text-[var(--text-primary)] border-[var(--accent)]'
-                  : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
-              }`}
-            >
-              {TAB_LABEL[key]}
-              {key === 'submissions' && offers.length > 0 && <span className="ml-2 text-[var(--accent)]">✓</span>}
-            </button>
-          ))}
-        </div>
+  if (tab === 'settings') {
+    return (
+      <AppPage width="narrow">
+        <AppHeader title="Settings" description="Your sign-in details." />
 
-        {tab === 'submissions' && (
-          <>
-            {offers.length > 0 && (
-              <div id="offers" className="flex flex-col gap-5 mb-12 scroll-mt-28">
-                {offers.map((offer) => (
-                  <OfferCard key={offer.submissionId} offer={offer} rights={rights} onRightsSaved={setRights} />
-                ))}
-              </div>
-            )}
-            <div id="submissions" className="scroll-mt-28">
-              <SubmissionHistory items={submissions} />
-            </div>
-            <section className="mt-20">
-              <AlertsPanel initialItems={notifications} />
-            </section>
-          </>
-        )}
-
-        {tab === 'info' && <MyInfoPanel rights={rights} onSaved={setRights} />}
-
-        {tab === 'settings' && (
-        <div className="max-w-2xl">
-        <div className="border-t border-[var(--border-base)]">
-          <SettingRow
-            label="Name"
-            action={panel === 'name' ? 'Close' : 'Change'}
-            onAction={() => open('name')}
-          >
-            <div className="text-sm text-[var(--text-primary)]" style={sans}>
-              {displayName}
-            </div>
-            {panel === 'name' && (
-              <form onSubmit={saveName} className="mt-4 space-y-3">
-                <Field label="Name" type="text" value={nextName} onChange={setNextName} autoComplete="name" />
-                <button type="submit" disabled={saving} className={actionClass} style={mono}>
-                  {saving ? '…' : 'Save name'}
-                </button>
-              </form>
-            )}
+        <div className={`${card} divide-y divide-[var(--border-base)]`}>
+          <SettingRow label="Name" value={displayName} open={panel === 'name'} onToggle={() => open('name')}>
+            <form onSubmit={saveName} className="flex flex-col gap-3">
+              <Field label="Name" type="text" value={nextName} onChange={setNextName} autoComplete="name" />
+              <SaveButton saving={saving}>Save name</SaveButton>
+            </form>
           </SettingRow>
 
-          <SettingRow
-            label="Email"
-            action={panel === 'email' ? 'Close' : 'Change'}
-            onAction={() => open('email')}
-          >
-            <div className="text-sm text-[var(--text-primary)] break-all" style={sans}>
-              {email || '—'}
-            </div>
-            {panel === 'email' && (
-              <form onSubmit={changeEmail} className="mt-4 space-y-3">
-                <Field label="New email" type="email" value={newEmail} onChange={setNewEmail} autoComplete="email" />
-                <Field
-                  label="Current password"
-                  type="password"
-                  value={emailPassword}
-                  onChange={setEmailPassword}
-                  autoComplete="current-password"
-                  minLength={1}
-                />
-                <button type="submit" disabled={saving} className={actionClass} style={mono}>
-                  {saving ? '…' : 'Update email'}
-                </button>
-              </form>
-            )}
+          <SettingRow label="Email" value={email || 'None'} open={panel === 'email'} onToggle={() => open('email')}>
+            <form onSubmit={changeEmail} className="flex flex-col gap-3">
+              <Field label="New email" type="email" value={newEmail} onChange={setNewEmail} autoComplete="email" />
+              <Field
+                label="Current password"
+                type="password"
+                value={emailPassword}
+                onChange={setEmailPassword}
+                autoComplete="current-password"
+                minLength={1}
+              />
+              <SaveButton saving={saving}>Update email</SaveButton>
+            </form>
           </SettingRow>
 
-          <SettingRow
-            label="Password"
-            action={panel === 'password' ? 'Close' : 'Change'}
-            onAction={() => open('password')}
-          >
-            {panel === 'password' && (
-              <form onSubmit={changePassword} className="mt-4 space-y-3">
-                <Field
-                  label="Current password"
-                  type="password"
-                  value={currentPassword}
-                  onChange={setCurrentPassword}
-                  autoComplete="current-password"
-                  minLength={1}
-                />
-                <Field
-                  label="New password"
-                  type="password"
-                  value={newPassword}
-                  onChange={setNewPassword}
-                  autoComplete="new-password"
-                  minLength={8}
-                />
-                <Field
-                  label="Confirm new password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={setConfirmPassword}
-                  autoComplete="new-password"
-                  minLength={8}
-                />
-                <button type="submit" disabled={saving} className={actionClass} style={mono}>
-                  {saving ? '…' : 'Update password'}
-                </button>
-              </form>
-            )}
+          <SettingRow label="Password" value="••••••••" open={panel === 'password'} onToggle={() => open('password')}>
+            <form onSubmit={changePassword} className="flex flex-col gap-3">
+              <Field
+                label="Current password"
+                type="password"
+                value={currentPassword}
+                onChange={setCurrentPassword}
+                autoComplete="current-password"
+                minLength={1}
+              />
+              <Field
+                label="New password"
+                type="password"
+                value={newPassword}
+                onChange={setNewPassword}
+                autoComplete="new-password"
+                minLength={8}
+              />
+              <Field
+                label="Confirm new password"
+                type="password"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                autoComplete="new-password"
+                minLength={8}
+              />
+              <SaveButton saving={saving}>Update password</SaveButton>
+            </form>
           </SettingRow>
         </div>
 
-        {message && (
-          <p className="pt-5 text-[11px] text-[var(--accent)]" style={sans}>{message}</p>
-        )}
+        {message && <p className="mt-4 text-[13px] text-[var(--positive)]">{message}</p>}
         {error && (
-          <p className="pt-5 text-[11px] text-[var(--danger)]" style={sans}>× {error}</p>
+          <p role="alert" className="mt-4 text-[13px] text-[var(--danger)]">
+            {error}
+          </p>
         )}
 
-        <div className="pt-8 flex items-center justify-between gap-4">
+        <div className="mt-6 flex items-center justify-between gap-4">
           <form action={signOut}>
-            <button
-              type="submit"
-              className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-              style={mono}
-            >
-              Sign Out
+            <button type="submit" className={btn('secondary', 'md')}>
+              Sign out
             </button>
           </form>
-          <button
-            type="button"
-            onClick={() => open('delete')}
-            className="text-[10px] tracking-[0.25em] uppercase text-[var(--text-dimmer)] hover:text-[var(--danger)] transition-colors"
-            style={mono}
-          >
+          <button type="button" onClick={() => open('delete')} className={btn('ghost', 'sm')}>
             Delete account
           </button>
         </div>
 
         {panel === 'delete' && (
-          <form onSubmit={deleteAccount} className="mt-5 space-y-3">
-            <p className="text-[12px] text-[var(--text-muted)] leading-relaxed" style={sans}>
-              This permanently removes your account, briefs, tracks, and submissions. Type DELETE to confirm.
+          <form onSubmit={deleteAccount} className="mt-6 rounded-2xl border border-[var(--danger-soft)] bg-[var(--bg-card)] p-6 flex flex-col gap-3">
+            <p className="text-[14px] text-[var(--text-muted)] leading-relaxed">
+              This permanently removes your account, tracks, and submissions. Type DELETE to confirm.
             </p>
-            <Field
-              label="Type DELETE"
-              type="text"
-              value={deleteConfirm}
-              onChange={setDeleteConfirm}
-              autoComplete="off"
-            />
+            <Field label="Type DELETE" type="text" value={deleteConfirm} onChange={setDeleteConfirm} autoComplete="off" />
             <Field
               label="Password"
               type="password"
@@ -379,67 +275,132 @@ export default function DashboardView({
               autoComplete="current-password"
               minLength={1}
             />
-            <button
-              type="submit"
-              disabled={saving}
-              className="text-[10px] tracking-[0.2em] uppercase text-[var(--danger)] hover:opacity-70 disabled:opacity-40"
-              style={mono}
-            >
-              {saving ? '…' : 'Delete my account'}
-            </button>
+            <div>
+              <button type="submit" disabled={saving} className={btn('danger', 'md')}>
+                {saving ? 'Deleting…' : 'Delete my account'}
+              </button>
+            </div>
           </form>
         )}
+      </AppPage>
+    );
+  }
 
+  return (
+    <AppPage>
+      <AppHeader
+        eyebrow={firstName ? `Hi ${firstName}` : undefined}
+        title="Submissions"
+        description="Every track you have sent us, where it is, and what we thought."
+        actions={
+          <Link href="/briefs" className={btn('primary', 'md')}>
+            Find a brief
+          </Link>
+        }
+      />
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+        <Stat
+          label="Free submissions"
+          value={isAdmin ? '∞' : String(submissionCredits)}
+          hint={
+            isAdmin
+              ? 'Admins submit freely'
+              : daysUntilNextCredit != null
+                ? `+1 in ${daysUntilNextCredit} ${daysUntilNextCredit === 1 ? 'day' : 'days'}`
+                : 'One a week, and they stack'
+          }
+          highlight={!isAdmin && submissionCredits > 0}
+        />
+        <Stat label="In review" value={String(inReview)} hint="Waiting on our notes" />
+        <Stat label="Accepted" value={String(acceptedCount)} hint="In the catalogue" />
+        <div className={`${card} p-4 md:p-5 flex flex-col justify-between gap-3`}>
+          <p className="text-[13px] text-[var(--text-muted)]">Roster</p>
+          <div>
+            {verified ? (
+              <StatusPill tone="positive">Verified</StatusPill>
+            ) : (
+              <StatusPill tone="muted">Not yet</StatusPill>
+            )}
+            <p className="mt-2 text-[12px] text-[var(--text-dim)] leading-snug">
+              {verified
+                ? 'You are on our shortlist for brand work.'
+                : `${verificationThreshold === 1 ? 'Your first accepted track' : `${verificationThreshold} accepted tracks`} puts you on it.`}
+            </p>
+          </div>
         </div>
-        )}
       </div>
-    </div>
+
+      {offers.length > 0 && (
+        <section id="offers" className="mb-10 scroll-mt-24 flex flex-col gap-4">
+          {offers.map((offer) => (
+            <OfferCard key={offer.submissionId} offer={offer} rights={rights} onRightsSaved={setRights} />
+          ))}
+        </section>
+      )}
+
+      <section id="submissions" className="scroll-mt-24">
+        <SubmissionHistory items={submissions} />
+      </section>
+
+      <section className="mt-12">
+        <AlertsPanel initialItems={notifications} />
+      </section>
+    </AppPage>
   );
 }
 
-function Stat({ label, value, children }: { label: string; value: string; children: ReactNode }) {
+function Stat({ label, value, hint, highlight = false }: { label: string; value: string; hint: string; highlight?: boolean }) {
   return (
-    <div className="py-5 md:py-6 px-3 md:px-6 first:pl-0">
-      <p className="label text-[var(--text-dimmer)]">{label}</p>
-      <p className="mt-2 font-serif font-light text-3xl md:text-4xl leading-none tabular-nums">{value}</p>
-      <div className="mt-3 min-h-4 leading-snug">{children}</div>
+    <div className={`${card} p-4 md:p-5`}>
+      <p className="text-[13px] text-[var(--text-muted)] flex items-center gap-2">
+        {highlight && <span className="w-1.5 h-1.5 rounded-full bg-[var(--signal)]" />}
+        {label}
+      </p>
+      <p className="mt-2 text-[28px] md:text-[32px] font-semibold tracking-[-0.03em] leading-none tabular-nums">{value}</p>
+      <p className="mt-2 text-[12px] text-[var(--text-dim)] leading-snug">{hint}</p>
     </div>
   );
 }
 
 function SettingRow({
   label,
-  action,
-  onAction,
+  value,
+  open,
+  onToggle,
   children,
 }: {
   label: string;
-  action: string;
-  onAction: () => void;
+  value: string;
+  open: boolean;
+  onToggle: () => void;
   children: ReactNode;
 }) {
   return (
-    <div className="py-5 border-b border-[var(--border-base)]">
-      <div className="flex items-center justify-between gap-3 mb-1">
-        <div className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={mono}>
-          {label}
+    <div className="px-5 md:px-6 py-4">
+      <div className="flex items-center justify-between gap-4 min-h-10">
+        <div className="min-w-0">
+          <p className="text-[13px] text-[var(--text-muted)]">{label}</p>
+          <p className="text-[14px] text-[var(--text-primary)] truncate">{value}</p>
         </div>
-        <button
-          type="button"
-          onClick={onAction}
-          className="text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70"
-          style={mono}
-        >
-          {action}
+        <button type="button" onClick={onToggle} className={btn(open ? 'ghost' : 'secondary', 'sm')}>
+          {open ? 'Cancel' : 'Change'}
         </button>
       </div>
-      {children}
+      {open && <div className="mt-4 pb-1 max-w-md">{children}</div>}
     </div>
   );
 }
 
-const actionClass =
-  'text-[10px] tracking-[0.2em] uppercase text-[var(--accent)] hover:opacity-70 disabled:opacity-40';
+function SaveButton({ saving, children }: { saving: boolean; children: ReactNode }) {
+  return (
+    <div className="pt-1">
+      <button type="submit" disabled={saving} className={btn('primary', 'md')}>
+        {saving ? 'Saving…' : children}
+      </button>
+    </div>
+  );
+}
 
 function Field({
   label,
@@ -459,7 +420,7 @@ function Field({
   const id = label.toLowerCase().replace(/\s+/g, '-');
   return (
     <div>
-      <label htmlFor={id} className="block text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-2" style={mono}>
+      <label htmlFor={id} className={fieldLabel}>
         {label}
       </label>
       <input
@@ -470,8 +431,7 @@ function Field({
         autoComplete={autoComplete}
         minLength={minLength}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2.5 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none"
-        style={{ ...sans, borderRadius: '2px' }}
+        className={inputClass}
       />
     </div>
   );

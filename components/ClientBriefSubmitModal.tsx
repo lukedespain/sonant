@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { suggestedDiscoFilename } from '@/lib/verification';
 import { UploadRequestError, postJson } from '@/lib/upload-client';
+import { btn, fieldLabel } from '@/components/ui';
+import Modal, { ModalDone } from '@/components/Modal';
+import { IconCheck } from '@/components/shell/icons';
 
 type Props = {
   briefId: string;
@@ -20,7 +23,7 @@ export default function ClientBriefSubmitModal({
   composerName,
   discoUrl,
   triggerClassName,
-  triggerLabel = '↗ Deliver on Disco',
+  triggerLabel = 'Deliver on Disco',
 }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -75,137 +78,86 @@ export default function ClientBriefSubmitModal({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={handleOpen}
-        className={triggerClassName}
-        style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
-      >
+      <button type="button" onClick={handleOpen} className={triggerClassName ?? btn('accent', 'md')}>
         {triggerLabel}
       </button>
 
       {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-6"
-          style={{ background: 'rgba(10, 9, 8, 0.85)' }}
-          onClick={handleClose}
+        <Modal
+          title={done ? undefined : 'Deliver on Disco'}
+          subtitle={briefName}
+          onClose={handleClose}
+          locked={logging}
+          footer={
+            done ? undefined : (
+              <>
+                <a
+                  href={discoUrl ?? '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleDeliver}
+                  aria-disabled={!canDeliver || logging}
+                  className={btn('accent', 'lg', `flex-1 ${!canDeliver || logging ? 'opacity-40 pointer-events-none' : ''}`)}
+                >
+                  {logging ? 'Opening…' : 'Open Disco'}
+                </a>
+                <button type="button" onClick={handleClose} disabled={logging} className={btn('secondary', 'lg')}>
+                  Cancel
+                </button>
+              </>
+            )
+          }
         >
-          <div
-            className="w-full max-w-md bg-[var(--bg-base)] border border-[var(--border-card)] p-8"
-            style={{ borderRadius: '2px' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {done ? (
-              <div className="text-center py-4">
-                <div className="text-3xl text-[var(--accent)] mb-4">✓</div>
-                <h2 className="text-2xl mb-3" style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}>
-                  Disco is open.
-                </h2>
-                <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-                  Deliver the WAV there. Name the file{' '}
-                  <span className="text-[var(--text-secondary)]">{filename}</span> so we can match it to you.
-                </p>
-                <div className="flex flex-col gap-3">
+          {done ? (
+            <ModalDone
+              icon={<IconCheck size={20} strokeWidth={2} />}
+              title="Disco is open"
+              body={
+                <>
+                  Deliver the WAV there. Name the file <span className="text-[var(--text-primary)]">{filename}</span> so we can
+                  match it to you.
+                </>
+              }
+              actions={
+                <>
                   {discoUrl && (
-                    <a
-                      href={discoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors text-center"
-                      style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
-                    >
-                      ↗ Open inbox
+                    <a href={discoUrl} target="_blank" rel="noopener noreferrer" className={btn('primary', 'md')}>
+                      Open inbox
                     </a>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => setOpen(false)}
-                    className="text-xs tracking-[0.2em] uppercase px-6 py-3 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
-                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
-                  >
+                  <button type="button" onClick={() => setOpen(false)} className={btn('secondary', 'md')}>
                     Done
                   </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
-                  Deliver on Disco
-                </div>
-
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
-                      Brief
-                    </label>
-                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "var(--brand-sans)" }}>
-                      {briefName}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
-                      File name
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-[var(--text-secondary)] truncate flex-1" style={{ fontFamily: "var(--brand-mono)" }}>
-                        {filename}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={copyFilename}
-                        className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors shrink-0"
-                        style={{ fontFamily: "var(--brand-mono)" }}
-                      >
-                        Copy
-                      </button>
-                    </div>
-                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "var(--brand-mono)" }}>
-                      WAV · no credit · send as many takes as you like
-                    </p>
-                  </div>
-                </div>
-
-                {error && (
-                  <p className="text-[10px] text-[var(--danger)] mt-4" style={{ fontFamily: "var(--brand-mono)" }}>
-                    × {error}
-                  </p>
-                )}
-
-                {!canDeliver && (
-                  <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-                    This brief does not have a Disco inbox yet. Email hello@thoughtcollective.com.
-                  </p>
-                )}
-
-                <div className="flex gap-3 mt-8">
-                  <a
-                    href={discoUrl ?? '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={handleDeliver}
-                    aria-disabled={!canDeliver || logging}
-                    className={`flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase text-center bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors ${
-                      !canDeliver || logging ? 'opacity-40 pointer-events-none' : ''
-                    }`}
-                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
-                  >
-                    {logging ? 'Opening…' : 'Open Disco'}
-                  </a>
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    disabled={logging}
-                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
-                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
-                  >
-                    Cancel
+                </>
+              }
+            />
+          ) : (
+            <div className="px-6 py-6 flex flex-col gap-5">
+              <div>
+                <p className={fieldLabel}>Name your file</p>
+                <div className="flex items-center gap-3 rounded-xl border border-[var(--border-card)] bg-[var(--bg-input)] pl-3.5 pr-1.5 h-11">
+                  <span className="text-[13px] truncate flex-1 tabular-nums">{filename}</span>
+                  <button type="button" onClick={copyFilename} className={btn('secondary', 'sm')}>
+                    Copy
                   </button>
                 </div>
-              </>
-            )}
-          </div>
-        </div>
+                <p className="mt-1.5 text-[12px] text-[var(--text-dim)]">WAV · no credit used · send as many takes as you like</p>
+              </div>
+
+              {error && (
+                <p role="alert" className="text-[13px] text-[var(--danger)]">
+                  {error}
+                </p>
+              )}
+
+              {!canDeliver && (
+                <p className="rounded-xl bg-[var(--warning-soft)] px-4 py-3 text-[13px] text-[var(--warning)] leading-relaxed">
+                  This brief does not have a Disco inbox yet. Email hello@thoughtcollective.com.
+                </p>
+              )}
+            </div>
+          )}
+        </Modal>
       )}
     </>
   );

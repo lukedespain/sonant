@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Link from 'next/link';
+import Segmented from '@/components/Segmented';
 import { useRouter } from 'next/navigation';
 import CatalogBriefsForm from './CatalogBriefsForm';
 
@@ -20,8 +20,8 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
   const [error, setError] = useState<string | null>(null);
 
   const fieldClass =
-    'w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none';
-  const labelClass = 'block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2';
+    'w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-card)] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-dimmer)] hover:border-[var(--border-subtle)] focus:border-[var(--signal-line)] focus:outline-none focus:ring-4 focus:ring-[var(--signal-soft)] transition-colors';
+  const labelClass = 'block text-[13px] text-[var(--text-muted)] mb-1.5';
   const mono = { fontFamily: "var(--brand-mono)" } as const;
   const sans = { fontFamily: "var(--brand-sans)" } as const;
 
@@ -61,35 +61,14 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
     router.refresh();
   }
 
-  const kindLink =
-    'px-5 py-3 text-xs tracking-[0.2em] uppercase transition-colors -mb-px border-b-2';
-
   return (
     <>
-      <div className="flex items-end mb-8 border-b border-[var(--border-base)]">
-        <Link
-          href="/admin?tab=briefs"
-          className={`${kindLink} ${
-            kind === 'client'
-              ? 'text-[var(--text-primary)] border-[var(--accent)]'
-              : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
-          }`}
-          style={{ fontFamily: "var(--brand-mono)" }}
-        >
-          Client
-        </Link>
-        <Link
-          href="/admin?tab=briefs&kind=catalog"
-          className={`${kindLink} ${
-            kind === 'catalog'
-              ? 'text-[var(--text-primary)] border-[var(--accent)]'
-              : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
-          }`}
-          style={{ fontFamily: "var(--brand-mono)" }}
-        >
-          Catalog
-        </Link>
-      </div>
+      <Segmented
+        items={[
+          { href: '/admin?tab=briefs&kind=catalog', label: 'Catalogue brief', active: kind === 'catalog' },
+          { href: '/admin?tab=briefs', label: 'Client brief', active: kind === 'client' },
+        ]}
+      />
 
       {kind === 'catalog' ? <CatalogBriefsForm /> : (
     <form onSubmit={handleSubmit} className="max-w-2xl">
@@ -106,7 +85,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
             onChange={(e) => setClientName(e.target.value)}
             placeholder="e.g. US Army"
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           />
         </div>
         <div>
@@ -117,7 +96,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
             onChange={(e) => setProjectTitle(e.target.value)}
             placeholder="e.g. The Field Is The Teacher"
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           />
         </div>
         <div>
@@ -128,7 +107,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
             onChange={(e) => setDueDate(e.target.value)}
             placeholder="e.g. Sep 4, 2026"
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           />
         </div>
         <div>
@@ -139,7 +118,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
             onChange={(e) => setDemoFee(e.target.value)}
             placeholder="e.g. $500"
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           />
         </div>
         <div className="sm:col-span-2">
@@ -150,7 +129,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
             onChange={(e) => setWinFee(e.target.value)}
             placeholder="e.g. $5,000 · 70/30 composer"
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           />
         </div>
         <div className="sm:col-span-2">
@@ -161,7 +140,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
             onChange={(e) => setDiscoInboxUrl(e.target.value)}
             placeholder="https://s.disco.ac/… · blank uses the default inbox"
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           />
         </div>
       </div>
@@ -176,7 +155,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
         rows={10}
         placeholder="Paste the client brief here."
         className={`${fieldClass} mb-4`}
-        style={{ ...sans, borderRadius: '2px' }}
+        style={{ ...sans }}
       />
 
       <input
@@ -196,12 +175,12 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="text-[10px] tracking-[0.2em] uppercase px-4 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
-          style={{ ...mono, borderRadius: '2px' }}
+          className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full text-[13px] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors disabled:opacity-40"
+          style={{ ...mono }}
         >
           + Upload file
         </button>
-        <span className="text-[10px] text-[var(--text-dimmer)]" style={mono}>
+        <span className="text-[12px] text-[var(--text-dimmer)]" style={mono}>
           Photo, PDF, or Word · max 15 MB
         </span>
       </div>
@@ -218,7 +197,7 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
               <button
                 type="button"
                 onClick={() => setFiles((prev) => prev.filter((_, i) => i !== index))}
-                className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#C5564A]"
+                className="text-[12px] text-[var(--text-dimmer)] hover:text-[#C5564A]"
                 style={mono}
               >
                 Remove
@@ -229,14 +208,14 @@ export default function BriefsTab({ kind = 'client' }: { kind?: 'client' | 'cata
       )}
 
       {error && (
-        <p className="text-[10px] text-[var(--danger)] mb-4" style={mono}>× {error}</p>
+        <p className="text-[12px] text-[var(--danger)] mb-4" style={mono}>× {error}</p>
       )}
 
       <button
         type="submit"
         disabled={submitting}
-        className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
-        style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
+        className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full text-[14px] font-medium bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        style={{ ...mono, fontWeight: 500 }}
       >
         {submitting ? 'Writing brief…' : '+ Add client brief'}
       </button>

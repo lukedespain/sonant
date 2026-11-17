@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { btn } from '@/components/ui';
+import { IconDownload } from '@/components/shell/icons';
 
 /** Prints only the brief document (see the data-print-brief rule in globals.css). */
 export function printBrief() {
@@ -23,7 +24,7 @@ export function DownloadBriefButton({
 }: {
   briefId?: string | null;
   variant?: 'primary' | 'secondary';
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
 }) {
   const [state, setState] = useState<'idle' | 'working' | 'error'>('idle');
@@ -56,7 +57,15 @@ export function DownloadBriefButton({
 
   return (
     <button type="button" onClick={download} disabled={state === 'working'} className={btn(variant, size, className)}>
-      {state === 'working' ? 'Preparing PDF…' : state === 'error' ? 'Try again' : '↓ Download PDF'}
+      {state === 'working' ? (
+        'Preparing PDF…'
+      ) : state === 'error' ? (
+        'Try again'
+      ) : (
+        <>
+          <IconDownload size={14} /> Download PDF
+        </>
+      )}
     </button>
   );
 }
@@ -81,9 +90,9 @@ export function AdminMenu({ children }: { children: ReactNode }) {
   return (
     <details ref={ref} className="relative no-print">
       <summary className={btn('secondary', 'sm', 'list-none cursor-pointer [&::-webkit-details-marker]:hidden')}>
-        Admin <span aria-hidden="true">▾</span>
+        Admin tools <span aria-hidden="true" className="text-[var(--text-dim)]">▾</span>
       </summary>
-      <div className="absolute right-0 mt-2 z-40 w-60 p-2 bg-[var(--bg-card)] border border-[var(--border-card)] rounded-[2px] shadow-2xl flex flex-col gap-1.5 [&_button]:w-full [&_button]:justify-start [&_button]:text-left">
+      <div className="absolute right-0 mt-2 z-40 w-64 p-2 bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl flex flex-col gap-1 animate-rise [&_button]:w-full [&_button]:justify-start [&_button]:text-left">
         {children}
       </div>
     </details>

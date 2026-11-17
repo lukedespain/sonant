@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
     <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
         <div
-          className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-4"
+          className="text-[12px] text-[var(--accent)] mb-4"
           style={{ fontFamily: "var(--brand-mono)" }}
         >
           Account
@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
         {sent ? (
           <div
             className="border border-[var(--accent)]/40 bg-[var(--accent)]/5 p-6 mt-8"
-            style={{ borderRadius: '2px' }}
+            
           >
             <p className="text-base leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
               If that email has an account, we sent a reset link. It expires in about an hour.
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
+                  className="block text-[12px] text-[var(--text-muted)] mb-2"
                   style={{ fontFamily: "var(--brand-mono)" }}
                 >
                   Email
@@ -69,15 +69,15 @@ export default function ForgotPasswordPage() {
                   name="email"
                   type="email"
                   required
-                  className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none transition-colors"
-                  style={{ fontFamily: "var(--brand-sans)", borderRadius: '2px' }}
+                  className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[var(--signal-line)] focus:outline-none transition-colors"
+                  style={{ fontFamily: "var(--brand-sans)" }}
                 />
               </div>
 
               {error && (
                 <div
                   className="text-sm text-[var(--danger)] border border-[var(--danger)]/30 bg-[var(--danger)]/5 p-3"
-                  style={{ borderRadius: '2px', fontFamily: "var(--brand-sans)" }}
+                  style={{ fontFamily: "var(--brand-sans)" }}
                 >
                   {error}
                 </div>
@@ -86,12 +86,12 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className={`w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase transition-all mt-2 ${
+                className={`w-full px-6 py-3.5 text-sm transition-all mt-2 ${
                   submitting
                     ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
                     : 'bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)]'
                 }`}
-                style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
+                style={{ fontFamily: "var(--brand-mono)", fontWeight: 500 }}
               >
                 {submitting ? 'Sending…' : 'Send Reset Link'}
               </button>

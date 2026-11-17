@@ -24,7 +24,7 @@ export default function ConfirmActionButton({
     : 'border-[var(--accent)] text-[var(--accent)]';
   const rest = danger
     ? 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[#C5564A] hover:text-[#C5564A]'
-    : 'border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent)] hover:text-[var(--accent)]';
+    : 'border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent)] hover:text-[var(--text-primary)]';
 
   function run() {
     setError(null);
@@ -43,7 +43,7 @@ export default function ConfirmActionButton({
             type="button"
             onClick={run}
             disabled={pending}
-            className={`inline-flex items-center h-9 px-4 font-mono text-[10px] tracking-[0.14em] uppercase rounded-[2px] border ${accent} disabled:opacity-60 disabled:cursor-wait transition-colors`}
+            className={`inline-flex items-center h-9 px-4 font-mono text-[12px] rounded-xl border ${accent} disabled:opacity-60 disabled:cursor-wait transition-colors`}
           >
             {pending ? pendingLabel : confirmLabel}
           </button>
@@ -51,7 +51,7 @@ export default function ConfirmActionButton({
             <button
               type="button"
               onClick={() => setConfirming(false)}
-              className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors px-1"
+              className="font-mono text-[12px] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors px-1"
             >
               Cancel
             </button>
@@ -64,7 +64,7 @@ export default function ConfirmActionButton({
             setError(null);
             setConfirming(true);
           }}
-          className={`inline-flex items-center h-9 px-4 font-mono text-[10px] tracking-[0.14em] uppercase rounded-[2px] border ${rest} transition-colors`}
+          className={`inline-flex items-center h-9 px-4 font-mono text-[12px] rounded-xl border ${rest} transition-colors`}
         >
           {label}
         </button>
@@ -73,7 +73,7 @@ export default function ConfirmActionButton({
         <p
           role="alert"
           className="absolute right-0 top-full mt-2 w-72 z-10 p-3 text-xs leading-relaxed text-[var(--danger)] bg-[var(--bg-card)] border border-[#4A3633]"
-          style={{ fontFamily: "var(--brand-sans)", borderRadius: '2px' }}
+          style={{ fontFamily: "var(--brand-sans)" }}
         >
           {error}
         </p>

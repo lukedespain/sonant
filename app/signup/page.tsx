@@ -2,7 +2,8 @@
 
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { btn } from '@/components/ui';
+import { btn, fieldLabel, inputClass } from '@/components/ui';
+import AuthCard, { AuthError } from '@/components/AuthCard';
 import { useSearchParams } from 'next/navigation';
 import { signUp } from '@/app/auth/actions';
 
@@ -41,68 +42,48 @@ function SignUpForm() {
 
   if (success) {
     return (
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
-          <div className="border border-[var(--accent)]/40 bg-[var(--accent)]/5 p-6" style={{ borderRadius: '2px' }}>
-            <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--accent)] mb-3"
-              style={{ fontFamily: "var(--brand-mono)" }}>
-              Check your email
-            </div>
-            <p className="text-base leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-              We sent a confirmation link to verify your account. Click it and you&apos;ll be taken straight to the briefs.
-            </p>
-          </div>
-        </div>
-      </div>
+      <AuthCard
+        title="Check your email"
+        description="We sent you a confirmation link. Click it and you will land straight on the briefs."
+      >
+        <Link href="/briefs" className={btn('secondary', 'lg', 'w-full')}>
+          Browse briefs while you wait
+        </Link>
+      </AuthCard>
     );
   }
 
   return (
-    <div className="flex-1 flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md">
-        <p className="label text-[var(--accent)] mb-4">Free account</p>
+    <AuthCard
+      title={invited ? 'You were sent a brief' : 'Write for Thought Collective'}
+      description={
+        invited
+          ? 'A composer shared a brief with you. Create a free account to open it and submit your track.'
+          : 'Write to real briefs, get written feedback on every track, and get your best work into our catalogue. Free, with one submission a week.'
+      }
+      footer={
+        <>
+          Already have an account?{' '}
+          <Link href="/login" className="text-[var(--text-primary)] hover:text-[var(--signal)] transition-colors">
+            Sign in
+          </Link>
+        </>
+      }
+    >
+      <form action={handleSubmit} className="flex flex-col gap-4">
+        {referredBy && <input type="hidden" name="referredBy" value={referredBy} />}
+        {signupNext && <input type="hidden" name="signupNext" value={signupNext} />}
+        <Field label="Full name" name="fullName" type="text" required autoComplete="name" />
+        <Field label="Email" name="email" type="email" required autoComplete="email" />
+        <Field label="Password" name="password" type="password" required minLength={8} autoComplete="new-password" hint="At least 8 characters." />
 
-        <h1 className="font-serif font-light text-4xl md:text-5xl tracking-tight leading-tight mb-3">
-          Start writing to <span className="italic">briefs.</span>
-        </h1>
+        {error && <AuthError>{error}</AuthError>}
 
-        <p className="text-[15px] text-[var(--text-tertiary)] leading-relaxed mb-10">
-          {invited
-            ? 'A composer shared a brief with you. Create a free account to view it, save work, and submit from Briefs. One submission credit each month.'
-            : 'Practice writing to spec, get written feedback on catalog submissions, and get your best tracks into catalogs. One free submission credit every month.'}
-        </p>
-
-        <form action={handleSubmit} className="space-y-5">
-          {referredBy && <input type="hidden" name="referredBy" value={referredBy} />}
-          {signupNext && <input type="hidden" name="signupNext" value={signupNext} />}
-          <Field label="Full name" name="fullName" type="text" required autoComplete="name" />
-          <Field label="Email" name="email" type="email" required autoComplete="email" />
-          <Field label="Password" name="password" type="password" required minLength={8} autoComplete="new-password" hint="At least 8 characters." />
-
-          {error && (
-            <div className="text-sm text-[var(--danger)] border border-[var(--danger)]/30 bg-[var(--danger)]/5 p-3"
-              style={{ borderRadius: '2px', fontFamily: "var(--brand-sans)" }}>
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className={btn('primary', 'md', 'w-full h-12 mt-2')}
-          >
-            {submitting ? 'Creating account…' : 'Create account'}
-          </button>
-
-          <p className="text-xs text-[var(--text-dim)] text-center pt-2" style={{ fontFamily: "var(--brand-sans)" }}>
-            Already have an account?{' '}
-            <Link href="/login" className="text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
-              Sign in
-            </Link>
-          </p>
-        </form>
-      </div>
-    </div>
+        <button type="submit" disabled={submitting} className={btn('primary', 'lg', 'w-full mt-1')}>
+          {submitting ? 'Creating account…' : 'Create account'}
+        </button>
+      </form>
+    </AuthCard>
   );
 }
 
@@ -111,7 +92,7 @@ function Field({ label, name, type, required, minLength, autoComplete, hint }: {
 }) {
   return (
     <div>
-      <label htmlFor={name} className="block label text-[var(--text-muted)] mb-2">
+      <label htmlFor={name} className={fieldLabel}>
         {label}
       </label>
       <input
@@ -121,9 +102,9 @@ function Field({ label, name, type, required, minLength, autoComplete, hint }: {
         required={required}
         minLength={minLength}
         autoComplete={autoComplete}
-        className="w-full h-12 px-4 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] rounded-[2px] focus:border-[var(--accent)] focus:outline-none transition-colors"
+        className={`${inputClass} h-11`}
       />
-      {hint && <p className="mt-1.5 text-xs text-[var(--text-dimmer)]">{hint}</p>}
+      {hint && <p className="mt-1.5 text-[12px] text-[var(--text-dim)]">{hint}</p>}
     </div>
   );
 }

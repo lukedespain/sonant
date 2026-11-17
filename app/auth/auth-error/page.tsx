@@ -5,7 +5,7 @@ export default function AuthErrorPage() {
     <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="max-w-md w-full">
         <div
-          className="text-[10px] tracking-[0.3em] uppercase text-[var(--accent)] mb-4"
+          className="text-[12px] text-[var(--accent)] mb-4"
           style={{ fontFamily: "var(--brand-mono)" }}
         >
           Verification link expired
@@ -25,35 +25,32 @@ export default function AuthErrorPage() {
         <div className="space-y-3">
           <Link
             href="/login"
-            className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center transition-all"
+            className="block w-full px-6 py-3.5 text-sm text-center transition-all"
             style={{
               background: 'var(--accent)',
               color: 'var(--bg-base)',
               fontFamily: "var(--brand-mono)",
               fontWeight: 500,
-              borderRadius: '2px',
             }}
           >
             Sign In
           </Link>
           <Link
             href="/forgot-password"
-            className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center border border-[var(--border-subtle)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+            className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full text-[13px] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors disabled:opacity-40 w-full"
             style={{
               fontFamily: "var(--brand-mono)",
               fontWeight: 500,
-              borderRadius: '2px',
             }}
           >
             Forgot Password
           </Link>
           <Link
             href="/signup"
-            className="block w-full px-6 py-3.5 text-sm tracking-[0.15em] uppercase text-center border border-[var(--border-subtle)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+            className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full text-[13px] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors disabled:opacity-40 w-full"
             style={{
               fontFamily: "var(--brand-mono)",
               fontWeight: 500,
-              borderRadius: '2px',
             }}
           >
             Sign Up Again

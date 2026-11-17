@@ -17,7 +17,7 @@ export function classifyBrief(brief: {
 }
 
 export const BRIEF_KIND_LABEL: Record<BriefKind, string> = {
-  community: 'Practice',
-  catalog: 'Catalog',
-  client: 'Client',
+  community: 'Practice brief',
+  catalog: 'Catalogue brief',
+  client: 'Client brief',
 };

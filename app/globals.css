@@ -14,34 +14,50 @@
   --brand-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --brand-mono:    'Inter', ui-sans-serif, system-ui, sans-serif;
 
-  /* Backgrounds */
+  /* Backgrounds: ink, then three raised surfaces */
   --bg-base:       #0A0A0A;
-  --bg-card:       #121212;
+  --bg-sidebar:    #0C0C0C;
+  --bg-card:       #111111;
   --bg-card-deep:  #0E0E0E;
-  --bg-card-hover: #181818;
+  --bg-card-hover: #161616;
+  --bg-elevated:   #161616;
+  --bg-input:      #0D0D0D;
 
   /* Borders */
-  --border-base:   #1C1C1C;
-  --border-card:   #262626;
-  --border-subtle: #333333;
-  --border-hover:  #474747;
+  --border-base:   #1A1A1A;
+  --border-card:   #222222;
+  --border-subtle: #2C2C2C;
+  --border-hover:  #3D3D3D;
 
   /* Accent (ink) */
   --accent:        #FFFFFF;
-  --accent-hover:  #D6D6D6;
+  --accent-hover:  #E2E2E2;
   --accent-soft:   rgba(255, 255, 255, 0.06);
   --accent-line:   rgba(255, 255, 255, 0.32);
-  --signal:        #E85D2F;
-  --positive:      #8FB283;
-  --danger:        #FF8B6B;
+
+  /* Orange: the one colour. Primary actions, live states, things that need you. */
+  --signal:        #F4632A;
+  --signal-hover:  #FF7740;
+  --signal-soft:   rgba(244, 99, 42, 0.12);
+  --signal-line:   rgba(244, 99, 42, 0.38);
+
+  /* Status colours, separate from the accent */
+  --positive:      #5BCF94;
+  --positive-soft: rgba(91, 207, 148, 0.12);
+  --warning:       #EDB54C;
+  --warning-soft:  rgba(237, 181, 76, 0.12);
+  --info:          #8FA8F0;
+  --info-soft:     rgba(143, 168, 240, 0.12);
+  --danger:        #FF7B5C;
+  --danger-soft:   rgba(255, 123, 92, 0.12);
 
   /* Text */
   --text-primary:   #FFFFFF;
   --text-secondary: #D4D4D4;
   --text-tertiary:  #B0B0B0;
-  --text-muted:     #8F8F8F;
-  --text-dim:       #6E6E6E;
-  --text-dimmer:    #585858;
+  --text-muted:     #8C8C8C;
+  --text-dim:       #6B6B6B;
+  --text-dimmer:    #555555;
 
   /* Legacy aliases kept for the body rule below */
   --background: var(--bg-base);
@@ -296,4 +312,30 @@ body {
 [data-theme="light"] .tc-mark { filter: none; }
 @media print {
   .tc-mark { filter: none !important; }
+}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+
+::selection { background: var(--signal); color: #0A0A0A; }
+
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+
+.app-scroll { scrollbar-width: thin; scrollbar-color: var(--border-subtle) transparent; }
+
+/* Hairline row hover used by every table in the app. */
+.row-hover { transition: background-color 120ms ease; }
+.row-hover:hover { background: var(--bg-card-hover); }
+
+@keyframes sheet-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes drawer-in { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise-in { from { transform: translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
+.animate-sheet { animation: sheet-in 220ms cubic-bezier(.2,.8,.2,1); }
+.animate-drawer { animation: drawer-in 220ms cubic-bezier(.2,.8,.2,1); }
+.animate-fade { animation: fade-in 180ms ease-out; }
+.animate-rise { animation: rise-in 260ms cubic-bezier(.2,.8,.2,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheet, .animate-drawer, .animate-fade, .animate-rise { animation: none; }
 }

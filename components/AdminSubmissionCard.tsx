@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { recordDecision, type SubmissionDecision } from '@/app/briefs/actions';
 import { useAudioPlayer } from '@/contexts/AudioPlayerContext';
 import PlayPauseIcon from '@/components/PlayPauseIcon';
-import { btn } from '@/components/ui';
+import { StatusPill, btn, textareaClass, type Tone } from '@/components/ui';
+import { IconArrowUpRight, IconChevronRight, IconDownload } from '@/components/shell/icons';
 import { CATALOG_PARTNER_LIST, catalogPartnerById } from '@/lib/partners';
 import TagPicker from '@/components/TagPicker';
 import Link from 'next/link';
@@ -78,7 +79,7 @@ export default function AdminSubmissionCard({
   const [selectedCatalog, setSelectedCatalog] = useState(catalogId);
   const selectedName = catalogPartnerById(selectedCatalog)?.name ?? 'Sonant';
   const canSend = selectedCatalog !== 'sonant';
-  const [open, setOpen] = useState(isDisco ? !deliveryConfirmedAt : !isDecided);
+  const [open, setOpen] = useState(isDisco ? !deliveryConfirmedAt : !isDecided && !isSent);
   const [feedback, setFeedback] = useState(existingFeedback ?? '');
   // Starts with everything on the brief ticked; untick what the track does not nail.
   const [tags, setTags] = useState(savedTags ?? { genres: briefGenres, moods: briefMoods });
@@ -90,13 +91,12 @@ export default function AdminSubmissionCard({
       setError('Write your feedback on the track first.');
       return;
     }
-    setSubmitting(true);
-    setError(null);
-
     if (decision === 'accepted' && (tags.genres.length === 0 || tags.moods.length === 0)) {
       setError('Tag at least one genre and one mood this track nails.');
       return;
     }
+    setSubmitting(true);
+    setError(null);
     const result = await recordDecision({
       submissionId,
       decision,
@@ -140,400 +140,263 @@ export default function AdminSubmissionCard({
     else play({ url: audioUrl, fileName: audioName || 'Submission', briefId, briefName: projectName });
   }
 
-  const statusLabel = isDisco
+  const pill: { label: string; tone: Tone } = isDisco
     ? deliveryConfirmedAt
-      ? 'Delivered'
-      : 'Clicked through'
-    : status === 'accepted'
-      ? 'Accepted'
-      : status === 'not_accepted'
-        ? 'Not accepted'
-        : isSent
-          ? `Sent to ${catalogName}`
-          : 'Pending';
-  const handoffLabel = handoff ? (handoff.agreedAt ? ' · Signed' : ' · Awaiting signature') : '';
+      ? { label: 'Delivered', tone: 'positive' }
+      : { label: 'Clicked through', tone: 'warning' }
+    : status_(status, isSent, catalogName, handoff);
 
-  const statusTone = isDisco
-    ? deliveryConfirmedAt
-      ? 'accepted'
-      : 'pending'
-    : status === 'accepted'
-      ? 'accepted'
-      : status === 'not_accepted'
-        ? 'reviewed'
-        : isSent
-          ? 'sent'
-          : 'pending';
+  const [composerName, composerAddress] = composerEmail.includes(' · ')
+    ? composerEmail.split(' · ')
+    : ['', composerEmail];
+  const trackTitle = audioName?.replace(/\.[^/.]+$/, '') || (isDisco ? 'Disco delivery' : 'Untitled track');
 
   return (
     <div
-      className="border border-[var(--border-card)] bg-[var(--bg-card)] rounded-[2px] p-5 md:p-6"
+      className={`rounded-2xl border bg-[var(--bg-card)] overflow-hidden transition-colors ${
+        open ? 'border-[var(--border-subtle)]' : 'border-[var(--border-card)]'
+      }`}
     >
-      <div className="flex items-start justify-between gap-4">
-        {audioUrl && (
-          <button
-            type="button"
-            onClick={handlePlay}
-            className={`mt-0.5 w-9 h-9 flex items-center justify-center shrink-0 transition-colors ${
-              isCurrentlyPlaying
-                ? 'bg-[var(--accent)] text-[#0A0908]'
-                : 'bg-[#0A0908] text-[var(--accent)]'
-            }`}
-            style={{ borderRadius: '2px' }}
-            aria-label={isCurrentlyPlaying ? 'Pause' : 'Play submission'}
-          >
-            <PlayPauseIcon playing={isCurrentlyPlaying} size={11} />
-          </button>
-        )}
+      <div className="flex items-center gap-3 md:gap-4 pl-3 pr-4 md:pl-4 py-3">
+        <button
+          type="button"
+          onClick={handlePlay}
+          disabled={!audioUrl}
+          className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors disabled:opacity-30 ${
+            isCurrentlyPlaying
+              ? 'bg-[var(--signal)] text-[#0A0A0A]'
+              : 'bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-hover)]'
+          }`}
+          aria-label={isCurrentlyPlaying ? 'Pause' : 'Play submission'}
+        >
+          <PlayPauseIcon playing={isCurrentlyPlaying} size={11} />
+        </button>
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="min-w-0 flex-1 flex items-start justify-between gap-4 text-left"
+          className="min-w-0 flex-1 grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_100px_190px] gap-x-4 items-center text-left"
           aria-expanded={open}
         >
-          <div className="min-w-0">
-            <h3 className="font-serif italic text-xl tracking-tight mb-1">{projectName}</h3>
-            <div
-              className="text-[10px] tracking-[0.2em] uppercase text-[var(--text-muted)]"
-              style={{ fontFamily: "var(--brand-mono)" }}
-            >
-              {briefType === 'client' ? 'Client' : 'Catalog'}
-              {isDisco ? ' · Disco' : ''} · {composerEmail} · {submittedAt}
-            </div>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <span
-              className="text-[10px] tracking-[0.2em] uppercase px-3 py-1.5"
-              style={{
-                fontFamily: "var(--brand-mono)",
-                borderRadius: '2px',
-                background:
-                  statusTone === 'accepted'
-                    ? 'rgba(122, 154, 110, 0.15)'
-                    : statusTone === 'sent'
-                    ? 'rgba(146, 168, 209, 0.15)'
-                    : statusTone === 'reviewed'
-                    ? 'rgba(138, 134, 128, 0.15)'
-                    : 'rgba(232, 163, 61, 0.15)',
-                color:
-                  statusTone === 'accepted'
-                    ? '#7A9A6E'
-                    : statusTone === 'sent'
-                    ? '#92A8D1'
-                    : statusTone === 'reviewed'
-                    ? 'var(--text-muted)'
-                    : '#E8A33D',
-              }}
-            >
-              {statusLabel}
-              {handoffLabel}
+          <span className="min-w-0">
+            <span className="block text-[14px] font-medium truncate">{trackTitle}</span>
+            <span className="block text-[12px] text-[var(--text-dim)] truncate">{composerName || composerAddress}</span>
+          </span>
+          <span className="hidden md:block min-w-0">
+            <span className="block text-[14px] text-[var(--text-secondary)] truncate">{projectName}</span>
+            <span className="block text-[12px] text-[var(--text-dim)]">
+              {briefType === 'client' ? 'Client brief' : 'Catalogue brief'}
+              {isDisco ? ' · Disco' : ''}
             </span>
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              aria-hidden="true"
-              className="text-[var(--text-dimmer)] mt-0.5 transition-transform"
-              style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
-            >
-              <path d="M2 4.5L6 8.5L10 4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
+          </span>
+          <span className="hidden md:block text-[13px] text-[var(--text-muted)] tabular-nums">{submittedAt}</span>
+          <span className="justify-self-end md:justify-self-start">
+            <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
+          </span>
         </button>
+        <span
+          className={`hidden sm:block text-[var(--text-dimmer)] transition-transform ${open ? 'rotate-90' : ''}`}
+          aria-hidden="true"
+        >
+          <IconChevronRight size={14} />
+        </span>
       </div>
 
       {open && (
-        <div className="mt-4">
-          <div className="flex flex-wrap gap-2 mb-4">
-            <a
-              href={`/briefs/${briefId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={btn('secondary', 'sm')}
-            >
-              ↗ View Brief
-            </a>
-            {isDisco && discoInboxUrl && (
-              <a
-                href={discoInboxUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={btn('secondary', 'sm')}
-              >
-                ↗ Open Disco inbox
-              </a>
-            )}
-            {playlistHref && (
-              <a
-                href={playlistHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={btn('secondary', 'sm')}
-              >
-                ↗ Brief playlist
-              </a>
-            )}
-            {downloadHref && (
-              <a
-                href={downloadHref}
-                download={audioName || true}
-                className={btn('secondary', 'sm')}
-              >
-                ↓ Download
-              </a>
-            )}
-          </div>
-
-          {!isDisco && audioUrl && (
-            <div className="flex items-center gap-3 mb-4">
-              <button
-                type="button"
-                onClick={handlePlay}
-                className={`w-9 h-9 flex items-center justify-center shrink-0 transition-colors ${
-                  isCurrentlyPlaying
-                    ? 'bg-[var(--accent)] text-[#0A0908]'
-                    : 'bg-[#0A0908] text-[var(--accent)]'
-                }`}
-                style={{ borderRadius: '2px' }}
-                aria-label={isCurrentlyPlaying ? 'Pause' : 'Play submission'}
-              >
-                <PlayPauseIcon playing={isCurrentlyPlaying} size={11} />
-              </button>
-              <div className="min-w-0">
-                <div
-                  className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] mb-1"
-                  style={{ fontFamily: "var(--brand-mono)" }}
-                >
-                  Submission
-                </div>
-                <div
-                  className="text-sm text-[var(--text-primary)] truncate"
-                  style={{ fontFamily: "var(--brand-sans)" }}
-                >
-                  {audioName?.replace(/\.[^/.]+$/, '') || 'Submitted track'}
-                </div>
-              </div>
-            </div>
-          )}
-          {!isDisco && !audioUrl && (
-            <p
-              className="text-sm text-[var(--text-muted)] mb-4"
-              style={{ fontFamily: "var(--brand-sans)" }}
-            >
-              No audio on this submission.
-              {playlistHref ? ' Open the brief playlist to hear their upload.' : ''}
-            </p>
-          )}
-
-          {isDisco ? (
-            <>
-              <p
-                className="text-sm text-[var(--text-muted)] leading-relaxed mb-4"
-                style={{ fontFamily: "var(--brand-sans)" }}
-              >
+        <div className="border-t border-[var(--border-base)] grid lg:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="p-4 md:p-6 flex flex-col gap-5 min-w-0">
+            {isDisco ? (
+              <p className="text-[14px] text-[var(--text-muted)] leading-relaxed">
                 This is a click-through to Disco, not an uploaded file. Mark it delivered once you see the track in the inbox.
               </p>
-              {error && (
-                <div
-                  className="text-sm text-[var(--danger)] mb-3"
-                  style={{ fontFamily: "var(--brand-sans)" }}
-                >
-                  {error}
+            ) : (
+              <>
+                {handoff && <HandoffPanel handoff={handoff} catalogName={catalogName} />}
+
+                <div>
+                  <label htmlFor={`notes-${submissionId}`} className="block text-[13px] text-[var(--text-muted)] mb-1.5">
+                    Your notes to the composer
+                  </label>
+                  <textarea
+                    id={`notes-${submissionId}`}
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    placeholder="What works, what to change. Every email to the composer ends with this."
+                    rows={5}
+                    className={textareaClass}
+                  />
                 </div>
-              )}
-              <div className="flex gap-3 flex-wrap">
-                {deliveryConfirmedAt ? (
-                  <button
-                    type="button"
-                    onClick={() => handleDelivered(false)}
-                    disabled={submitting}
-                    className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
-                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
-                  >
+
+                {!isDecided && (
+                  <div className="rounded-xl border border-[var(--border-card)] bg-[var(--bg-base)] p-4">
+                    <p className="text-[14px] font-medium">If it&apos;s accepted, what does it nail?</p>
+                    <p className="mt-0.5 mb-3 text-[12px] text-[var(--text-dim)] leading-relaxed">
+                      Untick what this track doesn&apos;t do, or add your own. The composer is verified for these on the roster. Only admins see them.
+                    </p>
+                    <TagPicker genreOptions={briefGenres} moodOptions={briefMoods} value={tags} onChange={setTags} />
+                  </div>
+                )}
+                {status === 'accepted' && (
+                  <p className="text-[13px] text-[var(--text-muted)]">
+                    {savedTags ? <>Verified for {[...savedTags.genres, ...savedTags.moods].join(' · ')}. </> : <>Not tagged yet. </>}
+                    <Link href="/admin?tab=roster" className="underline underline-offset-4 hover:text-[var(--text-primary)]">
+                      Edit in Roster
+                    </Link>
+                  </p>
+                )}
+              </>
+            )}
+
+            {error && (
+              <p role="alert" className="text-[13px] text-[var(--danger)]">
+                {error}
+              </p>
+            )}
+
+            <div className="flex gap-2 flex-wrap items-center">
+              {isDisco ? (
+                deliveryConfirmedAt ? (
+                  <button type="button" onClick={() => handleDelivered(false)} disabled={submitting} className={btn('secondary', 'md')}>
                     Undo delivered
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => handleDelivered(true)}
-                    disabled={submitting}
-                    className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 transition-colors ${
-                      submitting
-                        ? 'bg-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
-                        : 'bg-[#7A9A6E] text-[var(--bg-base)] hover:bg-[#8BAB7E]'
-                    }`}
-                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
-                  >
+                  <button type="button" onClick={() => handleDelivered(true)} disabled={submitting} className={btn('accent', 'md')}>
                     Mark delivered
                   </button>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              {handoff && <HandoffPanel handoff={handoff} catalogName={catalogName} />}
-
-              <textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Your written feedback on the track. Every email to the composer ends with it."
-                rows={4}
-                className="w-full px-4 py-3 bg-[var(--bg-base)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none transition-colors text-sm mb-3"
-                style={{ fontFamily: "var(--brand-sans)", borderRadius: '2px' }}
-              />
-
-              {error && (
-                <div
-                  className="text-sm text-[var(--danger)] mb-3"
-                  style={{ fontFamily: "var(--brand-sans)" }}
-                >
-                  {error}
-                </div>
+                )
+              ) : (
+                <>
+                  {canSend && (
+                    <button
+                      type="button"
+                      onClick={() => handleDecision('sent_to_catalog')}
+                      disabled={submitting}
+                      className={btn(!isSent && !isDecided ? 'primary' : 'secondary', 'md')}
+                    >
+                      Send to {selectedName}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleDecision('accepted')}
+                    disabled={submitting}
+                    className={btn(isSent || !canSend ? 'accent' : 'secondary', 'md')}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDecision('not_accepted')}
+                    disabled={submitting}
+                    className={btn('secondary', 'md', 'hover:!border-[var(--danger)] hover:!text-[var(--danger)]')}
+                  >
+                    Not this time
+                  </button>
+                  {(isDecided || isSent) && (
+                    <span className="text-[12px] text-[var(--text-dimmer)]">Each change emails the composer</span>
+                  )}
+                </>
               )}
-
-              {!isDecided && (
-              <p
-                className="text-[11px] text-[var(--text-muted)] leading-relaxed mb-3"
-                style={{ fontFamily: "var(--brand-sans)" }}
-              >
+            </div>
+            {!isDisco && !isDecided && (
+              <p className="-mt-2 text-[12px] text-[var(--text-dim)] leading-relaxed">
                 {isSent
-                  ? `With ${catalogName}. Once they reply, mark Accepted or Not accepted. Add their reason to the notes first if you have it.`
+                  ? `With ${catalogName}. Once they reply, mark it. Add their reason to the notes first if you have it.`
                   : canSend
                     ? `Send to ${selectedName} when it is worth pitching. The composer gets your notes either way.`
-                    : 'Sonant catalog. You make the call.'}
+                    : 'You make the call. The composer gets your notes either way.'}
               </p>
-              )}
+            )}
+          </div>
 
-              {!isDecided && (
-                <div className="mb-4 p-4 border border-[var(--border-card)] rounded-[2px]">
-                  <p className="text-sm mb-1">If it&apos;s accepted, what does it nail?</p>
-                  <p className="text-[12px] text-[var(--text-muted)] mb-3">
-                    Untick what this track doesn&apos;t do, or add your own. The composer is verified for these on the roster. Only admins see them.
-                  </p>
-                  <TagPicker genreOptions={briefGenres} moodOptions={briefMoods} value={tags} onChange={setTags} />
-                </div>
-              )}
-              {status === 'accepted' && (
-                <p className="mb-4 text-[13px] text-[var(--text-muted)]">
-                  {savedTags ? (
-                    <>Verified for {[...savedTags.genres, ...savedTags.moods].join(' · ')}. </>
-                  ) : (
-                    <>Not tagged yet. </>
-                  )}
-                  <Link href="/admin?tab=roster" className="underline underline-offset-4 hover:text-[var(--text-primary)]">
-                    Edit in Roster
-                  </Link>
-                </p>
-              )}
-
-              {!handoff?.agreedAt && (
-                <label className="mb-3 flex items-center gap-3">
-                  <span className="label text-[var(--text-dimmer)]">Catalog</span>
-                  <select
-                    value={selectedCatalog}
-                    onChange={(e) => setSelectedCatalog(e.target.value)}
-                    className="h-9 pl-3 pr-8 text-sm bg-[var(--bg-base)] border border-[var(--border-card)] text-[var(--text-primary)] rounded-[2px] focus:border-[var(--accent)] focus:outline-none"
-                  >
-                    {CATALOG_PARTNER_LIST.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedCatalog !== catalogId && (
-                    <span className="text-[11px] text-[var(--text-muted)]">Brief was for {catalogName}</span>
-                  )}
-                </label>
-              )}
-
-              <div className="flex gap-3 flex-wrap">
-                {canSend && (
-                  <DecisionButton
-                    label={`↗ Send to ${selectedName}`}
-                    tone="send"
-                    primary={!isSent && !isDecided}
-                    disabled={submitting}
-                    onClick={() => handleDecision('sent_to_catalog')}
-                  />
-                )}
-                <DecisionButton
-                  label="Accepted"
-                  tone="accept"
-                  primary={isSent || !canSend}
-                  disabled={submitting}
-                  onClick={() => handleDecision('accepted')}
-                />
-                <DecisionButton
-                  label="Not accepted"
-                  tone="reject"
-                  primary={false}
-                  disabled={submitting}
-                  onClick={() => handleDecision('not_accepted')}
-                />
-                {(isDecided || isSent) && (
-                  <span
-                    className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-dimmer)] self-center"
-                    style={{ fontFamily: "var(--brand-mono)" }}
-                  >
-                    Each change emails the composer
-                  </span>
-                )}
+          <aside className="border-t lg:border-t-0 lg:border-l border-[var(--border-base)] p-4 md:p-6 flex flex-col gap-4 bg-[var(--bg-card-deep)]">
+            <dl className="flex flex-col gap-3 text-[13px]">
+              <div>
+                <dt className="text-[var(--text-dim)]">Composer</dt>
+                <dd className="mt-0.5 break-words">{composerName ? `${composerName}` : composerAddress}</dd>
+                {composerName && <dd className="text-[var(--text-muted)] break-all">{composerAddress}</dd>}
               </div>
-            </>
-          )}
+              <div>
+                <dt className="text-[var(--text-dim)]">Brief</dt>
+                <dd className="mt-0.5">{projectName}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--text-dim)]">Submitted</dt>
+                <dd className="mt-0.5 tabular-nums">{submittedAt}</dd>
+              </div>
+            </dl>
+
+            {!isDisco && !handoff?.agreedAt && (
+              <label className="block">
+                <span className="block text-[13px] text-[var(--text-dim)] mb-1.5">Catalogue</span>
+                <select
+                  value={selectedCatalog}
+                  onChange={(e) => setSelectedCatalog(e.target.value)}
+                  className="w-full h-9 pl-3 pr-8 text-[13px] bg-[var(--bg-input)] border border-[var(--border-card)] text-[var(--text-primary)] rounded-xl focus:border-[var(--signal-line)] focus:outline-none"
+                >
+                  {CATALOG_PARTNER_LIST.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+                {selectedCatalog !== catalogId && (
+                  <span className="mt-1 block text-[12px] text-[var(--text-dim)]">Brief was for {catalogName}</span>
+                )}
+              </label>
+            )}
+
+            <div className="flex flex-col gap-1.5">
+              <a href={`/briefs/${briefId}`} target="_blank" rel="noopener noreferrer" className={btn('secondary', 'sm', 'justify-between')}>
+                View brief <IconArrowUpRight size={12} />
+              </a>
+              {downloadHref && (
+                <a href={downloadHref} download={audioName || true} className={btn('secondary', 'sm', 'justify-between')}>
+                  Download track <IconDownload size={12} />
+                </a>
+              )}
+              {isDisco && discoInboxUrl && (
+                <a href={discoInboxUrl} target="_blank" rel="noopener noreferrer" className={btn('secondary', 'sm', 'justify-between')}>
+                  Open Disco inbox <IconArrowUpRight size={12} />
+                </a>
+              )}
+              {playlistHref && (
+                <a href={playlistHref} target="_blank" rel="noopener noreferrer" className={btn('secondary', 'sm', 'justify-between')}>
+                  Brief playlist <IconArrowUpRight size={12} />
+                </a>
+              )}
+            </div>
+            {!isDisco && !audioUrl && (
+              <p className="text-[12px] text-[var(--text-dim)]">
+                No audio on this submission.{playlistHref ? ' Open the brief playlist to hear their upload.' : ''}
+              </p>
+            )}
+          </aside>
         </div>
       )}
     </div>
   );
 }
 
-const TONES = {
-  send: { solid: 'bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)]', hover: 'hover:border-[var(--accent)] hover:text-[var(--accent)]' },
-  accept: { solid: 'bg-[#7A9A6E] text-[var(--bg-base)] hover:bg-[#8BAB7E]', hover: 'hover:border-[#7A9A6E] hover:text-[#7A9A6E]' },
-  reject: { solid: '', hover: 'hover:border-[var(--danger)] hover:text-[var(--danger)]' },
-} as const;
-
-function DecisionButton({
-  label,
-  tone,
-  primary,
-  disabled,
-  onClick,
-}: {
-  label: string;
-  tone: keyof typeof TONES;
-  primary: boolean;
-  disabled: boolean;
-  onClick: () => void;
-}) {
-  const style = disabled
-    ? 'border border-[var(--border-base)] text-[var(--text-dimmer)] cursor-not-allowed'
-    : primary
-      ? TONES[tone].solid
-      : `border border-[var(--border-subtle)] text-[var(--text-secondary)] ${TONES[tone].hover}`;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`text-xs tracking-[0.15em] uppercase px-5 py-2.5 transition-colors ${style}`}
-      style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: primary ? 500 : 400 }}
-    >
-      {label}
-    </button>
-  );
+function status_(
+  status: string,
+  isSent: boolean,
+  catalogName: string,
+  handoff: AdminHandoff | null,
+): { label: string; tone: Tone } {
+  if (status === 'accepted') {
+    if (handoff) return handoff.agreedAt ? { label: 'Accepted · signed', tone: 'positive' } : { label: 'Awaiting signature', tone: 'signal' };
+    return { label: 'Accepted', tone: 'positive' };
+  }
+  if (status === 'not_accepted') return { label: 'Not accepted', tone: 'muted' };
+  if (isSent) return { label: `With ${catalogName}`, tone: 'info' };
+  return { label: 'To review', tone: 'warning' };
 }
 
 function HandoffPanel({ handoff, catalogName }: { handoff: AdminHandoff; catalogName: string }) {
-  const mono = { fontFamily: "var(--brand-mono)" } as const;
-  const sans = { fontFamily: "var(--brand-sans)" } as const;
   if (!handoff.agreedAt) {
     return (
-      <div className="mb-4 p-4 border border-[var(--border-card)] bg-[var(--bg-base)]" style={{ borderRadius: '2px' }}>
-        <div className="text-[10px] tracking-[0.2em] uppercase text-[#E8A33D]" style={mono}>
-          Waiting on the composer to sign on with {catalogName}
-        </div>
+      <div className="rounded-xl border border-[var(--signal-line)] bg-[var(--signal-soft)] px-4 py-3 text-[13px] text-[var(--signal)]">
+        Waiting on the composer to sign on with {catalogName}.
       </div>
     );
   }
@@ -550,27 +413,24 @@ function HandoffPanel({ handoff, catalogName }: { handoff: AdminHandoff; catalog
       ]
     : [];
   return (
-    <div className="mb-4 p-4 border border-[#7A9A6E]/40 bg-[var(--bg-base)]" style={{ borderRadius: '2px' }}>
-      <div className="text-[10px] tracking-[0.2em] uppercase text-[#7A9A6E] mb-3" style={mono}>
-        Signed {new Date(handoff.agreedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ready for {catalogName}
+    <div className="rounded-xl border border-[var(--border-card)] bg-[var(--bg-base)] p-4">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <StatusPill tone="positive">
+          Signed {new Date(handoff.agreedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+        </StatusPill>
+        <span className="text-[12px] text-[var(--text-dim)]">Ready for {catalogName}</span>
       </div>
-      <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 mb-3">
+      <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 mb-1">
         {rows.map(([k, v]) => (
           <div key={k}>
-            <dt className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)]" style={mono}>{k}</dt>
-            <dd className="text-sm text-[var(--text-primary)] break-words" style={sans}>{v}</dd>
+            <dt className="text-[12px] text-[var(--text-dim)]">{k}</dt>
+            <dd className="text-[13px] break-words">{v}</dd>
           </div>
         ))}
       </dl>
       {handoff.stemsUrl && (
-        <a
-          href={handoff.stemsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
-          style={{ ...mono, borderRadius: '2px' }}
-        >
-          ↗ Open stems
+        <a href={handoff.stemsUrl} target="_blank" rel="noopener noreferrer" className={btn('secondary', 'sm', 'mt-3')}>
+          Open stems <IconArrowUpRight size={12} />
         </a>
       )}
     </div>

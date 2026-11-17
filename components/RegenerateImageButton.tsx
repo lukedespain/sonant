@@ -41,7 +41,7 @@ export default function RegenerateImageButton({ briefId }: { briefId: string }) 
       </button>
       {error && (
         <p
-          className="text-[10px] text-[var(--danger)] mt-1"
+          className="text-[12px] text-[var(--danger)] mt-1"
           style={{ fontFamily: "var(--brand-mono)" }}
         >
           × {error}

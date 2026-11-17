@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import Segmented from '@/components/Segmented';
+import { EmptyState, SectionHeader } from '@/components/ui';
 import { createAdminClient } from '@/lib/supabase/admin';
 import AdminSubmissionCard from '@/components/AdminSubmissionCard';
 import { SUBMISSION_BUCKET } from '@/lib/audio-upload';
@@ -219,92 +220,74 @@ export default async function SubmissionsTab({ queue = 'catalog' }: { queue?: Qu
     row.delivery === 'disco' ? !row.deliveryConfirmedAt : row.status !== 'accepted' && row.status !== 'not_accepted'
   ).length;
 
+  const groups = [
+    { stage: 0, title: queue === 'client' ? 'Waiting on delivery' : 'To review', description: 'Newest first. Play, write notes, decide.' },
+    { stage: 1, title: 'With the catalogue', description: 'Sent on. Mark them once the catalogue replies.' },
+    { stage: 2, title: 'Decided', description: undefined },
+  ];
+
+  const card = (row: (typeof cards)[number]) => (
+    <AdminSubmissionCard
+      key={`${row.id}:${row.status}:${row.deliveryConfirmedAt ?? ''}`}
+      submissionId={row.id}
+      briefId={row.briefId}
+      projectName={row.projectName}
+      composerEmail={row.composerName ? `${row.composerName} · ${row.composerEmail}` : row.composerEmail}
+      status={row.status}
+      existingFeedback={row.feedback}
+      submittedAt={row.submittedAt}
+      briefType={row.isClient ? 'client' : 'catalog'}
+      delivery={row.delivery}
+      discoInboxUrl={row.discoInboxUrl}
+      deliveryConfirmedAt={row.deliveryConfirmedAt}
+      audioUrl={row.audioUrl}
+      audioName={row.audioName}
+      downloadHref={row.downloadHref}
+      playlistHref={row.playlistHref}
+      catalogId={row.catalogId}
+      handoff={row.handoff}
+      briefGenres={row.briefGenres}
+      briefMoods={row.briefMoods}
+      savedTags={row.savedTags}
+    />
+  );
+
   return (
     <div>
-      <div className="flex items-end mb-8 border-b border-[var(--border-base)]">
-        <QueueLink
-          href="/admin"
-          label="Catalog"
-          pending={catalogPending}
-          active={queue === 'catalog'}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <Segmented
+          className=""
+          items={[
+            { href: '/admin', label: 'Catalogue', active: queue === 'catalog', count: catalogPending },
+            { href: '/admin?queue=client', label: 'Client', active: queue === 'client', count: clientPending },
+          ]}
         />
-        <QueueLink
-          href="/admin?queue=client"
-          label="Client"
-          pending={clientPending}
-          active={queue === 'client'}
-        />
+        <p className="text-[13px] text-[var(--text-dim)]">
+          {ordered.length} {ordered.length === 1 ? 'submission' : 'submissions'}
+        </p>
       </div>
 
       {queue === 'catalog' && <ManualSubmissionForm composers={composers} />}
 
       {ordered.length === 0 ? (
-        <div
-          className="border border-[var(--border-card)] bg-[var(--bg-card)] p-12 text-center"
-          style={{ borderRadius: '2px' }}
-        >
-          <p className="text-sm text-[var(--text-muted)]" style={{ fontFamily: "var(--brand-sans)" }}>
-            {queue === 'client' ? 'No client submissions yet.' : 'No catalog submissions yet.'}
-          </p>
-        </div>
+        <EmptyState
+          title={queue === 'client' ? 'No client submissions yet' : 'No catalogue submissions yet'}
+          body="New tracks land here the moment a composer submits."
+        />
       ) : (
-        <div className="flex flex-col gap-4">
-          {ordered.map((row) => (
-            <AdminSubmissionCard
-              key={`${row.id}:${row.status}:${row.deliveryConfirmedAt ?? ''}`}
-              submissionId={row.id}
-              briefId={row.briefId}
-              projectName={row.projectName}
-              composerEmail={row.composerName ? `${row.composerName} · ${row.composerEmail}` : row.composerEmail}
-              status={row.status}
-              existingFeedback={row.feedback}
-              submittedAt={row.submittedAt}
-              briefType={row.isClient ? 'client' : 'catalog'}
-              delivery={row.delivery}
-              discoInboxUrl={row.discoInboxUrl}
-              deliveryConfirmedAt={row.deliveryConfirmedAt}
-              audioUrl={row.audioUrl}
-              audioName={row.audioName}
-              downloadHref={row.downloadHref}
-              playlistHref={row.playlistHref}
-              catalogId={row.catalogId}
-              handoff={row.handoff}
-              briefGenres={row.briefGenres}
-              briefMoods={row.briefMoods}
-              savedTags={row.savedTags}
-            />
-          ))}
+        <div className="flex flex-col gap-10">
+          {groups.map((group) => {
+            const rows = ordered.filter((row) => stage(row) === group.stage);
+            if (rows.length === 0) return null;
+            return (
+              <section key={group.stage}>
+                <SectionHeader title={group.title} count={rows.length} description={group.description} />
+                <div className="flex flex-col gap-2">{rows.map(card)}</div>
+              </section>
+            );
+          })}
         </div>
       )}
     </div>
-  );
-}
-
-function QueueLink({
-  href,
-  label,
-  pending,
-  active,
-}: {
-  href: string;
-  label: string;
-  pending: number;
-  active: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`px-5 py-3 text-xs tracking-[0.2em] uppercase transition-colors -mb-px border-b-2 ${
-        active
-          ? 'text-[var(--text-primary)] border-[var(--accent)]'
-          : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'
-      }`}
-      style={{ fontFamily: "var(--brand-mono)" }}
-    >
-      {label}
-      {pending > 0 && (
-        <span className="ml-2 text-[var(--accent)] tracking-[0.12em]">{pending}</span>
-      )}
-    </Link>
   );
 }

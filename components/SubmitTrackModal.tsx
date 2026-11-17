@@ -1,7 +1,10 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { btn, fieldLabel, inputClass } from '@/components/ui';
+import { IconCheck, IconClose, IconUpload, IconWaveform } from '@/components/shell/icons';
 import {
   MAX_AUDIO_BYTES,
   MAX_AUDIO_LABEL,
@@ -42,7 +45,7 @@ export default function SubmitTrackModal({
   projectName,
   alreadySubmitted,
   triggerClassName,
-  triggerLabel = '↑ Submit Track',
+  triggerLabel = 'Submit track',
   submissionCredits = 0,
   isAdmin = false,
 }: Props) {
@@ -173,223 +176,181 @@ export default function SubmitTrackModal({
 
   return (
     <>
-      <button
-        onClick={handleOpen}
-        className={triggerClassName ?? "text-xs tracking-[0.2em] uppercase px-4 py-2 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"}
-        style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
-      >
+      <button type="button" onClick={handleOpen} className={triggerClassName ?? btn('accent', 'md')}>
         {triggerLabel}
       </button>
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-6"
-          style={{ background: dragging ? 'rgba(10, 9, 8, 0.92)' : 'rgba(10, 9, 8, 0.85)' }}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-6 bg-black/75 animate-fade"
           onClick={handleClose}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Submit your track"
         >
           {dragging && (
             <div
-              className="pointer-events-none absolute inset-4 border-2 border-dashed border-[var(--accent)]"
-              style={{ borderRadius: '2px' }}
+              className="pointer-events-none absolute inset-4 rounded-3xl border-2 border-dashed border-[var(--signal)]"
               aria-hidden
             />
           )}
           <div
-            className="relative w-full max-w-md bg-[var(--bg-base)] border border-[var(--border-card)] p-8"
-            style={{ borderRadius: '2px' }}
+            className="relative w-full sm:max-w-[460px] bg-[var(--bg-sidebar)] border border-[var(--border-card)] rounded-t-3xl sm:rounded-3xl shadow-2xl animate-rise"
             onClick={(e) => e.stopPropagation()}
           >
             {done ? (
-              /* Success state */
-              <div className="text-center py-4">
-                <div className="text-3xl text-[var(--accent)] mb-4">✓</div>
-                <h2 className="text-2xl mb-3" style={{ fontFamily: "var(--brand-display)", fontWeight: 300 }}>
-                  Track submitted.
-                </h2>
-                <p className="text-sm text-[var(--text-muted)] mb-8 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-                  Your track is in. You&apos;ll receive written feedback regardless of outcome.
+              <div className="text-center px-8 py-12">
+                <div className="mx-auto w-12 h-12 rounded-full bg-[var(--positive-soft)] text-[var(--positive)] flex items-center justify-center mb-5">
+                  <IconCheck size={20} strokeWidth={2} />
+                </div>
+                <h2 className="text-[22px] font-semibold tracking-[-0.02em]">Track submitted</h2>
+                <p className="mt-2 text-[14px] text-[var(--text-muted)] leading-relaxed max-w-xs mx-auto">
+                  It is in. You will get written feedback whatever happens. Track it from Submissions.
                 </p>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="text-xs tracking-[0.2em] uppercase px-6 py-3 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors"
-                  style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
-                >
-                  Done
-                </button>
+                <div className="mt-8 flex gap-2 justify-center">
+                  <Link href="/dashboard" className={btn('primary', 'md')}>
+                    See my submissions
+                  </Link>
+                  <button type="button" onClick={() => setOpen(false)} className={btn('secondary', 'md')}>
+                    Done
+                  </button>
+                </div>
               </div>
             ) : (
               <>
-                <div className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-6" style={{ fontFamily: "var(--brand-mono)" }}>
-                  Submit Track
+                <div className="px-6 pt-6 pb-5 border-b border-[var(--border-base)] flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <h2 className="text-[19px] font-semibold tracking-[-0.02em]">Submit your track</h2>
+                    <p className="mt-0.5 text-[13px] text-[var(--text-muted)] truncate">{projectName}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    disabled={uploading}
+                    aria-label="Close"
+                    className="w-9 h-9 -mr-2 -mt-1 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)] disabled:opacity-40"
+                  >
+                    <IconClose size={16} />
+                  </button>
                 </div>
 
-                <div className="space-y-5">
-                  {/* Brief name (read-only) */}
-                  <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
-                      Brief
-                    </label>
-                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "var(--brand-sans)" }}>
-                      {projectName}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
-                      Credits
-                    </label>
-                    <p className="text-sm text-[var(--text-secondary)]" style={{ fontFamily: "var(--brand-sans)" }}>
-                      {isAdmin
-                        ? 'Thought Collective · no credit used'
-                        : `${submissionCredits} ${submissionCredits === 1 ? 'credit' : 'credits'} remaining · this uses 1`}
-                    </p>
-                  </div>
-
-                  {/* File picker */}
-                  <div>
-                    <label className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2" style={{ fontFamily: "var(--brand-mono)" }}>
-                      Track File
-                    </label>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="audio/mp3,audio/mpeg,audio/wav,audio/wave,audio/x-wav,.mp3,.wav"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    {pendingFile ? (
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-[var(--text-secondary)] truncate flex-1" style={{ fontFamily: "var(--brand-mono)" }}>
-                          {pendingFile.name}
+                <div className="px-6 py-6 flex flex-col gap-5">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="audio/mp3,audio/mpeg,audio/wav,audio/wave,audio/x-wav,.mp3,.wav"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  {pendingFile ? (
+                    <div className="flex items-center gap-3 rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] p-3">
+                      <span className="w-10 h-10 rounded-xl bg-[var(--signal-soft)] text-[var(--signal)] flex items-center justify-center shrink-0">
+                        <IconWaveform size={16} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[14px] truncate">{pendingFile.name}</span>
+                        <span className="block text-[12px] text-[var(--text-dim)]">
+                          {(pendingFile.size / 1_048_576).toFixed(1)} MB
                         </span>
-                        <button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors shrink-0"
-                          style={{ fontFamily: "var(--brand-mono)" }}
-                        >
-                          Change
-                        </button>
-                      </div>
-                    ) : (
+                      </span>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className={`w-full px-4 py-3 border border-dashed transition-colors text-xs tracking-[0.2em] uppercase text-center ${
-                          dragging
-                            ? 'border-[var(--accent)] text-[var(--accent)]'
-                            : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
-                        }`}
-                        style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
+                        className={btn('ghost', 'sm', 'px-3')}
                       >
-                        {dragging ? 'Drop MP3 or WAV' : 'Drop or choose file'}
+                        Change
                       </button>
-                    )}
-                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "var(--brand-mono)" }}>
-                      MP3 or WAV · max {MAX_AUDIO_LABEL}
-                    </p>
-                  </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`w-full rounded-2xl border border-dashed px-6 py-9 flex flex-col items-center gap-3 transition-colors ${
+                        dragging
+                          ? 'border-[var(--signal)] bg-[var(--signal-soft)]'
+                          : 'border-[var(--border-subtle)] hover:border-[var(--border-hover)] hover:bg-[var(--bg-card)]'
+                      }`}
+                    >
+                      <span className="w-11 h-11 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-card)] flex items-center justify-center text-[var(--text-secondary)]">
+                        <IconUpload size={17} />
+                      </span>
+                      <span className="text-[14px] font-medium">{dragging ? 'Drop it here' : 'Drop your track or choose a file'}</span>
+                      <span className="text-[12px] text-[var(--text-dim)]">MP3 or WAV · up to {MAX_AUDIO_LABEL}</span>
+                    </button>
+                  )}
 
-                  {/* Track name (editable) */}
                   {pendingFile && (
                     <div>
-                      <label
-                        htmlFor="submission-track-name"
-                        className="block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2"
-                        style={{ fontFamily: "var(--brand-mono)" }}
-                      >
-                        Track Name
+                      <label htmlFor="submission-track-name" className={fieldLabel}>
+                        Track name
                       </label>
                       <input
                         id="submission-track-name"
                         type="text"
                         value={trackName}
                         onChange={(e) => setTrackName(e.target.value)}
-                        className="w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none transition-colors text-sm"
-                        style={{ fontFamily: "var(--brand-sans)", borderRadius: '2px' }}
+                        className={inputClass}
                       />
                     </div>
                   )}
 
-                  {/* Already submitted notice */}
                   {alreadySubmitted && (
-                    <div className="text-xs text-[var(--text-muted)] border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 leading-relaxed" style={{ borderRadius: '2px', fontFamily: "var(--brand-sans)" }}>
-                      You&apos;ve already submitted to this brief. This will be reviewed as a separate entry.
-                    </div>
+                    <p className="rounded-xl bg-[var(--accent-soft)] px-4 py-3 text-[13px] text-[var(--text-muted)] leading-relaxed">
+                      You have already submitted to this brief. This one is reviewed as a separate entry.
+                    </p>
                   )}
 
-                  {/* Confirmation checkbox */}
-                  <label className="flex items-start gap-3 cursor-pointer group">
-                    <div className="relative mt-0.5 shrink-0">
-                      <input
-                        type="checkbox"
-                        checked={confirmed}
-                        onChange={(e) => setConfirmed(e.target.checked)}
-                        className="sr-only"
-                      />
-                      <div
-                        className={`w-4 h-4 border flex items-center justify-center transition-colors ${
-                          confirmed ? 'bg-[var(--accent)] border-[var(--accent)]' : 'border-[var(--border-subtle)] group-hover:border-[var(--accent)]'
-                        }`}
-                        style={{ borderRadius: '2px' }}
-                      >
-                        {confirmed && (
-                          <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-                            <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-xs text-[var(--text-muted)] leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-                      I understand this uses 1 submission credit. This goes privately to Thought Collective.
+                  <label className="flex items-start gap-3 cursor-pointer text-[13px] text-[var(--text-muted)] leading-relaxed">
+                    <input
+                      type="checkbox"
+                      checked={confirmed}
+                      onChange={(e) => setConfirmed(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 shrink-0 accent-[var(--signal)]"
+                    />
+                    <span>
+                      {isAdmin
+                        ? 'Submitting as Thought Collective. No credit used.'
+                        : `This uses 1 of your ${submissionCredits} free ${submissionCredits === 1 ? 'submission' : 'submissions'}. It goes privately to Thought Collective.`}
                     </span>
                   </label>
+
+                  {!hasCredit && (
+                    <p className="rounded-xl bg-[var(--warning-soft)] px-4 py-3 text-[13px] text-[var(--warning)] leading-relaxed">
+                      You have used your free submissions for now. A new one arrives every week, and unused ones stack up, so check back in a few days.
+                    </p>
+                  )}
+
+                  {error && (
+                    <p role="alert" className="text-[13px] text-[var(--danger)] leading-relaxed">
+                      {error}
+                    </p>
+                  )}
+
+                  {uploading && (
+                    <div>
+                      <div className="h-1.5 w-full rounded-full bg-[var(--border-card)] overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[var(--signal)] transition-[width] duration-200"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-[12px] text-[var(--text-dim)] tabular-nums">
+                        {progress < 100 ? `Uploading ${progress}%` : 'Finishing up…'}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                {!hasCredit && (
-                  <p className="text-xs text-[var(--text-muted)] mt-4 leading-relaxed" style={{ fontFamily: "var(--brand-sans)" }}>
-                    You have used your free submissions for now. A new one arrives every week, and unused ones stack up, so check back in a few days.
-                  </p>
-                )}
-
-                {error && (
-                  <p className="text-[10px] text-[var(--danger)] mt-4 leading-relaxed" style={{ fontFamily: "var(--brand-mono)" }}>
-                    × {error}
-                  </p>
-                )}
-
-                {uploading && (
-                  <div className="mt-5">
-                    <div className="h-[3px] w-full bg-[var(--bg-card)]" style={{ borderRadius: '2px' }}>
-                      <div
-                        className="h-full bg-[var(--accent)] transition-[width] duration-200"
-                        style={{ width: `${progress}%`, borderRadius: '2px' }}
-                      />
-                    </div>
-                    <p className="text-[9px] text-[var(--text-dimmer)] mt-1.5" style={{ fontFamily: "var(--brand-mono)" }}>
-                      {progress < 100 ? `Uploading ${progress}%` : 'Finishing up…'}
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex gap-3 mt-8">
+                <div className="px-6 pb-6 flex gap-2">
                   <button
+                    type="button"
                     onClick={handleSubmit}
                     disabled={!canSubmit || uploading}
-                    className="flex-1 px-5 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px', fontWeight: 500 }}
+                    className={btn('accent', 'lg', 'flex-1')}
                   >
-                    {uploading
-                      ? progress < 100
-                        ? `Uploading ${progress}%`
-                        : 'Finishing…'
-                      : 'Submit Track'}
+                    {uploading ? (progress < 100 ? `Uploading ${progress}%` : 'Finishing…') : 'Submit track'}
                   </button>
-                  <button
-                    onClick={handleClose}
-                    disabled={uploading}
-                    className="px-5 py-3 text-xs tracking-[0.15em] uppercase border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
-                    style={{ fontFamily: "var(--brand-mono)", borderRadius: '2px' }}
-                  >
+                  <button type="button" onClick={handleClose} disabled={uploading} className={btn('secondary', 'lg')}>
                     Cancel
                   </button>
                 </div>

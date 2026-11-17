@@ -45,10 +45,10 @@ export default function HomeStarButton({
       title={label}
       aria-label={label}
       aria-pressed={featured}
-      className={`w-8 h-8 flex items-center justify-center rounded-[2px] border backdrop-blur-sm transition-colors disabled:opacity-50 ${
+      className={`w-8 h-8 flex items-center justify-center rounded-xl border backdrop-blur-sm transition-colors disabled:opacity-50 ${
         featured
           ? 'bg-[var(--accent)] border-[var(--accent)] text-[var(--bg-base)]'
-          : 'bg-[var(--bg-base)]/70 border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent)] hover:border-[var(--accent)]'
+          : 'bg-[var(--bg-base)]/70 border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent)]'
       }`}
     >
       {featured ? '★' : '☆'}

@@ -58,15 +58,21 @@ export default async function DashboardPage({
     : { data: [] };
   const briefMap = Object.fromEntries(
     (briefs ?? []).map((b) => {
-      const content = b.generated_content as { codename?: string; projectTitle?: string } | null;
-      return [b.id, { name: content?.projectTitle || content?.codename || 'Untitled', kind: classifyBrief(b) }];
+      const content = b.generated_content as { codename?: string; projectTitle?: string; imageUrl?: string } | null;
+      return [
+        b.id,
+        { name: content?.projectTitle || content?.codename || 'Untitled', kind: classifyBrief(b), image: content?.imageUrl ?? null },
+      ];
     })
   );
 
+  const handoffs = readHandoffs(user.app_metadata);
   const submissions: SubmissionItem[] = rows.map((s) => ({
     id: s.id as string,
     briefId: s.brief_id as string,
     briefCodename: briefMap[s.brief_id as string]?.name ?? 'Untitled',
+    briefImage: briefMap[s.brief_id as string]?.image ?? null,
+    needsSignature: s.status === 'accepted' && !!handoffs[s.id as string] && !handoffs[s.id as string].agreedAt,
     trackName: fileNames[s.id as string] ?? null,
     briefType: briefMap[s.brief_id as string]?.kind ?? 'catalog',
     delivery: (s as { delivery?: string }).delivery === 'disco' ? 'disco' : 'upload',
@@ -75,7 +81,6 @@ export default async function DashboardPage({
     createdAt: s.created_at as string,
   }));
 
-  const handoffs = readHandoffs(user.app_metadata);
   const offers: Offer[] = submissions
     .filter((s) => s.status === 'accepted' && handoffs[s.id] && !handoffs[s.id].agreedAt)
     .map((s) => {

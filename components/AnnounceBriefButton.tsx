@@ -44,7 +44,7 @@ export default function AnnounceBriefButton({
         {sending ? 'Sending…' : kind === 'client' ? '↗ Email verified' : '↗ Email everyone'}
       </button>
       {message && (
-        <span className="text-[10px] tracking-[0.15em] uppercase text-[var(--text-dimmer)]" style={{ fontFamily: "var(--brand-mono)" }}>
+        <span className="text-[12px] text-[var(--text-dimmer)]" style={{ fontFamily: "var(--brand-mono)" }}>
           {message}
         </span>
       )}

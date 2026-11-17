@@ -72,7 +72,7 @@ export default function CommunityTracksSection({
   return (
     <div id="playlist" className="mt-10 no-print scroll-mt-28">
       <div
-        className="text-[10px] tracking-[0.4em] uppercase text-[var(--accent)] mb-2"
+        className="text-[12px] text-[var(--accent)] mb-2"
         style={{ fontFamily: "var(--brand-mono)" }}
       >
         Playlist
@@ -100,7 +100,7 @@ export default function CommunityTracksSection({
                 className={`border bg-[var(--bg-card)] px-4 py-3 flex items-center gap-3 transition-colors ${
                   isFeatured ? 'border-[var(--accent)]/50' : 'border-[var(--border-card)]'
                 }`}
-                style={{ borderRadius: '2px' }}
+                
               >
                 <button
                   onClick={() => handlePlay(track)}
@@ -109,7 +109,7 @@ export default function CommunityTracksSection({
                       ? 'bg-[var(--accent)] text-[#0A0908]'
                       : 'bg-[#0A0908] text-[var(--accent)]'
                   }`}
-                  style={{ borderRadius: '2px' }}
+                  
                   aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
                 >
                   <PlayPauseIcon playing={isCurrentlyPlaying} size={10} />
@@ -126,7 +126,7 @@ export default function CommunityTracksSection({
                     )}
                   </span>
                   <span
-                    className="text-[10px] text-[var(--text-dimmer)] truncate block"
+                    className="text-[12px] text-[var(--text-dimmer)] truncate block"
                     style={{ fontFamily: "var(--brand-mono)" }}
                   >
                     {track.uploader_name}
@@ -142,7 +142,7 @@ export default function CommunityTracksSection({
                       type="button"
                       onClick={() => handleVisibility(track.id, !track.is_public)}
                       disabled={isPending}
-                      className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[var(--accent)] transition-colors disabled:opacity-40"
+                      className="text-[12px] text-[var(--text-dimmer)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40"
                       style={{ fontFamily: "var(--brand-mono)" }}
                     >
                       {track.is_public ? 'Public' : 'Private'}
@@ -166,7 +166,7 @@ export default function CommunityTracksSection({
                     <button
                       onClick={() => handleDelete(track.id)}
                       disabled={isPending}
-                      className="text-[9px] tracking-[0.2em] uppercase text-[#9A8A86] hover:text-[#C5564A] transition-colors disabled:opacity-40"
+                      className="text-[12px] text-[#9A8A86] hover:text-[#C5564A] transition-colors disabled:opacity-40"
                       style={{ fontFamily: "var(--brand-mono)" }}
                     >
                       Remove

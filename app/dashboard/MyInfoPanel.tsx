@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import RightsFields from '@/components/RightsFields';
 import type { RightsInfo } from '@/lib/handoff';
-
-const sans = { fontFamily: "var(--brand-sans)" } as const;
-const mono = { fontFamily: "var(--brand-mono)" } as const;
+import { btn } from '@/components/ui';
 
 export default function MyInfoPanel({
   rights: initial,
@@ -41,22 +39,18 @@ export default function MyInfoPanel({
   }
 
   return (
-    <form onSubmit={save} className="max-w-2xl">
-      <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 max-w-xl" style={sans}>
-        When we take one of your tracks, we need this to register it and pay you. Fill it in once and it is ready when you need it. Only Thought Collective sees it.
-      </p>
+    <form onSubmit={save}>
       <RightsFields value={rights} onChange={setRights} />
-      <div className="mt-8 flex items-center gap-4 flex-wrap">
-        <button
-          type="submit"
-          disabled={saving}
-          className="px-6 py-3 text-xs tracking-[0.15em] uppercase bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-wait transition-colors"
-          style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
-        >
+      <div className="mt-8 pt-6 border-t border-[var(--border-base)] flex items-center gap-4 flex-wrap">
+        <button type="submit" disabled={saving} className={btn('primary', 'md')}>
           {saving ? 'Saving…' : 'Save my info'}
         </button>
-        {message && <span className="text-[11px] text-[#7A9A6E]" style={sans}>{message}</span>}
-        {error && <span role="alert" className="text-[11px] text-[var(--danger)]" style={sans}>{error}</span>}
+        {message && <span className="text-[13px] text-[var(--positive)]">{message}</span>}
+        {error && (
+          <span role="alert" className="text-[13px] text-[var(--danger)]">
+            {error}
+          </span>
+        )}
       </div>
     </form>
   );

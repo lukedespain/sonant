@@ -20,8 +20,8 @@ export default function CatalogBriefsForm() {
   const [error, setError] = useState<string | null>(null);
 
   const fieldClass =
-    'w-full px-4 py-3 bg-[var(--bg-card)] border border-[var(--border-card)] text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none';
-  const labelClass = 'block text-[10px] tracking-[0.25em] uppercase text-[var(--text-muted)] mb-2';
+    'w-full px-3.5 py-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-card)] text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-dimmer)] hover:border-[var(--border-subtle)] focus:border-[var(--signal-line)] focus:outline-none focus:ring-4 focus:ring-[var(--signal-soft)] transition-colors';
+  const labelClass = 'block text-[13px] text-[var(--text-muted)] mb-1.5';
   const mono = { fontFamily: "var(--brand-mono)" } as const;
   const sans = { fontFamily: "var(--brand-sans)" } as const;
 
@@ -71,7 +71,7 @@ export default function CatalogBriefsForm() {
             value={catalogId}
             onChange={(e) => setCatalogId(e.target.value)}
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           >
             {partners.map((partner) => (
               <option key={partner.id} value={partner.id}>
@@ -88,7 +88,7 @@ export default function CatalogBriefsForm() {
             onChange={(e) => setProjectTitle(e.target.value)}
             placeholder="e.g. Tribe Type Beat"
             className={fieldClass}
-            style={{ ...sans, borderRadius: '2px' }}
+            style={{ ...sans }}
           />
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function CatalogBriefsForm() {
         rows={10}
         placeholder="Paste the brief here. Groovy, playful, boom bap energy, references, whatever Jack sent."
         className={`${fieldClass} mb-4`}
-        style={{ ...sans, borderRadius: '2px' }}
+        style={{ ...sans }}
       />
 
       <input
@@ -123,12 +123,12 @@ export default function CatalogBriefsForm() {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="text-[10px] tracking-[0.2em] uppercase px-4 py-2.5 border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
-          style={{ ...mono, borderRadius: '2px' }}
+          className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full text-[13px] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors disabled:opacity-40"
+          style={{ ...mono }}
         >
           + Upload file
         </button>
-        <span className="text-[10px] text-[var(--text-dimmer)]" style={mono}>
+        <span className="text-[12px] text-[var(--text-dimmer)]" style={mono}>
           Photo, PDF, or Word · max 15 MB
         </span>
       </div>
@@ -145,7 +145,7 @@ export default function CatalogBriefsForm() {
               <button
                 type="button"
                 onClick={() => setFiles((prev) => prev.filter((_, i) => i !== index))}
-                className="text-[9px] tracking-[0.2em] uppercase text-[var(--text-dimmer)] hover:text-[#C5564A]"
+                className="text-[12px] text-[var(--text-dimmer)] hover:text-[#C5564A]"
                 style={mono}
               >
                 Remove
@@ -156,14 +156,14 @@ export default function CatalogBriefsForm() {
       )}
 
       {error && (
-        <p className="text-[10px] text-[var(--danger)] mb-4" style={mono}>× {error}</p>
+        <p className="text-[12px] text-[var(--danger)] mb-4" style={mono}>× {error}</p>
       )}
 
       <button
         type="submit"
         disabled={submitting}
-        className="text-xs tracking-[0.15em] uppercase px-5 py-2.5 bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
-        style={{ ...mono, borderRadius: '2px', fontWeight: 500 }}
+        className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full text-[14px] font-medium bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        style={{ ...mono, fontWeight: 500 }}
       >
         {submitting ? 'Writing brief…' : '+ Add catalog brief'}
       </button>
