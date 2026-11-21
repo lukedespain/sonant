@@ -49,10 +49,17 @@ type NavItem = {
 };
 
 
-// Ordered the way a composer moves: write to a brief, follow the submission,
-// get invited to projects. Profile is set once, so it sits last.
+// Ordered as the composer's path, matching the homepage checklist: set up
+// the profile, write to briefs, follow submissions, then projects.
 function composerItems(data: ShellData): NavItem[] {
   return [
+    {
+      href: '/dashboard?tab=profile',
+      label: 'Profile',
+      icon: IconUser,
+      flow: 'profile',
+      match: (p, tab) => p === '/dashboard' && (tab === 'profile' || tab === 'info' || tab === 'settings'),
+    },
     {
       href: '/briefs',
       label: 'Briefs',
@@ -75,13 +82,6 @@ function composerItems(data: ShellData): NavItem[] {
       badge: data.projectUnread,
       flow: 'projects',
       match: (p) => p === '/projects' || p.startsWith('/projects/'),
-    },
-    {
-      href: '/dashboard?tab=profile',
-      label: 'Profile',
-      icon: IconUser,
-      flow: 'profile',
-      match: (p, tab) => p === '/dashboard' && (tab === 'profile' || tab === 'info' || tab === 'settings'),
     },
   ];
 }

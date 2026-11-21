@@ -5,6 +5,8 @@ import { loadCatalogueBriefs } from '@/lib/tc-briefs';
 import { THOUGHT_COLLECTIVE_SITE } from '@/lib/partners';
 import { readRights, validateRights } from '@/lib/handoff';
 import { readSound, soundMatches } from '@/lib/sound';
+import { countAcceptedCatalogSubmissions, isVerifiedComposer, readVerifiedOverride } from '@/lib/verification';
+import { loadProjects } from '@/lib/projects';
 import BriefGrid from '@/components/BriefGrid';
 import AboutQuestions from '@/components/AboutQuestions';
 import FlowSteps from '@/components/FlowSteps';
@@ -12,10 +14,10 @@ import { AppPage, btn } from '@/components/ui';
 import { IconArrowUpRight } from '@/components/shell/icons';
 
 const STEPS = [
-  { title: 'Set up your profile', body: 'Your PRO and IPI, so we can register and pay you.', flow: 'profile' },
-  { title: 'Write to a brief', body: 'Pick one that fits your sound and submit your track.', flow: 'briefs' },
-  { title: 'Get accepted', body: 'Follow it in Submissions. The best tracks join our catalogue.', flow: 'submissions' },
-  { title: 'Get invited to projects', body: 'Paid client work in your lane, with notes from our team.', flow: 'projects' },
+  { title: 'Set up your profile', body: 'Your PRO and IPI, so we can register and pay you.', flow: 'profile', href: '/dashboard?tab=profile#rights' },
+  { title: 'Submit to a brief', body: 'Pick one that fits your sound and send your track.', flow: 'briefs', href: '/briefs' },
+  { title: 'Get accepted', body: 'Follow it in Submissions. The best tracks join our catalogue.', flow: 'submissions', href: '/dashboard' },
+  { title: 'Get invited to a project', body: 'Paid client work in your lane, with notes from our team.', flow: 'projects', href: '/projects' },
 ];
 
 const DEAL = [
@@ -30,7 +32,22 @@ export default async function HomePage() {
   const sound = user ? readSound(user.user_metadata) : null;
   const profileReady = user ? validateRights(readRights(user.user_metadata)) === null : true;
 
-  const all = await loadCatalogueBriefs(createAdminClient());
+  const admin = createAdminClient();
+  const all = await loadCatalogueBriefs(admin);
+
+  // The getting-started checklist: one check per step the composer has done.
+  let progress: boolean[] | null = null;
+  if (user) {
+    const [{ count: submitted }, accepted, override, invited] = await Promise.all([
+      admin.from('submissions').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      countAcceptedCatalogSubmissions(admin, user.id),
+      readVerifiedOverride(admin, user.id),
+      loadProjects(admin, user.id),
+    ]);
+    progress = [profileReady, (submitted ?? 0) > 0, isVerifiedComposer(accepted, override), invited.length > 0];
+  }
+  const steps = STEPS.map((step, i) => ({ ...step, done: progress?.[i] ?? false }));
+  const doneCount = progress?.filter(Boolean).length ?? 0;
   const scored = all.map((b) => ({ ...b, fit: sound ? soundMatches(sound, b) : [] }));
   const hasSound = !!sound && sound.genres.length + sound.moods.length > 0;
   const picks = (hasSound ? [...scored].sort((a, b) => b.fit.length - a.fit.length) : scored).slice(0, 3);
@@ -67,8 +84,15 @@ export default async function HomePage() {
       )}
 
       <section className="mt-14">
-        <h2 className="text-[20px] font-semibold tracking-[-0.02em] mb-5">How it works</h2>
-        <FlowSteps steps={STEPS} />
+        <div className="flex items-baseline justify-between gap-4 mb-5">
+          <h2 className="text-[20px] font-semibold tracking-[-0.02em]">{progress ? 'Getting started' : 'How it works'}</h2>
+          {progress && (
+            <span className="text-[13px] text-[var(--text-muted)] tabular-nums">
+              {doneCount === STEPS.length ? 'All done' : `${doneCount} of ${STEPS.length} done`}
+            </span>
+          )}
+        </div>
+        <FlowSteps steps={steps} checklist={!!progress} />
       </section>
 
       <section className="mt-3 grid sm:grid-cols-3 rounded-2xl border border-[var(--border-card)] bg-[var(--bg-card)] divide-y sm:divide-y-0 sm:divide-x divide-[var(--border-base)]">
